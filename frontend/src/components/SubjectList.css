@@ -1,0 +1,73 @@
+/* Estilos para SubjectList */
+
+.subject-form {
+	margin-bottom: 1rem;
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+}
+.subject-label {
+	display: flex;
+	flex-direction: column;
+	font-weight: 500;
+}
+.subject-input {
+	padding: 6px 12px;
+	border-radius: 6px;
+	border: 1px solid #ccc;
+	margin-top: 2px;
+	width: 120px;
+}
+.subject-input-short {
+	width: 100px;
+}
+.subject-select {
+	padding: 6px 12px;
+	border-radius: 6px;
+	border: 1px solid #ccc;
+	margin-top: 2px;
+}
+.subject-btn {
+	padding: 6px 16px;
+	border-radius: 6px;
+	background: #2563eb;
+	color: #fff;
+	border: none;
+	margin-right: 8px;
+}
+.subject-btn-cancel {
+	background: #64748b;
+}
+.subject-search-bar {
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+.subject-search-input {
+	padding: 6px 12px;
+	border-radius: 6px;
+	border: 1px solid #ccc;
+}
+.subject-search-select {
+	padding: 6px 12px;
+	border-radius: 6px;
+	border: 1px solid #ccc;
+}
+.subject-table-th-sort {
+	cursor: pointer;
+}
+.subject-btn-edit {
+	padding: 4px 10px;
+	border-radius: 4px;
+	border: none;
+	background: #fbbf24;
+	color: #222;
+	margin-right: 8px;
+}
+.subject-btn-delete {
+	padding: 4px 10px;
+	border-radius: 4px;
+	border: none;
+	background: #ef4444;
+	color: #fff;
+}

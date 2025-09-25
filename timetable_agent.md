@@ -1,0 +1,11 @@
+- Un colegio tiene varios cursos, ej. 1º, 2º, 3º, etc.
+- Cada curso puede tener varias líneas (dependiendo del número de alumnos), ej. 1ºA, 1ºB, 1ºC, etc.
+- Cada curso tiene varias asignaturas, ej. Matemáticas 1º, Matemáticas 2º, Lengua 1º, Ciencias 3º, etc.
+- Cada asignatura tiene un número de horas semanales en función de su carga lectiva, ej. Matemáticas 1º 4 horas, Matemáticas 2º 5 horas, Lengua 1º 5 horas, etc.
+- Hay varios profesores, cada uno puede impartir varias asignaturas.
+- Hay que generar un horario semanal (de lunes a viernes) para todas las asignaturas y cursos, teniendo en cuenta las horas semanales de cada asignatura y que un profesor no puede impartir dos clases a la vez.
+- El horario debe distribuir las asignaturas de manera equilibrada a lo largo de la semana, evitando concentrar todas las horas de una asignatura en un solo día.
+- Se debe considerar que algunos profesores pueden tener restricciones que se deben cumplir (por ejemplo, no pueden dar clases los miércoles por la tarde) así como preferencias (por ejemplo, dar clase a primera hora) que es deseable.
+- El horario debe ser generado de manera automática, pero debe ser posible hacer ajustes manuales si es necesario.
+- El resultado final debe ser un horario claro y fácil de entender, que muestre qué asignatura se imparte en cada curso, en qué día y a qué hora, así como el profesor encargado de cada clase.
+- Cada día tiene un número limitado de horas (Definidos por configuración)

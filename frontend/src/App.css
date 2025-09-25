@@ -1,0 +1,238 @@
+.theme-dark .modern-table th, .theme-dark .modern-table td {
+  color: #f8fafc !important;
+}
+:root {
+  --color-bg-light: #f4f7f6;
+  --color-bg-dark: #18181b;
+  --color-text-light: #222;
+  --color-text-dark: #f4f7f6;
+  --color-table-bg-light: #fff;
+  --color-table-bg-dark: #23272f;
+  --color-table-row-light: #eef2f7;
+  --color-table-row-dark: #23272f;
+  --color-table-row-alt-light: #f7faff;
+  --color-table-row-alt-dark: #18181b;
+  --color-table-hover-light: #dbeafe;
+  --color-table-hover-dark: #334155;
+  --color-table-header-light: #f5f7fa;
+  --color-table-header-dark: #23272f;
+  --color-table-header-text-light: #333;
+  --color-table-header-text-dark: #f4f7f6;
+  --color-input-bg-light: #fff;
+  --color-input-bg-dark: #23272f;
+  --color-input-text-light: #222;
+  --color-input-text-dark: #f4f7f6;
+  --color-btn-bg-light: #2563eb;
+  --color-btn-bg-dark: #334155;
+  --color-btn-text-light: #fff;
+  --color-btn-text-dark: #f4f7f6;
+  --color-nav-bg-light: #333;
+  --color-nav-bg-dark: #18181b;
+  --color-nav-text-light: #fff;
+  --color-nav-text-dark: #f4f7f6;
+}
+/* Variables para temas */
+:root {
+  --color-bg-light: #f4f7f6;
+  --color-bg-dark: #18181b;
+  --color-text-light: #222;
+  --color-text-dark: #f4f7f6;
+  --color-table-bg-light: #fff;
+  --color-table-bg-dark: #23272f;
+  --color-table-row-light: #eef2f7;
+  --color-table-row-dark: #23272f;
+  --color-table-row-alt-light: #f7faff;
+  --color-table-row-alt-dark: #18181b;
+  --color-table-hover-light: #dbeafe;
+  --color-table-hover-dark: #334155;
+  --color-table-header-light: #f5f7fa;
+  --color-table-header-dark: #23272f;
+  --color-table-header-text-light: #333;
+  --color-table-header-text-dark: #f4f7f6;
+}
+
+.theme-light {
+  background-color: var(--color-bg-light) !important;
+  color: var(--color-text-light) !important;
+}
+.theme-dark {
+  background-color: var(--color-bg-dark) !important;
+  color: var(--color-text-dark) !important;
+}
+
+.modern-table {
+  background: var(--color-table-bg-light);
+  color: var(--color-text-light);
+}
+.theme-dark .modern-table {
+  background: var(--color-table-bg-dark);
+  color: var(--color-text-dark);
+}
+.modern-table th {
+  background: var(--color-table-header-light);
+  color: var(--color-table-header-text-light);
+}
+.theme-dark .modern-table th {
+  background: var(--color-table-header-dark);
+  color: var(--color-table-header-text-dark);
+}
+.modern-table tbody tr:nth-child(even) {
+  background: var(--color-table-row-alt-light);
+}
+/* Estilos migrados de App.jsx */
+.app-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.app-nav {
+  background: #333;
+  padding: 1rem 2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-title {
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-right: 2rem;
+  cursor: pointer;
+}
+.nav-btn {
+  margin-right: 1rem;
+}
+.nav-btn:last-child {
+  margin-left: 1rem;
+  margin-right: 0;
+}
+.nav-label {
+  color: #fff;
+  margin-right: 8px;
+}
+.nav-select {
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+.app-content {
+  flex: 1;
+  width: 100vw;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 60vh;
+  padding: 0 2rem 2rem 2rem;
+}
+.home-content {
+  text-align: center;
+  margin-top: 4rem;
+  flex: 1;
+}
+.theme-dark .modern-table tbody tr:nth-child(even) {
+  background: var(--color-table-row-alt-dark);
+}
+.modern-table tbody tr:nth-child(odd) {
+  background: var(--color-table-row-light);
+}
+.theme-dark .modern-table tbody tr:nth-child(odd) {
+  background: var(--color-table-row-dark);
+}
+.modern-table tr:hover {
+  background: var(--color-table-hover-light);
+}
+.theme-dark .modern-table tr:hover {
+  background: var(--color-table-hover-dark);
+}
+/* Modern table styles */
+.modern-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.modern-table th, .modern-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  color: #222;
+}
+.modern-table th {
+  background: #f5f7fa;
+  color: #333;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.modern-table tr:last-child td {
+  border-bottom: none;
+}
+.modern-table tbody tr:nth-child(even) {
+  background: #f7faff;
+}
+.modern-table tbody tr:nth-child(odd) {
+  background: #eef2f7;
+}
+.modern-table tr:hover {
+  background: #dbeafe;
+  transition: background 0.2s;
+}
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  height: 100vh;
+  padding: 0;
+}
+
+/* Mantener solo una definición de .App y corregir duplicados */
+.App {
+  min-height: 100vh;
+  min-width: 100vw;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  background-color: transparent;
+  padding: 30px 0;
+  border-radius: 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Inputs y selects */
+input, select, textarea {
+  background: var(--color-input-bg-light);
+  color: var(--color-input-text-light);
+  border: 1px solid #ccc;
+}
+.theme-dark input, .theme-dark select, .theme-dark textarea {
+  background: var(--color-input-bg-dark);
+  color: var(--color-input-text-dark);
+  border: 1px solid #444;
+}
+
+/* Botones */
+button {
+  background: var(--color-btn-bg-light);
+  color: var(--color-btn-text-light);
+}
+.theme-dark button {
+  background: var(--color-btn-bg-dark);
+  color: var(--color-btn-text-dark);
+}
+
+/* Nav */
+nav {
+  background: var(--color-nav-bg-light) !important;
+  color: var(--color-nav-text-light) !important;
+}
+.theme-dark nav {
+  background: var(--color-nav-bg-dark) !important;
+  color: var(--color-nav-text-dark) !important;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+}
