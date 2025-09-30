@@ -10,4 +10,7 @@ wheels/
 .venv
 backend/agenda-api.postman_collection.json
 .DS_Store
-backend/agenda.db
+*agenda.db
+
+*/.env
+backend/.coverage

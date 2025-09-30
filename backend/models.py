@@ -1,8 +1,7 @@
-# models.py
-
+import json
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
-from sqlalchemy import Table, ForeignKey
+from sqlalchemy import Table, ForeignKey, Column as SAColumn
 
 ENGINE = create_engine('sqlite:///agenda.db')
 Base = declarative_base()
@@ -30,12 +29,20 @@ class Course(Base):
         }
 
 class Subject(Base):
+    @property
+    def full_name(self):
+        if self.course:
+            return f"{self.name} ({self.course.id})"
+        elif self.course_id:
+            return f"{self.name} ({self.course_id})"
+        return self.name
     """
     Represents a school subject.
     Attributes:
         id (str): Unique identifier for the subject.
         name (str): Name of the subject.
         weekly_hours (int): Number of hours per week.
+        max_hours_per_day (int): Maximum hours per day for the subject.
         course_id (str): Foreign key to Course.
         course (Course): Relationship to Course.
         groups (list[SubjectGroup]): Groups associated with the subject.
@@ -44,13 +51,9 @@ class Subject(Base):
     id = Column(String(20), primary_key=True)
     name = Column(String(50), nullable=False)
     weekly_hours = Column(Integer, nullable=False, default=1)
+    max_hours_per_day = Column(Integer, nullable=False, default=2)
     course_id = Column(Integer, ForeignKey("courses.id"))
     course = relationship("Course", backref="subjects")
-
-    # Relación con grupos
-    groups = relationship(
-        'SubjectGroup', secondary='subject_group_subject', back_populates='subjects'
-    )
 
     def __repr__(self):
         return f"<Subject(id='{self.id}', name='{self.name}', course_id={self.course_id})>"
@@ -60,44 +63,46 @@ class Subject(Base):
             'id': self.id,
             'name': self.name,
             'weekly_hours': self.weekly_hours,
-            'course': self.course.to_dict() if self.course else None
+            'course': self.course.to_dict() if self.course else None,
+            'subject_groups': [{'id': g.id, 'name': g.name} for g in self.subject_groups] if getattr(self, 'subject_groups', None) else [],
+            'full_name': self.full_name
         }
+
+subjectgroup_subject = Table(
+    'subjectgroup_subject', Base.metadata,
+    Column('subjectgroup_id', Integer, ForeignKey('subject_groups.id')),
+    Column('subject_id', String(20), ForeignKey('subjects.id'))
+)
 
 class SubjectGroup(Base):
     """
-    Represents a group of subjects (for grouping purposes).
+    Represents a group of subjects that can share a timeslot.
     Attributes:
-        id (int): Unique identifier for the group.
-        name (str): Name of the group.
-        subjects (list[Subject]): Subjects in the group.
+        id (int): Primary key.
+        name (str): Optional display name for the group.
+        subjects (list[Subject]): Subjects belonging to the group.
     """
-    __tablename__ = "subject_groups"
+    __tablename__ = 'subject_groups'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(100), nullable=False)
+    name = Column(String(100), nullable=True)
 
-    subjects = relationship(
-        "Subject", secondary="subject_group_subject", back_populates="groups"
-    )
+    subjects = relationship('Subject', secondary=subjectgroup_subject, backref='subject_groups')
 
     def __repr__(self):
         return f"<SubjectGroup(id={self.id}, name='{self.name}')>"
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'subjects': [s.to_dict() for s in self.subjects]
+        }
 
-subject_group_subject = Table(
-    "subject_group_subject",
-    Base.metadata,
-    Column("group_id", Integer, ForeignKey("subject_groups.id")),
-    Column("subject_id", String(20), ForeignKey("subjects.id")),
-)
-
-
-# Tabla de asociación muchos a muchos entre Teachers y Subjects
 teacher_subject = Table(
     'teacher_subject', Base.metadata,
     Column('teacher_id', Integer, ForeignKey('teachers.id')),
     Column('subject_id', Integer, ForeignKey('subjects.id'))
 )
-
 
 class Teacher(Base):
     """
@@ -114,9 +119,9 @@ class Teacher(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
     subjects = relationship('Subject', secondary=teacher_subject, backref='teachers')
-    restrictions = Column(String(255), nullable=True)
-    preferences = Column(String(255), nullable=True)
-    weekly_hours = Column(Integer, nullable=False, default=1)
+    max_hours_week = Column(Integer, nullable=False, default=1)
+    
+    preferences = Column(String(1000), nullable=True)
 
     def __repr__(self):
         return f"<Teacher(id={self.id}, name='{self.name}')>"
@@ -126,9 +131,9 @@ class Teacher(Base):
             'id': self.id,
             'name': self.name,
             'subjects': [subject.to_dict() for subject in self.subjects],
-            'restrictions': self.restrictions,
-            'preferences': self.preferences,
-            'weekly_hours': self.weekly_hours
+            
+            'max_hours_week': self.max_hours_week,
+            'preferences': json.loads(self.preferences) if self.preferences else {},
         }
 
 class Timeslot(Base):
@@ -136,32 +141,32 @@ class Timeslot(Base):
     Represents a timeslot in the timetable.
     Attributes:
         id (int): Unique identifier for the timeslot.
-        day (str): Day of the week.
+        day (int): Day index of the week (0 = first weekday, e.g. Monday).
         hour (int): Hour of the day.
         course_id (str): Foreign key to Course.
         line (int): Line/group number (e.g., 1 = 1ºA, 2 = 1ºB).
         course (Course): Relationship to Course.
-        activities (list[Activity]): Activities scheduled in this timeslot.
     """
     __tablename__ = "timeslots"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    day = Column(String(20), nullable=False)
+    day = Column(Integer, nullable=False)
     hour = Column(Integer, nullable=False)
     course_id = Column(String(50), ForeignKey("courses.id"), nullable=False)
-    line = Column(Integer, nullable=False)  # Ej: 1 = 1ºA, 2 = 1ºB
+    line = Column(Integer, nullable=False)  # e.g.: 1 = first line/group (A), 2 = second line/group (B)
 
     course = relationship("Course", backref="timeslots")
-    activities = relationship("Activity", back_populates="timeslot")
+    timeslot_assignments = relationship("TimeSlotAssignment", back_populates="timeslot")
+    subject_group_id = Column(Integer, ForeignKey('subject_groups.id'), nullable=True)
+    subject_group = relationship('SubjectGroup', backref='timeslots')
 
     def __repr__(self):
-        return f"<Timeslot(id={self.id}, day={self.day}, hour={self.hour}, course={self.course_id}, line={self.line})>"
+        return f"<:Timeslot(id={self.id}, day={self.day}, hour={self.hour}, course={self.course_id}, line={self.line})>"
 
-
-class Activity(Base):
+class TimeSlotAssignment(Base):
     """
-    Represents a scheduled activity (class session).
+    Represents a scheduled timeslot assignment (class session).
     Attributes:
-        id (int): Unique identifier for the activity.
+        id (int): Unique identifier for the assignment.
         timeslot_id (int): Foreign key to Timeslot.
         subject_id (str): Foreign key to Subject.
         teacher_id (int): Foreign key to Teacher.
@@ -169,36 +174,41 @@ class Activity(Base):
         subject (Subject): Relationship to Subject.
         teacher (Teacher): Relationship to Teacher.
     """
-    __tablename__ = "activities"
+    __tablename__ = "timeslot_assignments"
     id = Column(Integer, primary_key=True, autoincrement=True)
     timeslot_id = Column(Integer, ForeignKey("timeslots.id"))
     subject_id = Column(String(20), ForeignKey("subjects.id"))
     teacher_id = Column(Integer, ForeignKey("teachers.id"))
 
-    timeslot = relationship("Timeslot", back_populates="activities")
+    timeslot = relationship("Timeslot", back_populates="timeslot_assignments")
     subject = relationship("Subject")
     teacher = relationship("Teacher")
 
     def __repr__(self):
-        return f"<Activity(id={self.id}, subject={self.subject_id}, teacher={self.teacher_id}, classroom={self.classroom_id})>"
+        return f"<TimeSlotAssignment(id={self.id}, subject={self.subject_id}, teacher={self.teacher_id}, timeslot_id={self.timeslot_id})>"
 
-# Configuración general
 class Config(Base):
     """
     Represents general configuration for the timetable system.
     Attributes:
         id (int): Unique identifier for the config.
         classes_per_day (int): Number of classes per day.
+        days_per_week (int): Number of days per week.
     """
     __tablename__ = 'config'
     id = Column(Integer, primary_key=True)
     classes_per_day = Column(Integer, nullable=False, default=5)
+    days_per_week = Column(Integer, nullable=False, default=5)
+    hour_names = Column(String(2000), nullable=True)
+    day_indices = Column(String(2000), nullable=True)
 
     def to_dict(self):
         return {
             'id': self.id,
-            'classes_per_day': self.classes_per_day
+            'classes_per_day': self.classes_per_day,
+            'days_per_week': self.days_per_week,
+            'hour_names': json.loads(self.hour_names) if self.hour_names else [],
+            'day_indices': json.loads(self.day_indices) if self.day_indices else []
         }
 
-# Crea la tabla en la base de datos si no existe
 Base.metadata.create_all(ENGINE)

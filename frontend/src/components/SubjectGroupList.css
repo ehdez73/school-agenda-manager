@@ -1,0 +1,15 @@
+/* Import shared styles */
+@import './Shared.css';
+
+/* SubjectGroupList specific styles */
+.subjectgroup-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+/* Component-specific button styling */
+.subjectgroup-add-button {
+    margin-bottom: var(--space-lg);
+    align-self: flex-start;
+}

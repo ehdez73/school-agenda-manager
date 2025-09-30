@@ -1,0 +1,141 @@
+{
+    "common": {
+        "id": "ID",
+        "add": "Añadir",
+        "edit": "Editar",
+        "delete": "Eliminar",
+        "confirm": "¿Estás seguro?",
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "search_placeholder": "Buscar por nombre...",
+        "all_courses": "Todos los cursos",
+        "all_subjects": "Todas las asignaturas",
+        "all_teachers": "Todos los docentes",
+        "processing": "Procesando...",
+        "export_success": "Exportado correctamente",
+        "import_success": "Importado correctamente",
+        "clear_success": "Todos los datos han sido eliminados",
+        "name": "Nombre"
+    },
+    "id": "ID",
+    "name": "Nombre",
+    "nav": {
+        "brand": "Gestión Agenda",
+        "courses": "Cursos",
+        "language_label": "Idioma:",
+        "language_en": "Inglés",
+        "language_es": "Español",
+        "subjects": "Asignaturas",
+        "subject_groups": "Grupos",
+        "teachers": "Docentes",
+        "timetable": "Horarios",
+        "config": "Configuración",
+        "theme_label": "Tema:",
+        "theme_light": "Claro",
+        "theme_dark": "Oscuro"
+    },
+    "language_en": "Inglés",
+    "language_es": "Español",
+    "home": {
+        "title": "Bienvenido a Gestión Agenda",
+        "description": "Utiliza el menú superior para acceder a la administración de profesores, asignaturas, cursos y la generación de horarios."
+    },
+    "weekdays": [
+        "Lunes",
+        "Martes",
+        "Miércoles",
+        "Jueves",
+        "Viernes"
+    ],
+    "day.0": "Lunes",
+    "day.1": "Martes",
+    "day.2": "Miércoles",
+    "day.3": "Jueves",
+    "day.4": "Viernes",
+    "day.5": "Sábado",
+    "day.6": "Domingo",
+    "preferences": {
+        "none": "sin preferencia",
+        "unavailable": "no disponible",
+        "preferred": "preferida"
+    },
+    "common_actions": {
+        "actions": "Acciones"
+    },
+    "courses": {
+        "title": "Cursos",
+        "add_course": "Añadir curso",
+        "loading": "Cargando cursos...",
+        "name": "Nombre",
+        "num_lines": "Nº líneas",
+        "groups": "Grupos"
+    },
+    "hours": {
+        "names_title": "Nombres de las horas",
+        "label": "Hora {n}"
+    },
+    "days": {
+        "names_title": "Nombres de los días"
+    },
+    "timetable": {
+        "no_schedule": "No hay horarios generados",
+        "recreating": "Recreando...",
+        "recreate": "Recrear Horarios",
+        "generating": "Generando...",
+        "generate": "Generar Horario",
+        "downloading_pdf": "Generando PDF...",
+        "download_pdf": "Descargar PDF",
+        "download_md": "Descargar Markdown",
+        "downloading_md": "Preparando Markdown...",
+        "loading": "Cargando horario...",
+        "no_content_download": "No hay contenido para descargar",
+        "pdf_filename": "horario-{date}.pdf",
+        "md_filename": "horario-{date}",
+        "md_error": "Error descargando markdown",
+        "pdf_error": "Error generando el PDF",
+        "generate_failed": "No se pudo generar un horario válido",
+        "generated_success": "Horario generado exitosamente",
+        "assignments_cleared": "Assignments eliminadas"
+    },
+    "subjects": {
+        "title": "Asignaturas",
+        "add_subject": "Añadir asignatura",
+        "group": "Grupo",
+        "weekly_hours": "Horas/semana",
+        "no_course": "Sin curso",
+        "course": "Curso"
+    },
+    "subject_groups": {
+        "title": "Grupos de asignaturas",
+        "add_group": "Añadir grupo",
+        "error_hours_mismatch": "ERROR:Todas las asignaturas seleccionadas deben tener el mismo número de horas semanales.",
+        "subjects": "Asignaturas"
+    },
+    "teachers": {
+        "title": "Docentes",
+        "add_teacher": "Añadir docente",
+        "hours_week": "Horas/semana"
+    },
+    "teachers_table": {
+        "subjects": "Asignaturas"
+    },
+    "config": {
+        "title": "Configuración",
+        "classes_per_day": "Nº clases por día:",
+        "days_per_week": "Nº días por semana:",
+        "invalid_days_per_week": "Los días por semana deben estar entre 1 y 7",
+        "duplicate_days": "Cada día debe ser único. Por favor, selecciona días diferentes para cada posición.",
+        "saved": "Configuración guardada",
+        "saving_error": "Error guardando configuración",
+        "backup_title": "Gestión de datos",
+        "backup_desc": "Exporta todos los datos (cursos, asignaturas, profesores, horarios) a un archivo JSON, impórtalos desde un archivo previo, o elimina todos los datos de la aplicación.",
+        "export": "Exportar",
+        "import": "Importar",
+        "clear": "Limpiar datos",
+        "confirm_clear": "¿Estás seguro de que quieres eliminar TODOS los datos?\n\nEsto eliminará:\n- Todos los cursos\n- Todas las asignaturas\n- Todos los profesores\n- Todos los grupos de asignaturas\n- Todos los horarios\n- La configuración\n\nEsta acción NO se puede deshacer.",
+        "clear_success": "Todos los datos han sido eliminados",
+        "tab_days": "Días",
+        "tab_hours": "Horas",
+        "tab_backup": "Copia de seguridad"
+    }
+}

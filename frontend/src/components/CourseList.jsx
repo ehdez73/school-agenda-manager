@@ -1,43 +1,50 @@
 import React, { useEffect, useState } from 'react';
+import { t } from '../i18n';
+import './CourseList.css';
+import FormModal from './FormModal';
+import ConfirmDeleteModal from './ConfirmDeleteModal';
+import CourseForm from './CourseForm';
 
 export default function CourseList() {
   const [courses, setCourses] = useState([]);
-  const [sortAsc, setSortAsc] = useState(true);
+  const [sortAsc] = useState(true);
   const [search, setSearch] = useState('');
   const [form, setForm] = useState({ name: '', num_lines: 1 });
+  const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const API_BASE = import.meta.env.VITE_API_BASE || '/api';
+
+  const fetchCourses = React.useCallback(() => {
+    setLoading(true);
+    setError(null);
+    fetch(`${API_BASE}/courses`)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => setCourses(data))
+      .catch(err => setError(err.message || 'Failed to load courses'))
+      .finally(() => setLoading(false));
+  }, [API_BASE]);
 
   useEffect(() => {
     fetchCourses();
-  }, []);
+  }, [fetchCourses]);
 
-  function fetchCourses() {
-    fetch('http://localhost:5000/courses')
-      .then(res => res.json())
-      .then(setCourses);
-  }
 
-  function handleSort() {
-    setSortAsc(!sortAsc);
-  }
-
-  function handleChange(e) {
-    const { name, value } = e.target;
-    // Map num_lineas (UI) to num_lines (state)
-    if (name === 'num_lineas') {
-      setForm({ ...form, num_lines: value });
-    } else {
-      setForm({ ...form, [name]: value });
-    }
-  }
 
   function handleSubmit(e) {
     e.preventDefault();
     const method = editingId ? 'PUT' : 'POST';
     const url = editingId
-      ? `http://localhost:5000/courses/${form.name}`
-      : 'http://localhost:5000/courses';
-    // Map Spanish field to English for backend
+      ? `${API_BASE}/courses/${form.name}`
+      : `${API_BASE}/courses`;
+
     const payload = {
       name: form.name,
       num_lines: form.num_lines
@@ -47,22 +54,44 @@ export default function CourseList() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Save failed');
+        return res.json();
+      })
       .then(() => {
         fetchCourses();
-        setForm({ name: '' });
+        setForm({ name: '', num_lines: 1 });
         setEditingId(null);
-      });
+        setShowForm(false);
+      })
+      .catch(err => setError(err.message || 'Failed to save'));
   }
 
   function handleEdit(course) {
-  setForm({ name: course.name, num_lines: course.num_lines });
+    setForm({ name: course.name, num_lines: course.num_lines });
     setEditingId(course.name);
+    setShowForm(true);
   }
 
   function handleDelete(id) {
-    fetch(`http://localhost:5000/courses/${id}`, { method: 'DELETE' })
-      .then(() => fetchCourses());
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  }
+
+  function confirmDelete() {
+    fetch(`${API_BASE}/courses/${deleteId}`, { method: 'DELETE' })
+      .then(res => {
+        if (!res.ok) throw new Error('Delete failed');
+        fetchCourses();
+        setShowDeleteModal(false);
+        setDeleteId(null);
+      })
+      .catch(err => setError(err.message || 'Failed to delete'));
+  }
+
+  function cancelDelete() {
+    setShowDeleteModal(false);
+    setDeleteId(null);
   }
 
   const filteredCourses = courses.filter(course =>
@@ -70,51 +99,45 @@ export default function CourseList() {
   );
 
   const sortedCourses = [...filteredCourses].sort((a, b) => {
-  if (a.name < b.name) return sortAsc ? -1 : 1;
-  if (a.name > b.name) return sortAsc ? 1 : -1;
-  return 0;
+    if (a.name < b.name) return sortAsc ? -1 : 1;
+    if (a.name > b.name) return sortAsc ? 1 : -1;
+    return 0;
   });
 
   return (
     <div>
-      <h2>Cursos</h2>
-      <form onSubmit={handleSubmit} style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-        <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500 }}>
-          Nombre del curso
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Nombre del curso"
-            required
-            style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #ccc', marginTop: 2 }}
+      {error && (
+        <div role="alert" style={{ color: 'var(--color-danger, #b91c1c)', marginBottom: 8 }}>
+          {error}
+        </div>
+      )}
+      {loading && <div style={{ marginBottom: 8 }}>{t('courses.loading')}</div>}
+      <ConfirmDeleteModal
+        open={showDeleteModal}
+        entity={t('courses.title').toLowerCase()}
+        id={deleteId}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
+      <h2>{t('courses.title')}</h2>
+      {showForm ? (
+        <FormModal open={showForm} onClose={() => { setForm({ name: '', num_lines: 1 }); setEditingId(null); setShowForm(false); }}>
+          <CourseForm
+            form={form}
+            setForm={setForm}
+            editingId={editingId}
+            onSubmit={handleSubmit}
+            onCancel={() => { setForm({ name: '', num_lines: 1 }); setEditingId(null); setShowForm(false); }}
           />
-        </label>
-        <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500 }}>
-          Nº líneas
-          <input
-            name="num_lines"
-            type="number"
-            min={1}
-            value={form.num_lines}
-            onChange={handleChange}
-            placeholder="Nº líneas"
-            required
-            style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #ccc', width: 100, marginTop: 2 }}
-          />
-        </label>
-        <button type="submit" style={{ padding: '6px 16px', borderRadius: 6, background: '#2563eb', color: '#fff', border: 'none' }}>
-          {editingId ? 'Actualizar' : 'Añadir'}
+        </FormModal>
+      ) : (
+        <button style={{ marginBottom: '1rem', padding: '6px 16px', borderRadius: 6, background: '#2563eb', color: '#fff', border: 'none' }} onClick={() => { setForm({ name: '', num_lines: 1 }); setShowForm(true); }}>
+          {t('courses.add_course')}
         </button>
-        {editingId && (
-          <button type="button" style={{ padding: '6px 16px', borderRadius: 6, background: '#64748b', color: '#fff', border: 'none' }} onClick={() => { setForm({ name: '', num_lines: 1 }); setEditingId(null); }}>
-            Cancelar
-          </button>
-        )}
-      </form>
+      )}
       <input
         type="text"
-        placeholder="Buscar por nombre..."
+        placeholder={t('common.search_placeholder')}
         value={search}
         onChange={e => setSearch(e.target.value)}
         style={{ marginBottom: '1rem', padding: '6px 12px', borderRadius: 6, border: '1px solid #ccc' }}
@@ -122,10 +145,10 @@ export default function CourseList() {
       <table className="modern-table">
         <thead>
           <tr>
-            <th>Nombre</th>
-            <th>Nº líneas</th>
-            <th>Grupos</th>
-            <th>Acciones</th>
+            <th>{t('courses.name')}</th>
+            <th>{t('courses.num_lines')}</th>
+            <th>{t('courses.groups')}</th>
+            <th>{t('common_actions.actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -137,8 +160,20 @@ export default function CourseList() {
                 <td>{course.num_lines}</td>
                 <td>{grupos.join(', ')}</td>
                 <td>
-                  <button style={{ marginRight: 8, padding: '4px 10px', borderRadius: 4, border: 'none', background: '#fbbf24', color: '#222' }} onClick={() => handleEdit(course)}>Editar</button>
-                  <button style={{ padding: '4px 10px', borderRadius: 4, border: 'none', background: '#ef4444', color: '#fff' }} onClick={() => handleDelete(course.name)}>Eliminar</button>
+                  <button
+                    title={t('common.edit')}
+                    style={{ marginRight: 8, padding: '4px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer' }}
+                    onClick={() => handleEdit(course)}
+                  >
+                    <span role="img" aria-label={t('common.edit')} style={{ fontSize: '1.2em', color: '#fbbf24' }}>✏️</span>
+                  </button>
+                  <button
+                    title={t('common.delete')}
+                    style={{ padding: '4px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer' }}
+                    onClick={() => handleDelete(course.name)}
+                  >
+                    <span role="img" aria-label={t('common.delete')} style={{ fontSize: '1.2em', color: '#ef4444' }}>🗑️</span>
+                  </button>
                 </td>
               </tr>
             );

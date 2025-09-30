@@ -1,0 +1,252 @@
+/* common.css — estilos reutilizables y tokens para la app */
+:root {
+    --btn-bg: var(--color-btn-bg-light);
+    --btn-text: var(--color-btn-text-light);
+    --btn-bg-alt: #fbbf24;
+    /* edit */
+    --btn-delete-bg: #ef4444;
+    --btn-cancel-bg: #64748b;
+    --chip-bg: #2563eb;
+    --chip-text: #fff;
+    --chip-radius: 16px;
+}
+
+/* boton base */
+.btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+}
+
+.btn--primary {
+    background: var(--btn-bg);
+    color: var(--btn-text);
+}
+
+.btn--cancel {
+    background: var(--btn-cancel-bg);
+    color: #fff;
+}
+
+.btn--edit {
+    background: var(--btn-bg-alt);
+    color: #222;
+}
+
+.btn--danger {
+    background: var(--btn-delete-bg);
+    color: #fff;
+}
+
+/* compact button used in tables */
+.btn--compact {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+/* chips */
+.chip {
+    background: var(--chip-bg);
+    color: var(--chip-text);
+    border-radius: var(--chip-radius);
+    padding: 6px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.chip__remove {
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 1;
+}
+
+/* action group in table */
+.action-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* inputs/selects reuse variables */
+.input,
+select,
+textarea {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: var(--color-input-bg-light);
+    color: var(--color-input-text-light);
+}
+
+.theme-dark .input,
+.theme-dark select,
+.theme-dark textarea {
+    background: var(--color-input-bg-dark);
+    color: var(--color-input-text-dark);
+}
+
+/* Generic form and card utilities (used by component CSS before) */
+.card {
+    background: var(--color-table-bg-light);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    padding: 1rem;
+}
+
+.form-container,
+.form-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-label {
+    font-weight: 500;
+    display: block;
+}
+
+/* Map component-specific input classes to the generic input styles */
+.subject-input,
+.teacher-input,
+.course-input,
+.config-form-input,
+.input {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: var(--color-input-bg-light);
+    color: var(--color-input-text-light);
+}
+
+.subject-select,
+.teacher-select,
+.course-select,
+select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+/* Map component-specific button classes to common tokens */
+.subject-btn,
+.teacher-btn,
+.course-btn,
+.config-form-btn,
+.btn {
+    padding: 8px 14px;
+    border-radius: 6px;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    border: none;
+}
+
+.subject-btn-cancel,
+.teacher-btn-cancel,
+.course-btn-cancel,
+.btn--cancel {
+    background: var(--btn-cancel-bg);
+    color: #fff;
+}
+
+/* Edit / Delete mapping for small action buttons */
+.subject-btn-edit,
+.teacher-btn-edit,
+.course-btn-edit,
+.btn--edit {
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: var(--btn-bg-alt);
+    color: #222;
+    border: none;
+}
+
+.subject-btn-delete,
+.teacher-btn-delete,
+.course-btn-delete,
+.btn--danger {
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: var(--btn-delete-bg);
+    color: #fff;
+    border: none;
+}
+
+/* Add/primary variants */
+.subject-btn-add,
+.teacher-btn-add,
+.course-btn-add,
+.btn--primary {
+    margin-bottom: 1rem;
+    padding: 6px 16px;
+    border-radius: 6px;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    border: none;
+}
+
+/* chip list layout used in teachers/subjects components */
+.teacher-subject-list,
+.chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+/* modal styles (moved from FormModal/ConfirmDeleteModal) */
+.modal-overlay,
+.form-modal-overlay,
+.confirm-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal,
+.form-modal,
+.confirm-modal {
+    background: #fff;
+    padding: 2rem 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);
+    min-width: 320px;
+    max-width: 95vw;
+    text-align: left;
+    position: relative;
+}
+
+.modal-close,
+.form-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    background: none;
+    border: none;
+    font-size: 1.7rem;
+    color: #64748b;
+    cursor: pointer;
+    padding: 0;
+}
+
+.modal-close:hover,
+.form-modal-close:hover {
+    color: #ef4444;
+}

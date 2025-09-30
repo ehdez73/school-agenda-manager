@@ -1,6 +1,8 @@
 from flask import Blueprint, jsonify, request, abort
 from flask_cors import CORS
-from models import Subject, Course, Session
+from ..models import Subject, Course, Session, Timeslot, TimeSlotAssignment
+from ..schemas import CourseSchema, SubjectSchema
+from ..translations import t
 from sqlalchemy.orm import joinedload
 
 courses_bp = Blueprint('courses', __name__)
@@ -10,13 +12,13 @@ def get_courses():
     session = Session()
     courses = session.query(Course).all()
     session.close()
-    return jsonify([c.to_dict() for c in courses])
+    return jsonify([CourseSchema(**c.to_dict()).model_dump() for c in courses])
 
 @courses_bp.route('/courses', methods=['POST'])
 def add_course():
     data = request.get_json()
     if not data or 'name' not in data:
-        abort(400, description="Falta el campo 'name'")
+        abort(400, description=t('errors.missing_field', field='name'))
     num_lines = data.get('num_lines', 1)
     try:
         num_lines = int(num_lines)
@@ -26,7 +28,7 @@ def add_course():
     session = Session()
     session.add(new_course)
     session.commit()
-    response_data = new_course.to_dict()
+    response_data = CourseSchema(**new_course.to_dict()).model_dump()
     session.close()
     return jsonify(response_data), 201
 
@@ -34,23 +36,23 @@ def add_course():
 @courses_bp.route('/courses/<string:course_id>', methods=['GET'])
 def get_course(course_id):
     session = Session()
-    course = session.query(Course).get(course_id)
+    course = session.get(Course, course_id)
     session.close()
     if course is None:
-        abort(404, description=f"Course con ID {course_id} no encontrado")
-    return jsonify(course.to_dict())
+        abort(404, description=t('errors.not_found', entity='Course', id=course_id))
+    return jsonify(CourseSchema(**course.to_dict()).model_dump())
 
 @courses_bp.route('/courses/<int:course_id>', methods=['PUT'])
 @courses_bp.route('/courses/<string:course_id>', methods=['PUT'])
 def update_course(course_id):
     data = request.get_json()
     if not data:
-        abort(400, description="No se proporcionaron datos para actualizar")
+        abort(400, description=t('errors.no_data_provided'))
     session = Session()
-    course = session.query(Course).get(course_id)
+    course = session.get(Course, course_id)
     if course is None:
         session.close()
-        abort(404, description=f"Course con ID {course_id} no encontrado")
+        abort(404, description=t('errors.not_found', entity='Course', id=course_id))
     if 'name' in data and data['name']:
         course.id = data['name']
     if 'num_lines' in data:
@@ -68,7 +70,7 @@ def update_course(course_id):
             if subject.id not in subject_ids:
                 subject.course = None
     session.commit()
-    response_data = course.to_dict()
+    response_data = CourseSchema(**course.to_dict()).model_dump()
     session.close()
     return jsonify(response_data)
 
@@ -76,23 +78,27 @@ def update_course(course_id):
 @courses_bp.route('/courses/<string:course_id>', methods=['DELETE'])
 def delete_course(course_id):
     session = Session()
-    course = session.query(Course).get(course_id)
+    course = session.get(Course, course_id)
     if course is None:
         session.close()
-        abort(404, description=f"Course con ID {course_id} no encontrado")
+        abort(404, description=t('errors.not_found', entity='Course', id=course_id))
+    timeslots = session.query(Timeslot).filter_by(course_id=course_id).all()
+    for timeslot in timeslots:
+        session.query(TimeSlotAssignment).filter_by(timeslot_id=timeslot.id).delete()
+        session.delete(timeslot)
     session.delete(course)
     session.commit()
     session.close()
-    return jsonify({"message": f"Course con ID {course_id} eliminado correctamente"}), 200
+    return jsonify({"message": t('success.course_deleted', id=course_id)}), 200
 
 @courses_bp.route('/courses/<int:course_id>/subjects', methods=['GET'])
 @courses_bp.route('/courses/<string:course_id>/subjects', methods=['GET'])
 def get_subjects_by_course(course_id):
     session = Session()
-    course = session.query(Course).get(course_id)
+    course = session.get(Course, course_id)
     if course is None:
         session.close()
-        abort(404, description=f"Course con ID {course_id} no encontrado")
+        abort(404, description=t('errors.not_found', entity='Course', id=course_id))
     subjects = session.query(Subject).options(joinedload(Subject.course)).filter(Subject.course_id == course_id).all()
     session.close()
-    return jsonify([s.to_dict() for s in subjects])
+    return jsonify([SubjectSchema(**s.to_dict()).model_dump() for s in subjects])

@@ -1,4 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import api from '../lib/api';
+import { t } from '../i18n';
+import ConfirmDeleteModal from './ConfirmDeleteModal';
+import FormModal from './FormModal';
+import SubjectForm from './SubjectForm';
 import './SubjectList.css';
 
 function SubjectList() {
@@ -9,64 +14,71 @@ function SubjectList() {
   const [search, setSearch] = useState('');
   const [courseFilter, setCourseFilter] = useState('');
   const [form, setForm] = useState({ name: '', course_id: '', weekly_hours: 2 });
+  const [showForm, setShowForm] = useState(false);
+  const [formError, setFormError] = useState('');
+  const [lockedHours, setLockedHours] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => {
     fetchSubjects();
     fetchCourses();
   }, []);
-// (Remove duplicate function declaration and hooks)
+
 
   function fetchSubjects() {
-    fetch('http://localhost:5000/subjects')
-      .then(res => res.json())
-      .then(setSubjects);
+    api.get('/subjects').then(setSubjects).catch(() => setSubjects([]));
   }
 
   function fetchCourses() {
-    fetch('http://localhost:5000/courses')
-      .then(res => res.json())
-      .then(setCourses);
+    api.get('/courses').then(setCourses).catch(() => setCourses([]));
   }
 
-  function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  }
 
   function handleSubmit(e) {
     e.preventDefault();
-    const method = editingId ? 'PUT' : 'POST';
-    const url = editingId
-      ? `http://localhost:5000/subjects/${editingId}`
-      : 'http://localhost:5000/subjects';
-    // Map Spanish field to English for backend
     const payload = {
       id: form.id,
       name: form.name,
       weekly_hours: form.weekly_hours,
       course_id: form.course_id
     };
-    fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-      .then(res => res.json())
-      .then(() => {
-        fetchSubjects();
-  setForm({ name: '', course_id: '', weekly_hours: 2 });
-        setEditingId(null);
-      });
+    setFormError('');
+    const action = editingId ? api.put(`/subjects/${editingId}`, payload) : api.post('/subjects', payload);
+    action.then(() => {
+      fetchSubjects();
+      setForm({ id: '', name: '', course_id: '', weekly_hours: 2 });
+      setEditingId(null);
+      setShowForm(false);
+      setLockedHours(false);
+    }).catch(err => setFormError(err.message));
   }
 
   function handleEdit(subject) {
-  setForm({ name: subject.name, course_id: subject.course ? subject.course.id : '', id: subject.id, weekly_hours: subject.weekly_hours ?? 2 });
+    setForm({ name: subject.name, course_id: subject.course ? subject.course.id : '', id: subject.id, weekly_hours: subject.weekly_hours ?? 2 });
+    const isLocked = subject.subject_groups && subject.subject_groups.length > 0;
+    setLockedHours(Boolean(isLocked));
     setEditingId(subject.id);
+    setShowForm(true);
   }
 
   function handleDelete(id) {
-    fetch(`http://localhost:5000/subjects/${id}`, { method: 'DELETE' })
-      .then(() => fetchSubjects());
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  }
+
+  function confirmDelete() {
+    api.del(`/subjects/${deleteId}`).then(() => {
+      fetchSubjects();
+      setShowDeleteModal(false);
+      setDeleteId(null);
+    }).catch(() => { });
+  }
+
+  function cancelDelete() {
+    setShowDeleteModal(false);
+    setDeleteId(null);
   }
 
   function handleSort(field) {
@@ -78,12 +90,11 @@ function SubjectList() {
     }
   }
 
-  // Obtener lista de cursos únicos para el filtro
-  const courseOptions = Array.from(new Set(subjects.map(s => s.course ? s.course.name : 'Sin curso')));
+  const courseOptions = Array.from(new Set(subjects.map(s => s.course ? s.course.name : t('subjects.no_course'))));
 
   const filteredSubjects = subjects.filter(subject => {
     const matchesName = subject.name.toLowerCase().includes(search.toLowerCase());
-    const matchesCourse = courseFilter === '' || (subject.course ? subject.course.name : 'Sin curso') === courseFilter;
+    const matchesCourse = courseFilter === '' || (subject.course ? subject.course.name : t('subjects.no_course')) === courseFilter;
     return matchesName && matchesCourse;
   });
 
@@ -103,71 +114,36 @@ function SubjectList() {
 
   return (
     <div>
-      <h2>Asignaturas</h2>
-  <form onSubmit={handleSubmit} className="subject-form">
-  <label className="subject-label">
-          ID alfanumérico
-          <input
-            name="id"
-            value={form.id || ''}
-            onChange={handleChange}
-            placeholder="ID alfanumérico"
-            required
-            className="subject-input"
+      <ConfirmDeleteModal
+        open={showDeleteModal}
+        entity={t('subjects.title')}
+        id={deleteId}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
+      <h2>{t('subjects.title')}</h2>
+      {showForm ? (
+        <FormModal open={showForm} onClose={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2 }); setEditingId(null); setShowForm(false); }}>
+          <SubjectForm
+            form={form}
+            setForm={setForm}
+            courses={courses}
+            lockedHours={lockedHours}
+            editingId={editingId}
+            formError={formError}
+            onSubmit={handleSubmit}
+            onCancel={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2 }); setEditingId(null); setShowForm(false); }}
           />
-        </label>
-  <label className="subject-label">
-          Nombre de la asignatura
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Nombre de la asignatura"
-            required
-            className="subject-input"
-          />
-        </label>
-  <label className="subject-label">
-          Curso
-          <select
-            name="course_id"
-            value={form.course_id}
-            onChange={handleChange}
-            required
-            className="subject-select"
-          >
-            <option value="">Selecciona un curso</option>
-            {courses.map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-        </label>
-  <label className="subject-label">
-          Weekly hours
-          <input
-            name="weekly_hours"
-            type="number"
-            min={1}
-            value={form.weekly_hours}
-            onChange={handleChange}
-            placeholder="Weekly hours"
-            required
-            className="subject-input subject-input-short"
-          />
-        </label>
-        <button type="submit" className="subject-btn">
-          {editingId ? 'Actualizar' : 'Añadir'}
+        </FormModal>
+      ) : (
+        <button className="subject-btn-add" onClick={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2 }); setShowForm(true); }}>
+          {t('subjects.add_subject')}
         </button>
-        {editingId && (
-          <button type="button" className="subject-btn subject-btn-cancel" onClick={() => { setForm({ id: '', name: '', course_id: '' }); setEditingId(null); }}>
-            Cancelar
-          </button>
-        )}
-      </form>
-  <div className="subject-search-bar">
+      )}
+      <div className="subject-search-bar">
         <input
           type="text"
-          placeholder="Buscar por nombre..."
+          placeholder={t('common.search_placeholder')}
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="subject-search-input"
@@ -177,7 +153,7 @@ function SubjectList() {
           onChange={e => setCourseFilter(e.target.value)}
           className="subject-search-select"
         >
-          <option value="">Todos los cursos</option>
+          <option value="">{t('common.all_courses')}</option>
           {courseOptions.map(c => (
             <option key={c} value={c}>{c}</option>
           ))}
@@ -186,15 +162,16 @@ function SubjectList() {
       <table className="modern-table">
         <thead>
           <tr>
-            <th>ID</th>
+            <th>{t('common.id') || 'ID'}</th>
             <th className="subject-table-th-sort" onClick={() => handleSort('name')}>
-              Nombre {sortBy === 'name' ? (sortAsc ? '▲' : '▼') : ''}
+              {t('common.name') || 'Name'} {sortBy === 'name' ? (sortAsc ? '▲' : '▼') : ''}
             </th>
             <th className="subject-table-th-sort" onClick={() => handleSort('course')}>
-              Curso {sortBy === 'course' ? (sortAsc ? '▲' : '▼') : ''}
+              {t('subjects.course') || 'Course'} {sortBy === 'course' ? (sortAsc ? '▲' : '▼') : ''}
             </th>
-            <th>Horas/semana</th>
-            <th>Acciones</th>
+            <th>{t('subjects.group')}</th>
+            <th>{t('subjects.weekly_hours')}</th>
+            <th>{t('common_actions.actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -202,11 +179,32 @@ function SubjectList() {
             <tr key={subject.id}>
               <td>{subject.id}</td>
               <td>{subject.name}</td>
-              <td>{subject.course ? subject.course.name : 'Sin curso'}</td>
+              <td>{subject.course ? subject.course.name : t('subjects.no_course')}</td>
+              <td>
+                {subject.subject_groups && subject.subject_groups.length ? (
+                  <div className="group-chip-list">
+                    {subject.subject_groups.map(g => (
+                      <span key={g.id} className="group-chip">{g.name}</span>
+                    ))}
+                  </div>
+                ) : '—'}
+              </td>
               <td>{subject.weekly_hours}</td>
               <td>
-                <button className="subject-btn-edit" onClick={() => handleEdit(subject)}>Editar</button>
-                <button className="subject-btn-delete" onClick={() => handleDelete(subject.id)}>Eliminar</button>
+                <button
+                  title={t('common.edit')}
+                  style={{ marginRight: 8, padding: '4px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer' }}
+                  onClick={() => handleEdit(subject)}
+                >
+                  <span role="img" aria-label={t('common.edit')} style={{ fontSize: '1.2em', color: '#fbbf24' }}>✏️</span>
+                </button>
+                <button
+                  title={t('common.delete')}
+                  style={{ padding: '4px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer' }}
+                  onClick={() => handleDelete(subject.id)}
+                >
+                  <span role="img" aria-label={t('common.delete')} style={{ fontSize: '1.2em', color: '#ef4444' }}>🗑️</span>
+                </button>
               </td>
             </tr>
           ))}

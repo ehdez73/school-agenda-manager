@@ -1,0 +1,112 @@
+/* Global styles and CSS variables */
+
+/* Reset and base styles */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    min-width: 320px;
+    min-height: 100vh;
+}
+
+/* CSS Custom Properties (Variables) */
+:root {
+    /* Color palette */
+    --color-primary: #2563eb;
+    --color-primary-dark: #1d4ed8;
+    --color-secondary: #64748b;
+    --color-success: #16a34a;
+    --color-warning: #f59e0b;
+    --color-danger: #ef4444;
+
+    /* Light theme colors */
+    --color-bg: #f4f7f6;
+    --color-text: #222222;
+    --color-text-muted: #64748b;
+    --color-surface: #ffffff;
+    --color-surface-variant: #f8fafc;
+    --color-border: #e2e8f0;
+    --color-border-light: #f1f5f9;
+
+    /* Table colors */
+    --color-table-header: #f5f7fa;
+    --color-table-header-text: #374151;
+    --color-table-row-even: #f7faff;
+    --color-table-row-odd: #ffffff;
+    --color-table-hover: #dbeafe;
+
+    /* Input colors */
+    --color-input-bg: #ffffff;
+    --color-input-text: #222222;
+    --color-input-border: #d1d5db;
+    --color-input-focus: #2563eb;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+    /* Border radius */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+
+    /* Spacing scale */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+    --color-bg: #18181b;
+    --color-text: #f4f7f6;
+    --color-text-muted: #94a3b8;
+    --color-surface: #23272f;
+    --color-surface-variant: #1e293b;
+    --color-border: #374151;
+    --color-border-light: #4b5563;
+
+    --color-table-header: #23272f;
+    --color-table-header-text: #f4f7f6;
+    --color-table-row-even: #18181b;
+    --color-table-row-odd: #23272f;
+    --color-table-hover: #334155;
+
+    --color-input-bg: #23272f;
+    --color-input-text: #f4f7f6;
+    --color-input-border: #4b5563;
+}
+
+/* Global utility classes */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Focus styles for accessibility */
+:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* Remove focus outline for mouse users */
+:focus:not(:focus-visible) {
+    outline: none;
+}

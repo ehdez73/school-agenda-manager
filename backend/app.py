@@ -1,52 +1,33 @@
-from flask import Flask, jsonify, request, abort
+from flask import Flask, request
 from flask_cors import CORS
-from models import Subject, Teacher, Course, Config, Session, ENGINE
-from sqlalchemy.orm import joinedload
-from routes.courses import courses_bp
-from routes.subjects import subjects_bp
-from routes.teachers import teachers_bp
-from sqlalchemy import inspect
-from models import Base
 
-from populate_db import populate_db
+from .routes.courses import courses_bp
+from .routes.subjects import subjects_bp
+from .routes.teachers import teachers_bp
+from .routes.subject_groups import subject_groups_bp
+from .routes.export_import import export_import_bp
 
+from .populate_db import populate_db
+from .routes.timetable import timetable_bp
+from .routes.config import config_bp
+from .translations import set_locale
+from .constants import DEFAULT_LOCALE
 
 populate_db()
 
 app = Flask(__name__)
 CORS(app) # Habilita CORS para permitir peticiones desde el frontend
+
+@app.before_request
+def set_request_locale():
+    """Set the locale for this request based on X-Locale header."""
+    locale = request.headers.get('X-Locale') or DEFAULT_LOCALE
+    set_locale(locale)
+
 app.register_blueprint(courses_bp)
 app.register_blueprint(subjects_bp)
 app.register_blueprint(teachers_bp)
-
-
-# --- Configuración general ---
-@app.route('/config', methods=['GET'])
-def get_config():
-    session = Session()
-    config = session.query(Config).first()
-    if not config:
-        # Si no existe, crea una config por defecto
-        config = Config(classes_per_day=5)
-        session.add(config)
-        session.commit()
-    result = config.to_dict()
-    session.close()
-    return jsonify(result)
-
-@app.route('/config', methods=['POST'])
-def set_config():
-    data = request.get_json()
-    if not data or 'classes_per_day' not in data:
-        abort(400, description="Missing required field 'classes_per_day'")
-    session = Session()
-    config = session.query(Config).first()
-    if not config:
-        config = Config(classes_per_day=data['classes_per_day'])
-        session.add(config)
-    else:
-        config.classes_per_day = data['classes_per_day']
-    session.commit()
-    result = config.to_dict()
-    session.close()
-    return jsonify(result)
+app.register_blueprint(subject_groups_bp)
+app.register_blueprint(export_import_bp)
+app.register_blueprint(timetable_bp)
+app.register_blueprint(config_bp)

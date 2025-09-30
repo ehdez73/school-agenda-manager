@@ -1,0 +1,85 @@
+.course-form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: flex-end;
+  width: 100%;
+}
+.course-form-actions {
+  /* Ensure actions are below all fields */
+  grid-column: 1 / -1;
+}
+.course-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1em;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+.course-form-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.5rem;
+}
+.course-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.course-label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  grid-column: span 2;
+}
+.course-form-actions {
+  grid-column: 1 / -1;
+}
+/* Estilos para CourseList */
+.course-form-container {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+.course-label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+}
+.course-input {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-top: 2px;
+}
+.course-input-short {
+  width: 100px;
+}
+.course-btn {
+  padding: 6px 16px;
+  border-radius: 6px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+}
+.course-btn-cancel {
+  background: #64748b;
+  color: #fff;
+  border: none;
+}
+.course-btn-add {
+  margin-bottom: 1rem;
+  padding: 6px 16px;
+  border-radius: 6px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+}
+.course-input:disabled {
+  background: #f3f4f6;
+  color: #a1a1aa;
+  border: 1px dashed #94a3b8;
+  cursor: not-allowed;
+}

@@ -1,0 +1,141 @@
+{
+    "common": {
+        "id": "ID",
+        "add": "Add",
+        "edit": "Edit",
+        "delete": "Delete",
+        "confirm": "Are you sure?",
+        "cancel": "Cancel",
+        "save": "Save",
+        "search_placeholder": "Search by name...",
+        "all_courses": "All courses",
+        "all_subjects": "All subjects",
+        "all_teachers": "All teachers",
+        "processing": "Processing...",
+        "export_success": "Export successful",
+        "import_success": "Import successful",
+        "clear_success": "All data has been removed",
+        "name": "Name"
+    },
+    "id": "ID",
+    "name": "Name",
+    "nav": {
+        "brand": "Agenda Manager",
+        "courses": "Courses",
+        "language_label": "Language:",
+        "language_en": "English",
+        "language_es": "Spanish",
+        "subjects": "Subjects",
+        "subject_groups": "Groups",
+        "teachers": "Teachers",
+        "timetable": "Timetable",
+        "config": "Configuration",
+        "theme_label": "Theme:",
+        "theme_light": "Light",
+        "theme_dark": "Dark"
+    },
+    "language_en": "English",
+    "language_es": "Spanish",
+    "home": {
+        "title": "Welcome to Agenda Manager",
+        "description": "Use the top menu to manage teachers, subjects, courses and generate timetables."
+    },
+    "weekdays": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+    ],
+    "day.0": "Monday",
+    "day.1": "Tuesday",
+    "day.2": "Wednesday",
+    "day.3": "Thursday",
+    "day.4": "Friday",
+    "day.5": "Saturday",
+    "day.6": "Sunday",
+    "preferences": {
+        "none": "no preference",
+        "unavailable": "not available",
+        "preferred": "preferred"
+    },
+    "common_actions": {
+        "actions": "Actions"
+    },
+    "courses": {
+        "title": "Courses",
+        "add_course": "Add course",
+        "loading": "Loading courses...",
+        "name": "Name",
+        "num_lines": "# lines",
+        "groups": "Groups"
+    },
+    "hours": {
+        "names_title": "Hour names",
+        "label": "Hour {n}"
+    },
+    "days": {
+        "names_title": "Day names"
+    },
+    "timetable": {
+        "no_schedule": "No timetables generated",
+        "recreating": "Recreating...",
+        "recreate": "Recreate Timetables",
+        "generating": "Generating...",
+        "generate": "Generate Timetable",
+        "downloading_pdf": "Generating PDF...",
+        "download_pdf": "Download PDF",
+        "download_md": "Download Markdown",
+        "downloading_md": "Preparing Markdown...",
+        "loading": "Loading timetable...",
+        "no_content_download": "No content to download",
+        "pdf_filename": "timetable-{date}.pdf",
+        "md_filename": "timetable-{date}",
+        "md_error": "Error downloading markdown",
+        "pdf_error": "Error generating PDF",
+        "generate_failed": "Could not generate a valid timetable",
+        "generated_success": "Timetable generated successfully",
+        "assignments_cleared": "Assignments cleared"
+    },
+    "subjects": {
+        "title": "Subjects",
+        "add_subject": "Add subject",
+        "group": "Group",
+        "weekly_hours": "Hours/week",
+        "no_course": "No course",
+        "course": "Course"
+    },
+    "subject_groups": {
+        "title": "Subject groups",
+        "add_group": "Add group",
+        "error_hours_mismatch": "ERROR: All selected subjects must have the same weekly hours.",
+        "subjects": "Subjects"
+    },
+    "teachers": {
+        "title": "Teachers",
+        "add_teacher": "Add teacher",
+        "hours_week": "Hours/week"
+    },
+    "teachers_table": {
+        "subjects": "Subjects"
+    },
+    "config": {
+        "title": "Configuration",
+        "classes_per_day": "Number of classes per day:",
+        "days_per_week": "Number of days per week:",
+        "invalid_days_per_week": "Days per week must be between 1 and 7",
+        "duplicate_days": "Each day must be unique. Please select different days for each position.",
+        "saved": "Configuration saved",
+        "saving_error": "Error saving configuration",
+        "backup_title": "Data management",
+        "backup_desc": "Export all data (courses, subjects, teachers, timetable) to a JSON file, import from a previous file, or clear all application data.",
+        "export": "Export",
+        "import": "Import",
+        "clear": "Clear data",
+        "confirm_clear": "Are you sure you want to clear ALL data?\nThis will remove:\n- All courses\n- All subjects\n- All teachers\n- All subject groups\n- All timetables\n- Configuration\n\nThis action CANNOT be undone.",
+        "clear_success": "All data has been cleared",
+        "tab_days": "Days",
+        "tab_hours": "Hours",
+        "tab_backup": "Backup"
+    }
+}

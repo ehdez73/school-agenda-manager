@@ -1,0 +1,152 @@
+/* TeacherList component styles using CSS Modules */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.searchBar {
+    display: flex;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+    flex-wrap: wrap;
+}
+
+.searchInput,
+.searchSelect {
+    min-width: 200px;
+    flex: 1;
+}
+
+.addButton {
+    margin-bottom: var(--space-lg);
+    align-self: flex-start;
+}
+
+.actionGroup {
+    display: flex;
+    gap: var(--space-sm);
+    align-items: center;
+}
+
+.form {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-xl);
+    margin-bottom: var(--space-lg);
+    max-width: 600px;
+}
+
+.formRow {
+    display: flex;
+    gap: var(--space-lg);
+    align-items: flex-start;
+    margin-bottom: var(--space-lg);
+}
+
+.formColumn1 {
+    flex: 1;
+}
+
+.formColumn2 {
+    flex: 2;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-lg);
+}
+
+.label {
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+.input,
+.select,
+.textarea {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-input-bg);
+    color: var(--color-input-text);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s ease-in-out;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+    outline: none;
+    border-color: var(--color-input-focus);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.subjectList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-top: var(--space-xs);
+}
+
+.subjectChip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    background-color: var(--color-primary);
+    color: white;
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.chipRemove {
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.chipRemove:hover {
+    opacity: 0.8;
+}
+
+.formActions {
+    display: flex;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+    justify-content: flex-end;
+}
+
+.errorMessage {
+    color: var(--color-danger);
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    margin: var(--space-md) 0;
+}
+
+.successMessage {
+    color: #16a34a;
+    background-color: #f0f9ff;
+    border: 1px solid #bfdbfe;
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    margin: var(--space-md) 0;
+}
