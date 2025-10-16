@@ -20,7 +20,7 @@ export default function CourseForm({ form, setForm, editingId, onSubmit, onCance
                         name="name"
                         value={form.name}
                         onChange={handleChange}
-                        placeholder={t('common.search_placeholder')}
+                        placeholder={t('courses.name_placeholder')}
                         required
                         className="course-input"
                         disabled={editingId !== null}

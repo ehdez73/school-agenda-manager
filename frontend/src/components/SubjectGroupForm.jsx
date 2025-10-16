@@ -10,8 +10,8 @@ export default function SubjectGroupForm({ form, setForm, subjects, formError, o
     return (
         <form onSubmit={onSubmit} className="subject-form">
             <label className="subject-label">
-                {t('subject_groups.title')}
-                <input name="name" value={form.name} onChange={handleChange} placeholder={t('subject_groups.title')} required className="subject-input" />
+                {t('subject_groups.name')}
+                <input name="name" value={form.name} onChange={handleChange} placeholder={t('subject_groups.name_placeholder')} required className="subject-input" />
             </label>
             <label className="subject-label">
                 {t('subject_groups.title') + ' - ' + t('subjects.title')}

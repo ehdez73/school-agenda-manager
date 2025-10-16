@@ -67,6 +67,7 @@
         "add_course": "Add course",
         "loading": "Loading courses...",
         "name": "Name",
+        "name_placeholder": "Course name",
         "num_lines": "# lines",
         "groups": "Groups"
     },
@@ -99,6 +100,8 @@
     },
     "subjects": {
         "title": "Subjects",
+        "name": "Name",
+        "name_placeholder": "Subject name",
         "add_subject": "Add subject",
         "group": "Group",
         "weekly_hours": "Hours/week",
@@ -107,12 +110,16 @@
     },
     "subject_groups": {
         "title": "Subject groups",
+        "name": "Name",
+        "name_placeholder": "Group name",
         "add_group": "Add group",
         "error_hours_mismatch": "ERROR: All selected subjects must have the same weekly hours.",
         "subjects": "Subjects"
     },
     "teachers": {
         "title": "Teachers",
+        "name": "Name",
+        "name_placeholder": "Teacher name",
         "add_teacher": "Add teacher",
         "hours_week": "Hours/week"
     },

@@ -17,12 +17,12 @@ export default function TeacherForm({ form, setForm, subjects, classesPerDay, on
         <form onSubmit={onSubmit} className="teacher-form">
             <div className="teacher-form-row">
                 <div className="teacher-form-col1">
-                    <label className="teacher-label">{t('teachers.title')}:</label>
+                    <label className="teacher-label">{t('teachers.name')}:</label>
                     <input
                         name="name"
                         value={form.name}
                         onChange={handleChange}
-                        placeholder={t('teachers.title')}
+                        placeholder={t('teachers.name_placeholder')}
                         required
                         className="teacher-input"
                     />

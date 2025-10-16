@@ -67,6 +67,7 @@
         "add_course": "Añadir curso",
         "loading": "Cargando cursos...",
         "name": "Nombre",
+        "name_placeholder": "Nombre del curso",
         "num_lines": "Nº líneas",
         "groups": "Grupos"
     },
@@ -99,6 +100,8 @@
     },
     "subjects": {
         "title": "Asignaturas",
+        "name": "Nombre",
+        "name_placeholder": "Nombre de la asignatura",
         "add_subject": "Añadir asignatura",
         "group": "Grupo",
         "weekly_hours": "Horas/semana",
@@ -107,12 +110,16 @@
     },
     "subject_groups": {
         "title": "Grupos de asignaturas",
+        "name": "Nombre",
+        "name_placeholder": "Nombre del grupo",
         "add_group": "Añadir grupo",
         "error_hours_mismatch": "ERROR:Todas las asignaturas seleccionadas deben tener el mismo número de horas semanales.",
         "subjects": "Asignaturas"
     },
     "teachers": {
         "title": "Docentes",
+        "name": "Nombre",
+        "name_placeholder": "Nombre del docente",
         "add_teacher": "Añadir docente",
         "hours_week": "Horas/semana"
     },

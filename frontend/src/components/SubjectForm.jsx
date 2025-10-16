@@ -9,7 +9,7 @@ export default function SubjectForm({ form, setForm, courses, lockedHours, editi
     return (
         <form onSubmit={onSubmit} className="subject-form">
             <label className="subject-label">
-                {t('common.add')} ID
+                ID
                 <input
                     name="id"
                     value={form.id || ''}
@@ -21,18 +21,18 @@ export default function SubjectForm({ form, setForm, courses, lockedHours, editi
                 />
             </label>
             <label className="subject-label">
-                {t('subjects.title')}
+                {t('subjects.name')}
                 <input
                     name="name"
                     value={form.name}
                     onChange={handleChange}
-                    placeholder={t('subjects.title')}
+                    placeholder={t('subjects.name_placeholder')}
                     required
                     className="subject-input"
                 />
             </label>
             <label className="subject-label">
-                {t('courses.name')}
+                {t('subjects.course')}
                 <select
                     name="course_id"
                     value={form.course_id}
