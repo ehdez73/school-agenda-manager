@@ -2,8 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import './MarkdownTimetable.css';
 import api from '../lib/api';
 import { t } from '../i18n';
@@ -66,45 +64,7 @@ function MarkdownTimetable() {
     }
   };
 
-  const handleDownloadPDF = async () => {
-    if (!timetableRef.current || !markdown.trim()) {
-      setError(t('timetable.no_content_download'));
-      return;
-    }
 
-    setDownloading(true);
-    setError(null);
-
-    try {
-      const element = timetableRef.current;
-      const canvas = await html2canvas(element, {
-        scale: 5,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff'
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 10;
-
-      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-
-      const date = new Date().toISOString().split('T')[0];
-      pdf.save(t('timetable.pdf_filename').replace('{date}', date));
-    } catch (err) {
-      setError(t('timetable.pdf_error') + ': ' + err.message);
-    } finally {
-      setDownloading(false);
-    }
-  };
 
   const handleDownloadMarkdown = () => {
     if (!markdown.trim()) {
@@ -144,14 +104,6 @@ function MarkdownTimetable() {
             {clearing ? t('timetable.generating') : t('timetable.generate')}
           </button>
         )}
-        <button
-          onClick={handleDownloadPDF}
-          disabled={downloading || loading || !!error || !markdown.trim()}
-          className="btn"
-          style={{ backgroundColor: '#28a745', borderColor: '#28a745', color: 'white' }}
-        >
-          {downloading ? t('timetable.downloading_pdf') : t('timetable.download_pdf')}
-        </button>
         <button
           onClick={handleDownloadMarkdown}
           disabled={downloading || loading || !!error || !markdown.trim()}
