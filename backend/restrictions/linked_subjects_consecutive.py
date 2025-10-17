@@ -68,9 +68,35 @@ class LinkedSubjectsConsecutive(Restriction):
                         y_s.append(ys)
                         y_t.append(yt)
 
-                    # For any pair of hours that are NOT consecutive, forbid both subjects
-                    # occupying those two hours on the same day for the same group.
-                    for ha in range(num_hours):
-                        for hb in range(num_hours):
-                            if abs(ha - hb) > 1:
-                                model.Add(y_s[ha] + y_t[hb] <= 1)
+                    # Enforce pairing: every occurrence of s at hour h must have t
+                    # at h-1 or h+1 (if those hours exist). Likewise, every
+                    # occurrence of t must have s in an adjacent hour. This
+                    # guarantees they appear as consecutive pairs (in any order)
+                    # across the day for the same group.
+                    for h in range(num_hours):
+                        # Build list of adjacent hour indicators for t around h
+                        adjacent_t = []
+                        if h - 1 >= 0:
+                            adjacent_t.append(y_t[h - 1])
+                        if h + 1 < num_hours:
+                            adjacent_t.append(y_t[h + 1])
+
+                        if adjacent_t:
+                            # If s is scheduled at h then sum(adjacent_t) >= 1
+                            # i.e., at least one adjacent hour must host t.
+                            model.Add(sum(adjacent_t) >= y_s[h])
+                        else:
+                            # No adjacent hours (single-hour day): cannot schedule s
+                            model.Add(y_s[h] == 0)
+
+                        # Symmetric constraint: if t at h then s must be adjacent
+                        adjacent_s = []
+                        if h - 1 >= 0:
+                            adjacent_s.append(y_s[h - 1])
+                        if h + 1 < num_hours:
+                            adjacent_s.append(y_s[h + 1])
+
+                        if adjacent_s:
+                            model.Add(sum(adjacent_s) >= y_t[h])
+                        else:
+                            model.Add(y_t[h] == 0)

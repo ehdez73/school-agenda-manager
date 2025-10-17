@@ -45,6 +45,16 @@ def test_linked_subjects_forbid_non_consecutive():
     model.Add(assignments[("1-A", "A", 1, 0, 0)] == 1)
     model.Add(assignments[("1-A", "B", 1, 0, 3)] == 1)
 
+    # In the real scheduler the weekly-hours restriction prevents adding
+    # extra occurrences to satisfy adjacency. Simulate that here by forcing
+    # each subject to appear exactly once on the day.
+    model.Add(
+        sum(assignments[("1-A", "A", 1, 0, h)] for h in range(num_hours)) == 1
+    )
+    model.Add(
+        sum(assignments[("1-A", "B", 1, 0, h)] for h in range(num_hours)) == 1
+    )
+
     solver = cp_model.CpSolver()
     status = solver.Solve(model)
 
@@ -75,6 +85,14 @@ def test_linked_subjects_allow_consecutive():
     # Force A at hour 1 and B at hour 2 (consecutive)
     model.Add(assignments[("1-A", "A", 1, 0, 1)] == 1)
     model.Add(assignments[("1-A", "B", 1, 0, 2)] == 1)
+
+    # Simulate weekly-hours: each subject appears exactly once
+    model.Add(
+        sum(assignments[("1-A", "A", 1, 0, h)] for h in range(num_hours)) == 1
+    )
+    model.Add(
+        sum(assignments[("1-A", "B", 1, 0, h)] for h in range(num_hours)) == 1
+    )
 
     solver = cp_model.CpSolver()
     status = solver.Solve(model)
