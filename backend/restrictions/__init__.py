@@ -6,6 +6,7 @@ This package exposes a small API so callers may import restrictions like:
 
 Each restriction implementation lives in its own module inside this package.
 """
+
 from .base import Restriction
 
 from .group_subject_max_hours_per_day import GroupSubjectMaxHoursPerDay
@@ -18,6 +19,7 @@ from .teacher_one_class_at_a_time import TeacherOneClassAtATime
 from .teacher_max_weekly_hours import TeacherMaxWeeklyHours
 from .teacher_unavailable_times import TeacherUnavailableTimes
 from .teacher_preferred_times import TeacherPreferredTimes
+from .tutor_preference import TutorPreference
 
 from .subject_weekly_hours import SubjectWeeklyHours
 
@@ -32,5 +34,6 @@ __all__ = [
     "TeacherMaxWeeklyHours",
     "TeacherUnavailableTimes",
     "TeacherPreferredTimes",
+    "TutorPreference",
     "SubjectWeeklyHours",
 ]

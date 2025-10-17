@@ -1,0 +1,1107 @@
+{
+  "courses": [
+    {
+      "id": "1º",
+      "name": "1º",
+      "num_lines": 2
+    }
+  ],
+  "subjects": [
+    {
+      "id": "LEN1",
+      "name": "Lengua",
+      "weekly_hours": 7,
+      "max_hours_per_day": 2,
+      "course": {
+        "id": "1º",
+        "name": "1º",
+        "num_lines": 2
+      },
+      "subject_groups": [],
+      "full_name": "Lengua (1º)"
+    },
+    {
+      "id": "MAT1",
+      "name": "Matemáticas",
+      "weekly_hours": 6,
+      "max_hours_per_day": 2,
+      "course": {
+        "id": "1º",
+        "name": "1º",
+        "num_lines": 2
+      },
+      "subject_groups": [],
+      "full_name": "Matemáticas (1º)"
+    },
+    {
+      "id": "NAT1",
+      "name": "Naturales",
+      "weekly_hours": 2,
+      "max_hours_per_day": 2,
+      "course": {
+        "id": "1º",
+        "name": "1º",
+        "num_lines": 2
+      },
+      "subject_groups": [],
+      "full_name": "Naturales (1º)"
+    },
+    {
+      "id": "SOC1",
+      "name": "Sociales",
+      "weekly_hours": 2,
+      "max_hours_per_day": 2,
+      "course": {
+        "id": "1º",
+        "name": "1º",
+        "num_lines": 2
+      },
+      "subject_groups": [],
+      "full_name": "Sociales (1º)"
+    },
+    {
+      "id": "ING1",
+      "name": "Inglés",
+      "weekly_hours": 5,
+      "max_hours_per_day": 2,
+      "course": {
+        "id": "1º",
+        "name": "1º",
+        "num_lines": 2
+      },
+      "subject_groups": [],
+      "full_name": "Inglés (1º)"
+    },
+    {
+      "id": "MUS1",
+      "name": "Música",
+      "weekly_hours": 2,
+      "max_hours_per_day": 2,
+      "course": {
+        "id": "1º",
+        "name": "1º",
+        "num_lines": 2
+      },
+      "subject_groups": [],
+      "full_name": "Música (1º)"
+    },
+    {
+      "id": "REL1",
+      "name": "Religión",
+      "weekly_hours": 2,
+      "max_hours_per_day": 2,
+      "course": {
+        "id": "1º",
+        "name": "1º",
+        "num_lines": 2
+      },
+      "subject_groups": [
+        {
+          "id": 1,
+          "name": "RELAT1"
+        }
+      ],
+      "full_name": "Religión (1º)"
+    },
+    {
+      "id": "ATE1",
+      "name": "Atención Educativa",
+      "weekly_hours": 2,
+      "max_hours_per_day": 2,
+      "course": {
+        "id": "1º",
+        "name": "1º",
+        "num_lines": 2
+      },
+      "subject_groups": [
+        {
+          "id": 1,
+          "name": "RELAT1"
+        }
+      ],
+      "full_name": "Atención Educativa (1º)"
+    },
+    {
+      "id": "ART1",
+      "name": "Arte",
+      "weekly_hours": 1,
+      "max_hours_per_day": 2,
+      "course": {
+        "id": "1º",
+        "name": "1º",
+        "num_lines": 2
+      },
+      "subject_groups": [],
+      "full_name": "Arte (1º)"
+    },
+    {
+      "id": "EF1",
+      "name": "Educación Física",
+      "weekly_hours": 3,
+      "max_hours_per_day": 2,
+      "course": {
+        "id": "1º",
+        "name": "1º",
+        "num_lines": 2
+      },
+      "subject_groups": [],
+      "full_name": "Educación Física (1º)"
+    }
+  ],
+  "subject_groups": [
+    {
+      "id": 1,
+      "name": "RELAT1",
+      "subjects": [
+        "ATE1",
+        "REL1"
+      ]
+    }
+  ],
+  "teachers": [
+    {
+      "id": 1,
+      "name": "Ageda",
+      "subjects": [
+        "LEN1",
+        "MAT1",
+        "ATE1"
+      ],
+      "preferences": "{}",
+      "max_hours_week": 30,
+      "tutor_group": "1ºA"
+    },
+    {
+      "id": 2,
+      "name": "Antonio",
+      "subjects": [
+        "NAT1",
+        "SOC1",
+        "ING1",
+        "ATE1",
+        "ART1"
+      ],
+      "preferences": "{}",
+      "max_hours_week": 30,
+      "tutor_group": "1ºB"
+    },
+    {
+      "id": 3,
+      "name": "Erena",
+      "subjects": [
+        "MUS1"
+      ],
+      "preferences": "{}",
+      "max_hours_week": 30,
+      "tutor_group": null
+    },
+    {
+      "id": 4,
+      "name": "Alex",
+      "subjects": [
+        "EF1"
+      ],
+      "preferences": "{}",
+      "max_hours_week": 30,
+      "tutor_group": null
+    },
+    {
+      "id": 5,
+      "name": "Elena",
+      "subjects": [
+        "REL1"
+      ],
+      "preferences": "{}",
+      "max_hours_week": 30,
+      "tutor_group": null
+    }
+  ],
+  "timeslots": [
+    {
+      "id": 1,
+      "day": 0,
+      "hour": 0,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 2,
+      "day": 0,
+      "hour": 0,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 3,
+      "day": 0,
+      "hour": 1,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 4,
+      "day": 0,
+      "hour": 1,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 5,
+      "day": 0,
+      "hour": 2,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 6,
+      "day": 0,
+      "hour": 2,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 7,
+      "day": 0,
+      "hour": 3,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 8,
+      "day": 0,
+      "hour": 3,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 9,
+      "day": 0,
+      "hour": 4,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 10,
+      "day": 0,
+      "hour": 4,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 11,
+      "day": 0,
+      "hour": 5,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 12,
+      "day": 0,
+      "hour": 5,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 13,
+      "day": 1,
+      "hour": 0,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 14,
+      "day": 1,
+      "hour": 0,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 15,
+      "day": 1,
+      "hour": 1,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 16,
+      "day": 1,
+      "hour": 1,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 17,
+      "day": 1,
+      "hour": 2,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 18,
+      "day": 1,
+      "hour": 2,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 19,
+      "day": 1,
+      "hour": 3,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 20,
+      "day": 1,
+      "hour": 3,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 21,
+      "day": 1,
+      "hour": 4,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 22,
+      "day": 1,
+      "hour": 4,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 23,
+      "day": 1,
+      "hour": 5,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 24,
+      "day": 1,
+      "hour": 5,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 25,
+      "day": 2,
+      "hour": 0,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 26,
+      "day": 2,
+      "hour": 0,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 27,
+      "day": 2,
+      "hour": 1,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 28,
+      "day": 2,
+      "hour": 1,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 29,
+      "day": 2,
+      "hour": 2,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 30,
+      "day": 2,
+      "hour": 2,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 31,
+      "day": 2,
+      "hour": 3,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 32,
+      "day": 2,
+      "hour": 3,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 33,
+      "day": 2,
+      "hour": 4,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 34,
+      "day": 2,
+      "hour": 4,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 35,
+      "day": 2,
+      "hour": 5,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 36,
+      "day": 2,
+      "hour": 5,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 37,
+      "day": 3,
+      "hour": 0,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 38,
+      "day": 3,
+      "hour": 0,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 39,
+      "day": 3,
+      "hour": 1,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 40,
+      "day": 3,
+      "hour": 1,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 41,
+      "day": 3,
+      "hour": 2,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 42,
+      "day": 3,
+      "hour": 2,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 43,
+      "day": 3,
+      "hour": 3,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 44,
+      "day": 3,
+      "hour": 3,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 45,
+      "day": 3,
+      "hour": 4,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 46,
+      "day": 3,
+      "hour": 4,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 47,
+      "day": 3,
+      "hour": 5,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 48,
+      "day": 3,
+      "hour": 5,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 49,
+      "day": 4,
+      "hour": 0,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 50,
+      "day": 4,
+      "hour": 0,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 51,
+      "day": 4,
+      "hour": 1,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 52,
+      "day": 4,
+      "hour": 1,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 53,
+      "day": 4,
+      "hour": 2,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 54,
+      "day": 4,
+      "hour": 2,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 55,
+      "day": 4,
+      "hour": 3,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 56,
+      "day": 4,
+      "hour": 3,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 57,
+      "day": 4,
+      "hour": 4,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 58,
+      "day": 4,
+      "hour": 4,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    },
+    {
+      "id": 59,
+      "day": 4,
+      "hour": 5,
+      "course_id": "1º",
+      "line": 0,
+      "subject_group_id": null
+    },
+    {
+      "id": 60,
+      "day": 4,
+      "hour": 5,
+      "course_id": "1º",
+      "line": 1,
+      "subject_group_id": null
+    }
+  ],
+  "assignments": [
+    {
+      "id": 1,
+      "timeslot_id": 1,
+      "subject_id": "LEN1",
+      "teacher_id": 1
+    },
+    {
+      "id": 2,
+      "timeslot_id": 2,
+      "subject_id": "MUS1",
+      "teacher_id": 3
+    },
+    {
+      "id": 3,
+      "timeslot_id": 3,
+      "subject_id": "SOC1",
+      "teacher_id": 2
+    },
+    {
+      "id": 4,
+      "timeslot_id": 4,
+      "subject_id": "MAT1",
+      "teacher_id": 1
+    },
+    {
+      "id": 5,
+      "timeslot_id": 5,
+      "subject_id": "EF1",
+      "teacher_id": 4
+    },
+    {
+      "id": 6,
+      "timeslot_id": 6,
+      "subject_id": "REL1",
+      "teacher_id": 5
+    },
+    {
+      "id": 7,
+      "timeslot_id": 6,
+      "subject_id": "ATE1",
+      "teacher_id": 2
+    },
+    {
+      "id": 8,
+      "timeslot_id": 7,
+      "subject_id": "MAT1",
+      "teacher_id": 1
+    },
+    {
+      "id": 9,
+      "timeslot_id": 8,
+      "subject_id": "ART1",
+      "teacher_id": 2
+    },
+    {
+      "id": 10,
+      "timeslot_id": 9,
+      "subject_id": "ING1",
+      "teacher_id": 2
+    },
+    {
+      "id": 11,
+      "timeslot_id": 10,
+      "subject_id": "LEN1",
+      "teacher_id": 1
+    },
+    {
+      "id": 12,
+      "timeslot_id": 11,
+      "subject_id": "ART1",
+      "teacher_id": 2
+    },
+    {
+      "id": 13,
+      "timeslot_id": 12,
+      "subject_id": "LEN1",
+      "teacher_id": 1
+    },
+    {
+      "id": 14,
+      "timeslot_id": 13,
+      "subject_id": "EF1",
+      "teacher_id": 4
+    },
+    {
+      "id": 15,
+      "timeslot_id": 14,
+      "subject_id": "LEN1",
+      "teacher_id": 1
+    },
+    {
+      "id": 16,
+      "timeslot_id": 15,
+      "subject_id": "ING1",
+      "teacher_id": 2
+    },
+    {
+      "id": 17,
+      "timeslot_id": 16,
+      "subject_id": "LEN1",
+      "teacher_id": 1
+    },
+    {
+      "id": 18,
+      "timeslot_id": 17,
+      "subject_id": "MAT1",
+      "teacher_id": 1
+    },
+    {
+      "id": 19,
+      "timeslot_id": 18,
+      "subject_id": "ING1",
+      "teacher_id": 2
+    },
+    {
+      "id": 20,
+      "timeslot_id": 19,
+      "subject_id": "REL1",
+      "teacher_id": 5
+    },
+    {
+      "id": 21,
+      "timeslot_id": 19,
+      "subject_id": "ATE1",
+      "teacher_id": 1
+    },
+    {
+      "id": 22,
+      "timeslot_id": 20,
+      "subject_id": "ING1",
+      "teacher_id": 2
+    },
+    {
+      "id": 23,
+      "timeslot_id": 21,
+      "subject_id": "NAT1",
+      "teacher_id": 2
+    },
+    {
+      "id": 24,
+      "timeslot_id": 22,
+      "subject_id": "MAT1",
+      "teacher_id": 1
+    },
+    {
+      "id": 25,
+      "timeslot_id": 23,
+      "subject_id": "LEN1",
+      "teacher_id": 1
+    },
+    {
+      "id": 26,
+      "timeslot_id": 24,
+      "subject_id": "NAT1",
+      "teacher_id": 2
+    },
+    {
+      "id": 27,
+      "timeslot_id": 25,
+      "subject_id": "MAT1",
+      "teacher_id": 1
+    },
+    {
+      "id": 28,
+      "timeslot_id": 26,
+      "subject_id": "EF1",
+      "teacher_id": 4
+    },
+    {
+      "id": 29,
+      "timeslot_id": 27,
+      "subject_id": "SOC1",
+      "teacher_id": 2
+    },
+    {
+      "id": 30,
+      "timeslot_id": 28,
+      "subject_id": "MAT1",
+      "teacher_id": 1
+    },
+    {
+      "id": 31,
+      "timeslot_id": 29,
+      "subject_id": "NAT1",
+      "teacher_id": 2
+    },
+    {
+      "id": 32,
+      "timeslot_id": 30,
+      "subject_id": "MAT1",
+      "teacher_id": 1
+    },
+    {
+      "id": 33,
+      "timeslot_id": 31,
+      "subject_id": "MUS1",
+      "teacher_id": 3
+    },
+    {
+      "id": 34,
+      "timeslot_id": 32,
+      "subject_id": "LEN1",
+      "teacher_id": 1
+    },
+    {
+      "id": 35,
+      "timeslot_id": 33,
+      "subject_id": "ING1",
+      "teacher_id": 2
+    },
+    {
+      "id": 36,
+      "timeslot_id": 34,
+      "subject_id": "LEN1",
+      "teacher_id": 1
+    },
+    {
+      "id": 37,
+      "timeslot_id": 35,
+      "subject_id": "LEN1",
+      "teacher_id": 1
+    },
+    {
+      "id": 38,
+      "timeslot_id": 36,
+      "subject_id": "NAT1",
+      "teacher_id": 2
+    },
+    {
+      "id": 39,
+      "timeslot_id": 37,
+      "subject_id": "EF1",
+      "teacher_id": 4
+    },
+    {
+      "id": 40,
+      "timeslot_id": 38,
+      "subject_id": "MAT1",
+      "teacher_id": 1
+    },
+    {
+      "id": 41,
+      "timeslot_id": 39,
+      "subject_id": "REL1",
+      "teacher_id": 5
+    },
+    {
+      "id": 42,
+      "timeslot_id": 39,
+      "subject_id": "ATE1",
+      "teacher_id": 1
+    },
+    {
+      "id": 43,
+      "timeslot_id": 40,
+      "subject_id": "SOC1",
+      "teacher_id": 2
+    },
+    {
+      "id": 44,
+      "timeslot_id": 41,
+      "subject_id": "LEN1",
+      "teacher_id": 1
+    },
+    {
+      "id": 45,
+      "timeslot_id": 42,
+      "subject_id": "MUS1",
+      "teacher_id": 3
+    },
+    {
+      "id": 46,
+      "timeslot_id": 43,
+      "subject_id": "LEN1",
+      "teacher_id": 1
+    },
+    {
+      "id": 47,
+      "timeslot_id": 44,
+      "subject_id": "ING1",
+      "teacher_id": 2
+    },
+    {
+      "id": 48,
+      "timeslot_id": 45,
+      "subject_id": "MAT1",
+      "teacher_id": 1
+    },
+    {
+      "id": 49,
+      "timeslot_id": 46,
+      "subject_id": "ING1",
+      "teacher_id": 2
+    },
+    {
+      "id": 50,
+      "timeslot_id": 47,
+      "subject_id": "MAT1",
+      "teacher_id": 1
+    },
+    {
+      "id": 51,
+      "timeslot_id": 48,
+      "subject_id": "EF1",
+      "teacher_id": 4
+    },
+    {
+      "id": 52,
+      "timeslot_id": 49,
+      "subject_id": "LEN1",
+      "teacher_id": 1
+    },
+    {
+      "id": 53,
+      "timeslot_id": 50,
+      "subject_id": "EF1",
+      "teacher_id": 4
+    },
+    {
+      "id": 54,
+      "timeslot_id": 51,
+      "subject_id": "LEN1",
+      "teacher_id": 1
+    },
+    {
+      "id": 55,
+      "timeslot_id": 52,
+      "subject_id": "SOC1",
+      "teacher_id": 2
+    },
+    {
+      "id": 56,
+      "timeslot_id": 53,
+      "subject_id": "MUS1",
+      "teacher_id": 3
+    },
+    {
+      "id": 57,
+      "timeslot_id": 54,
+      "subject_id": "REL1",
+      "teacher_id": 5
+    },
+    {
+      "id": 58,
+      "timeslot_id": 54,
+      "subject_id": "ATE1",
+      "teacher_id": 2
+    },
+    {
+      "id": 59,
+      "timeslot_id": 55,
+      "subject_id": "ING1",
+      "teacher_id": 2
+    },
+    {
+      "id": 60,
+      "timeslot_id": 56,
+      "subject_id": "LEN1",
+      "teacher_id": 1
+    },
+    {
+      "id": 61,
+      "timeslot_id": 57,
+      "subject_id": "ING1",
+      "teacher_id": 2
+    },
+    {
+      "id": 62,
+      "timeslot_id": 58,
+      "subject_id": "MAT1",
+      "teacher_id": 1
+    },
+    {
+      "id": 63,
+      "timeslot_id": 59,
+      "subject_id": "MAT1",
+      "teacher_id": 1
+    },
+    {
+      "id": 64,
+      "timeslot_id": 60,
+      "subject_id": "ING1",
+      "teacher_id": 2
+    }
+  ],
+  "config": {
+    "id": 1,
+    "classes_per_day": 6,
+    "days_per_week": 5,
+    "hour_names": [
+      "S1",
+      "S2",
+      "S3",
+      "S4",
+      "S5",
+      "S6"
+    ],
+    "day_indices": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  }
+}

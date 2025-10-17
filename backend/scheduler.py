@@ -1,7 +1,5 @@
 from ortools.sat.python import cp_model
-from ortools.sat.python.cp_model import IntVar
 from .models import (
-    Session,
     Teacher,
     Subject,
     Course,
@@ -10,11 +8,7 @@ from .models import (
     TimeSlotAssignment,
     SubjectGroup,
 )
-from .timetable import (
-    print_markdown_timetable_from_assignments,
-    print_markdown_timetable_per_teacher,
-)
-from .populate_db import populate_db
+
 from .restrictions import (
     SubjectWeeklyHours,
     TeacherOneClassAtATime,
@@ -64,22 +58,6 @@ def save_solution_to_db(
                         session.add(assignment)
     session.commit()
     print("Timetable saved to the database.")
-
-
-def get_contrainsts_violated(model, solver):
-    violated = []
-    violated.append("# ❌ No solution was found for the given constraints\n")
-    violated.append("## Violated constraints:\n")
-
-    failed_assumption_indexes = solver.sufficient_assumptions_for_infeasibility()
-    failed_assumptions_causes = [
-        model.get_bool_var_from_proto_index(i).name for i in failed_assumption_indexes
-    ]
-
-    for cause in failed_assumptions_causes:
-        violated.append(f"* {cause}\n")
-
-    return "".join(violated)
 
 
 def solve_scheduling_model(
@@ -146,8 +124,8 @@ def solve_scheduling_model(
     teacher_preferred = TeacherPreferredTimes()
     teacher_preferred.apply(model, assignments, all_teachers, num_days, num_hours)
 
-    # Apply tutor preference
-    tutor_pref = TutorPreference()
+    # Apply tutor preference with higher weight
+    tutor_pref = TutorPreference(weight=100)
     tutor_pref.apply(model, assignments, all_teachers)
 
     # Combine all preference terms for objective
@@ -224,54 +202,4 @@ def create_timetable(session) -> str | None:
         session.close()
         return None
     else:
-        # Get the model for error reporting
-        # We need to rebuild it to get the model for error analysis
-        model = cp_model.CpModel()
-        assignments_temp = {}
-        for group in all_groups:
-            course = group.split("-")[0]
-            for subject in all_subjects:
-                if subject.course_id == course:
-                    for teacher in all_teachers:
-                        if subject in teacher.subjects:
-                            for d in range(num_days):
-                                for h in range(num_hours):
-                                    key = (group, subject.id, teacher.id, d, h)
-                                    assignments_temp[key] = model.NewBoolVar(
-                                        f"g:{group} sub:{subject.id} t:{teacher.name} d:{d} h:{h}"
-                                    )
-
-        SubjectWeeklyHours().apply(model, assignments_temp, all_groups, all_subjects)
-        TeacherOneClassAtATime().apply(
-            model, assignments_temp, all_teachers, num_days, num_hours
-        )
-        TeacherUnavailableTimes().apply(
-            model, assignments_temp, all_teachers, num_days, num_hours
-        )
-        TeacherMaxWeeklyHours().apply(model, assignments_temp, all_teachers)
-        GroupSubjectMaxHoursPerDay().apply(
-            model, assignments_temp, all_groups, all_subjects, all_teachers, num_days
-        )
-        GroupAtMostOneLogicalAssignment().apply(
-            model, assignments_temp, all_groups, num_days, num_hours, all_subjectgroups
-        )
-        GroupSubjectHoursMustBeConsecutive().apply(
-            model, assignments_temp, all_groups, all_subjects, num_days, num_hours
-        )
-        SubjectGroupAssignment().apply(
-            model, assignments_temp, all_groups, all_subjects, all_subjectgroups
-        )
-
-        return get_contrainsts_violated(model, solver)
-
-
-if __name__ == "__main__":
-    populate_db()  # Populate the database with initial data
-    session = Session()
-    result = create_timetable(session)
-    if result is None:  # Success
-        print(print_markdown_timetable_from_assignments(session))
-        print("\n" + "=" * 50)
-        print(print_markdown_timetable_per_teacher(session))
-    else:  # Error
-        print(result)
+        return "# ❌ No solution was found for the given constraints\n"

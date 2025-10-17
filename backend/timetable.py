@@ -91,7 +91,9 @@ def generate_markdown_timetable_by_course(
             markdown.append(f"### {course_label}: {course_line}")
 
         day_indices = (
-            day_indices_from_cfg if day_indices_from_cfg is not None else list(range(days_per_week))
+            day_indices_from_cfg
+            if day_indices_from_cfg is not None
+            else list(range(days_per_week))
         )
         weekdays = [t(f"day.{i}") for i in day_indices]
         header = "| " + t("timetable.hour_header") + " | " + " | ".join(weekdays) + " |"
@@ -216,7 +218,9 @@ def generate_markdown_timetable_by_teacher(
         markdown.append(f"{hours_info}")
         # Markdown table header
         day_indices = (
-            day_indices_from_cfg if day_indices_from_cfg is not None else list(range(days_per_week))
+            day_indices_from_cfg
+            if day_indices_from_cfg is not None
+            else list(range(days_per_week))
         )
         weekdays = [t(f"day.{i}") for i in day_indices]
         header = "| " + t("timetable.hour_header") + " | " + " | ".join(weekdays) + " |"
