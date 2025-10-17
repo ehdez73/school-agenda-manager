@@ -19,6 +19,7 @@ from .restrictions import (
     TeacherUnavailableTimes,
     TeacherPreferredTimes,
     TutorPreference,
+    TutorMandatoryHours,
     GroupSubjectHoursMustBeConsecutive,
     GroupSubjectHoursMustNotBeConsecutive,
     SubjectMustEveryDay,
@@ -153,6 +154,11 @@ def solve_scheduling_model(
     # Apply tutor preference with higher weight
     tutor_pref = TutorPreference(weight=100)
     tutor_pref.apply(model, assignments, all_teachers)
+
+    # Apply hard tutor mandatory hours (first and last slot of the week)
+    TutorMandatoryHours().apply(
+        model, assignments, all_teachers, num_days, num_hours, all_subjectgroups
+    )
 
     # Combine all preference terms for objective
     preference_terms = teacher_preferred.preference_terms + tutor_pref.preference_terms

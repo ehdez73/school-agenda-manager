@@ -171,6 +171,7 @@ def get_teacher_timetables_from_db(session):
 def generate_markdown_timetable_by_teacher(
     teacher_timetable,
     teachers_info,
+    teachers_tutors=None,
     cfg_dict=None,
 ):
     """
@@ -214,7 +215,13 @@ def generate_markdown_timetable_by_teacher(
         hours_info = t(
             "timetable.teacher_hours", assigned=assigned_hours, max=max_hours
         )
-        markdown.append(f"### {teacher_name}")
+        # If a mapping of teacher -> tutor_group is provided, show it after the name
+        tutor_suffix = ""
+        if teachers_tutors:
+            tutor_group = teachers_tutors.get(teacher_name)
+            if tutor_group:
+                tutor_suffix = f" — {t('timetable.group_tutor')}: {tutor_group}"
+        markdown.append(f"### {teacher_name}{tutor_suffix}")
         markdown.append(f"{hours_info}")
         # Markdown table header
         day_indices = (
@@ -267,11 +274,17 @@ def print_markdown_timetable_per_teacher(session) -> str:
     for teacher in teachers:
         teachers_info[teacher.name] = teacher.max_hours_week
 
+    # Build a mapping of teacher name -> tutor_group (if any)
+    teachers_tutors = {}
+    for teacher in teachers:
+        if teacher.tutor_group:
+            teachers_tutors[teacher.name] = teacher.tutor_group
+
     cfg = session.query(Config).first()
     cfg_dict = cfg.to_dict() if cfg else None
 
     return generate_markdown_timetable_by_teacher(
-        teacher_timetable, teachers_info, cfg_dict
+        teacher_timetable, teachers_info, teachers_tutors, cfg_dict
     )
 
 
