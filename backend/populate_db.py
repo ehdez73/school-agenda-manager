@@ -67,7 +67,7 @@ def init_dummy_data(session):
     session.add(val_rel_group)
     print(f"SubjectGroup: {val_rel_group.name} - Subjects: {[s.name for s in val_rel_group.subjects]}")
     teachers = [
-        Teacher(name="Ana", max_hours_week=20, subjects=[math1]),
+        Teacher(name="Ana", max_hours_week=20, subjects=[math1], tutor_group="1ºA"),
         Teacher(name="Luis", max_hours_week=20, subjects=[lang1]),
         Teacher(name="María", max_hours_week=20, subjects=[val1,mus1,ef1]),
         Teacher(name="Fernando", max_hours_week=10, subjects=[rel1,art1,soc1]),

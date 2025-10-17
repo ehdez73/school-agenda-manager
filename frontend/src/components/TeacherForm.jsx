@@ -2,7 +2,7 @@ import React from 'react';
 import PreferencesGrid from './PreferencesGrid';
 import { t } from '../i18n';
 
-export default function TeacherForm({ form, setForm, subjects, classesPerDay, onSubmit, onCancel }) {
+export default function TeacherForm({ form, setForm, subjects, classesPerDay, onSubmit, onCancel, groups = [] }) {
     const handleChange = (e) => {
         const { name, value, selectedOptions } = e.target;
         if (name === 'subjects') {
@@ -55,6 +55,24 @@ export default function TeacherForm({ form, setForm, subjects, classesPerDay, on
                             .map(s => (
                                 <option key={s.id} value={s.id}>
                                     {s.full_name || s.name}
+                                </option>
+                            ))}
+                    </select>
+                    <label className="teacher-label" style={{ marginTop: '0.5rem' }}>{t('teachers.tutor_group')}:</label>
+                    <select
+                        name="tutor_group"
+                        value={form.tutor_group || ''}
+                        onChange={handleChange}
+                        className="teacher-select"
+                    >
+                        <option value="">{t('teachers.no_tutor')}</option>
+                        {groups
+                            // show only groups without a tutor (null/undefined), or the group currently assigned to this teacher
+                            .filter(g => (g.tutor_id == null) || String(g.tutor_id) === String(form.id))
+                            .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+                            .map(g => (
+                                <option key={g.id} value={g.id}>
+                                    {g.name}
                                 </option>
                             ))}
                     </select>

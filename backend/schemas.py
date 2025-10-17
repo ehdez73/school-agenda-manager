@@ -57,6 +57,7 @@ class TeacherSchema(BaseModel):
     name: str
     subjects: List[SubjectMinimalSchema] = []
     max_hours_week: int
+    tutor_group: Optional[str] = None
     # preferences is an optional mapping day->DayPreferences. We use PreferencesSchema
     # which accepts plain dicts and validates the inner shape.
     preferences: Optional[PreferencesSchema] = None

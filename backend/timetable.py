@@ -64,7 +64,13 @@ def print_markdown_timetable_from_assignments(session) -> str:
     for course_line in sorted(timetable.keys()):
         slots = timetable[course_line]
         course_label = t("timetable.course_label")
-        markdown.append(f"### {course_label}: {course_line}")
+        tutor_label = t("timetable.group_tutor")
+        # find if a teacher has this course_line as tutor_group
+        tutor = session.query(Teacher).filter(Teacher.tutor_group == course_line).first()
+        if tutor:
+            markdown.append(f"### {course_label}: {course_line} — {tutor_label}: {tutor.name}")
+        else:
+            markdown.append(f"### {course_label}: {course_line}")
         day_indices = (
             cfg_dict.get("day_indices")
             if cfg_dict

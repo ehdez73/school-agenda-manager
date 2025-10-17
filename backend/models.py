@@ -139,6 +139,8 @@ class Teacher(Base):
     max_hours_week = Column(Integer, nullable=False, default=1)
 
     preferences = Column(String(1000), nullable=True)
+    # store the tutor group as a string like '1ºA' or null when no tutor assigned
+    tutor_group = Column(String(50), nullable=True)
 
     def __repr__(self):
         return f"<Teacher(id={self.id}, name='{self.name}')>"
@@ -150,6 +152,7 @@ class Teacher(Base):
             "subjects": [subject.to_dict() for subject in self.subjects],
             "max_hours_week": self.max_hours_week,
             "preferences": json.loads(self.preferences) if self.preferences else {},
+            "tutor_group": self.tutor_group
         }
 
 

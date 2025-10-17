@@ -11,6 +11,7 @@ export default function TeacherList() {
   const [subjects, setSubjects] = useState([]);
   const [sortBy, setSortBy] = useState('name');
   const [sortAsc, setSortAsc] = useState(true);
+   const [courses, setCourses] = useState([]);
   const [search, setSearch] = useState('');
   const [subjectFilter, setSubjectFilter] = useState('');
   const [form, setForm] = useState({ name: '', subjects: [], max_hours_week: 1, preferences: {} });
@@ -24,11 +25,16 @@ export default function TeacherList() {
   useEffect(() => {
     fetchTeachers();
     fetchSubjects();
+    fetchCourses();
     api.get('/config').then(cfg => setClassesPerDay(cfg?.classes_per_day || 5)).catch(() => setClassesPerDay(5));
   }, []);
 
   function fetchSubjects() {
     api.get('/subjects').then(setSubjects).catch(() => setSubjects([]));
+  }
+
+  function fetchCourses() {
+    api.get('/courses').then(setCourses).catch(() => setCourses([]));
   }
 
   function fetchTeachers() {
@@ -41,6 +47,7 @@ export default function TeacherList() {
     const payload = {
       name: form.name,
       subjects: form.subjects,
+      tutor_group: form.tutor_group || null,
       max_hours_week: Number(form.max_hours_week) > 0 ? Number(form.max_hours_week) : 1,
       preferences: preferences_obj
     };
@@ -50,7 +57,7 @@ export default function TeacherList() {
 
     action.then(() => {
       fetchTeachers();
-      setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {} });
+      setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null });
       setEditingId(null);
       setShowForm(false);
     }).catch(() => { });
@@ -58,8 +65,10 @@ export default function TeacherList() {
 
   function handleEdit(teacher) {
     setForm({
+      id: teacher.id,
       name: teacher.name,
       subjects: teacher.subjects ? teacher.subjects.map(s => String(s.id)) : [],
+      tutor_group: teacher.tutor_group ?? null,
       max_hours_week: teacher.max_hours_week ?? 1,
       preferences: teacher.preferences || {}
     });
@@ -102,6 +111,19 @@ export default function TeacherList() {
     subjects.filter(s => s.course).map(s => s.course.name)
   ));
 
+  // Build a list of concrete groups (course + letter), e.g. '1ºA', '1ºB'
+  const groupsList = courses.flatMap(course => {
+    const num = Number(course.num_lines) || 1;
+    return Array.from({ length: num }, (_, i) => {
+      const name = `${course.name}${String.fromCharCode(65 + i)}`;
+      return { id: name, name };
+    });
+  }).map(g => {
+    // detect if any teacher has this group assigned (teacher.tutor_group expected to be group id/name)
+    const tutor = teachers.find(t => String(t.tutor_group) === String(g.id));
+    return { ...g, tutor_id: tutor ? tutor.id : null };
+  });
+
   const filteredTeachers = teachers.filter(teacher => {
     const matchesName = (teacher.name || '').toLowerCase().includes(search.toLowerCase());
     const matchesSubject = subjectFilter === '' || (teacher.subjects && teacher.subjects.map(s => s.name).includes(subjectFilter));
@@ -134,18 +156,19 @@ export default function TeacherList() {
       />
       <h2>{t('teachers.title')}</h2>
       {showForm ? (
-        <FormModal open={showForm} onClose={() => { setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {} }); setEditingId(null); setShowForm(false); }}>
+        <FormModal open={showForm} onClose={() => { setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null }); setEditingId(null); setShowForm(false); }}>
           <TeacherForm
             form={form}
             setForm={setForm}
             subjects={subjects}
+            groups={groupsList}
             classesPerDay={classesPerDay}
             onSubmit={handleSubmit}
-            onCancel={() => { setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {} }); setEditingId(null); setShowForm(false); }}
+            onCancel={() => { setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null }); setEditingId(null); setShowForm(false); }}
           />
         </FormModal>
       ) : (
-        <button className="teacher-btn teacher-btn-add" onClick={() => { setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {} }); setShowForm(true); }}>
+        <button className="teacher-btn teacher-btn-add" onClick={() => { setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null }); setShowForm(true); }}>
           {t('teachers.add_teacher')}
         </button>
       )}
@@ -188,6 +211,7 @@ export default function TeacherList() {
             <th className="teacher-table-th-sort" onClick={() => handleSort('subjects')}>
               {t('teachers_table.subjects') || 'Subjects'} {sortBy === 'subjects' ? (sortAsc ? '▲' : '▼') : ''}
             </th>
+            <th>{t('teachers.tutor_group') || 'Tutor'}</th>
             <th>{t('teachers.hours_week')}</th>
             <th>{t('common_actions.actions')}</th>
           </tr>
@@ -198,6 +222,7 @@ export default function TeacherList() {
               <td>{teacher.id}</td>
               <td>{teacher.name}</td>
               <td>{teacher.subjects ? teacher.subjects.map(s => `${s.full_name}`).join(', ') : ''}</td>
+              <td>{teacher.tutor_group ?? ''}</td>
               <td>{teacher.max_hours_week ?? ''}</td>
               <td>
                 <button

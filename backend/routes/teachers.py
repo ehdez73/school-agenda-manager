@@ -23,7 +23,8 @@ def get_teachers():
             'name': t.name,
             'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in t.subjects],
             'max_hours_week': t.max_hours_week,
-            'preferences': preferences
+            'preferences': preferences,
+            'tutor_group': t.tutor_group
         }
         result.append(TeacherSchema(**t_dict).model_dump())
     session.close()
@@ -74,6 +75,10 @@ def add_teacher():
         subjects=subjects,
         max_hours_week=max_hours_week
     )
+    # optional tutor_group string like '1ºA'
+    if 'tutor_group' in data:
+        tg = data.get('tutor_group')
+        new_teacher.tutor_group = tg if tg is not None else None
     new_teacher.preferences = _json.dumps(ut)
     session.add(new_teacher)
     session.commit()
@@ -82,7 +87,8 @@ def add_teacher():
         'name': new_teacher.name,
         'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in new_teacher.subjects],
         'max_hours_week': new_teacher.max_hours_week,
-    'preferences': ut
+    'preferences': ut,
+    'tutor_group': new_teacher.tutor_group
     }).model_dump()
     session.close()
     return jsonify(response_data), 201
@@ -103,7 +109,8 @@ def get_teacher(teacher_id):
         'name': teacher.name,
         'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in teacher.subjects],
         'max_hours_week': teacher.max_hours_week,
-        'preferences': ut
+        'preferences': ut,
+        'tutor_group': teacher.tutor_group
     }
     return jsonify(TeacherSchema(**t_dict).model_dump())
 
@@ -130,6 +137,8 @@ def update_teacher(teacher_id):
     subject_ids = data.get('subjects', None)
     if subject_ids is not None:
         teacher.subjects = session.query(Subject).filter(Subject.id.in_(subject_ids)).all()
+    if 'tutor_group' in data:
+        teacher.tutor_group = data.get('tutor_group') if data.get('tutor_group') is not None else None
     if 'preferences' in data:
         ut_raw = data.get('preferences', {})
         try:
@@ -158,6 +167,8 @@ def update_teacher(teacher_id):
         'name': teacher.name,
         'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in teacher.subjects],
         'max_hours_week': teacher.max_hours_week
+    ,
+    'tutor_group': teacher.tutor_group
     }).model_dump()
     session.close()
     return jsonify(response_data)

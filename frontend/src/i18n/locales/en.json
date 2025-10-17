@@ -118,7 +118,9 @@
         "name": "Name",
         "name_placeholder": "Teacher name",
         "add_teacher": "Add teacher",
-        "hours_week": "Hours/week"
+        "hours_week": "Hours/week",
+        "tutor_group": "Tutor group",
+        "no_tutor": "--"
     },
     "teachers_table": {
         "subjects": "Subjects"

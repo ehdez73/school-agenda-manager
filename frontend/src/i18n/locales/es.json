@@ -118,7 +118,9 @@
         "name": "Nombre",
         "name_placeholder": "Nombre del docente",
         "add_teacher": "Añadir docente",
-        "hours_week": "Horas/semana"
+        "hours_week": "Horas/semana",
+        "tutor_group": "Grupo tutoría",
+        "no_tutor": "--"
     },
     "teachers_table": {
         "subjects": "Asignaturas"
