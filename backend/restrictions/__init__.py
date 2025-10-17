@@ -23,6 +23,7 @@ from .teacher_max_weekly_hours import TeacherMaxWeeklyHours
 from .teacher_unavailable_times import TeacherUnavailableTimes
 from .teacher_preferred_times import TeacherPreferredTimes
 from .tutor_preference import TutorPreference
+from .linked_subjects_consecutive import LinkedSubjectsConsecutive
 
 from .subject_weekly_hours import SubjectWeeklyHours
 from .subject_must_every_day import SubjectMustEveryDay
@@ -42,4 +43,5 @@ __all__ = [
     "TutorPreference",
     "SubjectWeeklyHours",
     "SubjectMustEveryDay",
+    "LinkedSubjectsConsecutive",
 ]

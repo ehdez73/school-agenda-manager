@@ -24,6 +24,7 @@ class SubjectSchema(BaseModel):
     course: Optional[dict] = None
     subject_groups: List[dict] = []
     full_name: Optional[str] = None
+    linked_subject_id: Optional[str] = None
 
 
 class SubjectGroupSchema(BaseModel):

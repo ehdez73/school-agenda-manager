@@ -176,9 +176,21 @@ def import_json():
                 max_hours_per_day=s.get("max_hours_per_day", 2),
                 consecutive_hours=s.get("consecutive_hours", True),
                 course_id=course_id,
+                linked_subject_id=s.get("linked_subject_id", None),
             )
             session.add(subj)
             subject_map[subj.id] = subj
+        session.flush()
+
+        # Ensure links are reciprocal: if A links to B, make B link to A as well.
+        # This enforces the bidirectional invariant expected by the app.
+        for subj in list(subject_map.values()):
+            linked = getattr(subj, "linked_subject_id", None)
+            if linked:
+                other = session.get(Subject, linked)
+                if other and other.linked_subject_id != subj.id:
+                    other.linked_subject_id = subj.id
+                    session.add(other)
         session.flush()
 
         # Subject groups

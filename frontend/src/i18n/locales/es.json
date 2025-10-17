@@ -17,7 +17,8 @@
         "clear_success": "Todos los datos han sido eliminados",
         "name": "Nombre",
         "yes": "Sí",
-        "no": "No"
+        "no": "No",
+        "dashes": "--"
     },
     "id": "ID",
     "name": "Nombre",
@@ -107,7 +108,10 @@
         "no_course": "Sin curso",
         "course": "Curso",
         "consecutive_hours": "Horas consecutivas",
-        "teach_every_day": "Impartir todos los días"
+        "teach_every_day": "Impartir todos los días",
+        "linked_subject": "Asignatura vinculada (consecutiva)",
+        "linked": "Vinculada"
+
     },
     "subject_groups": {
         "title": "Grupos de asignaturas",

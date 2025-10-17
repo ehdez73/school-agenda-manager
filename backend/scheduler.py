@@ -22,6 +22,7 @@ from .restrictions import (
     GroupSubjectHoursMustBeConsecutive,
     GroupSubjectHoursMustNotBeConsecutive,
     SubjectMustEveryDay,
+    LinkedSubjectsConsecutive,
 )
 
 
@@ -133,6 +134,10 @@ def solve_scheduling_model(
         [s for s in all_subjects if not getattr(s, "consecutive_hours", True)],
         num_days,
         num_hours,
+    )
+    # Enforce linked subject consecutive constraint
+    LinkedSubjectsConsecutive().apply(
+        model, assignments, all_groups, all_subjects, num_days, num_hours
     )
     SubjectGroupAssignment().apply(
         model, assignments, all_groups, all_subjects, all_subjectgroups

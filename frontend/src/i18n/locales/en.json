@@ -17,7 +17,8 @@
         "clear_success": "All data has been removed",
         "name": "Name",
         "yes": "Yes",
-        "no": "No"
+        "no": "No",
+        "dashes": "--"
     },
     "id": "ID",
     "name": "Name",
@@ -107,7 +108,9 @@
         "no_course": "No course",
         "course": "Course",
         "consecutive_hours": "Consecutive hours",
-        "teach_every_day": "Teach every day"
+        "teach_every_day": "Teach every day",
+        "linked_subject": "Linked subject (consecutive)",
+        "linked": "Linked"
     },
     "subject_groups": {
         "title": "Subject groups",

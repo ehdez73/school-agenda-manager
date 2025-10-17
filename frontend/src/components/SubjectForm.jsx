@@ -1,7 +1,7 @@
 import React from 'react';
 import { t } from '../i18n';
 
-export default function SubjectForm({ form, setForm, courses, lockedHours, editingId, formError, onSubmit, onCancel, daysPerWeek }) {
+export default function SubjectForm({ form, setForm, courses, subjects = [], lockedHours, editingId, formError, onSubmit, onCancel, daysPerWeek }) {
     const handleChange = (e) => {
         let value;
         if (e.target.type === 'checkbox') {
@@ -12,8 +12,24 @@ export default function SubjectForm({ form, setForm, courses, lockedHours, editi
         } else {
             value = e.target.value;
         }
+        // If course is changed, ensure linked_subject_id still matches the new course
+        if (e.target.name === 'course_id') {
+            const newCourseId = value;
+            let newLinked = form.linked_subject_id;
+            if (newLinked) {
+                const linkedObj = subjects.find(s => s.id === newLinked);
+                const linkedCourseId = linkedObj ? (linkedObj.course ? linkedObj.course.id : linkedObj.course_id) : null;
+                if (!linkedCourseId || String(linkedCourseId) !== String(newCourseId)) {
+                    newLinked = '';
+                }
+            }
+            setForm({ ...form, course_id: newCourseId, linked_subject_id: newLinked });
+            return;
+        }
+
         setForm({ ...form, [e.target.name]: value });
     };
+
 
     return (
         <form onSubmit={onSubmit} className="subject-form">
@@ -96,6 +112,7 @@ export default function SubjectForm({ form, setForm, courses, lockedHours, editi
                     </select>
                 </label>
             )}
+           
             {typeof daysPerWeek === 'number' && Number(form.weekly_hours) >= daysPerWeek && (
                 <label className="subject-label">
                     {t('subjects.teach_every_day') || 'Teach every day'}
@@ -110,6 +127,27 @@ export default function SubjectForm({ form, setForm, courses, lockedHours, editi
                     </select>
                 </label>
             )}
+             <label className="subject-label">
+                {t('subjects.linked_subject') || 'Linked subject'}
+                <select
+                    name="linked_subject_id"
+                    value={form.linked_subject_id || ''}
+                    onChange={handleChange}
+                    className="subject-select"
+                >
+                    <option value="">{t('common.dashes') || '—'}</option>
+                    {subjects
+                        .filter(s => {
+                            if (!s || s.id === form.id) return false;
+                            const subjCourseId = s.course ? s.course.id : s.course_id;
+                            // only include subjects that belong to the same course as current form
+                            return form.course_id && subjCourseId && String(subjCourseId) === String(form.course_id);
+                        })
+                        .map(s => (
+                            <option key={s.id} value={s.id}>{s.full_name || s.name}</option>
+                        ))}
+                </select>
+            </label>
             {lockedHours && <div className="form-error">{t('subject_groups.error_hours_mismatch')}</div>}
             {formError && <div className="form-error">{formError}</div>}
             <div className="subject-form-actions">

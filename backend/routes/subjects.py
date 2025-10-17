@@ -44,10 +44,19 @@ def add_subject():
         max_hours_per_day=max_hours_per_day,
         consecutive_hours=bool(consecutive_hours),
         teach_every_day=teach_every_day,
+        linked_subject_id=data.get("linked_subject_id", None),
         course=course,
     )
     session.add(new_subject)
     session.commit()
+    # If a linked_subject_id was provided, make the link reciprocal
+    linked_id = data.get("linked_subject_id", None)
+    if linked_id:
+        other = session.get(Subject, linked_id)
+        if other and other.linked_subject_id != new_subject.id:
+            other.linked_subject_id = new_subject.id
+            session.add(other)
+            session.commit()
     response_data = SubjectSchema(**new_subject.to_dict()).model_dump()
     session.close()
     return jsonify(response_data), 201
@@ -102,6 +111,26 @@ def update_subject(subject_id):
             subject.teach_every_day = bool(data["teach_every_day"])
         except Exception:
             pass
+    if "linked_subject_id" in data:
+        try:
+            new_link = data.get("linked_subject_id", None)
+            # if link changed, clear old reciprocal link
+            old_link = getattr(subject, "linked_subject_id", None)
+            if old_link and old_link != new_link:
+                old_other = session.get(Subject, old_link)
+                if old_other and old_other.linked_subject_id == subject.id:
+                    old_other.linked_subject_id = None
+                    session.add(old_other)
+
+            subject.linked_subject_id = new_link
+            # set reciprocal on the new linked subject
+            if new_link:
+                new_other = session.get(Subject, new_link)
+                if new_other and new_other.linked_subject_id != subject.id:
+                    new_other.linked_subject_id = subject.id
+                    session.add(new_other)
+        except Exception:
+            pass
     course_id = data.get("course_id", None)
     if course_id is not None:
         subject.course = session.get(Course, course_id)
@@ -119,6 +148,10 @@ def delete_subject(subject_id):
     if subject is None:
         session.close()
         abort(404, description=t("errors.not_found", id=subject_id))
+    # clear reciprocal links from other subjects
+    session.query(Subject).filter(Subject.linked_subject_id == subject_id).update(
+        {"linked_subject_id": None}
+    )
     session.query(TimeSlotAssignment).filter_by(subject_id=subject_id).delete()
     session.delete(subject)
     session.commit()

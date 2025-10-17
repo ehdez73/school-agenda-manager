@@ -58,6 +58,8 @@ class Subject(Base):
     consecutive_hours = Column(Boolean, nullable=False, default=True)
     # If True, the subject must be taught at least once every day of the configured week
     teach_every_day = Column(Boolean, nullable=False, default=False)
+    # Optional link to another subject that should be scheduled consecutively when on same day
+    linked_subject_id = Column(String(20), ForeignKey("subjects.id"), nullable=True)
     course_id = Column(Integer, ForeignKey("courses.id"))
     course = relationship("Course", backref="subjects")
 
@@ -81,6 +83,7 @@ class Subject(Base):
             if getattr(self, "subject_groups", None)
             else [],
             "full_name": self.full_name,
+            "linked_subject_id": getattr(self, "linked_subject_id", None),
         }
 
 
