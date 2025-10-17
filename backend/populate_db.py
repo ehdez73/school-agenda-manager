@@ -3,15 +3,41 @@ from sqlalchemy import inspect
 from .models import Base
 from .models import SubjectGroup
 import json
+from . import export_import as shared_export_import
+import os
 
 
-def populate_db():
-    session = Session()
+def populate_db(init_file: str | None = None):
+    """Create (recreate) the database schema.
+
+    If init_file is provided and exists, import data from that JSON file
+    immediately after creating the schema.
+    """
     Base.metadata.drop_all(ENGINE)
     Base.metadata.create_all(ENGINE)
     print("Database created.")
-    init_config(session)
-    init_dummy_data(session)
+
+    # If an init JSON file is provided, import it using the shared import logic
+    if init_file:
+        try:
+            if os.path.exists(init_file):
+                print(f"Importing initial data from {init_file}...")
+                with open(init_file, "r", encoding="utf-8") as fh:
+                    payload = json.load(fh)
+                session = Session()
+                try:
+                    shared_export_import.import_payload(session, payload)
+                    session.commit()
+                    print("Initial data imported.")
+                except Exception as e:
+                    session.rollback()
+                    print(f"Failed to import initial data: {e}")
+                finally:
+                    session.close()
+            else:
+                print(f"Init file {init_file} does not exist; skipping import.")
+        except Exception as e:
+            print(f"Error while importing init file: {e}")
 
 
 def init_config(session):
@@ -178,4 +204,14 @@ def init_dummy_data(session):
 
 
 if __name__ == "__main__":
-    populate_db()
+    # If a JSON export file is provided as the first argument, import it
+    import sys
+
+    # If a JSON export file is provided as the first argument, pass it to populate_db
+    if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
+        populate_db(sys.argv[1])
+    elif len(sys.argv) > 1:
+        print(f"Provided init file {sys.argv[1]} not found; creating empty DB.")
+        populate_db()
+    else:
+        populate_db()

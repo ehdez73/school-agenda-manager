@@ -13,16 +13,18 @@ from .routes.config import config_bp
 from .translations import set_locale
 from .constants import DEFAULT_LOCALE
 
-populate_db()
+populate_db("backend/init-data.json")
 
 app = Flask(__name__)
-CORS(app) # Habilita CORS para permitir peticiones desde el frontend
+CORS(app)  # Habilita CORS para permitir peticiones desde el frontend
+
 
 @app.before_request
 def set_request_locale():
     """Set the locale for this request based on X-Locale header."""
-    locale = request.headers.get('X-Locale') or DEFAULT_LOCALE
+    locale = request.headers.get("X-Locale") or DEFAULT_LOCALE
     set_locale(locale)
+
 
 app.register_blueprint(courses_bp)
 app.register_blueprint(subjects_bp)
