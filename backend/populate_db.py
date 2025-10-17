@@ -1,5 +1,4 @@
 from .models import ENGINE, Session, Course, Subject, Teacher, Timeslot, Config
-from sqlalchemy import inspect
 from .models import Base
 from .models import SubjectGroup
 import json
@@ -16,15 +15,14 @@ def populate_db(init_file: str | None = None):
     Base.metadata.drop_all(ENGINE)
     Base.metadata.create_all(ENGINE)
     print("Database created.")
-
     # If an init JSON file is provided, import it using the shared import logic
-    if init_file:
-        try:
+    session = Session()
+    try:
+        if init_file:
             if os.path.exists(init_file):
                 print(f"Importing initial data from {init_file}...")
                 with open(init_file, "r", encoding="utf-8") as fh:
                     payload = json.load(fh)
-                session = Session()
                 try:
                     shared_export_import.import_payload(session, payload)
                     session.commit()
@@ -32,12 +30,21 @@ def populate_db(init_file: str | None = None):
                 except Exception as e:
                     session.rollback()
                     print(f"Failed to import initial data: {e}")
-                finally:
-                    session.close()
             else:
                 print(f"Init file {init_file} does not exist; skipping import.")
-        except Exception as e:
-            print(f"Error while importing init file: {e}")
+        else:
+            try:
+                init_config(session)
+                init_dummy_data(session)
+            except Exception as e:
+                session.rollback()
+                print(f"Failed to initialize dummy data: {e}")
+    finally:
+        # Ensure session closed in case import path didn't close it
+        try:
+            session.close()
+        except Exception:
+            pass
 
 
 def init_config(session):
