@@ -106,7 +106,8 @@
         "max_hours_per_day": "Max hours/day",
         "no_course": "No course",
         "course": "Course",
-        "consecutive_hours": "Consecutive hours"
+        "consecutive_hours": "Consecutive hours",
+        "teach_every_day": "Teach every day"
     },
     "subject_groups": {
         "title": "Subject groups",

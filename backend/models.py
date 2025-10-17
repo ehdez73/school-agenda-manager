@@ -56,6 +56,8 @@ class Subject(Base):
     # If True, when a subject has more than one hour per day those hours must be consecutive.
     # If False, they must NOT be consecutive.
     consecutive_hours = Column(Boolean, nullable=False, default=True)
+    # If True, the subject must be taught at least once every day of the configured week
+    teach_every_day = Column(Boolean, nullable=False, default=False)
     course_id = Column(Integer, ForeignKey("courses.id"))
     course = relationship("Course", backref="subjects")
 
@@ -69,6 +71,7 @@ class Subject(Base):
             "id": self.id,
             "name": self.name,
             "weekly_hours": self.weekly_hours,
+            "teach_every_day": self.teach_every_day,
             "max_hours_per_day": self.max_hours_per_day,
             "consecutive_hours": self.consecutive_hours,
             "course": self.course.to_dict() if self.course else None,

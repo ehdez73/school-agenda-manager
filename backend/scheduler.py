@@ -21,6 +21,7 @@ from .restrictions import (
     TutorPreference,
     GroupSubjectHoursMustBeConsecutive,
     GroupSubjectHoursMustNotBeConsecutive,
+    SubjectMustEveryDay,
 )
 
 
@@ -136,6 +137,9 @@ def solve_scheduling_model(
     SubjectGroupAssignment().apply(
         model, assignments, all_groups, all_subjects, all_subjectgroups
     )
+
+    # Enforce subjects that must be taught every day
+    SubjectMustEveryDay().apply(model, assignments, all_groups, all_subjects, num_days)
 
     # Apply teacher preferences
     teacher_preferred = TeacherPreferredTimes()

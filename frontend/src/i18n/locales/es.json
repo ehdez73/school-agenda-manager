@@ -106,7 +106,8 @@
         "max_hours_per_day": "Máx. horas/día",
         "no_course": "Sin curso",
         "course": "Curso",
-        "consecutive_hours": "Horas consecutivas"
+        "consecutive_hours": "Horas consecutivas",
+        "teach_every_day": "Impartir todos los días"
     },
     "subject_groups": {
         "title": "Grupos de asignaturas",

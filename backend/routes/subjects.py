@@ -34,6 +34,7 @@ def add_subject():
         max_hours_per_day = 2
     course_id = data.get("course_id")
     consecutive_hours = data.get("consecutive_hours", True)
+    teach_every_day = bool(data.get("teach_every_day", False))
     session = Session()
     course = session.get(Course, course_id) if course_id else None
     new_subject = Subject(
@@ -42,6 +43,7 @@ def add_subject():
         weekly_hours=weekly_hours,
         max_hours_per_day=max_hours_per_day,
         consecutive_hours=bool(consecutive_hours),
+        teach_every_day=teach_every_day,
         course=course,
     )
     session.add(new_subject)
@@ -93,6 +95,11 @@ def update_subject(subject_id):
     if "consecutive_hours" in data:
         try:
             subject.consecutive_hours = bool(data["consecutive_hours"])
+        except Exception:
+            pass
+    if "teach_every_day" in data:
+        try:
+            subject.teach_every_day = bool(data["teach_every_day"])
         except Exception:
             pass
     course_id = data.get("course_id", None)

@@ -25,6 +25,7 @@ from .teacher_preferred_times import TeacherPreferredTimes
 from .tutor_preference import TutorPreference
 
 from .subject_weekly_hours import SubjectWeeklyHours
+from .subject_must_every_day import SubjectMustEveryDay
 
 __all__ = [
     "Restriction",
@@ -40,4 +41,5 @@ __all__ = [
     "TeacherPreferredTimes",
     "TutorPreference",
     "SubjectWeeklyHours",
+    "SubjectMustEveryDay",
 ]

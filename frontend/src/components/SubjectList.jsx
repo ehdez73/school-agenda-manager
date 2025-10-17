@@ -9,6 +9,7 @@ import './SubjectList.css';
 function SubjectList() {
   const [subjects, setSubjects] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [daysPerWeek, setDaysPerWeek] = useState(5);
   const [sortBy, setSortBy] = useState('name');
   const [sortAsc, setSortAsc] = useState(true);
   const [search, setSearch] = useState('');
@@ -24,7 +25,14 @@ function SubjectList() {
   useEffect(() => {
     fetchSubjects();
     fetchCourses();
+    fetchConfig();
   }, []);
+
+  function fetchConfig() {
+    api.get('/config').then(cfg => {
+      if (cfg && typeof cfg.days_per_week === 'number') setDaysPerWeek(cfg.days_per_week);
+    }).catch(() => {});
+  }
 
 
   function fetchSubjects() {
@@ -44,6 +52,7 @@ function SubjectList() {
       weekly_hours: form.weekly_hours,
       max_hours_per_day: form.max_hours_per_day,
       consecutive_hours: form.consecutive_hours ?? true,
+      teach_every_day: !!form.teach_every_day,
       course_id: form.course_id
     };
     setFormError('');
@@ -65,6 +74,7 @@ function SubjectList() {
       weekly_hours: subject.weekly_hours ?? 2,
       max_hours_per_day: subject.max_hours_per_day ?? 2,
       consecutive_hours: subject.consecutive_hours ?? true,
+      teach_every_day: subject.teach_every_day ?? false,
     });
     const isLocked = subject.subject_groups && subject.subject_groups.length > 0;
     setLockedHours(Boolean(isLocked));
@@ -139,6 +149,7 @@ function SubjectList() {
             courses={courses}
             lockedHours={lockedHours}
             editingId={editingId}
+            daysPerWeek={daysPerWeek}
             formError={formError}
             onSubmit={handleSubmit}
             onCancel={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 1, consecutive_hours: true }); setEditingId(null); setShowForm(false); }}

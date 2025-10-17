@@ -42,7 +42,9 @@ def test_group_subject_hours_must_not_be_consecutive_allows_non_consecutive():
     model.Add(assignments[("1-A", "s1", "t1", 0, 1)] == 0)
     model.Add(assignments[("1-A", "s1", "t1", 0, 2)] == 1)
 
-    GroupSubjectHoursMustNotBeConsecutive().apply(model, assignments, groups, subjects, num_days, num_hours)
+    GroupSubjectHoursMustNotBeConsecutive().apply(
+        model, assignments, groups, subjects, num_days, num_hours
+    )
 
     solver = cp_model.CpSolver()
     status = solver.Solve(model)
@@ -75,7 +77,9 @@ def test_group_subject_hours_must_not_be_consecutive_blocks_consecutive():
     model.Add(assignments[("1-A", "s1", "t1", 0, 0)] == 1)
     model.Add(assignments[("1-A", "s1", "t1", 0, 1)] == 1)
 
-    GroupSubjectHoursMustNotBeConsecutive().apply(model, assignments, groups, subjects, num_days, num_hours)
+    GroupSubjectHoursMustNotBeConsecutive().apply(
+        model, assignments, groups, subjects, num_days, num_hours
+    )
 
     solver = cp_model.CpSolver()
     status = solver.Solve(model)

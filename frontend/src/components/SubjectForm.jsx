@@ -1,12 +1,12 @@
 import React from 'react';
 import { t } from '../i18n';
 
-export default function SubjectForm({ form, setForm, courses, lockedHours, editingId, formError, onSubmit, onCancel }) {
+export default function SubjectForm({ form, setForm, courses, lockedHours, editingId, formError, onSubmit, onCancel, daysPerWeek }) {
     const handleChange = (e) => {
         let value;
         if (e.target.type === 'checkbox') {
             value = e.target.checked;
-        } else if (e.target.name === 'consecutive_hours') {
+        } else if (e.target.name === 'consecutive_hours' || e.target.name === 'teach_every_day') {
             // convert select string value to boolean
             value = e.target.value === 'true';
         } else {
@@ -88,6 +88,20 @@ export default function SubjectForm({ form, setForm, courses, lockedHours, editi
                     <select
                         name="consecutive_hours"
                         value={String(form.consecutive_hours ?? true)}
+                        onChange={handleChange}
+                        className="subject-select"
+                    >
+                        <option value="true">{t('common.yes') || 'Yes'}</option>
+                        <option value="false">{t('common.no') || 'No'}</option>
+                    </select>
+                </label>
+            )}
+            {typeof daysPerWeek === 'number' && Number(form.weekly_hours) >= daysPerWeek && (
+                <label className="subject-label">
+                    {t('subjects.teach_every_day') || 'Teach every day'}
+                    <select
+                        name="teach_every_day"
+                        value={String(form.teach_every_day ?? false)}
                         onChange={handleChange}
                         className="subject-select"
                     >
