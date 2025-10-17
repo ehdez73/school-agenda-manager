@@ -21,7 +21,6 @@ def get_timetable_markdown():
     courses_markdown = print_markdown_timetable_from_assignments(session)
     teachers_markdown = print_markdown_timetable_per_teacher(session)
     markdown = courses_markdown + "\n\n" + teachers_markdown
-    markdown = align_tables_in_text(markdown)
     session.close()
     return markdown, 200, {'Content-Type': 'text/plain; charset=utf-8'}
 

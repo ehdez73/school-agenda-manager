@@ -12,6 +12,7 @@ from collections import defaultdict
 from .models import TimeSlotAssignment, Timeslot, Config, Teacher
 
 from .translations import t
+from .markdown_utils import align_tables_in_text
 
 
 def get_timetables_from_db(session):
@@ -40,24 +41,38 @@ def get_timetables_from_db(session):
     return timetable
 
 
-def print_markdown_timetable_from_assignments(session) -> str:
+def generate_markdown_timetable_by_course(
+    timetable,
+    tutors_dict,
+    cfg_dict=None,
+):
     """
-    Prints and returns markdown tables for each course line using Activity table data.
-    Handles multiple subjects per timeslot (SubjectGroups).
+    Generates markdown tables for each course line without requiring database session.
+
     Args:
-        session: Database session
+        timetable: Dict[str, Dict[(int, int), List[str]]]
+                  {course_line: {(hour, day_index): [subject_teacher_strings]}}
+        tutors_dict: Dict[str, str] mapping course_line to tutor_name
+                    (e.g., {"1-A": "John", "1-B": "Jane"})
+        cfg_dict: Optional dict with configuration:
+                 - hour_names: List of hour labels
+                 - day_indices: List of day indices
+                 - days_per_week: Number of days per week
+
     Returns:
         str: The generated markdown string.
     """
-    timetable = get_timetables_from_db(session)
     all_hours = set()
     for course in timetable.values():
         all_hours.update(hour for (hour, _) in course.keys())
     sorted_hours = sorted(all_hours)
 
-    cfg = session.query(Config).first()
-    cfg_dict = cfg.to_dict() if cfg else None
     cfg_hour_names = cfg_dict.get("hour_names", []) if cfg_dict else []
+    days_per_week = cfg_dict.get("days_per_week", 5) if cfg_dict else 5
+    # day_indices may be present but None; ensure it's iterable
+    day_indices_from_cfg = None
+    if cfg_dict is not None:
+        day_indices_from_cfg = cfg_dict.get("day_indices")
 
     markdown = []
     markdown.append("## " + t("timetable.by_course") + "\n")
@@ -65,16 +80,18 @@ def print_markdown_timetable_from_assignments(session) -> str:
         slots = timetable[course_line]
         course_label = t("timetable.course_label")
         tutor_label = t("timetable.group_tutor")
-        # find if a teacher has this course_line as tutor_group
-        tutor = session.query(Teacher).filter(Teacher.tutor_group == course_line).first()
-        if tutor:
-            markdown.append(f"### {course_label}: {course_line} — {tutor_label}: {tutor.name}")
+
+        # Get tutor from the provided dict
+        tutor_name = tutors_dict.get(course_line)
+        if tutor_name:
+            markdown.append(
+                f"### {course_label}: {course_line} — {tutor_label}: {tutor_name}"
+            )
         else:
             markdown.append(f"### {course_label}: {course_line}")
+
         day_indices = (
-            cfg_dict.get("day_indices")
-            if cfg_dict
-            else list(range(cfg.days_per_week if cfg else 5))
+            day_indices_from_cfg if day_indices_from_cfg is not None else list(range(days_per_week))
         )
         weekdays = [t(f"day.{i}") for i in day_indices]
         header = "| " + t("timetable.hour_header") + " | " + " | ".join(weekdays) + " |"
@@ -98,7 +115,33 @@ def print_markdown_timetable_from_assignments(session) -> str:
             markdown.append(f"| {hour_label} | " + " | ".join(row) + " |")
         markdown.append("")
     result = "\n".join(markdown)
+    # Align markdown tables for nicer plaintext rendering
+    result = align_tables_in_text(result)
     return result
+
+
+def print_markdown_timetable_from_assignments(session) -> str:
+    """
+    Prints and returns markdown tables for each course line using Activity table data.
+    Handles multiple subjects per timeslot (SubjectGroups).
+    Args:
+        session: Database session
+    Returns:
+        str: The generated markdown string.
+    """
+    timetable = get_timetables_from_db(session)
+
+    # Build tutors_dict from database
+    tutors_dict = {}
+    teachers = session.query(Teacher).all()
+    for teacher in teachers:
+        if teacher.tutor_group:
+            tutors_dict[teacher.tutor_group] = teacher.name
+
+    cfg = session.query(Config).first()
+    cfg_dict = cfg.to_dict() if cfg else None
+
+    return generate_markdown_timetable_by_course(timetable, tutors_dict, cfg_dict)
 
 
 def get_teacher_timetables_from_db(session):
@@ -123,37 +166,42 @@ def get_teacher_timetables_from_db(session):
     return teacher_timetable
 
 
-def print_markdown_timetable_per_teacher(session) -> str:
+def generate_markdown_timetable_by_teacher(
+    teacher_timetable,
+    teachers_info,
+    cfg_dict=None,
+):
     """
-    Returns markdown tables of the timetable for each teacher using Activity data.
-    Each cell contains the course (e.g., 1ºA) and the subject.
-    Handles multiple subjects per timeslot (SubjectGroups).
-    The tables are ordered by teacher name.
+    Generates markdown tables of the timetable for each teacher without requiring database session.
+
     Args:
-        session: Database session
+        teacher_timetable: Dict[teacher_name, Dict[(hour, day_index), List[str]]]
+                          {teacher_name: {(hour, day_index): [course_subject_strings]}}
+        teachers_info: Dict[teacher_name, max_hours_week]
+        cfg_dict: Optional dict with configuration:
+                 - hour_names: List of hour labels
+                 - day_indices: List of day indices
+                 - days_per_week: Number of days per week
+
+    Returns:
+        str: The generated markdown string.
     """
-    teacher_timetable = get_teacher_timetables_from_db(session)
     all_hours = set()
     for teacher in teacher_timetable.values():
         all_hours.update(hour for (hour, _) in teacher.keys())
     sorted_hours = sorted(all_hours)
 
-    cfg = session.query(Config).first()
-    cfg_dict = cfg.to_dict() if cfg else None
     cfg_hour_names = cfg_dict.get("hour_names", []) if cfg_dict else []
-
-    # Get teacher information for hours calculation
-    teachers_info = {}
-    teachers = session.query(Teacher).all()
-    for teacher in teachers:
-        teachers_info[teacher.name] = teacher.max_hours_week
+    days_per_week = cfg_dict.get("days_per_week", 5) if cfg_dict else 5
+    day_indices_from_cfg = None
+    if cfg_dict is not None:
+        day_indices_from_cfg = cfg_dict.get("day_indices")
 
     # Calculate assigned hours for each teacher
-    teacher_assigned_hours = defaultdict(int)
-    assignments = session.query(TimeSlotAssignment).all()
-    for assignment in assignments:
-        teacher_name = assignment.teacher.name
-        teacher_assigned_hours[teacher_name] += 1
+    teacher_assigned_hours = {}
+    for teacher_name, slots in teacher_timetable.items():
+        total_hours = sum(len(assignments) for assignments in slots.values())
+        teacher_assigned_hours[teacher_name] = total_hours
 
     markdown = []
     markdown.append("## " + t("timetable.by_teacher") + "\n")
@@ -168,9 +216,7 @@ def print_markdown_timetable_per_teacher(session) -> str:
         markdown.append(f"{hours_info}")
         # Markdown table header
         day_indices = (
-            cfg_dict.get("day_indices")
-            if cfg_dict
-            else list(range(cfg.days_per_week if cfg else 5))
+            day_indices_from_cfg if day_indices_from_cfg is not None else list(range(days_per_week))
         )
         weekdays = [t(f"day.{i}") for i in day_indices]
         header = "| " + t("timetable.hour_header") + " | " + " | ".join(weekdays) + " |"
@@ -195,7 +241,34 @@ def print_markdown_timetable_per_teacher(session) -> str:
             markdown.append(f"| {hour_label} | " + " | ".join(row) + " |")
         markdown.append("")
     result = "\n".join(markdown)
+    # Align markdown tables for nicer plaintext rendering
+    result = align_tables_in_text(result)
     return result
+
+
+def print_markdown_timetable_per_teacher(session) -> str:
+    """
+    Returns markdown tables of the timetable for each teacher using Activity data.
+    Each cell contains the course (e.g., 1ºA) and the subject.
+    Handles multiple subjects per timeslot (SubjectGroups).
+    The tables are ordered by teacher name.
+    Args:
+        session: Database session
+    """
+    teacher_timetable = get_teacher_timetables_from_db(session)
+
+    # Get teacher information for hours calculation
+    teachers_info = {}
+    teachers = session.query(Teacher).all()
+    for teacher in teachers:
+        teachers_info[teacher.name] = teacher.max_hours_week
+
+    cfg = session.query(Config).first()
+    cfg_dict = cfg.to_dict() if cfg else None
+
+    return generate_markdown_timetable_by_teacher(
+        teacher_timetable, teachers_info, cfg_dict
+    )
 
 
 # Example usage:
