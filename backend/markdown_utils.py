@@ -27,7 +27,9 @@ def split_pipe_row(line: str) -> List[str] | None:
 
 def is_separator_cell(token: str) -> bool:
     token = token.strip()
-    return re.match(r'^:?-{3,}:?$', token) is not None
+    # Accept separator tokens with one or more dashes. Some Markdown tables
+    # (and the tests) use two dashes like '--' so require 1+ dashes here.
+    return re.match(r'^:?-{1,}:?$', token) is not None
 
 
 def is_separator_row(line: str) -> bool:
