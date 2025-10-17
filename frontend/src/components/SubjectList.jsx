@@ -13,7 +13,7 @@ function SubjectList() {
   const [sortAsc, setSortAsc] = useState(true);
   const [search, setSearch] = useState('');
   const [courseFilter, setCourseFilter] = useState('');
-  const [form, setForm] = useState({ name: '', course_id: '', weekly_hours: 2 });
+  const [form, setForm] = useState({ name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 2 });
   const [showForm, setShowForm] = useState(false);
   const [formError, setFormError] = useState('');
   const [lockedHours, setLockedHours] = useState(false);
@@ -42,13 +42,14 @@ function SubjectList() {
       id: form.id,
       name: form.name,
       weekly_hours: form.weekly_hours,
+      max_hours_per_day: form.max_hours_per_day,
       course_id: form.course_id
     };
     setFormError('');
     const action = editingId ? api.put(`/subjects/${editingId}`, payload) : api.post('/subjects', payload);
     action.then(() => {
       fetchSubjects();
-      setForm({ id: '', name: '', course_id: '', weekly_hours: 2 });
+      setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 2 });
       setEditingId(null);
       setShowForm(false);
       setLockedHours(false);
@@ -56,7 +57,13 @@ function SubjectList() {
   }
 
   function handleEdit(subject) {
-    setForm({ name: subject.name, course_id: subject.course ? subject.course.id : '', id: subject.id, weekly_hours: subject.weekly_hours ?? 2 });
+    setForm({ 
+      name: subject.name, 
+      course_id: subject.course ? subject.course.id : '', 
+      id: subject.id, 
+      weekly_hours: subject.weekly_hours ?? 2,
+      max_hours_per_day: subject.max_hours_per_day ?? 2
+    });
     const isLocked = subject.subject_groups && subject.subject_groups.length > 0;
     setLockedHours(Boolean(isLocked));
     setEditingId(subject.id);
@@ -123,7 +130,7 @@ function SubjectList() {
       />
       <h2>{t('subjects.title')}</h2>
       {showForm ? (
-        <FormModal open={showForm} onClose={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2 }); setEditingId(null); setShowForm(false); }}>
+        <FormModal open={showForm} onClose={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 1 }); setEditingId(null); setShowForm(false); }}>
           <SubjectForm
             form={form}
             setForm={setForm}
@@ -132,11 +139,11 @@ function SubjectList() {
             editingId={editingId}
             formError={formError}
             onSubmit={handleSubmit}
-            onCancel={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2 }); setEditingId(null); setShowForm(false); }}
+            onCancel={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 1 }); setEditingId(null); setShowForm(false); }}
           />
         </FormModal>
       ) : (
-        <button className="subject-btn-add" onClick={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2 }); setShowForm(true); }}>
+        <button className="subject-btn-add" onClick={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 1 }); setShowForm(true); }}>
           {t('subjects.add_subject')}
         </button>
       )}
@@ -170,7 +177,12 @@ function SubjectList() {
               {t('subjects.course') || 'Course'} {sortBy === 'course' ? (sortAsc ? '▲' : '▼') : ''}
             </th>
             <th>{t('subjects.group')}</th>
-            <th>{t('subjects.weekly_hours')}</th>
+            <th className="subject-table-th-sort" onClick={() => handleSort('weekly_hours')}>
+              {t('subjects.weekly_hours')} {sortBy === 'weekly_hours' ? (sortAsc ? '▲' : '▼') : ''}
+            </th>
+            <th className="subject-table-th-sort" onClick={() => handleSort('max_hours_per_day')}>
+              {t('subjects.max_hours_per_day')} {sortBy === 'max_hours_per_day' ? (sortAsc ? '▲' : '▼') : ''}
+            </th>
             <th>{t('common_actions.actions')}</th>
           </tr>
         </thead>
@@ -190,6 +202,7 @@ function SubjectList() {
                 ) : '—'}
               </td>
               <td>{subject.weekly_hours}</td>
+              <td>{subject.max_hours_per_day || 2}</td>
               <td>
                 <button
                   title={t('common.edit')}

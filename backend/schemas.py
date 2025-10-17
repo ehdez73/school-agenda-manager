@@ -18,6 +18,7 @@ class SubjectSchema(BaseModel):
     id: str
     name: str
     weekly_hours: int
+    max_hours_per_day: int
     course: Optional[dict] = None
     subject_groups: List[dict] = []
     full_name: Optional[str] = None
@@ -35,6 +36,7 @@ class DayPreferences(BaseModel):
     unavailable: list of integer hour indices that the teacher cannot teach that day
     preferred: list of integer hour indices that the teacher prefers that day
     """
+
     unavailable: List[int] = Field(default_factory=list)
     preferred: List[int] = Field(default_factory=list)
 

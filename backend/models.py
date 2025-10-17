@@ -3,9 +3,10 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 from sqlalchemy import Table, ForeignKey, Column as SAColumn
 
-ENGINE = create_engine('sqlite:///agenda.db')
+ENGINE = create_engine("sqlite:///agenda.db")
 Base = declarative_base()
 Session = sessionmaker(bind=ENGINE)
+
 
 class Course(Base):
     """
@@ -13,20 +14,18 @@ class Course(Base):
     Attributes:
         id (str): Unique identifier for the course (e.g., "1º", "2º").
         num_lines (int): Number of lines/groups in the course (e.g., 2 for "1ºA", "1ºB").
-   """
-    __tablename__ = 'courses'
-    id = Column(String(50), primary_key=True) 
+    """
+
+    __tablename__ = "courses"
+    id = Column(String(50), primary_key=True)
     num_lines = Column(Integer, nullable=False, default=1)
 
     def __repr__(self):
         return f"<Course(id='{self.id}', num_lines={self.num_lines})>"
 
     def to_dict(self):
-        return {
-            'id': self.id,
-            'name': self.id,
-            'num_lines': self.num_lines
-        }
+        return {"id": self.id, "name": self.id, "num_lines": self.num_lines}
+
 
 class Subject(Base):
     @property
@@ -36,6 +35,7 @@ class Subject(Base):
         elif self.course_id:
             return f"{self.name} ({self.course_id})"
         return self.name
+
     """
     Represents a school subject.
     Attributes:
@@ -47,32 +47,42 @@ class Subject(Base):
         course (Course): Relationship to Course.
         groups (list[SubjectGroup]): Groups associated with the subject.
     """
-    __tablename__ = 'subjects'
+    __tablename__ = "subjects"
     id = Column(String(20), primary_key=True)
     name = Column(String(50), nullable=False)
     weekly_hours = Column(Integer, nullable=False, default=1)
-    max_hours_per_day = Column(Integer, nullable=False, default=2)
+    max_hours_per_day = Column(Integer, nullable=False, default=1)
     course_id = Column(Integer, ForeignKey("courses.id"))
     course = relationship("Course", backref="subjects")
 
     def __repr__(self):
-        return f"<Subject(id='{self.id}', name='{self.name}', course_id={self.course_id})>"
+        return (
+            f"<Subject(id='{self.id}', name='{self.name}', course_id={self.course_id})>"
+        )
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'name': self.name,
-            'weekly_hours': self.weekly_hours,
-            'course': self.course.to_dict() if self.course else None,
-            'subject_groups': [{'id': g.id, 'name': g.name} for g in self.subject_groups] if getattr(self, 'subject_groups', None) else [],
-            'full_name': self.full_name
+            "id": self.id,
+            "name": self.name,
+            "weekly_hours": self.weekly_hours,
+            "max_hours_per_day": self.max_hours_per_day,
+            "course": self.course.to_dict() if self.course else None,
+            "subject_groups": [
+                {"id": g.id, "name": g.name} for g in self.subject_groups
+            ]
+            if getattr(self, "subject_groups", None)
+            else [],
+            "full_name": self.full_name,
         }
 
+
 subjectgroup_subject = Table(
-    'subjectgroup_subject', Base.metadata,
-    Column('subjectgroup_id', Integer, ForeignKey('subject_groups.id')),
-    Column('subject_id', String(20), ForeignKey('subjects.id'))
+    "subjectgroup_subject",
+    Base.metadata,
+    Column("subjectgroup_id", Integer, ForeignKey("subject_groups.id")),
+    Column("subject_id", String(20), ForeignKey("subjects.id")),
 )
+
 
 class SubjectGroup(Base):
     """
@@ -82,27 +92,33 @@ class SubjectGroup(Base):
         name (str): Optional display name for the group.
         subjects (list[Subject]): Subjects belonging to the group.
     """
-    __tablename__ = 'subject_groups'
+
+    __tablename__ = "subject_groups"
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100), nullable=True)
 
-    subjects = relationship('Subject', secondary=subjectgroup_subject, backref='subject_groups')
+    subjects = relationship(
+        "Subject", secondary=subjectgroup_subject, backref="subject_groups"
+    )
 
     def __repr__(self):
         return f"<SubjectGroup(id={self.id}, name='{self.name}')>"
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'name': self.name,
-            'subjects': [s.to_dict() for s in self.subjects]
+            "id": self.id,
+            "name": self.name,
+            "subjects": [s.to_dict() for s in self.subjects],
         }
 
+
 teacher_subject = Table(
-    'teacher_subject', Base.metadata,
-    Column('teacher_id', Integer, ForeignKey('teachers.id')),
-    Column('subject_id', Integer, ForeignKey('subjects.id'))
+    "teacher_subject",
+    Base.metadata,
+    Column("teacher_id", Integer, ForeignKey("teachers.id")),
+    Column("subject_id", Integer, ForeignKey("subjects.id")),
 )
+
 
 class Teacher(Base):
     """
@@ -115,12 +131,13 @@ class Teacher(Base):
         preferences (str): Preferences for scheduling.
         weekly_hours (int): Weekly teaching hours.
     """
-    __tablename__ = 'teachers'
+
+    __tablename__ = "teachers"
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
-    subjects = relationship('Subject', secondary=teacher_subject, backref='teachers')
+    subjects = relationship("Subject", secondary=teacher_subject, backref="teachers")
     max_hours_week = Column(Integer, nullable=False, default=1)
-    
+
     preferences = Column(String(1000), nullable=True)
 
     def __repr__(self):
@@ -128,13 +145,13 @@ class Teacher(Base):
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'name': self.name,
-            'subjects': [subject.to_dict() for subject in self.subjects],
-            
-            'max_hours_week': self.max_hours_week,
-            'preferences': json.loads(self.preferences) if self.preferences else {},
+            "id": self.id,
+            "name": self.name,
+            "subjects": [subject.to_dict() for subject in self.subjects],
+            "max_hours_week": self.max_hours_week,
+            "preferences": json.loads(self.preferences) if self.preferences else {},
         }
+
 
 class Timeslot(Base):
     """
@@ -147,20 +164,24 @@ class Timeslot(Base):
         line (int): Line/group number (e.g., 1 = 1ºA, 2 = 1ºB).
         course (Course): Relationship to Course.
     """
+
     __tablename__ = "timeslots"
     id = Column(Integer, primary_key=True, autoincrement=True)
     day = Column(Integer, nullable=False)
     hour = Column(Integer, nullable=False)
     course_id = Column(String(50), ForeignKey("courses.id"), nullable=False)
-    line = Column(Integer, nullable=False)  # e.g.: 1 = first line/group (A), 2 = second line/group (B)
+    line = Column(
+        Integer, nullable=False
+    )  # e.g.: 1 = first line/group (A), 2 = second line/group (B)
 
     course = relationship("Course", backref="timeslots")
     timeslot_assignments = relationship("TimeSlotAssignment", back_populates="timeslot")
-    subject_group_id = Column(Integer, ForeignKey('subject_groups.id'), nullable=True)
-    subject_group = relationship('SubjectGroup', backref='timeslots')
+    subject_group_id = Column(Integer, ForeignKey("subject_groups.id"), nullable=True)
+    subject_group = relationship("SubjectGroup", backref="timeslots")
 
     def __repr__(self):
         return f"<:Timeslot(id={self.id}, day={self.day}, hour={self.hour}, course={self.course_id}, line={self.line})>"
+
 
 class TimeSlotAssignment(Base):
     """
@@ -174,6 +195,7 @@ class TimeSlotAssignment(Base):
         subject (Subject): Relationship to Subject.
         teacher (Teacher): Relationship to Teacher.
     """
+
     __tablename__ = "timeslot_assignments"
     id = Column(Integer, primary_key=True, autoincrement=True)
     timeslot_id = Column(Integer, ForeignKey("timeslots.id"))
@@ -187,6 +209,7 @@ class TimeSlotAssignment(Base):
     def __repr__(self):
         return f"<TimeSlotAssignment(id={self.id}, subject={self.subject_id}, teacher={self.teacher_id}, timeslot_id={self.timeslot_id})>"
 
+
 class Config(Base):
     """
     Represents general configuration for the timetable system.
@@ -195,7 +218,8 @@ class Config(Base):
         classes_per_day (int): Number of classes per day.
         days_per_week (int): Number of days per week.
     """
-    __tablename__ = 'config'
+
+    __tablename__ = "config"
     id = Column(Integer, primary_key=True)
     classes_per_day = Column(Integer, nullable=False, default=5)
     days_per_week = Column(Integer, nullable=False, default=5)
@@ -204,11 +228,12 @@ class Config(Base):
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'classes_per_day': self.classes_per_day,
-            'days_per_week': self.days_per_week,
-            'hour_names': json.loads(self.hour_names) if self.hour_names else [],
-            'day_indices': json.loads(self.day_indices) if self.day_indices else []
+            "id": self.id,
+            "classes_per_day": self.classes_per_day,
+            "days_per_week": self.days_per_week,
+            "hour_names": json.loads(self.hour_names) if self.hour_names else [],
+            "day_indices": json.loads(self.day_indices) if self.day_indices else [],
         }
+
 
 Base.metadata.create_all(ENGINE)

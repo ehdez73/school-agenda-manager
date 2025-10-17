@@ -60,6 +60,19 @@ export default function SubjectForm({ form, setForm, courses, lockedHours, editi
                     disabled={lockedHours}
                 />
             </label>
+            <label className="subject-label">
+                {t('subjects.max_hours_per_day')}
+                <input
+                    name="max_hours_per_day"
+                    type="number"
+                    min={1}
+                    value={form.max_hours_per_day}
+                    onChange={handleChange}
+                    placeholder={t('subjects.max_hours_per_day')}
+                    required
+                    className="subject-input subject-input-short"
+                />
+            </label>
             {lockedHours && <div className="form-error">{t('subject_groups.error_hours_mismatch')}</div>}
             {formError && <div className="form-error">{formError}</div>}
             <div className="subject-form-actions">

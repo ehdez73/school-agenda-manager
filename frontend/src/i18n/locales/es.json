@@ -101,6 +101,7 @@
         "add_subject": "Añadir asignatura",
         "group": "Grupo",
         "weekly_hours": "Horas/semana",
+        "max_hours_per_day": "Máx. horas/día",
         "no_course": "Sin curso",
         "course": "Curso"
     },

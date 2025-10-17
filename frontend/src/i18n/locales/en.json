@@ -101,6 +101,7 @@
         "add_subject": "Add subject",
         "group": "Group",
         "weekly_hours": "Hours/week",
+        "max_hours_per_day": "Max hours/day",
         "no_course": "No course",
         "course": "Course"
     },
