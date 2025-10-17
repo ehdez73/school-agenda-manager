@@ -3,7 +3,16 @@ import { t } from '../i18n';
 
 export default function SubjectForm({ form, setForm, courses, lockedHours, editingId, formError, onSubmit, onCancel }) {
     const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+        let value;
+        if (e.target.type === 'checkbox') {
+            value = e.target.checked;
+        } else if (e.target.name === 'consecutive_hours') {
+            // convert select string value to boolean
+            value = e.target.value === 'true';
+        } else {
+            value = e.target.value;
+        }
+        setForm({ ...form, [e.target.name]: value });
     };
 
     return (
@@ -73,6 +82,20 @@ export default function SubjectForm({ form, setForm, courses, lockedHours, editi
                     className="subject-input subject-input-short"
                 />
             </label>
+            {form.max_hours_per_day > 1 && (
+                <label className="subject-label">
+                    {t('subjects.consecutive_hours')}
+                    <select
+                        name="consecutive_hours"
+                        value={String(form.consecutive_hours ?? true)}
+                        onChange={handleChange}
+                        className="subject-select"
+                    >
+                        <option value="true">{t('common.yes') || 'Yes'}</option>
+                        <option value="false">{t('common.no') || 'No'}</option>
+                    </select>
+                </label>
+            )}
             {lockedHours && <div className="form-error">{t('subject_groups.error_hours_mismatch')}</div>}
             {formError && <div className="form-error">{formError}</div>}
             <div className="subject-form-actions">

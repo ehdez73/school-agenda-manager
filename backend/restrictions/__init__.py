@@ -12,6 +12,9 @@ from .base import Restriction
 from .group_subject_max_hours_per_day import GroupSubjectMaxHoursPerDay
 from .group_at_most_one_logical_assignment import GroupAtMostOneLogicalAssignment
 from .group_subject_hours_must_be_consecutive import GroupSubjectHoursMustBeConsecutive
+from .group_subject_hours_must_not_be_consecutive import (
+    GroupSubjectHoursMustNotBeConsecutive,
+)
 from .subjectgroup_assignment import SubjectGroupAssignment
 from .group_at_most_one_subject_per_hour import GroupAtMostOneSubjectPerHour
 
@@ -28,6 +31,7 @@ __all__ = [
     "GroupSubjectMaxHoursPerDay",
     "GroupAtMostOneLogicalAssignment",
     "GroupSubjectHoursMustBeConsecutive",
+    "GroupSubjectHoursMustNotBeConsecutive",
     "SubjectGroupAssignment",
     "GroupAtMostOneSubjectPerHour",
     "TeacherOneClassAtATime",

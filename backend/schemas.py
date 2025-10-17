@@ -19,6 +19,7 @@ class SubjectSchema(BaseModel):
     name: str
     weekly_hours: int
     max_hours_per_day: int
+    consecutive_hours: bool = True
     course: Optional[dict] = None
     subject_groups: List[dict] = []
     full_name: Optional[str] = None

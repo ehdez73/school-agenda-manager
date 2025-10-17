@@ -15,7 +15,9 @@
         "export_success": "Exportado correctamente",
         "import_success": "Importado correctamente",
         "clear_success": "Todos los datos han sido eliminados",
-        "name": "Nombre"
+        "name": "Nombre",
+        "yes": "Sí",
+        "no": "No"
     },
     "id": "ID",
     "name": "Nombre",
@@ -103,7 +105,8 @@
         "weekly_hours": "Horas/semana",
         "max_hours_per_day": "Máx. horas/día",
         "no_course": "Sin curso",
-        "course": "Curso"
+        "course": "Curso",
+        "consecutive_hours": "Horas consecutivas"
     },
     "subject_groups": {
         "title": "Grupos de asignaturas",

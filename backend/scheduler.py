@@ -15,17 +15,16 @@ from .restrictions import (
     TeacherMaxWeeklyHours,
     GroupSubjectMaxHoursPerDay,
     GroupAtMostOneLogicalAssignment,
-    GroupSubjectHoursMustBeConsecutive,
     SubjectGroupAssignment,
     TeacherUnavailableTimes,
     TeacherPreferredTimes,
     TutorPreference,
+    GroupSubjectHoursMustBeConsecutive,
+    GroupSubjectHoursMustNotBeConsecutive,
 )
 
 
-def save_solution_to_db(
-    session, solver, assignments, groups, subjects, teachers, num_days, num_hours
-):
+def save_solution_to_db(session, solver, assignments, groups, num_days, num_hours):
     # Clear previous schedule
     session.query(TimeSlotAssignment).delete()
     session.query(Timeslot).delete()
@@ -113,8 +112,26 @@ def solve_scheduling_model(
     GroupAtMostOneLogicalAssignment().apply(
         model, assignments, all_groups, num_days, num_hours, all_subjectgroups
     )
+    # Apply either consecutive or not-consecutive restriction per subject
+
+    # The restrictions expect the full subjects list but will only act on subjects
+    # that belong to the course of each group. We call apply on the whole model
+    # but make sure each restriction can decide per-subject using subject attributes.
     GroupSubjectHoursMustBeConsecutive().apply(
-        model, assignments, all_groups, all_subjects, num_days, num_hours
+        model,
+        assignments,
+        all_groups,
+        [s for s in all_subjects if getattr(s, "consecutive_hours", True)],
+        num_days,
+        num_hours,
+    )
+    GroupSubjectHoursMustNotBeConsecutive().apply(
+        model,
+        assignments,
+        all_groups,
+        [s for s in all_subjects if not getattr(s, "consecutive_hours", True)],
+        num_days,
+        num_hours,
     )
     SubjectGroupAssignment().apply(
         model, assignments, all_groups, all_subjects, all_subjectgroups
@@ -194,8 +211,6 @@ def create_timetable(session) -> str | None:
             solver,
             assignments,
             all_groups,
-            all_subjects,
-            all_teachers,
             num_days,
             num_hours,
         )

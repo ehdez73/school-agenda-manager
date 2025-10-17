@@ -18,10 +18,11 @@ def test_save_solution_creates_assignments():
     session = Session()
     # Derive groups from courses table
     from backend.models import Course, Subject, Teacher, Config
+
     groups = []
     for course in session.query(Course).all():
         for i in range(course.num_lines):
-            groups.append(f"{course.id}-{chr(ord('A')+i)}")
+            groups.append(f"{course.id}-{chr(ord('A') + i)}")
 
     subjects = session.query(Subject).all()
     teachers = session.query(Teacher).all()
@@ -38,7 +39,7 @@ def test_save_solution_creates_assignments():
     fake_solver = FakeSolver(ones=[key])
 
     # Run save
-    save_solution_to_db(session, fake_solver, assignments, groups, subjects, teachers, num_days, num_hours)
+    save_solution_to_db(session, fake_solver, assignments, groups, num_days, num_hours)
 
     # There should be at least one TimeSlotAssignment saved
     count = session.query(TimeSlotAssignment).count()

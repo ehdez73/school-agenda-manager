@@ -15,7 +15,9 @@
         "export_success": "Export successful",
         "import_success": "Import successful",
         "clear_success": "All data has been removed",
-        "name": "Name"
+        "name": "Name",
+        "yes": "Yes",
+        "no": "No"
     },
     "id": "ID",
     "name": "Name",
@@ -103,7 +105,8 @@
         "weekly_hours": "Hours/week",
         "max_hours_per_day": "Max hours/day",
         "no_course": "No course",
-        "course": "Course"
+        "course": "Course",
+        "consecutive_hours": "Consecutive hours"
     },
     "subject_groups": {
         "title": "Subject groups",

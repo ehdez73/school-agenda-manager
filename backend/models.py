@@ -2,6 +2,7 @@ import json
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 from sqlalchemy import Table, ForeignKey, Column as SAColumn
+from sqlalchemy import Boolean
 
 ENGINE = create_engine("sqlite:///agenda.db")
 Base = declarative_base()
@@ -52,6 +53,9 @@ class Subject(Base):
     name = Column(String(50), nullable=False)
     weekly_hours = Column(Integer, nullable=False, default=1)
     max_hours_per_day = Column(Integer, nullable=False, default=1)
+    # If True, when a subject has more than one hour per day those hours must be consecutive.
+    # If False, they must NOT be consecutive.
+    consecutive_hours = Column(Boolean, nullable=False, default=True)
     course_id = Column(Integer, ForeignKey("courses.id"))
     course = relationship("Course", backref="subjects")
 
@@ -66,6 +70,7 @@ class Subject(Base):
             "name": self.name,
             "weekly_hours": self.weekly_hours,
             "max_hours_per_day": self.max_hours_per_day,
+            "consecutive_hours": self.consecutive_hours,
             "course": self.course.to_dict() if self.course else None,
             "subject_groups": [
                 {"id": g.id, "name": g.name} for g in self.subject_groups
@@ -152,7 +157,7 @@ class Teacher(Base):
             "subjects": [subject.to_dict() for subject in self.subjects],
             "max_hours_week": self.max_hours_week,
             "preferences": json.loads(self.preferences) if self.preferences else {},
-            "tutor_group": self.tutor_group
+            "tutor_group": self.tutor_group,
         }
 
 

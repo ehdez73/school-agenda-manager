@@ -174,6 +174,7 @@ def import_json():
                 name=s.get("name"),
                 weekly_hours=s.get("weekly_hours", 1),
                 max_hours_per_day=s.get("max_hours_per_day", 2),
+                consecutive_hours=s.get("consecutive_hours", True),
                 course_id=course_id,
             )
             session.add(subj)
