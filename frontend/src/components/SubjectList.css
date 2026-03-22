@@ -25,9 +25,9 @@
 	font-weight: 500;
 }
 .subject-input {
-	padding: 6px 12px;
-	border-radius: 6px;
-	border: 1px solid #ccc;
+	padding: var(--space-xs) var(--space-md);
+	border-radius: var(--radius-md);
+	border: 1px solid var(--color-input-border);
 	margin-top: 2px;
 	width: 300px;
 }
@@ -35,36 +35,36 @@
 	width: 80px;
 }
 .subject-select {
-	padding: 6px 12px;
-	border-radius: 6px;
-	border: 1px solid #ccc;
+	padding: var(--space-xs) var(--space-md);
+	border-radius: var(--radius-md);
+	border: 1px solid var(--color-input-border);
 	margin-top: 2px;
 	width: 223px;
 }
 .subject-btn {
-	padding: 6px 16px;
-	border-radius: 6px;
-	background: #2563eb;
+	padding: var(--space-xs) var(--space-md);
+	border-radius: var(--radius-md);
+	background: var(--color-primary);
 	color: #fff;
 	border: none;
 }
 .subject-btn-cancel {
-	background: #64748b;
+	background: var(--color-secondary);
 	color: #fff;
 	border: none;
 }
 .subject-btn-add {
-	margin-bottom: 1rem;
-	padding: 6px 16px;
-	border-radius: 6px;
-	background: #2563eb;
+	margin-bottom: var(--space-md);
+	padding: var(--space-xs) var(--space-md);
+	border-radius: var(--radius-md);
+	background: var(--color-primary);
 	color: #fff;
 	border: none;
 }
 .subject-input:disabled {
-	background: #f3f4f6;
-	color: #a1a1aa;
-	border: 1px dashed #94a3b8;
+	background: var(--color-surface-variant);
+	color: var(--color-text-muted);
+	border: 1px dashed var(--color-border);
 	cursor: not-allowed;
 }
 /* Estilos para SubjectList */
@@ -90,21 +90,23 @@
 
 
 .subject-select {
-	padding: 6px 12px;
-	border-radius: 6px;
-	border: 1px solid #ccc;
+	padding: var(--space-xs) var(--space-md);
+	border-radius: var(--radius-md);
+	border: 1px solid var(--color-input-border);
 	margin-top: 2px;
 }
 .subject-btn {
-	padding: 6px 16px;
-	border-radius: 6px;
-	background: #2563eb;
+	padding: var(--space-xs) var(--space-md);
+	border-radius: var(--radius-md);
+	background: var(--color-primary);
 	color: #fff;
 	border: none;
-	margin-right: 8px;
+	margin-right: var(--space-sm);
 }
 .subject-btn-cancel {
-	background: #64748b;
+	background: var(--color-secondary);
+	color: #fff;
+	border: none;
 }
 .subject-search-bar {
 	display: flex;
@@ -112,30 +114,30 @@
 	margin-bottom: 1rem;
 }
 .subject-search-input {
-	padding: 6px 12px;
-	border-radius: 6px;
-	border: 1px solid #ccc;
+	padding: var(--space-xs) var(--space-md);
+	border-radius: var(--radius-md);
+	border: 1px solid var(--color-input-border);
 }
 .subject-search-select {
-	padding: 6px 12px;
-	border-radius: 6px;
-	border: 1px solid #ccc;
+	padding: var(--space-xs) var(--space-md);
+	border-radius: var(--radius-md);
+	border: 1px solid var(--color-input-border);
 }
 .subject-table-th-sort {
 	cursor: pointer;
 }
 .subject-btn-edit {
-	padding: 4px 10px;
-	border-radius: 4px;
+	padding: var(--space-xs) var(--space-sm);
+	border-radius: var(--radius-sm);
 	border: none;
-	background: #fbbf24;
-	color: #222;
-	margin-right: 8px;
+	background: var(--color-warning);
+	color: var(--color-text);
+	margin-right: var(--space-sm);
 }
 .subject-btn-delete {
-	padding: 4px 10px;
-	border-radius: 4px;
+	padding: var(--space-xs) var(--space-sm);
+	border-radius: var(--radius-sm);
 	border: none;
-	background: #ef4444;
+	background: var(--color-danger);
 	color: #fff;
 }

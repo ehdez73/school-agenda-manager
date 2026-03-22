@@ -4,6 +4,7 @@ import './CourseList.css';
 import FormModal from './FormModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import CourseForm from './CourseForm';
+import SectionLayout from './SectionLayout';
 
 export default function CourseList() {
   const [courses, setCourses] = useState([]);
@@ -105,13 +106,7 @@ export default function CourseList() {
   });
 
   return (
-    <div>
-      {error && (
-        <div role="alert" style={{ color: 'var(--color-danger, #b91c1c)', marginBottom: 8 }}>
-          {error}
-        </div>
-      )}
-      {loading && <div style={{ marginBottom: 8 }}>{t('courses.loading')}</div>}
+    <>
       <ConfirmDeleteModal
         open={showDeleteModal}
         entity={t('courses.title').toLowerCase()}
@@ -119,8 +114,7 @@ export default function CourseList() {
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
       />
-      <h2>{t('courses.title')}</h2>
-      {showForm ? (
+      {showForm && (
         <FormModal open={showForm} onClose={() => { setForm({ name: '', num_lines: 1 }); setEditingId(null); setShowForm(false); }}>
           <CourseForm
             form={form}
@@ -130,18 +124,37 @@ export default function CourseList() {
             onCancel={() => { setForm({ name: '', num_lines: 1 }); setEditingId(null); setShowForm(false); }}
           />
         </FormModal>
-      ) : (
-        <button style={{ marginBottom: '1rem', padding: '6px 16px', borderRadius: 6, background: '#2563eb', color: '#fff', border: 'none' }} onClick={() => { setForm({ name: '', num_lines: 1 }); setShowForm(true); }}>
-          {t('courses.add_course')}
-        </button>
       )}
-      <input
-        type="text"
-        placeholder={t('common.search_placeholder')}
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        style={{ marginBottom: '1rem', padding: '6px 12px', borderRadius: 6, border: '1px solid #ccc' }}
-      />
+      <SectionLayout
+        title={t('courses.title')}
+        actions={
+          <button
+            className="btn btn--primary btn--compact"
+            onClick={() => { setForm({ name: '', num_lines: 1 }); setShowForm(true); }}
+          >
+            {t('courses.add_course')}
+          </button>
+        }
+      >
+        {error && (
+          <div role="alert" className="state-error mb-md">
+            {error}
+          </div>
+        )}
+        {loading && (
+          <div className="state-loading" role="status" aria-live="polite">
+            <span className="visually-hidden">{t('courses.loading')}</span>
+          </div>
+        )}
+        <div className="search-bar">
+          <input
+            type="text"
+            className="input search-input"
+            placeholder={t('common.search_placeholder')}
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
       <table className="modern-table">
         <thead>
           <tr>
@@ -180,6 +193,7 @@ export default function CourseList() {
           })}
         </tbody>
       </table>
-    </div>
+      </SectionLayout>
+    </>
   );
 }

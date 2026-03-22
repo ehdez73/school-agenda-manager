@@ -4,6 +4,7 @@ import HourNames from './HourNames';
 import DayIndices from './DayIndices';
 import api from '../lib/api';
 import { t } from '../i18n';
+import SectionLayout from './SectionLayout';
 
 export default function ConfigForm() {
   const [classesPerDay, setClassesPerDay] = useState(5);
@@ -135,8 +136,7 @@ export default function ConfigForm() {
   };
 
   return (
-    <div className="config-form-container">
-      <h2 className="config-form-title">{t('config.title')}</h2>
+    <SectionLayout title={t('config.title')}>
 
       {/* Tabs */}
       <div className="config-tabs">
@@ -249,6 +249,6 @@ export default function ConfigForm() {
           {exportMessage && <div className="config-form-message" style={{ marginTop: '1rem' }}>{exportMessage}</div>}
         </div>
       )}
-    </div>
+    </SectionLayout>
   );
 }

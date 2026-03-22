@@ -1,0 +1,72 @@
+/* SectionLayout: shared structural wrapper for all main page sections */
+
+.section-layout {
+  padding: var(--space-xl);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-xl);
+}
+
+/* Header zone: heading row + optional description */
+.section-layout__header {
+  margin-bottom: var(--space-lg);
+}
+
+/* Heading row: title on the left, actions on the right */
+.section-layout__heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.section-layout__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.section-layout__description {
+  margin: var(--space-sm) 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.925rem;
+}
+
+/* Actions slot: holds primary and secondary buttons */
+.section-layout__actions {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Content zone: individual sections own the inner layout */
+.section-layout__content {
+  /* intentionally unstyled; children provide inner layout */
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .section-layout {
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+  }
+
+  .section-layout__title {
+    width: 100%;
+  }
+
+  .section-layout__heading-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .section-layout__actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}

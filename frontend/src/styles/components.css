@@ -228,6 +228,27 @@
     line-height: 1;
 }
 
+/* ── Section primitives (used independently of SectionLayout wrapper) ── */
+
+.section__title {
+    margin: 0 0 var(--space-sm);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.section__description {
+    margin: 0 0 var(--space-md);
+    color: var(--color-text-muted);
+    font-size: 0.925rem;
+}
+
+.section__actions {
+    display: flex;
+    gap: var(--space-sm);
+    align-items: center;
+}
+
 .chip__remove:hover {
     opacity: 0.8;
 }

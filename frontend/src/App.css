@@ -11,7 +11,7 @@
 
 /* Navigation */
 .app__nav {
-  background-color: #374151;
+  background-color: var(--color-nav-bg);
   color: white;
   padding: var(--space-md) var(--space-xl);
   display: flex;

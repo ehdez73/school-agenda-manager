@@ -4,6 +4,7 @@ import { t } from '../i18n';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import FormModal from './FormModal';
 import TeacherForm from './TeacherForm';
+import SectionLayout from './SectionLayout';
 import './TeacherList.css';
 
 export default function TeacherList() {
@@ -146,7 +147,7 @@ export default function TeacherList() {
   });
 
   return (
-    <div>
+    <>
       <ConfirmDeleteModal
         open={showDeleteModal}
         entity={t('teachers.title')}
@@ -154,8 +155,7 @@ export default function TeacherList() {
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
       />
-      <h2>{t('teachers.title')}</h2>
-      {showForm ? (
+      {showForm && (
         <FormModal open={showForm} onClose={() => { setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null }); setEditingId(null); setShowForm(false); }}>
           <TeacherForm
             form={form}
@@ -167,11 +167,18 @@ export default function TeacherList() {
             onCancel={() => { setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null }); setEditingId(null); setShowForm(false); }}
           />
         </FormModal>
-      ) : (
-        <button className="teacher-btn teacher-btn-add" onClick={() => { setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null }); setShowForm(true); }}>
-          {t('teachers.add_teacher')}
-        </button>
       )}
+      <SectionLayout
+        title={t('teachers.title')}
+        actions={
+          <button
+            className="btn btn--primary btn--compact"
+            onClick={() => { setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null }); setShowForm(true); }}
+          >
+            {t('teachers.add_teacher')}
+          </button>
+        }
+      >
       <div className="teacher-search-bar">
         <input
           type="text"
@@ -244,6 +251,7 @@ export default function TeacherList() {
           ))}
         </tbody>
       </table>
-    </div>
+      </SectionLayout>
+    </>
   );
 }

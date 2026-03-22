@@ -5,6 +5,7 @@ import rehypeRaw from 'rehype-raw';
 import './MarkdownTimetable.css';
 import api from '../lib/api';
 import { t } from '../i18n';
+import SectionLayout from './SectionLayout';
 
 
 function MarkdownTimetable() {
@@ -92,36 +93,36 @@ function MarkdownTimetable() {
     }
   };
 
+  const layoutState = loading ? 'loading' : error ? 'error' : 'ready';
+
   return (
-    <div className="markdown-timetable">
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', alignItems: 'center' }}>
-        {markdown.trim() ? (
-          <button onClick={handleClear} disabled={clearing} className="btn btn--danger">
-            {clearing ? t('timetable.recreating') : t('timetable.recreate')}
+    <SectionLayout
+      title={t('nav.timetable')}
+      state={layoutState}
+      errorMsg={error}
+      actions={
+        <>
+          {markdown.trim() ? (
+            <button onClick={handleClear} disabled={clearing} className="btn btn--danger btn--compact">
+              {clearing ? t('timetable.recreating') : t('timetable.recreate')}
+            </button>
+          ) : (
+            <button onClick={handleGenerate} disabled={clearing} className="btn btn--primary btn--compact">
+              {clearing ? t('timetable.generating') : t('timetable.generate')}
+            </button>
+          )}
+          <button
+            onClick={handleDownloadMarkdown}
+            disabled={downloading || loading || !!error || !markdown.trim()}
+            className="btn btn--secondary btn--compact"
+          >
+            {downloading ? t('timetable.downloading_md') : (t('timetable.download_md') || 'Download Markdown')}
           </button>
-        ) : (
-          <button onClick={handleGenerate} disabled={clearing} className="btn btn--primary">
-            {clearing ? t('timetable.generating') : t('timetable.generate')}
-          </button>
-        )}
-        <button
-          onClick={handleDownloadMarkdown}
-          disabled={downloading || loading || !!error || !markdown.trim()}
-          className="btn"
-          style={{ backgroundColor: '#0069d9', borderColor: '#0069d9', color: 'white' }}
-        >
-          {downloading ? t('timetable.downloading_md') : (t('timetable.download_md') || 'Download Markdown')}
-        </button>
-      </div>
-      {loading && <p className="loading-message">{t('timetable.loading')}</p>}
-      {error && (
-        <div>
-          <p className="error-message">{error}</p>
-          {error.includes(t('timetable.no_schedule'))}
-        </div>
-      )}
+        </>
+      }
+    >
       {!loading && !error && markdown.trim() && (
-        <div className="timetable-container" ref={timetableRef}>
+        <div className="timetable-container markdown-timetable" ref={timetableRef}>
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw]}
@@ -130,7 +131,7 @@ function MarkdownTimetable() {
           </ReactMarkdown>
         </div>
       )}
-    </div>
+    </SectionLayout>
   );
 }
 

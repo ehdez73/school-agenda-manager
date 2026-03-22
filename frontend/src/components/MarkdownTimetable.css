@@ -1,7 +1,6 @@
 /* Markdown Timetable Styles - School Schedule Design */
 
 .markdown-timetable {
-  padding: var(--space-lg);
   overflow-x: auto;
 }
 
@@ -15,29 +14,14 @@
   padding-bottom: var(--space-md);
 }
 
-.markdown-timetable .btn {
-  margin-bottom: var(--space-lg);
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 .loading-message {
-  text-align: center;
-  color: var(--color-text-muted);
-  font-size: 1.1rem;
-  padding: var(--space-xl);
+  /* Handled by .state-loading in Shared.css */
+  display: none;
 }
 
 .error-message {
-  text-align: center;
-  color: var(--color-danger);
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  padding: var(--space-md);
-  border-radius: var(--radius-md);
-  margin: var(--space-lg) 0;
-  font-weight: 500;
+  /* Handled by .state-error in Shared.css */
+  display: none;
 }
 
 .timetable-container {
@@ -89,7 +73,7 @@
 }
 
 .markdown-timetable th:first-child {
-  background: linear-gradient(135deg, var(--color-secondary) 0%, #374151 100%);
+  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-nav-bg) 100%);
   min-width: 100px;
   font-weight: 600;
 }
@@ -180,6 +164,10 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
+  .timetable-container {
+    padding: var(--space-md);
+  }
+
   .markdown-timetable {
     padding: var(--space-sm);
   }
