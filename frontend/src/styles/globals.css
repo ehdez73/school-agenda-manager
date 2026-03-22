@@ -24,6 +24,9 @@ body {
     --color-warning: #f59e0b;
     --color-danger: #ef4444;
 
+    /* Navigation */
+    --color-nav-bg: #374151;
+
     /* Light theme colors */
     --color-bg: #f4f7f6;
     --color-text: #222222;

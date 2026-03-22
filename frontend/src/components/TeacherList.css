@@ -67,7 +67,7 @@
 }
 
 .unavailable-legend .box.unavailable {
-  background: #ef4444;
+  background: var(--color-danger);
 }
 
 .unavailable-legend .box.preferred {
@@ -179,7 +179,7 @@
 
 .unavailable-slot[data-state="unavailable"] .slot-toggle-handle {
   left: 2px;
-  background: #ef4444;
+  background: var(--color-danger);
 }
 
 .unavailable-slot[data-state="preferred"] .slot-toggle-handle {
@@ -262,49 +262,47 @@
 }
 
 .teacher-input {
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-input-border);
   margin-top: 2px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+  padding: var(--space-sm) var(--space-md);
   width: 300px;
-  font-size: 16px;
+  font-size: 1rem;
 }
 
 .teacher-input:disabled {
-  background: #f3f4f6;
-  color: #a1a1aa;
-  border: 1px dashed #94a3b8;
+  background: var(--color-surface-variant);
+  color: var(--color-text-muted);
+  border: 1px dashed var(--color-border);
   cursor: not-allowed;
 }
 
 .teacher-select {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-input-border);
   margin-top: 2px;
 }
 
 .teacher-btn {
-  padding: 6px 16px;
-  border-radius: 6px;
-  background: #2563eb;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
   color: #fff;
   border: none;
 }
 
 .teacher-btn-cancel {
-  background: #64748b;
+  background: var(--color-secondary);
   color: #fff;
   border: none;
 }
 
 .teacher-btn-add {
-  margin-bottom: 1rem;
-  padding: 6px 16px;
-  border-radius: 6px;
-  background: #2563eb;
+  margin-bottom: var(--space-md);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
   color: #fff;
   border: none;
 }
@@ -322,9 +320,9 @@
 }
 
 .teacher-textarea {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-input-border);
   margin-top: 2px;
   resize: vertical;
 }

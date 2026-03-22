@@ -5,6 +5,7 @@ import ConfirmDeleteModal from './ConfirmDeleteModal';
 import FormModal from './FormModal';
 import SubjectForm from './SubjectForm';
 import './SubjectList.css';
+import SectionLayout from './SectionLayout';
 
 function SubjectList() {
   const [subjects, setSubjects] = useState([]);
@@ -134,7 +135,7 @@ function SubjectList() {
   });
 
   return (
-    <div>
+    <>
       <ConfirmDeleteModal
         open={showDeleteModal}
         entity={t('subjects.title')}
@@ -142,9 +143,8 @@ function SubjectList() {
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
       />
-      <h2>{t('subjects.title')}</h2>
-      {showForm ? (
-  <FormModal open={showForm} onClose={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 1, consecutive_hours: true }); setEditingId(null); setShowForm(false); }}>
+      {showForm && (
+        <FormModal open={showForm} onClose={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 1, consecutive_hours: true }); setEditingId(null); setShowForm(false); }}>
           <SubjectForm
             form={form}
             setForm={setForm}
@@ -158,30 +158,42 @@ function SubjectList() {
             onCancel={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 1, consecutive_hours: true, linked_subject_id: '' }); setEditingId(null); setShowForm(false); }}
           />
         </FormModal>
-      ) : (
-  <button className="subject-btn-add" onClick={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 1, consecutive_hours: true }); setShowForm(true); }}>
-          {t('subjects.add_subject')}
-        </button>
       )}
-      <div className="subject-search-bar">
-        <input
-          type="text"
-          placeholder={t('common.search_placeholder')}
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="subject-search-input"
-        />
-        <select
-          value={courseFilter}
-          onChange={e => setCourseFilter(e.target.value)}
-          className="subject-search-select"
-        >
-          <option value="">{t('common.all_courses')}</option>
-          {courseOptions.map(c => (
+      <SectionLayout
+        title={t('subjects.title')}
+        actions={
+          <button
+            className="btn btn--primary btn--compact"
+            onClick={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 1, consecutive_hours: true }); setShowForm(true); }}
+          >
+            {t('subjects.add_subject')}
+          </button>
+        }
+      >
+        {formError && (
+          <div role="alert" className="state-error mb-md">
+            {formError}
+          </div>
+        )}
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder={t('common.search_placeholder')}
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="input search-input"
+          />
+          <select
+            value={courseFilter}
+            onChange={e => setCourseFilter(e.target.value)}
+            className="select search-select"
+          >
+            <option value="">{t('common.all_courses')}</option>
+            {courseOptions.map(c => (
             <option key={c} value={c}>{c}</option>
           ))}
-        </select>
-      </div>
+          </select>
+        </div>
       <table className="modern-table">
         <thead>
           <tr>
@@ -249,7 +261,8 @@ function SubjectList() {
           ))}
         </tbody>
       </table>
-    </div>
+      </SectionLayout>
+    </>
   );
 }
 

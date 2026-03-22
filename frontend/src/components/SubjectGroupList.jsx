@@ -5,6 +5,7 @@ import ConfirmDeleteModal from './ConfirmDeleteModal';
 import FormModal from './FormModal';
 import SubjectGroupForm from './SubjectGroupForm';
 import './SubjectGroupList.css';
+import SectionLayout from './SectionLayout';
 
 export default function SubjectGroupList() {
     const [groups, setGroups] = useState([]);
@@ -79,7 +80,7 @@ export default function SubjectGroupList() {
     }
 
     return (
-        <div>
+        <>
             <ConfirmDeleteModal
                 open={showDeleteModal}
                 entity={t('subject_groups.title')}
@@ -87,8 +88,7 @@ export default function SubjectGroupList() {
                 onConfirm={confirmDelete}
                 onCancel={cancelDelete}
             />
-            <h2>{t('subject_groups.title')}</h2>
-            {showForm ? (
+            {showForm && (
                 <FormModal open={showForm} onClose={() => { setForm({ name: '', subjects: [] }); setEditingId(null); setShowForm(false); setFormError(''); }}>
                     <SubjectGroupForm
                         form={form}
@@ -99,9 +99,21 @@ export default function SubjectGroupList() {
                         onCancel={() => { setForm({ name: '', subjects: [] }); setEditingId(null); setShowForm(false); }}
                     />
                 </FormModal>
-            ) : (
-                <button className="subject-btn-add" onClick={() => { setForm({ name: '', subjects: [] }); setShowForm(true); }}>{t('subject_groups.add_group')}</button>
             )}
+            <SectionLayout
+                title={t('subject_groups.title')}
+                actions={
+                    <button
+                        className="btn btn--primary btn--compact"
+                        onClick={() => { setForm({ name: '', subjects: [] }); setShowForm(true); }}
+                    >
+                        {t('subject_groups.add_group')}
+                    </button>
+                }
+            >
+                {formError && (
+                    <div role="alert" className="state-error mb-md">{formError}</div>
+                )}
 
             <table className="modern-table">
                 <thead>
@@ -139,6 +151,7 @@ export default function SubjectGroupList() {
                     ))}
                 </tbody>
             </table>
-        </div>
+            </SectionLayout>
+        </>
     );
 }

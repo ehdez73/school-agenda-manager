@@ -116,6 +116,54 @@
     flex-wrap: wrap;
 }
 
+/* ── Section view-state helpers (used by SectionLayout) ── */
+
+/* Loading state: centered spinner placeholder */
+.state-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl);
+    color: var(--color-text-muted);
+    font-size: 0.925rem;
+}
+
+.state-loading::after {
+    content: '';
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 2px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin-left: var(--space-sm);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Error state: visible alert box */
+.state-error {
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: var(--color-danger);
+    font-size: 0.925rem;
+}
+
+/* Empty state: subtle centred message */
+.state-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl);
+    color: var(--color-text-muted);
+    font-size: 0.925rem;
+    text-align: center;
+}
+
 .group-chip {
     background-color: #eef2ff;
     color: #3730a3;

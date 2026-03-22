@@ -227,3 +227,20 @@
 .border-light {
     border: 1px solid var(--color-border-light);
 }
+
+/* Block composition utilities (for section layout patterns) */
+.shrink-0 {
+    flex-shrink: 0;
+}
+
+.overflow-x-auto {
+    overflow-x: auto;
+}
+
+.section-block {
+    padding: var(--space-xl);
+    background-color: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--space-xl);
+}
