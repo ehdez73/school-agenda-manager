@@ -32,12 +32,37 @@ class TutorMandatoryHours(Restriction):
     def apply(
         self, model, assignments, teachers, num_days, num_hours, all_subjectgroups=None
     ):
+        self._apply_impl(model, assignments, teachers, num_days, num_hours,
+                         all_subjectgroups)
+
+    def apply_with_assumptions(
+        self, model, assignments, teachers, num_days, num_hours, all_subjectgroups=None
+    ):
+        return self._apply_impl(model, assignments, teachers, num_days, num_hours,
+                                all_subjectgroups, diagnostic_mode=True)
+
+    def _apply_impl(
+        self, model, assignments, teachers, num_days, num_hours,
+        all_subjectgroups=None, diagnostic_mode=False,
+    ):
         # Determine first and last timeslots
         if num_days <= 0 or num_hours <= 0:
-            return
+            return []
 
         first_day, first_hour = 0, 0
         last_day, last_hour = num_days - 1, num_hours - 1
+
+        # Build set of subject ids that belong to any SubjectGroup so we can
+        # exclude them (subjectgroups imply desdoble / multiple subjects).
+        subject_ids_in_groups = set()
+        if all_subjectgroups:
+            for sg in all_subjectgroups:
+                if hasattr(sg, "subjects") and sg.subjects:
+                    subject_ids_in_groups.update({s.id for s in sg.subjects})
+                elif hasattr(sg, "subject_ids") and sg.subject_ids:
+                    subject_ids_in_groups.update(set(sg.subject_ids))
+
+        assumptions = []
 
         for teacher in teachers:
             tutor_group = getattr(teacher, "tutor_group", None)
@@ -45,15 +70,6 @@ class TutorMandatoryHours(Restriction):
                 continue
 
             normalized = normalize_group_name(tutor_group)
-            # Build set of subject ids that belong to any SubjectGroup so we can
-            # exclude them (subjectgroups imply desdoble / multiple subjects).
-            subject_ids_in_groups = set()
-            if all_subjectgroups:
-                for sg in all_subjectgroups:
-                    if hasattr(sg, "subjects") and sg.subjects:
-                        subject_ids_in_groups.update({s.id for s in sg.subjects})
-                    elif hasattr(sg, "subject_ids") and sg.subject_ids:
-                        subject_ids_in_groups.update(set(sg.subject_ids))
 
             # Collect vars for the specific group taught by this teacher at the
             # first and last timeslots, excluding subjects that belong to a
@@ -77,14 +93,32 @@ class TutorMandatoryHours(Restriction):
                 and k[1] not in subject_ids_in_groups
             ]
 
-            # If there are no variables for these slots, skip (possible if the
-            # subject/teacher combination doesn't exist in assignments for that group)
-            if first_vars:
-                # At least one of the assignment variables for this teacher/group
-                # at the first timeslot must be selected. If multiple subject
-                # choices exist, exactly one should be selected; we enforce
-                # sum(first_vars) == 1.
-                model.Add(sum(first_vars) == 1)
+            has_constraints = bool(first_vars) or bool(last_vars)
 
-            if last_vars:
-                model.Add(sum(last_vars) == 1)
+            if diagnostic_mode and has_constraints:
+                assume = model.NewBoolVar(f"assume_tutor_{teacher.id}")
+                if first_vars:
+                    model.Add(sum(first_vars) == 1).OnlyEnforceIf(assume)
+                if last_vars:
+                    model.Add(sum(last_vars) == 1).OnlyEnforceIf(assume)
+                assumptions.append((assume, {
+                    "restriction": "TutorMandatoryHours",
+                    "entity_type": "teacher",
+                    "entity_id": teacher.id,
+                    "entity_name": teacher.name,
+                    "extra": {"tutor_group": normalized},
+                }))
+            elif not diagnostic_mode:
+                # If there are no variables for these slots, skip (possible if the
+                # subject/teacher combination doesn't exist in assignments for that group)
+                if first_vars:
+                    # At least one of the assignment variables for this teacher/group
+                    # at the first timeslot must be selected. If multiple subject
+                    # choices exist, exactly one should be selected; we enforce
+                    # sum(first_vars) == 1.
+                    model.Add(sum(first_vars) == 1)
+
+                if last_vars:
+                    model.Add(sum(last_vars) == 1)
+
+        return assumptions

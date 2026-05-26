@@ -94,6 +94,7 @@
         "md_filename": "horario-{date}",
         "md_error": "Error descargando markdown",
         "generate_failed": "No se pudo generar un horario válido",
+        "diagnostic_title": "Informe de diagnóstico del solver",
         "generated_success": "Horario generado exitosamente",
         "assignments_cleared": "Assignments eliminadas"
     },

@@ -22,6 +22,15 @@ class TeacherUnavailableTimes(Restriction):
     """
 
     def apply(self, model, assignments, teachers, num_days, num_hours):
+        self._apply_impl(model, assignments, teachers, num_days, num_hours)
+
+    def apply_with_assumptions(self, model, assignments, teachers, num_days, num_hours):
+        return self._apply_impl(model, assignments, teachers, num_days, num_hours,
+                                diagnostic_mode=True)
+
+    def _apply_impl(self, model, assignments, teachers, num_days, num_hours,
+                    diagnostic_mode=False):
+        assumptions = []
         for teacher in teachers:
             prefs_raw = getattr(teacher, 'preferences', None)
             if not prefs_raw:
@@ -36,6 +45,8 @@ class TeacherUnavailableTimes(Restriction):
 
             if not isinstance(prefs, dict):
                 continue
+
+            assume = None  # lazy creation for diagnostic mode
 
             # For each weekday index, find matching key in preferences.
             for d in range(num_days):
@@ -64,5 +75,20 @@ class TeacherUnavailableTimes(Restriction):
                     if not vars_for_slot:
                         continue
 
-                    # Force none of the vars to be selected at this timeslot
-                    model.Add(sum(vars_for_slot) == 0)
+                    if diagnostic_mode:
+                        if assume is None:
+                            assume = model.NewBoolVar(f"assume_unavail_{teacher.id}")
+                        model.Add(sum(vars_for_slot) == 0).OnlyEnforceIf(assume)
+                    else:
+                        # Force none of the vars to be selected at this timeslot
+                        model.Add(sum(vars_for_slot) == 0)
+
+            if diagnostic_mode and assume is not None:
+                assumptions.append((assume, {
+                    "restriction": "TeacherUnavailableTimes",
+                    "entity_type": "teacher",
+                    "entity_id": teacher.id,
+                    "entity_name": teacher.name,
+                }))
+
+        return assumptions

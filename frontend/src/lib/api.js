@@ -30,10 +30,12 @@ async function request(method, path, body = undefined, opts = {}) {
     // Try to parse error body for better messages
     if (!res.ok) {
         let errText = `HTTP ${res.status}`;
+        let details = null;
         try {
             if (contentType.includes('application/json')) {
                 const json = await res.json();
                 errText = json.error || json.message || JSON.stringify(json);
+                if (json.details) details = json.details;
             } else {
                 const text = await res.text();
                 if (text) errText = text;
@@ -43,6 +45,7 @@ async function request(method, path, body = undefined, opts = {}) {
         }
         const err = new Error(errText);
         err.status = res.status;
+        if (details) err.details = details;
         throw err;
     }
 

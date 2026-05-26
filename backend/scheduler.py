@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from ortools.sat.python import cp_model
 from .models import (
     Teacher,
@@ -62,30 +64,8 @@ def save_solution_to_db(session, solver, assignments, groups, num_days, num_hour
     print("Timetable saved to the database.")
 
 
-def solve_scheduling_model(
-    all_teachers, all_subjects, all_groups, all_subjectgroups, num_days, num_hours
-):
-    """
-    Builds and solves the scheduling model without requiring a database session.
-
-    Args:
-        all_teachers: List of Teacher objects
-        all_subjects: List of Subject objects
-        all_groups: List of group identifiers (e.g., "1-A", "1-B")
-        all_subjectgroups: List of SubjectGroup objects
-        num_days: Number of days per week
-        num_hours: Number of hours per day
-
-    Returns:
-        Tuple of (status, assignments, solver) where:
-        - status: CP-SAT solver status (OPTIMAL, FEASIBLE, or INFEASIBLE)
-        - assignments: Dictionary of decision variables
-        - solver: The solver object with the solution
-    """
-    # --- 1. Model Initialization ---
-    model = cp_model.CpModel()
-
-    # Create decision variables (group-subject-teacher-day-hour)
+def _create_assignments(model, all_teachers, all_subjects, all_groups, num_days, num_hours):
+    """Create decision variables (group, subject_id, teacher_id, day, hour)."""
     assignments = {}
     for group in all_groups:
         course = group.split("-")[0]
@@ -99,79 +79,479 @@ def solve_scheduling_model(
                                 assignments[key] = model.NewBoolVar(
                                     f"g:{group} sub:{subject.id} t:{teacher.name} d:{d} h:{h}"
                                 )
+    return assignments
 
-    # Apply restrictions
-    SubjectWeeklyHours().apply(model, assignments, all_groups, all_subjects)
-    TeacherOneClassAtATime().apply(
-        model, assignments, all_teachers, num_days, num_hours
-    )
-    TeacherUnavailableTimes().apply(
-        model, assignments, all_teachers, num_days, num_hours
-    )
-    TeacherMaxWeeklyHours().apply(model, assignments, all_teachers)
-    GroupSubjectMaxHoursPerDay().apply(
-        model, assignments, all_groups, all_subjects, all_teachers, num_days
-    )
-    GroupAtMostOneLogicalAssignment().apply(
-        model, assignments, all_groups, num_days, num_hours, all_subjectgroups
-    )
-    # Apply either consecutive or not-consecutive restriction per subject
 
-    # The restrictions expect the full subjects list but will only act on subjects
-    # that belong to the course of each group. We call apply on the whole model
-    # but make sure each restriction can decide per-subject using subject attributes.
-    GroupSubjectHoursMustBeConsecutive().apply(
-        model,
-        assignments,
-        all_groups,
-        [s for s in all_subjects if getattr(s, "consecutive_hours", True)],
-        num_days,
-        num_hours,
-    )
-    GroupSubjectHoursMustNotBeConsecutive().apply(
-        model,
-        assignments,
-        all_groups,
-        [s for s in all_subjects if not getattr(s, "consecutive_hours", True)],
-        num_days,
-        num_hours,
-    )
-    # Enforce linked subject consecutive constraint
-    LinkedSubjectsConsecutive().apply(
-        model, assignments, all_groups, all_subjects, num_days, num_hours
-    )
-    SubjectGroupAssignment().apply(
-        model, assignments, all_groups, all_subjects, all_subjectgroups
-    )
+def _build_hard_restrictions(model, assignments, all_teachers, all_subjects,
+                             all_groups, all_subjectgroups, num_days, num_hours):
+    """Build the list of (name, restriction_instance, args) for all hard restrictions."""
+    return [
+        ("SubjectWeeklyHours", SubjectWeeklyHours(), [model, assignments, all_groups, all_subjects]),
+        ("TeacherOneClassAtATime", TeacherOneClassAtATime(), [model, assignments, all_teachers, num_days, num_hours]),
+        ("TeacherUnavailableTimes", TeacherUnavailableTimes(), [model, assignments, all_teachers, num_days, num_hours]),
+        ("TeacherMaxWeeklyHours", TeacherMaxWeeklyHours(), [model, assignments, all_teachers]),
+        ("GroupSubjectMaxHoursPerDay", GroupSubjectMaxHoursPerDay(), [model, assignments, all_groups, all_subjects, all_teachers, num_days]),
+        ("GroupAtMostOneLogicalAssignment", GroupAtMostOneLogicalAssignment(), [model, assignments, all_groups, num_days, num_hours, all_subjectgroups]),
+        ("GroupSubjectHoursMustBeConsecutive", GroupSubjectHoursMustBeConsecutive(), [model, assignments, all_groups, [s for s in all_subjects if getattr(s, "consecutive_hours", True)], num_days, num_hours]),
+        ("GroupSubjectHoursMustNotBeConsecutive", GroupSubjectHoursMustNotBeConsecutive(), [model, assignments, all_groups, [s for s in all_subjects if not getattr(s, "consecutive_hours", True)], num_days, num_hours]),
+        ("LinkedSubjectsConsecutive", LinkedSubjectsConsecutive(), [model, assignments, all_groups, all_subjects, num_days, num_hours]),
+        ("SubjectGroupAssignment", SubjectGroupAssignment(), [model, assignments, all_groups, all_subjects, all_subjectgroups]),
+        ("SubjectMustEveryDay", SubjectMustEveryDay(), [model, assignments, all_groups, all_subjects, num_days]),
+        ("TutorMandatoryHours", TutorMandatoryHours(), [model, assignments, all_teachers, num_days, num_hours, all_subjectgroups]),
+    ]
 
-    # Enforce subjects that must be taught every day
-    SubjectMustEveryDay().apply(model, assignments, all_groups, all_subjects, num_days)
 
-    # Apply teacher preferences
+def solve_scheduling_model(
+    all_teachers, all_subjects, all_groups, all_subjectgroups, num_days, num_hours,
+    skip_restrictions=None, diagnostic_mode=False,
+):
+    """
+    Builds and solves the scheduling model without requiring a database session.
+
+    Args:
+        all_teachers: List of Teacher objects
+        all_subjects: List of Subject objects
+        all_groups: List of group identifiers (e.g., "1-A", "1-B")
+        all_subjectgroups: List of SubjectGroup objects
+        num_days: Number of days per week
+        num_hours: Number of hours per day
+        skip_restrictions: Set of restriction class names to skip (optional)
+        diagnostic_mode: If True, use shorter timeout (default: False)
+
+    Returns:
+        Tuple of (status, assignments, solver) where:
+        - status: CP-SAT solver status (OPTIMAL, FEASIBLE, or INFEASIBLE)
+        - assignments: Dictionary of decision variables
+        - solver: The solver object with the solution
+    """
+    # --- 1. Model Initialization ---
+    model = cp_model.CpModel()
+    if skip_restrictions is None:
+        skip_restrictions = set()
+
+    # Create decision variables (group-subject-teacher-day-hour)
+    assignments = _create_assignments(model, all_teachers, all_subjects, all_groups, num_days, num_hours)
+
+    # Hard restrictions
+    hard_restrictions = _build_hard_restrictions(
+        model, assignments, all_teachers, all_subjects,
+        all_groups, all_subjectgroups, num_days, num_hours,
+    )
+    for name, restriction, args in hard_restrictions:
+        if name not in skip_restrictions:
+            restriction.apply(*args)
+
+    # Soft constraints (preferences) — never cause infeasibility on their own
     teacher_preferred = TeacherPreferredTimes()
-    teacher_preferred.apply(model, assignments, all_teachers, num_days, num_hours)
+    if "TeacherPreferredTimes" not in skip_restrictions:
+        teacher_preferred.apply(model, assignments, all_teachers, num_days, num_hours)
 
-    # Apply tutor preference with higher weight
     tutor_pref = TutorPreference(weight=100)
-    tutor_pref.apply(model, assignments, all_teachers)
+    if "TutorPreference" not in skip_restrictions:
+        tutor_pref.apply(model, assignments, all_teachers)
 
-    # Apply hard tutor mandatory hours (first and last slot of the week)
-    TutorMandatoryHours().apply(
-        model, assignments, all_teachers, num_days, num_hours, all_subjectgroups
-    )
-
-    # Combine all preference terms for objective
     preference_terms = teacher_preferred.preference_terms + tutor_pref.preference_terms
     if preference_terms:
         model.Maximize(sum(preference_terms))
 
     # --- 2. Solve ---
-    print("\n🧠 Starting the solver... This may take a moment.")
+    if not diagnostic_mode:
+        print("\n🧠 Starting the solver... This may take a moment.")
     solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = 60.0  # Set a time limit
+    solver.parameters.max_time_in_seconds = 60.0 # 0.0 if diagnostic_mode else 60.0
     status = solver.Solve(model)
 
     return status, assignments, solver
+
+
+def _check_capacity_sanity(all_subjects, all_groups, num_days, num_hours, all_subjectgroups):
+    """Quick capacity sanity checks before running the solver.
+
+    Subjects within a SubjectGroup share the same physical timeslots,
+    so their overlapping hours are counted only once.
+
+    Returns a list of issue descriptions (empty list = all clear).
+    """
+    subject_ids_in_groups = set()
+    for sg in all_subjectgroups:
+        subject_ids_in_groups.update(s.id for s in sg.subjects)
+
+    issues = []
+    for group in all_groups:
+        course = group.split("-")[0]
+
+        standalone_hours = sum(
+            s.weekly_hours for s in all_subjects
+            if s.course_id == course and s.id not in subject_ids_in_groups
+        )
+        grouped_hours = 0
+        for sg in all_subjectgroups:
+            group_subjects = [s for s in sg.subjects if s.course_id == course]
+            if group_subjects:
+                grouped_hours += max(s.weekly_hours for s in group_subjects)
+
+        required = standalone_hours + grouped_hours
+        available = num_days * num_hours
+        if required > available:
+            issues.append(
+                f"  - **Group {group}**: requires {required}h/week but only "
+                f"{available} slots available ({num_days} days × {num_hours} hours). "
+                f"Possible cause: **SubjectWeeklyHours**."
+            )
+    return issues
+
+
+def _check_subjects_without_teachers(all_subjects, all_teachers, all_groups,
+                                     all_subjectgroups):
+    """Check that every subject has at least one teacher who can teach it.
+
+    Subjects within a SubjectGroup still need at least one teacher each.
+
+    Returns a list of issue descriptions (empty list = all clear).
+    """
+    subjects_with_teachers = set()
+    for teacher in all_teachers:
+        for subject in getattr(teacher, 'subjects', []):
+            subjects_with_teachers.add(subject.id)
+
+    issues = []
+    for group in all_groups:
+        course = group.split("-")[0]
+        for subject in all_subjects:
+            if subject.course_id == course and subject.id not in subjects_with_teachers:
+                issues.append(
+                    f"  - **Subject \"{subject.name}\" (id={subject.id})** "
+                    f"in **Group {group}** has no teacher assigned."
+                )
+    return issues
+
+
+def _check_subjectgroup_weekly_hours_consistency(all_subjectgroups):
+    """Check all SubjectGroup members have identical weekly_hours."""
+    issues = []
+    for sg in all_subjectgroups:
+        subjects_list = getattr(sg, 'subjects', [])
+        if not subjects_list or len(subjects_list) < 2:
+            continue
+        hours = {s.weekly_hours for s in subjects_list}
+        if len(hours) > 1:
+            names = [f"{s.name}({s.weekly_hours}h)" for s in subjects_list]
+            sg_name = getattr(sg, 'name', None) or getattr(sg, 'id', 'unknown')
+            issues.append(
+                f"  - **SubjectGroup \"{sg_name}\"**: members have different "
+                f"weekly_hours: {', '.join(names)}. "
+                f"All subjects in a SubjectGroup must have the same weekly hours."
+            )
+    return issues
+
+
+def _check_teacher_capacity_vs_load(all_teachers, all_subjects, all_groups,
+                                    all_subjectgroups):
+    """Check teacher max_hours_week can cover their subjects.
+
+    1. Per teacher: max_hours_week >= max(weekly_hours) of any single subject
+    2. Global: total teacher capacity >= total required hours
+    """
+    subject_ids_in_groups = set()
+    for sg in all_subjectgroups:
+        subject_ids_in_groups.update(s.id for s in getattr(sg, 'subjects', []))
+
+    issues = []
+
+    for teacher in all_teachers:
+        subjects = getattr(teacher, 'subjects', [])
+        if not subjects:
+            continue
+        max_subject_hours = max(s.weekly_hours for s in subjects)
+        if teacher.max_hours_week < max_subject_hours:
+            subj = next(s for s in subjects if s.weekly_hours == max_subject_hours)
+            issues.append(
+                f"  - **Teacher \"{teacher.name}\"** has max_hours_week="
+                f"{teacher.max_hours_week} but teaches \"{subj.name}\" "
+                f"requiring {max_subject_hours}h/week."
+            )
+
+    # Global: total teacher capacity vs total required
+    total_capacity = sum(t.max_hours_week for t in all_teachers)
+    total_required = 0
+    for group in all_groups:
+        course = group.split("-")[0]
+        standalone = sum(
+            s.weekly_hours for s in all_subjects
+            if s.course_id == course and s.id not in subject_ids_in_groups
+        )
+        grouped = 0
+        for sg in all_subjectgroups:
+            gs = [s for s in getattr(sg, 'subjects', []) if s.course_id == course]
+            if gs:
+                grouped += max(s.weekly_hours for s in gs)
+        total_required += standalone + grouped
+
+    if total_required > total_capacity:
+        issues.append(
+            f"  - **Global capacity**: total required hours ({total_required}h) "
+            f"exceed total teacher capacity ({total_capacity}h). "
+            f"Need more teachers or reduce subject hours."
+        )
+
+    return issues
+
+
+def _check_teach_every_day_viability(all_subjects, all_groups, num_days):
+    """Check subjects with teach_every_day=True are feasible."""
+    issues = []
+    for subject in all_subjects:
+        if not getattr(subject, "teach_every_day", False):
+            continue
+        sid = subject.id
+        # Must have at least num_days total hours
+        if subject.weekly_hours < num_days:
+            issues.append(
+                f"  - **Subject \"{subject.name}\"** has teach_every_day=True "
+                f"but only {subject.weekly_hours}h/week (need at least {num_days}h "
+                f"for {num_days} days)."
+            )
+        # Must fit within max_hours_per_day * num_days
+        max_possible = subject.max_hours_per_day * num_days
+        if subject.weekly_hours > max_possible:
+            issues.append(
+                f"  - **Subject \"{subject.name}\"** has teach_every_day=True, "
+                f"weekly_hours={subject.weekly_hours}, but max possible with "
+                f"max_hours_per_day={subject.max_hours_per_day} over {num_days} days "
+                f"is {max_possible}h."
+            )
+    return issues
+
+
+def _check_tutor_teaches_in_tutor_group(all_teachers, all_subjectgroups):
+    """Check each tutor teaches at least one non-SubjectGroup subject in their group."""
+    from .restrictions.tutor_mandatory_hours import normalize_group_name
+
+    subject_ids_in_groups = set()
+    for sg in all_subjectgroups:
+        subject_ids_in_groups.update(s.id for s in getattr(sg, 'subjects', []))
+
+    issues = []
+    for teacher in all_teachers:
+        tutor_group = getattr(teacher, "tutor_group", None)
+        if not tutor_group:
+            continue
+        normalized = normalize_group_name(tutor_group)
+        if "-" not in normalized:
+            continue
+        course = normalized.split("-")[0]
+        has_non_sg_subject = False
+        for subject in getattr(teacher, 'subjects', []):
+            if (getattr(subject, 'course_id', None) == course
+                    and subject.id not in subject_ids_in_groups):
+                has_non_sg_subject = True
+                break
+        if not has_non_sg_subject:
+            issues.append(
+                f"  - **Teacher \"{teacher.name}\"** is tutor of group "
+                f"\"{normalized}\" but teaches no non-SubjectGroup subject "
+                f"in that course. TutorMandatoryHours will be silently skipped."
+            )
+    return issues
+
+
+def _check_tutor_availability_at_critical_slots(all_teachers, num_days, num_hours):
+    """Check tutors are available at the mandatory first and last slots."""
+    import json
+    from .restrictions.tutor_mandatory_hours import normalize_group_name
+
+    if num_days <= 0 or num_hours <= 0:
+        return []
+
+    first_day, first_hour = 0, 0
+    last_day, last_hour = num_days - 1, num_hours - 1
+
+    issues = []
+    for teacher in all_teachers:
+        tutor_group = getattr(teacher, "tutor_group", None)
+        if not tutor_group:
+            continue
+
+        prefs_raw = getattr(teacher, 'preferences', None)
+        if not prefs_raw:
+            continue
+
+        try:
+            prefs = json.loads(prefs_raw) if isinstance(prefs_raw, str) else prefs_raw
+        except Exception:
+            continue
+
+        if not isinstance(prefs, dict):
+            continue
+
+        def is_unavailable(prefs, day, hour):
+            entry = prefs.get(str(day)) or prefs.get(day)
+            if not entry or not isinstance(entry, dict):
+                return False
+            unavailable = entry.get('unavailable', [])
+            try:
+                return int(hour) in {int(x) for x in unavailable}
+            except Exception:
+                return False
+
+        normalized = normalize_group_name(tutor_group)
+        slots = []
+        if is_unavailable(prefs, first_day, first_hour):
+            slots.append(f"(day={first_day}, hour={first_hour})")
+        if ((first_day != last_day or first_hour != last_hour)
+                and is_unavailable(prefs, last_day, last_hour)):
+            slots.append(f"(day={last_day}, hour={last_hour})")
+
+        if slots:
+            issues.append(
+                f"  - **Teacher \"{teacher.name}\"** is tutor of group "
+                f"\"{normalized}\" but is unavailable at mandatory slot(s): "
+                f"{', '.join(slots)}."
+            )
+    return issues
+
+
+def _run_entity_diagnosis(suspects, all_teachers, all_subjects, all_groups,
+                          all_subjectgroups, num_days, num_hours):
+    """Phase 3: entity-level diagnosis using assumptions.
+
+    Builds a model with suspect restrictions gated by per-entity assumption
+    BoolVars, solves once, and uses SufficientAssumptionsForInfeasibility()
+    to identify specific entities involved in the conflict.
+
+    Returns dict mapping restriction_name -> list of entity_info dicts.
+    """
+    if not suspects:
+        return {}
+
+    model = cp_model.CpModel()
+    assignments = _create_assignments(
+        model, all_teachers, all_subjects, all_groups, num_days, num_hours,
+    )
+
+    all_assumptions = []
+
+    for name, restriction, args in _build_hard_restrictions(
+        model, assignments, all_teachers, all_subjects,
+        all_groups, all_subjectgroups, num_days, num_hours,
+    ):
+        if name in suspects:
+            all_assumptions.extend(restriction.apply_with_assumptions(*args))
+        else:
+            restriction.apply(*args)
+
+    if not all_assumptions:
+        return {}
+
+    for assume, _ in all_assumptions:
+        model.AddAssumption(assume)
+
+    solver = cp_model.CpSolver()
+    solver.parameters.max_time_in_seconds = 30.0
+    status = solver.Solve(model)
+
+    if status != cp_model.INFEASIBLE:
+        return {}
+
+    core_indices = set(solver.SufficientAssumptionsForInfeasibility())
+
+    # SufficientAssumptionsForInfeasibility() returns integer indices,
+    # not IntVar objects. Build a mapping from index -> entity_info.
+    index_to_info = {assume.Index(): info for assume, info in all_assumptions}
+
+    result = defaultdict(list)
+    for idx in core_indices:
+        if idx in index_to_info:
+            info = index_to_info[idx]
+            result[info["restriction"]].append(info)
+
+    return dict(result)
+
+
+def diagnose_infeasibility(
+    all_teachers, all_subjects, all_groups, all_subjectgroups, num_days, num_hours
+):
+    """Diagnose which restrictions cause infeasibility.
+
+    Phase 1: Capacity sanity checks (instant).
+    Phase 2: Isolation testing — re-solve without each restriction
+             (10 s timeout per test).
+    Phase 3: Entity-level diagnosis using assumptions on suspect
+             restrictions (1 solve).
+
+    Returns a dict with keys:
+      - sanity_issues: list[str] — Phase 1 issues (empty = all clear)
+      - suspects: list[str] — restrictions that cause infeasibility when active
+      - cleared: list[str] — restrictions that did NOT cause issues individually
+      - entity_conflicts: dict — Phase 3 entity-level results
+    """
+    result: dict[str, list[str] | dict] = {
+        "sanity_issues": [],
+        "suspects": [],
+        "cleared": [],
+        "entity_conflicts": {},
+    }
+
+    # Phase 1: instant capacity and data sanity checks
+    sanity_issues = _check_capacity_sanity(
+        all_subjects, all_groups, num_days, num_hours, all_subjectgroups,
+    )
+    sanity_issues += _check_subjects_without_teachers(
+        all_subjects, all_teachers, all_groups, all_subjectgroups,
+    )
+    sanity_issues += _check_subjectgroup_weekly_hours_consistency(
+        all_subjectgroups,
+    )
+    sanity_issues += _check_teacher_capacity_vs_load(
+        all_teachers, all_subjects, all_groups, all_subjectgroups,
+    )
+    sanity_issues += _check_teach_every_day_viability(
+        all_subjects, all_groups, num_days,
+    )
+    sanity_issues += _check_tutor_teaches_in_tutor_group(
+        all_teachers, all_subjectgroups,
+    )
+    sanity_issues += _check_tutor_availability_at_critical_slots(
+        all_teachers, num_days, num_hours,
+    )
+    result["sanity_issues"] = sanity_issues
+    if result["sanity_issues"]:
+        return result
+
+    # Phase 2: isolation testing (hard restrictions only)
+    hard_names = [
+        "SubjectWeeklyHours",
+        "TeacherOneClassAtATime",
+        "TeacherUnavailableTimes",
+        "TeacherMaxWeeklyHours",
+        "GroupSubjectMaxHoursPerDay",
+        "GroupAtMostOneLogicalAssignment",
+        "GroupSubjectHoursMustBeConsecutive",
+        "GroupSubjectHoursMustNotBeConsecutive",
+        "LinkedSubjectsConsecutive",
+        "SubjectGroupAssignment",
+        "SubjectMustEveryDay",
+        "TutorMandatoryHours",
+    ]
+    for name in hard_names:
+        status, _, _ = solve_scheduling_model(
+            all_teachers, all_subjects, all_groups, all_subjectgroups,
+            num_days, num_hours,
+            skip_restrictions={name}, diagnostic_mode=True,
+        )
+        if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+            result["suspects"].append(name)
+        else:
+            result["cleared"].append(name)
+
+    # Phase 3: entity-level diagnosis for suspect restrictions
+    if result["suspects"]:
+        result["entity_conflicts"] = _run_entity_diagnosis(
+            result["suspects"], all_teachers, all_subjects, all_groups,
+            all_subjectgroups, num_days, num_hours,
+        )
+
+    return result
 
 
 def create_timetable(session) -> str | None:
@@ -232,4 +612,38 @@ def create_timetable(session) -> str | None:
         session.close()
         return None
     else:
-        return "# ❌ No solution was found for the given constraints\n"
+        diagnosis = diagnose_infeasibility(
+            all_teachers, all_subjects, all_groups,
+            all_subjectgroups, num_days, num_hours,
+        )
+        msg = ["# ❌ No solution found — Diagnostic Results\n"]
+        if diagnosis["sanity_issues"]:
+            msg.append("## Phase 1 — Capacity sanity checks")
+            msg.extend(diagnosis["sanity_issues"])
+            msg.append("")
+        if diagnosis["suspects"]:
+            msg.append("## Phase 2 — Restriction isolation")
+            msg.append("Removing any of these restrictions individually makes the model feasible:")
+            for name in diagnosis["suspects"]:
+                msg.append(f"  - **{name}**")
+            msg.append("")
+        if diagnosis["entity_conflicts"]:
+            msg.append("## Phase 3 — Specific entities involved")
+            for restriction_name, entities in diagnosis["entity_conflicts"].items():
+                msg.append(f"- **{restriction_name}** — Conflicts involve:")
+                for ent in entities:
+                    name_str = f'{ent["entity_name"]} (id={ent["entity_id"]})'
+                    extra = ent.get("extra", {})
+                    if "tutor_group" in extra:
+                        name_str += f", tutor of group {extra['tutor_group']}"
+                    msg.append(f"    - {name_str}")
+            msg.append("")
+        if diagnosis["cleared"]:
+            msg.append("Restrictions that did NOT cause issues individually:")
+            for name in diagnosis["cleared"]:
+                msg.append(f"  - {name}")
+            msg.append("")
+        if not diagnosis["sanity_issues"] and not diagnosis["suspects"]:
+            msg.append("Could not isolate a single restriction. The infeasibility may arise from")
+            msg.append("the interaction of multiple restrictions, or from data configuration.")
+        return "\n".join(msg) + "\n"

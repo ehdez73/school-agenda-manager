@@ -94,6 +94,7 @@
         "md_filename": "timetable-{date}",
         "md_error": "Error downloading markdown",
         "generate_failed": "Could not generate a valid timetable",
+        "diagnostic_title": "Solver Diagnostic Report",
         "generated_success": "Timetable generated successfully",
         "assignments_cleared": "Assignments cleared"
     },

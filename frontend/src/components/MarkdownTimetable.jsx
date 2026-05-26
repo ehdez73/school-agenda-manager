@@ -12,6 +12,7 @@ function MarkdownTimetable() {
   const [markdown, setMarkdown] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [details, setDetails] = useState(null);
   const [clearing, setClearing] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const timetableRef = useRef();
@@ -19,6 +20,7 @@ function MarkdownTimetable() {
   const fetchTimetable = async () => {
     setLoading(true);
     setError(null);
+    setDetails(null);
     try {
       const data = await api.get('/api/timetable', { responseType: 'text' });
       if (!data) {
@@ -41,12 +43,14 @@ function MarkdownTimetable() {
   const handleClear = async () => {
     setClearing(true);
     setError(null);
+    setDetails(null);
     try {
       await api.del('/api/timetable');
       await api.post('/api/timetable');
       fetchTimetable();
     } catch (err) {
       setError(err.message);
+      setDetails(err.details || null);
     } finally {
       setClearing(false);
     }
@@ -55,11 +59,13 @@ function MarkdownTimetable() {
   const handleGenerate = async () => {
     setClearing(true);
     setError(null);
+    setDetails(null);
     try {
       await api.post('/api/timetable');
       fetchTimetable();
     } catch (err) {
       setError(err.message);
+      setDetails(err.details || null);
     } finally {
       setClearing(false);
     }
@@ -96,42 +102,52 @@ function MarkdownTimetable() {
   const layoutState = loading ? 'loading' : error ? 'error' : 'ready';
 
   return (
-    <SectionLayout
-      title={t('nav.timetable')}
-      state={layoutState}
-      errorMsg={error}
-      actions={
-        <>
-          {markdown.trim() ? (
-            <button onClick={handleClear} disabled={clearing} className="btn btn--danger btn--compact">
-              {clearing ? t('timetable.recreating') : t('timetable.recreate')}
+    <>
+      <SectionLayout
+        title={t('nav.timetable')}
+        state={layoutState}
+        errorMsg={error}
+        actions={
+          <>
+            {markdown.trim() ? (
+              <button onClick={handleClear} disabled={clearing} className="btn btn--danger btn--compact">
+                {clearing ? t('timetable.recreating') : t('timetable.recreate')}
+              </button>
+            ) : (
+              <button onClick={handleGenerate} disabled={clearing} className="btn btn--primary btn--compact">
+                {clearing ? t('timetable.generating') : t('timetable.generate')}
+              </button>
+            )}
+            <button
+              onClick={handleDownloadMarkdown}
+              disabled={downloading || loading || !!error || !markdown.trim()}
+              className="btn btn--secondary btn--compact"
+            >
+              {downloading ? t('timetable.downloading_md') : (t('timetable.download_md') || 'Download Markdown')}
             </button>
-          ) : (
-            <button onClick={handleGenerate} disabled={clearing} className="btn btn--primary btn--compact">
-              {clearing ? t('timetable.generating') : t('timetable.generate')}
-            </button>
-          )}
-          <button
-            onClick={handleDownloadMarkdown}
-            disabled={downloading || loading || !!error || !markdown.trim()}
-            className="btn btn--secondary btn--compact"
-          >
-            {downloading ? t('timetable.downloading_md') : (t('timetable.download_md') || 'Download Markdown')}
-          </button>
-        </>
-      }
-    >
-      {!loading && !error && markdown.trim() && (
-        <div className="timetable-container markdown-timetable" ref={timetableRef}>
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw]}
-          >
-            {markdown}
+          </>
+        }
+      >
+        {!loading && !error && markdown.trim() && (
+          <div className="timetable-container markdown-timetable" ref={timetableRef}>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw]}
+            >
+              {markdown}
+            </ReactMarkdown>
+          </div>
+        )}
+      </SectionLayout>
+      {details && (
+        <details className="diagnostic-details" open>
+          <summary>{t('timetable.diagnostic_title')}</summary>
+          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+            {details}
           </ReactMarkdown>
-        </div>
+        </details>
       )}
-    </SectionLayout>
+    </>
   );
 }
 

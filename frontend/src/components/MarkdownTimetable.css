@@ -237,3 +237,53 @@
     page-break-after: avoid;
   }
 }
+
+/* Diagnostic details collapsible section */
+.diagnostic-details {
+  margin-top: var(--space-lg);
+  padding: var(--space-md);
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-warning);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.diagnostic-details summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-warning);
+  padding: var(--space-sm) 0;
+  user-select: none;
+}
+
+.diagnostic-details summary:hover {
+  color: var(--color-warning-dark, #d97706);
+}
+
+.diagnostic-details[open] {
+  padding-bottom: var(--space-lg);
+}
+
+.diagnostic-details .markdown-timetable {
+  margin-top: var(--space-md);
+}
+
+.diagnostic-details table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-sm) 0;
+  font-size: 0.85rem;
+}
+
+.diagnostic-details th,
+.diagnostic-details td {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border-light);
+  text-align: left;
+}
+
+.diagnostic-details th {
+  background-color: var(--color-surface-variant);
+  font-weight: 600;
+}
