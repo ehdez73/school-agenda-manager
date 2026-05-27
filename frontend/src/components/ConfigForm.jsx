@@ -6,11 +6,32 @@ import api from '../lib/api';
 import { t } from '../i18n';
 import SectionLayout from './SectionLayout';
 
+const HARD_RESTRICTIONS = [
+  "SubjectWeeklyHours",
+  "TeacherOneClassAtATime",
+  "TeacherUnavailableTimes",
+  "TeacherMaxWeeklyHours",
+  "GroupSubjectMaxHoursPerDay",
+  "GroupAtMostOneLogicalAssignment",
+  "GroupSubjectHoursMustBeConsecutive",
+  "GroupSubjectHoursMustNotBeConsecutive",
+  "LinkedSubjectsConsecutive",
+  "SubjectGroupAssignment",
+  "SubjectMustEveryDay",
+  "TutorMandatoryHours",
+];
+
+const SOFT_RESTRICTIONS = [
+  "TeacherPreferredTimes",
+  "TutorPreference",
+];
+
 export default function ConfigForm() {
   const [classesPerDay, setClassesPerDay] = useState(5);
   const [daysPerWeek, setDaysPerWeek] = useState(5);
   const [hourNames, setHourNames] = useState(() => ["9:00", "10:00", "11:00", "12:00", "13:00"]);
   const [dayIndices, setDayIndices] = useState(() => [0, 1, 2, 3, 4]);
+  const [disabledRestrictions, setDisabledRestrictions] = useState([]);
   // when true, skip the automatic resize to avoid overwriting server values right after save
   const [suppressResize, setSuppressResize] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -20,16 +41,23 @@ export default function ConfigForm() {
   const [activeTab, setActiveTab] = useState('days');
 
   useEffect(() => {
-    api.get('/config').then(data => {
+    api.get('/config', { cacheBust: true }).then(data => {
       setClassesPerDay(data.classes_per_day);
       setDaysPerWeek(data.days_per_week);
       setSuppressResize(true);
       setHourNames(data.hour_names && data.hour_names.length ? data.hour_names : Array.from({ length: data.classes_per_day || 5 }, (_, i) => `Hora ${i + 1}`));
       setDayIndices(data.day_indices && data.day_indices.length ? data.day_indices : Array.from({ length: data.days_per_week || 5 }, (_, i) => i));
+      setDisabledRestrictions(data.disabled_restrictions || []);
       setTimeout(() => setSuppressResize(false), 0);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
+
+  function toggleRestriction(name) {
+    setDisabledRestrictions(prev =>
+      prev.includes(name) ? prev.filter(r => r !== name) : [...prev, name]
+    );
+  }
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -51,13 +79,14 @@ export default function ConfigForm() {
     }
 
     setLoading(true);
-    api.post('/config', { classes_per_day: Number(classesPerDay), days_per_week: daysNum, hour_names: hourNames, day_indices: dayIndices })
+    api.post('/config', { classes_per_day: Number(classesPerDay), days_per_week: daysNum, hour_names: hourNames, day_indices: dayIndices, disabled_restrictions: disabledRestrictions })
       .then(data => {
         setClassesPerDay(data.classes_per_day);
         setDaysPerWeek(data.days_per_week);
         setSuppressResize(true);
         setHourNames(data.hour_names && data.hour_names.length ? data.hour_names : Array.from({ length: data.classes_per_day || 5 }, (_, i) => `Hora ${i + 1}`));
         setDayIndices(data.day_indices && data.day_indices.length ? data.day_indices : Array.from({ length: data.days_per_week || 5 }, (_, i) => i));
+        setDisabledRestrictions(data.disabled_restrictions || []);
         setTimeout(() => setSuppressResize(false), 0);
         setMessage(t('config.saved'));
         setLoading(false);
@@ -153,6 +182,12 @@ export default function ConfigForm() {
           {t('config.tab_hours')}
         </button>
         <button
+          className={`config-tab ${activeTab === 'restrictions' ? 'active' : ''}`}
+          onClick={() => setActiveTab('restrictions')}
+        >
+          {t('config.tab_restrictions')}
+        </button>
+        <button
           className={`config-tab ${activeTab === 'backup' ? 'active' : ''}`}
           onClick={() => setActiveTab('backup')}
         >
@@ -202,6 +237,50 @@ export default function ConfigForm() {
             />
           </label>
           <HourNames classesPerDay={classesPerDay} hourNames={hourNames} setHourNames={setHourNames} suppressResize={suppressResize} />
+          <button type="submit" className="config-form-btn" disabled={loading}>
+            {t('common.save')}
+          </button>
+          {message && <div className="config-form-message">{message}</div>}
+        </form>
+      )}
+
+      {/* Restrictions Tab */}
+      {activeTab === 'restrictions' && (
+        <form onSubmit={handleSubmit}>
+          <p style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
+            {t('config.restrictions_desc')}
+          </p>
+
+          <h4 style={{ marginBottom: '0.5rem' }}>{t('config.restrictions_hard')}</h4>
+          {HARD_RESTRICTIONS.map(name => (
+            <label key={name} className="restriction-checkbox-label">
+              <input
+                type="checkbox"
+                checked={!disabledRestrictions.includes(name)}
+                onChange={() => toggleRestriction(name)}
+              />
+              <span>
+                <span className="restriction-name">{t(`config.restrictions.${name}`)}</span>
+                <span className="restriction-desc">{t(`config.restrictions.${name}_desc`)}</span>
+              </span>
+            </label>
+          ))}
+
+          <h4 style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>{t('config.restrictions_soft')}</h4>
+          {SOFT_RESTRICTIONS.map(name => (
+            <label key={name} className="restriction-checkbox-label">
+              <input
+                type="checkbox"
+                checked={!disabledRestrictions.includes(name)}
+                onChange={() => toggleRestriction(name)}
+              />
+              <span>
+                <span className="restriction-name">{t(`config.restrictions.${name}`)}</span>
+                <span className="restriction-desc">{t(`config.restrictions.${name}_desc`)}</span>
+              </span>
+            </label>
+          ))}
+
           <button type="submit" className="config-form-btn" disabled={loading}>
             {t('common.save')}
           </button>

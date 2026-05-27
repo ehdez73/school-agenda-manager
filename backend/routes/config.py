@@ -81,7 +81,14 @@ def set_config():
         elif len(day_indices) > data['days_per_week']:
             day_indices = day_indices[:data['days_per_week']]
 
-        config = Config(classes_per_day=data['classes_per_day'], days_per_week=data['days_per_week'], hour_names=json.dumps(hour_names), day_indices=json.dumps(day_indices))
+        disabled = data.get('disabled_restrictions')
+        config = Config(
+            classes_per_day=data['classes_per_day'],
+            days_per_week=data['days_per_week'],
+            hour_names=json.dumps(hour_names),
+            day_indices=json.dumps(day_indices),
+            disabled_restrictions=json.dumps(disabled) if disabled is not None else None,
+        )
         session.add(config)
     else:
         config.classes_per_day = data['classes_per_day']
@@ -125,6 +132,10 @@ def set_config():
             elif len(day_indices) > config.days_per_week:
                 day_indices = day_indices[:config.days_per_week]
             config.day_indices = json.dumps(day_indices)
+
+        if 'disabled_restrictions' in data:
+            config.disabled_restrictions = json.dumps(data['disabled_restrictions'])
+
     session.commit()
     cfg_dict = config.to_dict()
     day_names = [t(f'day.{i}') for i in cfg_dict.get('day_indices', [])]

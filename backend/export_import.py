@@ -69,6 +69,12 @@ def import_payload(session, payload):
     cfg_payload = payload.get("config", {}) if isinstance(payload, dict) else {}
     if cfg_payload:
         hour_names = cfg_payload.get("hour_names")
+        disabled_raw = cfg_payload.get("disabled_restrictions")
+        try:
+            disabled_restrictions = json.dumps(disabled_raw, ensure_ascii=False) if disabled_raw is not None else None
+        except Exception:
+            disabled_restrictions = None
+
         if hour_names is not None:
             try:
                 cfg = Config(
@@ -78,16 +84,19 @@ def import_payload(session, payload):
                     day_indices=json.dumps(
                         cfg_payload.get("day_indices", []), ensure_ascii=False
                     ),
+                    disabled_restrictions=disabled_restrictions,
                 )
             except Exception:
                 cfg = Config(
                     classes_per_day=cfg_payload.get("classes_per_day", 5),
                     days_per_week=cfg_payload.get("days_per_week", 5),
+                    disabled_restrictions=disabled_restrictions,
                 )
         else:
             cfg = Config(
                 classes_per_day=cfg_payload.get("classes_per_day", 5),
                 days_per_week=cfg_payload.get("days_per_week", 5),
+                disabled_restrictions=disabled_restrictions,
             )
         session.add(cfg)
 

@@ -132,6 +132,18 @@ def solve_scheduling_model(
     # Create decision variables (group-subject-teacher-day-hour)
     assignments = _create_assignments(model, all_teachers, all_subjects, all_groups, num_days, num_hours)
 
+    # Pre-solve validation: run all sanity checks before building constraints
+    if "TutorMandatoryHours" not in skip_restrictions:
+        sanity_issues = _run_sanity_checks(
+            all_teachers, all_subjects, all_groups,
+            all_subjectgroups, num_days, num_hours,
+        )
+        if sanity_issues:
+            for issue in sanity_issues:
+                print(issue)
+            print("❌ Data sanity check failed. Fix the issues above and try again.")
+            return cp_model.INFEASIBLE, assignments, cp_model.CpSolver()
+
     # Hard restrictions
     hard_restrictions = _build_hard_restrictions(
         model, assignments, all_teachers, all_subjects,
@@ -411,6 +423,37 @@ def _check_tutor_availability_at_critical_slots(all_teachers, num_days, num_hour
     return issues
 
 
+def _run_sanity_checks(all_teachers, all_subjects, all_groups,
+                       all_subjectgroups, num_days, num_hours):
+    """Run all pre-solve sanity checks and return a list of issues.
+
+    Combines all Phase 1 checks into one call. Empty list = all clear.
+    """
+    issues = []
+    issues += _check_capacity_sanity(
+        all_subjects, all_groups, num_days, num_hours, all_subjectgroups,
+    )
+    issues += _check_subjects_without_teachers(
+        all_subjects, all_teachers, all_groups, all_subjectgroups,
+    )
+    issues += _check_subjectgroup_weekly_hours_consistency(
+        all_subjectgroups,
+    )
+    issues += _check_teacher_capacity_vs_load(
+        all_teachers, all_subjects, all_groups, all_subjectgroups,
+    )
+    issues += _check_teach_every_day_viability(
+        all_subjects, all_groups, num_days,
+    )
+    issues += _check_tutor_teaches_in_tutor_group(
+        all_teachers, all_subjectgroups,
+    )
+    issues += _check_tutor_availability_at_critical_slots(
+        all_teachers, num_days, num_hours,
+    )
+    return issues
+
+
 def _run_entity_diagnosis(suspects, all_teachers, all_subjects, all_groups,
                           all_subjectgroups, num_days, num_hours):
     """Phase 3: entity-level diagnosis using assumptions.
@@ -493,26 +536,9 @@ def diagnose_infeasibility(
     }
 
     # Phase 1: instant capacity and data sanity checks
-    sanity_issues = _check_capacity_sanity(
-        all_subjects, all_groups, num_days, num_hours, all_subjectgroups,
-    )
-    sanity_issues += _check_subjects_without_teachers(
-        all_subjects, all_teachers, all_groups, all_subjectgroups,
-    )
-    sanity_issues += _check_subjectgroup_weekly_hours_consistency(
-        all_subjectgroups,
-    )
-    sanity_issues += _check_teacher_capacity_vs_load(
-        all_teachers, all_subjects, all_groups, all_subjectgroups,
-    )
-    sanity_issues += _check_teach_every_day_viability(
-        all_subjects, all_groups, num_days,
-    )
-    sanity_issues += _check_tutor_teaches_in_tutor_group(
-        all_teachers, all_subjectgroups,
-    )
-    sanity_issues += _check_tutor_availability_at_critical_slots(
-        all_teachers, num_days, num_hours,
+    sanity_issues = _run_sanity_checks(
+        all_teachers, all_subjects, all_groups,
+        all_subjectgroups, num_days, num_hours,
     )
     result["sanity_issues"] = sanity_issues
     if result["sanity_issues"]:
@@ -593,9 +619,15 @@ def create_timetable(session) -> str | None:
             line_char = chr(ord("A") + i)
             all_groups.append(f"{course.id}-{line_char}")
 
+    # Parse disabled restrictions from config
+    import json as _json
+    disabled_raw = getattr(config, 'disabled_restrictions', None)
+    skip_restrictions = set(_json.loads(disabled_raw)) if disabled_raw else set()
+
     # --- 2. Solve the scheduling model ---
     status, assignments, solver = solve_scheduling_model(
-        all_teachers, all_subjects, all_groups, all_subjectgroups, num_days, num_hours
+        all_teachers, all_subjects, all_groups, all_subjectgroups, num_days, num_hours,
+        skip_restrictions=skip_restrictions,
     )
 
     # --- 3. Solution Processing ---

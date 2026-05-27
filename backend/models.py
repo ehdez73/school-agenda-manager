@@ -240,6 +240,7 @@ class Config(Base):
     days_per_week = Column(Integer, nullable=False, default=5)
     hour_names = Column(String(2000), nullable=True)
     day_indices = Column(String(2000), nullable=True)
+    disabled_restrictions = Column(String(5000), nullable=True)
 
     def to_dict(self):
         return {
@@ -248,6 +249,7 @@ class Config(Base):
             "days_per_week": self.days_per_week,
             "hour_names": json.loads(self.hour_names) if self.hour_names else [],
             "day_indices": json.loads(self.day_indices) if self.day_indices else [],
+            "disabled_restrictions": json.loads(self.disabled_restrictions) if self.disabled_restrictions else [],
         }
 
 
