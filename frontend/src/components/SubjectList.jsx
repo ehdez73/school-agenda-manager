@@ -206,6 +206,7 @@ function SubjectList() {
             </th>
             <th>{t('subjects.group')}</th>
             <th>{t('subjects.linked') || 'Vinculada'}</th>
+            <th>{t('subjects.teacher')}</th>
             <th className="subject-table-th-sort" onClick={() => handleSort('weekly_hours')}>
               {t('subjects.weekly_hours')} {sortBy === 'weekly_hours' ? (sortAsc ? '▲' : '▼') : ''}
             </th>
@@ -238,6 +239,11 @@ function SubjectList() {
                     return linked ? linked.full_name || linked.name : subject.linked_subject_id;
                   })()
                 ) : '—'}
+              </td>
+              <td style={{ textAlign: 'center' }}>
+                {subject.has_teacher
+                  ? <span style={{ color: '#22c55e', fontWeight: 'bold' }}>✓</span>
+                  : <span style={{ color: '#ef4444' }}>✗</span>}
               </td>
               <td>{subject.weekly_hours}</td>
               <td>{subject.max_hours_per_day || 2}</td>

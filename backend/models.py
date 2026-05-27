@@ -84,6 +84,7 @@ class Subject(Base):
             else [],
             "full_name": self.full_name,
             "linked_subject_id": getattr(self, "linked_subject_id", None),
+            "has_teacher": len(self.teachers) > 0,
         }
 
 

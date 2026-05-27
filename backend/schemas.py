@@ -25,6 +25,7 @@ class SubjectSchema(BaseModel):
     subject_groups: List[dict] = []
     full_name: Optional[str] = None
     linked_subject_id: Optional[str] = None
+    has_teacher: bool = False
 
 
 class SubjectGroupSchema(BaseModel):

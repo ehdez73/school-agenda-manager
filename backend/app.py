@@ -13,7 +13,7 @@ from .routes.config import config_bp
 from .translations import set_locale
 from .constants import DEFAULT_LOCALE
 
-populate_db("init-data.json")
+populate_db("backend/init-data.json")
 
 app = Flask(__name__)
 CORS(app)  # Habilita CORS para permitir peticiones desde el frontend

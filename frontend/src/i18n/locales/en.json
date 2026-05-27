@@ -111,7 +111,8 @@
         "consecutive_hours": "Consecutive hours",
         "teach_every_day": "Teach every day",
         "linked_subject": "Linked subject (consecutive)",
-        "linked": "Linked"
+        "linked": "Linked",
+        "teacher": "Teacher"
     },
     "subject_groups": {
         "title": "Subject groups",
