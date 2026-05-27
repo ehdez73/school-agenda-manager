@@ -1,7 +1,7 @@
 import React from 'react';
 import { t } from '../i18n';
 
-export default function SubjectGroupForm({ form, setForm, subjects, formError, onSubmit, onCancel }) {
+export default function SubjectGroupForm({ form, setForm, subjects, formError, onSubmit, onCancel, onDelete }) {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm({ ...form, [name]: value });
@@ -51,6 +51,7 @@ export default function SubjectGroupForm({ form, setForm, subjects, formError, o
             <div className="subject-form-actions">
                 <button type="submit" className="subject-btn">{t('common.save')}</button>
                 <button type="button" className="subject-btn subject-btn-cancel" onClick={onCancel}>{t('common.cancel')}</button>
+                {onDelete && <button type="button" className="subject-btn" style={{ backgroundColor: '#dc2626', color: 'white' }} onClick={onDelete}>🗑️ {t('common.delete')}</button>}
             </div>
         </form>
     );

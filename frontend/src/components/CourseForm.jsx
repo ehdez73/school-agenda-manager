@@ -1,7 +1,7 @@
 import React from 'react';
 import { t } from '../i18n';
 
-export default function CourseForm({ form, setForm, editingId, onSubmit, onCancel }) {
+export default function CourseForm({ form, setForm, editingId, onSubmit, onCancel, onDelete }) {
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name === 'num_lineas' || name === 'num_lines') {
@@ -45,6 +45,7 @@ export default function CourseForm({ form, setForm, editingId, onSubmit, onCance
             <div className="course-form-actions">
                 <button type="submit" className="course-btn">{t('common.save')}</button>
                 <button type="button" className="course-btn course-btn-cancel" onClick={onCancel}>{t('common.cancel')}</button>
+                {onDelete && <button type="button" className="course-btn" style={{ backgroundColor: '#dc2626', color: 'white' }} onClick={onDelete}>🗑️ {t('common.delete')}</button>}
             </div>
         </form>
     );

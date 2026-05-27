@@ -2,7 +2,7 @@ import React from 'react';
 import PreferencesGrid from './PreferencesGrid';
 import { t } from '../i18n';
 
-export default function TeacherForm({ form, setForm, subjects, classesPerDay, onSubmit, onCancel, groups = [] }) {
+export default function TeacherForm({ form, setForm, subjects, classesPerDay, onSubmit, onCancel, onDelete, groups = [] }) {
     const handleChange = (e) => {
         const { name, value, selectedOptions } = e.target;
         if (name === 'subjects') {
@@ -111,6 +111,7 @@ export default function TeacherForm({ form, setForm, subjects, classesPerDay, on
                 <button type="button" className="teacher-btn teacher-btn-cancel" onClick={onCancel}>
                     {t('common.cancel')}
                 </button>
+                {onDelete && <button type="button" className="teacher-btn" style={{ backgroundColor: '#dc2626', color: 'white' }} onClick={onDelete}>🗑️ {t('common.delete')}</button>}
             </div>
         </form>
     );

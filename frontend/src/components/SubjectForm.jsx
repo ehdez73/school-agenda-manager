@@ -1,7 +1,7 @@
 import React from 'react';
 import { t } from '../i18n';
 
-export default function SubjectForm({ form, setForm, courses, subjects = [], lockedHours, editingId, formError, onSubmit, onCancel, daysPerWeek }) {
+export default function SubjectForm({ form, setForm, courses, subjects = [], lockedHours, editingId, formError, onSubmit, onCancel, onDelete, daysPerWeek }) {
     const handleChange = (e) => {
         let value;
         if (e.target.type === 'checkbox') {
@@ -157,6 +157,7 @@ export default function SubjectForm({ form, setForm, courses, subjects = [], loc
                 <button type="button" className="subject-btn subject-btn-cancel" onClick={onCancel}>
                     {t('common.cancel')}
                 </button>
+                {onDelete && <button type="button" className="subject-btn" style={{ backgroundColor: '#dc2626', color: 'white' }} onClick={onDelete}>🗑️ {t('common.delete')}</button>}
             </div>
         </form>
     );

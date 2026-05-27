@@ -19,6 +19,7 @@ export default function TeacherList() {
   const [classesPerDay, setClassesPerDay] = useState(5);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [selectedEntity, setSelectedEntity] = useState(null);
   const [courseFilter, setCourseFilter] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -61,6 +62,7 @@ export default function TeacherList() {
       setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null });
       setEditingId(null);
       setShowForm(false);
+      setSelectedEntity(null);
     }).catch(() => { });
   }
 
@@ -74,7 +76,8 @@ export default function TeacherList() {
       preferences: teacher.preferences || {}
     });
     setEditingId(teacher.id);
-    setShowForm(true);
+    setShowForm(false);
+    setSelectedEntity(teacher);
   }
 
   function handleDelete(id) {
@@ -87,6 +90,9 @@ export default function TeacherList() {
       fetchTeachers();
       setShowDeleteModal(false);
       setDeleteId(null);
+      setSelectedEntity(null);
+      setEditingId(null);
+      setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null });
     }).catch(() => { });
   }
 
@@ -169,16 +175,33 @@ export default function TeacherList() {
         </FormModal>
       )}
       <SectionLayout
-        title={t('teachers.title')}
+        title={selectedEntity ? `${t('common.edit')}: ${selectedEntity.name}` : t('teachers.title')}
         actions={
-          <button
-            className="btn btn--primary btn--compact"
-            onClick={() => { setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null }); setShowForm(true); }}
-          >
-            {t('teachers.add_teacher')}
-          </button>
+          !selectedEntity && (
+            <button
+              className="btn btn--primary btn--compact"
+              onClick={() => { setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null }); setShowForm(true); }}
+            >
+              {t('teachers.add_teacher')}
+            </button>
+          )
         }
       >
+      {selectedEntity ? (
+        <div className="edit-view">
+          <TeacherForm
+            form={form}
+            setForm={setForm}
+            subjects={subjects}
+            groups={groupsList}
+            classesPerDay={classesPerDay}
+            onSubmit={handleSubmit}
+            onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null }); }}
+            onDelete={() => handleDelete(selectedEntity.id)}
+          />
+        </div>
+      ) : (
+      <>
       <div className="teacher-search-bar">
         <input
           type="text"
@@ -220,37 +243,22 @@ export default function TeacherList() {
             </th>
             <th>{t('teachers.tutor_group') || 'Tutor'}</th>
             <th>{t('teachers.hours_week')}</th>
-            <th>{t('common_actions.actions')}</th>
           </tr>
         </thead>
         <tbody>
           {sortedTeachers.map(teacher => (
-            <tr key={teacher.id}>
+            <tr key={teacher.id} onClick={() => handleEdit(teacher)} style={{ cursor: 'pointer' }}>
               <td>{teacher.id}</td>
               <td>{teacher.name}</td>
               <td>{teacher.subjects ? teacher.subjects.map(s => `${s.full_name}`).join(', ') : ''}</td>
               <td>{teacher.tutor_group ?? ''}</td>
               <td>{teacher.max_hours_week ?? ''}</td>
-              <td>
-                <button
-                  title={t('common.edit')}
-                  style={{ marginRight: 8, padding: '4px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer' }}
-                  onClick={() => handleEdit(teacher)}
-                >
-                  <span role="img" aria-label={t('common.edit')} style={{ fontSize: '1.2em', color: '#fbbf24' }}>✏️</span>
-                </button>
-                <button
-                  title={t('common.delete')}
-                  style={{ padding: '4px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer' }}
-                  onClick={() => handleDelete(teacher.id)}
-                >
-                  <span role="img" aria-label={t('common.delete')} style={{ fontSize: '1.2em', color: '#ef4444' }}>🗑️</span>
-                </button>
-              </td>
             </tr>
           ))}
         </tbody>
       </table>
+      </>
+      )}
       </SectionLayout>
     </>
   );

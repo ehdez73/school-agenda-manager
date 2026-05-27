@@ -13,6 +13,7 @@ export default function CourseList() {
   const [form, setForm] = useState({ name: '', num_lines: 1 });
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [selectedEntity, setSelectedEntity] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -64,6 +65,7 @@ export default function CourseList() {
         setForm({ name: '', num_lines: 1 });
         setEditingId(null);
         setShowForm(false);
+        setSelectedEntity(null);
       })
       .catch(err => setError(err.message || 'Failed to save'));
   }
@@ -71,7 +73,8 @@ export default function CourseList() {
   function handleEdit(course) {
     setForm({ name: course.name, num_lines: course.num_lines });
     setEditingId(course.name);
-    setShowForm(true);
+    setShowForm(false);
+    setSelectedEntity(course);
   }
 
   function handleDelete(id) {
@@ -86,6 +89,9 @@ export default function CourseList() {
         fetchCourses();
         setShowDeleteModal(false);
         setDeleteId(null);
+        setSelectedEntity(null);
+        setEditingId(null);
+        setForm({ name: '', num_lines: 1 });
       })
       .catch(err => setError(err.message || 'Failed to delete'));
   }
@@ -126,14 +132,16 @@ export default function CourseList() {
         </FormModal>
       )}
       <SectionLayout
-        title={t('courses.title')}
+        title={selectedEntity ? `${t('common.edit')}: ${selectedEntity.name}` : t('courses.title')}
         actions={
-          <button
-            className="btn btn--primary btn--compact"
-            onClick={() => { setForm({ name: '', num_lines: 1 }); setShowForm(true); }}
-          >
-            {t('courses.add_course')}
-          </button>
+          !selectedEntity && (
+            <button
+              className="btn btn--primary btn--compact"
+              onClick={() => { setForm({ name: '', num_lines: 1 }); setShowForm(true); }}
+            >
+              {t('courses.add_course')}
+            </button>
+          )
         }
       >
         {error && (
@@ -146,6 +154,19 @@ export default function CourseList() {
             <span className="visually-hidden">{t('courses.loading')}</span>
           </div>
         )}
+        {selectedEntity ? (
+          <div className="edit-view">
+            <CourseForm
+              form={form}
+              setForm={setForm}
+              editingId={editingId}
+              onSubmit={handleSubmit}
+              onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', num_lines: 1 }); }}
+              onDelete={() => handleDelete(selectedEntity.name)}
+            />
+          </div>
+        ) : (
+        <>
         <div className="search-bar">
           <input
             type="text"
@@ -161,38 +182,23 @@ export default function CourseList() {
             <th>{t('courses.name')}</th>
             <th>{t('courses.num_lines')}</th>
             <th>{t('courses.groups')}</th>
-            <th>{t('common_actions.actions')}</th>
           </tr>
         </thead>
         <tbody>
           {sortedCourses.map(course => {
             const grupos = Array.from({ length: course.num_lines }, (_, i) => `${course.name}${String.fromCharCode(65 + i)}`);
             return (
-              <tr key={course.name}>
+              <tr key={course.name} onClick={() => handleEdit(course)} style={{ cursor: 'pointer' }}>
                 <td>{course.name}</td>
                 <td>{course.num_lines}</td>
                 <td>{grupos.join(', ')}</td>
-                <td>
-                  <button
-                    title={t('common.edit')}
-                    style={{ marginRight: 8, padding: '4px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer' }}
-                    onClick={() => handleEdit(course)}
-                  >
-                    <span role="img" aria-label={t('common.edit')} style={{ fontSize: '1.2em', color: '#fbbf24' }}>✏️</span>
-                  </button>
-                  <button
-                    title={t('common.delete')}
-                    style={{ padding: '4px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer' }}
-                    onClick={() => handleDelete(course.name)}
-                  >
-                    <span role="img" aria-label={t('common.delete')} style={{ fontSize: '1.2em', color: '#ef4444' }}>🗑️</span>
-                  </button>
-                </td>
               </tr>
             );
           })}
         </tbody>
       </table>
+      </>
+      )}
       </SectionLayout>
     </>
   );

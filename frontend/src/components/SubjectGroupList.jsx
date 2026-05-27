@@ -14,6 +14,7 @@ export default function SubjectGroupList() {
     const [formError, setFormError] = useState('');
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState(null);
+    const [selectedEntity, setSelectedEntity] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
 
@@ -52,13 +53,15 @@ export default function SubjectGroupList() {
             setForm({ name: '', subjects: [] });
             setEditingId(null);
             setShowForm(false);
+            setSelectedEntity(null);
         }).catch(err => setFormError(err.message));
     }
 
     function handleEdit(group) {
         setForm({ name: group.name || '', subjects: group.subjects ? group.subjects.map(s => String(s.id)) : [] });
         setEditingId(group.id);
-        setShowForm(true);
+        setShowForm(false);
+        setSelectedEntity(group);
     }
 
     function handleDelete(id) {
@@ -71,6 +74,9 @@ export default function SubjectGroupList() {
             fetchGroups();
             setShowDeleteModal(false);
             setDeleteId(null);
+            setSelectedEntity(null);
+            setEditingId(null);
+            setForm({ name: '', subjects: [] });
         }).catch(() => { });
     }
 
@@ -101,16 +107,32 @@ export default function SubjectGroupList() {
                 </FormModal>
             )}
             <SectionLayout
-                title={t('subject_groups.title')}
+                title={selectedEntity ? `${t('common.edit')}: ${selectedEntity.name}` : t('subject_groups.title')}
                 actions={
-                    <button
-                        className="btn btn--primary btn--compact"
-                        onClick={() => { setForm({ name: '', subjects: [] }); setShowForm(true); }}
-                    >
-                        {t('subject_groups.add_group')}
-                    </button>
+                    !selectedEntity && (
+                        <button
+                            className="btn btn--primary btn--compact"
+                            onClick={() => { setForm({ name: '', subjects: [] }); setShowForm(true); }}
+                        >
+                            {t('subject_groups.add_group')}
+                        </button>
+                    )
                 }
             >
+                {selectedEntity ? (
+                    <div className="edit-view">
+                        <SubjectGroupForm
+                            form={form}
+                            setForm={setForm}
+                            subjects={subjects}
+                            formError={formError}
+                            onSubmit={handleSubmit}
+                            onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', subjects: [] }); }}
+                            onDelete={() => handleDelete(selectedEntity.id)}
+                        />
+                    </div>
+                ) : (
+                <>
                 {formError && (
                     <div role="alert" className="state-error mb-md">{formError}</div>
                 )}
@@ -121,36 +143,21 @@ export default function SubjectGroupList() {
                         <th>{t('common.id') || 'ID'}</th>
                         <th>{t('common.name') || 'Name'}</th>
                         <th>{t('subject_groups.subjects') || 'Subjects'}</th>
-                        <th>{t('common_actions.actions')}</th>
                     </tr>
                 </thead>
                 <tbody>
                     {groups.map(g => (
-                        <tr key={g.id}>
+                        <tr key={g.id} onClick={() => handleEdit(g)} style={{ cursor: 'pointer' }}>
                             <td>{g.id}</td>
                             <td>{g.name}</td>
                             <td>{g.subjects ? g.subjects.map(s => s.full_name || s.name).join(', ') : ''}</td>
-                            <td>
-                                <button
-                                    title={t('common.edit')}
-                                    style={{ marginRight: 8, padding: '4px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer' }}
-                                    onClick={() => handleEdit(g)}
-                                >
-                                    <span role="img" aria-label={t('common.edit')} style={{ fontSize: '1.2em', color: '#fbbf24' }}>✏️</span>
-                                </button>
-                                <button
-                                    title={t('common.delete')}
-                                    style={{ padding: '4px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer' }}
-                                    onClick={() => handleDelete(g.id)}
-                                >
-                                    <span role="img" aria-label={t('common.delete')} style={{ fontSize: '1.2em', color: '#ef4444' }}>🗑️</span>
-                                </button>
-                            </td>
 
                         </tr>
                     ))}
                 </tbody>
             </table>
+            </>
+            )}
             </SectionLayout>
         </>
     );

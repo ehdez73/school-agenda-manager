@@ -20,6 +20,7 @@ function SubjectList() {
   const [formError, setFormError] = useState('');
   const [lockedHours, setLockedHours] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [selectedEntity, setSelectedEntity] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
@@ -65,6 +66,7 @@ function SubjectList() {
       setEditingId(null);
       setShowForm(false);
       setLockedHours(false);
+      setSelectedEntity(null);
     }).catch(err => setFormError(err.message));
   }
 
@@ -82,7 +84,8 @@ function SubjectList() {
     const isLocked = subject.subject_groups && subject.subject_groups.length > 0;
     setLockedHours(Boolean(isLocked));
     setEditingId(subject.id);
-    setShowForm(true);
+    setShowForm(false);
+    setSelectedEntity(subject);
   }
 
   function handleDelete(id) {
@@ -95,6 +98,9 @@ function SubjectList() {
       fetchSubjects();
       setShowDeleteModal(false);
       setDeleteId(null);
+      setSelectedEntity(null);
+      setEditingId(null);
+      setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '' });
     }).catch(() => { });
   }
 
@@ -160,14 +166,16 @@ function SubjectList() {
         </FormModal>
       )}
       <SectionLayout
-        title={t('subjects.title')}
+        title={selectedEntity ? `${t('common.edit')}: ${selectedEntity.name}` : t('subjects.title')}
         actions={
-          <button
-            className="btn btn--primary btn--compact"
-            onClick={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 1, consecutive_hours: true }); setShowForm(true); }}
-          >
-            {t('subjects.add_subject')}
-          </button>
+          !selectedEntity && (
+            <button
+              className="btn btn--primary btn--compact"
+              onClick={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 1, consecutive_hours: true }); setShowForm(true); }}
+            >
+              {t('subjects.add_subject')}
+            </button>
+          )
         }
       >
         {formError && (
@@ -175,6 +183,24 @@ function SubjectList() {
             {formError}
           </div>
         )}
+        {selectedEntity ? (
+          <div className="edit-view">
+            <SubjectForm
+              form={form}
+              setForm={setForm}
+              courses={courses}
+              subjects={subjects}
+              lockedHours={lockedHours}
+              editingId={editingId}
+              daysPerWeek={daysPerWeek}
+              formError={formError}
+              onSubmit={handleSubmit}
+              onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '' }); setLockedHours(false); }}
+              onDelete={() => handleDelete(selectedEntity.id)}
+            />
+          </div>
+        ) : (
+        <>
         <div className="search-bar">
           <input
             type="text"
@@ -213,12 +239,11 @@ function SubjectList() {
             <th className="subject-table-th-sort" onClick={() => handleSort('max_hours_per_day')}>
               {t('subjects.max_hours_per_day')} {sortBy === 'max_hours_per_day' ? (sortAsc ? '▲' : '▼') : ''}
             </th>
-            <th>{t('common_actions.actions')}</th>
           </tr>
         </thead>
         <tbody>
           {sortedSubjects.map(subject => (
-            <tr key={subject.id}>
+            <tr key={subject.id} onClick={() => handleEdit(subject)} style={{ cursor: 'pointer' }}>
               <td>{subject.id}</td>
               <td>{subject.name}</td>
               <td>{subject.course ? subject.course.name : t('subjects.no_course')}</td>
@@ -233,7 +258,6 @@ function SubjectList() {
               </td>
               <td>
                 {subject.linked_subject_id ? (
-                  // find the linked subject name from the fetched subjects list
                   (() => {
                     const linked = subjects.find(s => s.id === subject.linked_subject_id);
                     return linked ? linked.full_name || linked.name : subject.linked_subject_id;
@@ -247,26 +271,12 @@ function SubjectList() {
               </td>
               <td>{subject.weekly_hours}</td>
               <td>{subject.max_hours_per_day || 2}</td>
-              <td>
-                <button
-                  title={t('common.edit')}
-                  style={{ marginRight: 8, padding: '4px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer' }}
-                  onClick={() => handleEdit(subject)}
-                >
-                  <span role="img" aria-label={t('common.edit')} style={{ fontSize: '1.2em', color: '#fbbf24' }}>✏️</span>
-                </button>
-                <button
-                  title={t('common.delete')}
-                  style={{ padding: '4px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer' }}
-                  onClick={() => handleDelete(subject.id)}
-                >
-                  <span role="img" aria-label={t('common.delete')} style={{ fontSize: '1.2em', color: '#ef4444' }}>🗑️</span>
-                </button>
-              </td>
             </tr>
           ))}
         </tbody>
       </table>
+      </>
+      )}
       </SectionLayout>
     </>
   );
