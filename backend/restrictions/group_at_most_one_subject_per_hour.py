@@ -66,8 +66,16 @@ class GroupAtMostOneSubjectPerHour(Restriction):
                     for sg_id, sg_assignments in grouped_assignments.items():
                         if sg_assignments:
                             # All subjects in a SubjectGroup are treated as one logical unit
-                            # If any subject from the group is assigned, count it as 1
-                            logical_groups.append(sum(assignments[k] for k in sg_assignments))
+                            # Use auxiliary BoolVar so the group counts as at most 1
+                            sg_vars = [assignments[k] for k in sg_assignments]
+                            if len(sg_vars) == 1:
+                                logical_groups.append(sg_vars[0])
+                            else:
+                                sg_unit = model.NewBoolVar(
+                                    f"sg_unit_{group}_{d}_{h}_{sg_id}")
+                                model.Add(sg_unit <= sum(sg_vars))
+                                model.Add(sum(sg_vars) <= len(sg_vars) * sg_unit)
+                                logical_groups.append(sg_unit)
                     
                     # Add standalone subject logical assignments
                     for k in standalone_assignments:

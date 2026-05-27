@@ -1,55 +1,80 @@
-import pytest
 from ortools.sat.python import cp_model
-import sys
-import os
 
-# Add parent directory to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
-from ...models import Subject
-from ...restrictions.subject_max_hours_per_day import SubjectMaxHoursPerDay
 
-def test_subject_max_hours_per_day():
-    """Test the SubjectMaxHoursPerDay restriction."""
+class MockSubject:
+    def __init__(self, id, max_hours_per_day):
+        self.id = id
+        self.max_hours_per_day = max_hours_per_day
+
+
+def test_subject_max_hours_allows_within_limit():
+    from backend.restrictions.subject_max_hours_per_day import SubjectMaxHoursPerDay
+
     model = cp_model.CpModel()
 
-    # Mock data
-    subject = Subject(id='math', name='Math', max_hours_per_day=2)
-    # Adjust assignments to ensure feasibility
+    subject = MockSubject(id="math", max_hours_per_day=2)
+    num_days = 1
+
     assignments = {
-        ('group1', 'math', 'teacher1', 0, 0): model.NewBoolVar('math_0_0'),
-        ('group1', 'math', 'teacher1', 0, 1): model.NewBoolVar('math_0_1'),
-        ('group1', 'math', 'teacher1', 1, 0): model.NewBoolVar('math_1_0'),
+        ("g1", "math", "t1", 0, 0): model.NewBoolVar("a0"),
+        ("g1", "math", "t1", 0, 1): model.NewBoolVar("a1"),
+        ("g1", "math", "t1", 0, 2): model.NewBoolVar("a2"),
     }
 
-    # Apply restriction
-    restriction = SubjectMaxHoursPerDay()
-    restriction.apply(model, assignments, [subject], [])
+    SubjectMaxHoursPerDay().apply(model, assignments, [subject], num_days)
 
-    # Validate constraints
+    # Force two assignments on day 0 — should be allowed (max=2)
+    model.Add(assignments[("g1", "math", "t1", 0, 0)] == 1)
+    model.Add(assignments[("g1", "math", "t1", 0, 1)] == 1)
+
     solver = cp_model.CpSolver()
     status = solver.Solve(model)
-    
-    # Print status information for debugging
-    print(f"Solver status: {status}")
-    print(f"OPTIMAL: {cp_model.OPTIMAL}")
-    print(f"FEASIBLE: {cp_model.FEASIBLE}")
-    print(f"INFEASIBLE: {cp_model.INFEASIBLE}")
-    print(f"MODEL_INVALID: {cp_model.MODEL_INVALID}")
-    print(f"UNKNOWN: {cp_model.UNKNOWN}")
+    assert status == cp_model.FEASIBLE or status == cp_model.OPTIMAL
 
-    # Ensure the model is feasible
-    assert status == cp_model.OPTIMAL or status == cp_model.FEASIBLE
 
-    # Ensure no more than 2 hours are assigned on day 0
-    assert sum(solver.Value(assignments[('group1', 'math', 'teacher1', 0, h)]) for h in range(2)) <= 2
+def test_subject_max_hours_blocks_over_limit():
+    from backend.restrictions.subject_max_hours_per_day import SubjectMaxHoursPerDay
 
-    # Debug output to analyze solver behavior
-    print("Solver status:", status)
-    for (key, var) in assignments.items():
-        print(f"{key}: {solver.Value(var)}")
+    model = cp_model.CpModel()
 
-    # Debug constraints
-    print("Constraints:")
-    for day in range(5):
-        daily_sum = sum(assignments[("group1", "math", "teacher1", day, h)] for h in range(5) if ("group1", "math", "teacher1", day, h) in assignments)
-        print(f"Day {day}: {daily_sum}")
+    subject = MockSubject(id="math", max_hours_per_day=1)
+    num_days = 1
+
+    assignments = {
+        ("g1", "math", "t1", 0, 0): model.NewBoolVar("a0"),
+        ("g1", "math", "t1", 0, 1): model.NewBoolVar("a1"),
+    }
+
+    SubjectMaxHoursPerDay().apply(model, assignments, [subject], num_days)
+
+    # Force two assignments on day 0 — should violate max=1
+    model.Add(assignments[("g1", "math", "t1", 0, 0)] == 1)
+    model.Add(assignments[("g1", "math", "t1", 0, 1)] == 1)
+
+    solver = cp_model.CpSolver()
+    status = solver.Solve(model)
+    assert status == cp_model.INFEASIBLE
+
+
+def test_subject_max_hours_multiple_days():
+    from backend.restrictions.subject_max_hours_per_day import SubjectMaxHoursPerDay
+
+    model = cp_model.CpModel()
+
+    subject = MockSubject(id="math", max_hours_per_day=1)
+    num_days = 2
+
+    assignments = {
+        ("g1", "math", "t1", 0, 0): model.NewBoolVar("a0"),
+        ("g1", "math", "t1", 1, 0): model.NewBoolVar("a1"),
+    }
+
+    SubjectMaxHoursPerDay().apply(model, assignments, [subject], num_days)
+
+    # One hour on day 0 and one on day 1 — each day within limit
+    model.Add(assignments[("g1", "math", "t1", 0, 0)] == 1)
+    model.Add(assignments[("g1", "math", "t1", 1, 0)] == 1)
+
+    solver = cp_model.CpSolver()
+    status = solver.Solve(model)
+    assert status == cp_model.FEASIBLE or status == cp_model.OPTIMAL

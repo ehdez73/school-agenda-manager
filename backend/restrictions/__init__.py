@@ -28,6 +28,8 @@ from .linked_subjects_consecutive import LinkedSubjectsConsecutive
 
 from .subject_weekly_hours import SubjectWeeklyHours
 from .subject_must_every_day import SubjectMustEveryDay
+from .subject_max_hours_per_day import SubjectMaxHoursPerDay
+from .teacher_one_subject_per_group import TeacherOneSubjectPerGroup
 
 __all__ = [
     "Restriction",
@@ -45,5 +47,7 @@ __all__ = [
     "TutorMandatoryHours",
     "SubjectWeeklyHours",
     "SubjectMustEveryDay",
+    "SubjectMaxHoursPerDay",
+    "TeacherOneSubjectPerGroup",
     "LinkedSubjectsConsecutive",
 ]
