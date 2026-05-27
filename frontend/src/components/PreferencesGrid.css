@@ -1,0 +1,42 @@
+/* PreferencesGrid table styles */
+.preferences-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.preferences-table th {
+    text-align: center;
+    padding: var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.preferences-table th:first-child {
+    text-align: left;
+}
+
+.preferences-table td {
+    text-align: center;
+    padding: 0.25rem;
+    border-bottom: 1px solid #f2f2f2;
+    vertical-align: middle;
+}
+
+.preferences-table .hour-label {
+    padding: 0.25rem 0.5rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #f2f2f2;
+    text-align: left;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+}
+
+@media (max-width: 768px) {
+    .preferences-table th {
+        padding: var(--space-xs);
+        font-size: 0.8rem;
+    }
+
+    .preferences-table td {
+        padding: 0.15rem;
+    }
+}

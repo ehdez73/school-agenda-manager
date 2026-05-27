@@ -214,7 +214,7 @@ export default function ConfigForm() {
 
 
 
-          <button type="submit" className="config-form-btn" disabled={loading}>
+          <button type="submit" className="btn btn--primary" disabled={loading}>
             {t('common.save')}
           </button>
           {message && <div className="config-form-message">{message}</div>}
@@ -237,7 +237,7 @@ export default function ConfigForm() {
             />
           </label>
           <HourNames classesPerDay={classesPerDay} hourNames={hourNames} setHourNames={setHourNames} suppressResize={suppressResize} />
-          <button type="submit" className="config-form-btn" disabled={loading}>
+          <button type="submit" className="btn btn--primary" disabled={loading}>
             {t('common.save')}
           </button>
           {message && <div className="config-form-message">{message}</div>}
@@ -247,11 +247,11 @@ export default function ConfigForm() {
       {/* Restrictions Tab */}
       {activeTab === 'restrictions' && (
         <form onSubmit={handleSubmit}>
-          <p style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
+          <p className="config-form-description">
             {t('config.restrictions_desc')}
           </p>
 
-          <h4 style={{ marginBottom: '0.5rem' }}>{t('config.restrictions_hard')}</h4>
+          <h4 className="config-form-section-title">{t('config.restrictions_hard')}</h4>
           {HARD_RESTRICTIONS.map(name => (
             <label key={name} className="restriction-checkbox-label">
               <input
@@ -266,7 +266,7 @@ export default function ConfigForm() {
             </label>
           ))}
 
-          <h4 style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>{t('config.restrictions_soft')}</h4>
+          <h4 className="config-form-section-title">{t('config.restrictions_soft')}</h4>
           {SOFT_RESTRICTIONS.map(name => (
             <label key={name} className="restriction-checkbox-label">
               <input
@@ -281,7 +281,7 @@ export default function ConfigForm() {
             </label>
           ))}
 
-          <button type="submit" className="config-form-btn" disabled={loading}>
+          <button type="submit" className="btn btn--primary" disabled={loading}>
             {t('common.save')}
           </button>
           {message && <div className="config-form-message">{message}</div>}
@@ -292,26 +292,25 @@ export default function ConfigForm() {
       {activeTab === 'backup' && (
         <div className="backup-section">
           <h3>{t('config.backup_title')}</h3>
-          <p style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
+          <p className="config-form-description">
             {t('config.backup_desc')}
           </p>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <button onClick={handleExport} disabled={exportLoading} className="config-form-btn">
+          <div className="backup-actions">
+            <button onClick={handleExport} disabled={exportLoading} className="btn btn--primary">
               {exportLoading ? t('common.processing') : t('config.export')}
             </button>
-            <div style={{ display: 'inline-block' }}>
+            <div className="backup-file-wrapper">
               <input
                 type="file"
                 accept=".json,application/json"
                 onChange={handleImportFile}
-                style={{ display: 'none' }}
+                className="backup-file-input"
                 id="import-file-input"
               />
               <button
-                className="config-form-btn"
+                className="btn btn--secondary"
                 disabled={exportLoading}
                 onClick={() => document.getElementById('import-file-input').click()}
-                style={{ backgroundColor: '#6c757d' }}
               >
                 {exportLoading ? t('common.processing') : t('config.import')}
               </button>
@@ -319,13 +318,12 @@ export default function ConfigForm() {
             <button
               onClick={handleClearData}
               disabled={exportLoading}
-              className="config-form-btn"
-              style={{ backgroundColor: '#dc3545', borderColor: '#dc3545' }}
+              className="btn btn--danger"
             >
               {exportLoading ? t('common.processing') : t('config.clear')}
             </button>
           </div>
-          {exportMessage && <div className="config-form-message" style={{ marginTop: '1rem' }}>{exportMessage}</div>}
+          {exportMessage && <div className="config-form-message mt-md">{exportMessage}</div>}
         </div>
       )}
     </SectionLayout>

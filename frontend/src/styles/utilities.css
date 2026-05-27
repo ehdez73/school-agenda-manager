@@ -210,6 +210,19 @@
     box-shadow: var(--shadow-lg);
 }
 
+/* Text color utilities */
+.text-success {
+    color: var(--color-success);
+}
+
+.text-danger {
+    color: var(--color-danger);
+}
+
+.text-warning {
+    color: var(--color-warning);
+}
+
 /* Background utilities */
 .bg-surface {
     background-color: var(--color-surface);

@@ -1,6 +1,3 @@
-/* Import shared styles */
-@import './Shared.css';
-
 /* SubjectGroupList specific styles */
 .subjectgroup-container {
     display: flex;

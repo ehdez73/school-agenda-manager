@@ -22,16 +22,6 @@
 	width: 100px;
 }
 
-.config-form-btn {
-	padding: var(--space-sm) var(--space-lg);
-	border-radius: var(--radius-md);
-	background: var(--color-primary);
-	color: #fff;
-	border: none;
-	margin-top: var(--space-lg);
-	cursor: pointer;
-}
-
 .config-form-message {
 	margin-top: var(--space-md);
 	color: var(--color-success);
@@ -87,6 +77,49 @@
   font-size: 0.8rem;
   color: var(--color-text-secondary, #888);
   margin-top: 0.1rem;
+}
+
+.config-form-description {
+    margin-bottom: var(--space-md);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+.config-form-section-title {
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-sm);
+}
+
+.day-indices-title {
+    margin: 0 0 var(--space-sm) 0;
+}
+
+.day-indices-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+}
+
+.day-index-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-weight: 500;
+}
+
+.backup-actions {
+    display: flex;
+    gap: var(--space-md);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.backup-file-wrapper {
+    display: inline-block;
+}
+
+.backup-file-input {
+    display: none;
 }
 
 @media (max-width: 768px) {

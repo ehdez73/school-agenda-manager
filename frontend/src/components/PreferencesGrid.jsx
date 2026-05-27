@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../lib/api';
 import { t } from '../i18n';
+import './PreferencesGrid.css';
 
 export default function PreferencesGrid({ value = {}, onChange = () => { }, days, classesPerDay = 5 }) {
 
@@ -112,19 +113,19 @@ export default function PreferencesGrid({ value = {}, onChange = () => { }, days
     };
 
     return (
-        <table className="unavailable-grid-table" role="grid" style={{ borderCollapse: 'collapse', width: '100%' }}>
+        <table className="preferences-table" role="grid">
             <thead>
                 <tr>
-                    <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Hora</th>
+                    <th>Hora</th>
                     {daysList.map((day, idx) => (
-                        <th key={idx} style={{ textAlign: 'center', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>{day}</th>
+                        <th key={idx}>{day}</th>
                     ))}
                 </tr>
             </thead>
             <tbody>
                 {Array.from({ length: classesPerDay }).map((_, hour) => (
                     <tr key={hour}>
-                        <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle', borderBottom: '1px solid #f2f2f2' }}>{hourNames[hour] ?? `Hora ${hour}`}</td>
+                        <td className="hour-label">{hourNames[hour] ?? `Hora ${hour}`}</td>
                         {daysList.map((day, idx) => {
                             const status = getStatus(idx, hour);
                             const classNames = ['unavailable-slot'];
@@ -135,7 +136,7 @@ export default function PreferencesGrid({ value = {}, onChange = () => { }, days
                             const pref = state === 'available' ? t('preferences.none') : (state === 'unavailable' ? t('preferences.unavailable') : t('preferences.preferred'));
                             const slotLabel = `${day} ${hourNames[hour] ?? `Hora ${hour}`} ${pref}`;
                             return (
-                                <td key={idx} style={{ textAlign: 'center', padding: '0.25rem', borderBottom: '1px solid #f9f9f9' }}>
+                                <td key={idx}>
                                     <button
                                         type="button"
                                         className={classNames.join(' ')}

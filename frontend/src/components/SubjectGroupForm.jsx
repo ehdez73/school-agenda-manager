@@ -48,10 +48,10 @@ export default function SubjectGroupForm({ form, setForm, subjects, formError, o
                     );
                 })}
             </div>
-            <div className="subject-form-actions">
-                <button type="submit" className="subject-btn">{t('common.save')}</button>
-                <button type="button" className="subject-btn subject-btn-cancel" onClick={onCancel}>{t('common.cancel')}</button>
-                {onDelete && <button type="button" className="subject-btn" style={{ backgroundColor: '#dc2626', color: 'white' }} onClick={onDelete}>🗑️ {t('common.delete')}</button>}
+            <div className="form-actions">
+                <button type="submit" className="btn btn--primary">{t('common.save')}</button>
+                <button type="button" className="btn btn--secondary" onClick={onCancel}>{t('common.cancel')}</button>
+                {onDelete && <button type="button" className="btn btn--danger" onClick={onDelete}>{t('common.delete')}</button>}
             </div>
         </form>
     );

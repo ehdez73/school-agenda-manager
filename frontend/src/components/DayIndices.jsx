@@ -33,11 +33,11 @@ export default function DayIndices({ daysPerWeek = 5, dayIndices = [], setDayInd
     const dayOptions = Array.from({ length: 7 }, (_, i) => ({ value: i, label: t(`day.${i}`) }));
 
     return (
-        <div style={{ marginTop: '1rem' }}>
-            <h4 style={{ margin: '0 0 0.5rem 0' }}>{t('days.names_title')}</h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5rem' }}>
+        <div className="mt-md">
+            <h4 className="day-indices-title">{t('days.names_title')}</h4>
+            <div className="day-indices-grid">
                 {displayIndices.map((idx, i) => (
-                    <label key={i} className="config-form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <label key={i} className="day-index-row">
                         {`Day ${i + 1}:`}
                         <select
                             value={idx}

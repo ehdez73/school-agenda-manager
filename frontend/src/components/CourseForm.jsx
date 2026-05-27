@@ -43,9 +43,9 @@ export default function CourseForm({ form, setForm, editingId, onSubmit, onCance
                 </label>
             </div>
             <div className="course-form-actions">
-                <button type="submit" className="course-btn">{t('common.save')}</button>
-                <button type="button" className="course-btn course-btn-cancel" onClick={onCancel}>{t('common.cancel')}</button>
-                {onDelete && <button type="button" className="course-btn" style={{ backgroundColor: '#dc2626', color: 'white' }} onClick={onDelete}>🗑️ {t('common.delete')}</button>}
+                <button type="submit" className="btn btn--primary">{t('common.save')}</button>
+                <button type="button" className="btn btn--secondary" onClick={onCancel}>{t('common.cancel')}</button>
+                {onDelete && <button type="button" className="btn btn--danger" onClick={onDelete}>{t('common.delete')}</button>}
             </div>
         </form>
     );

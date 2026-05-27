@@ -30,11 +30,11 @@ export default function HourNames({ classesPerDay = 5, hourNames = [], setHourNa
     const displayNames = Array.from({ length: n }, (_, i) => hourNames[i] ?? t('hours.label').replace('{n}', String(i + 1)));
 
     return (
-        <div style={{ marginTop: '1rem' }}>
-            <h4 style={{ margin: '0 0 0.5rem 0' }}>{t('hours.names_title')}</h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5rem' }}>
+        <div className="mt-md">
+            <h4 className="day-indices-title">{t('hours.names_title')}</h4>
+            <div className="day-indices-grid">
                 {displayNames.map((name, idx) => (
-                    <label key={idx} className="config-form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <label key={idx} className="day-index-row">
                         {t('hours.label').replace('{n}', String(idx + 1))}:
                         <input
                             type="text"

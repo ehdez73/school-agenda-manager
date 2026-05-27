@@ -58,7 +58,7 @@ export default function TeacherForm({ form, setForm, subjects, classesPerDay, on
                                 </option>
                             ))}
                     </select>
-                    <label className="teacher-label" style={{ marginTop: '0.5rem' }}>{t('teachers.tutor_group')}:</label>
+                    <label className="teacher-label teacher-label-margin">{t('teachers.tutor_group')}:</label>
                     <select
                         name="tutor_group"
                         value={form.tutor_group || ''}
@@ -104,14 +104,14 @@ export default function TeacherForm({ form, setForm, subjects, classesPerDay, on
                     <div className="item"><div className="box preferred" /> {t('preferences.preferred')}</div>
                 </div>
             </div>
-            <div className="teacher-form-actions">
-                <button type="submit" className="teacher-btn">
+            <div className="form-actions">
+                <button type="submit" className="btn btn--primary">
                     {t('common.save')}
                 </button>
-                <button type="button" className="teacher-btn teacher-btn-cancel" onClick={onCancel}>
+                <button type="button" className="btn btn--secondary" onClick={onCancel}>
                     {t('common.cancel')}
                 </button>
-                {onDelete && <button type="button" className="teacher-btn" style={{ backgroundColor: '#dc2626', color: 'white' }} onClick={onDelete}>🗑️ {t('common.delete')}</button>}
+                {onDelete && <button type="button" className="btn btn--danger" onClick={onDelete}>{t('common.delete')}</button>}
             </div>
         </form>
     );

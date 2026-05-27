@@ -162,19 +162,21 @@
 }
 
 .group-badge {
-    display: inline-flex;
-    align-items: center;
+    display: inline-block;
     background-color: #eef2ff;
     color: #3730a3;
-    margin-left: 0.375rem;
-    padding: 0 0.55rem;
-    border-radius: var(--radius-full);
-    font-size: 0.6875rem;
+    padding: 0 0.4rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.7rem;
     font-weight: 600;
-    border: 1px solid #c7d2fe;
-    vertical-align: middle;
     line-height: 1.5;
-    letter-spacing: 0.01em;
+    margin-left: var(--space-xs);
+    white-space: nowrap;
+}
+
+[data-theme="dark"] .group-badge {
+    background-color: #1e1b4b;
+    color: #a5b4fc;
 }
 
 /* Subject selection in forms */
@@ -237,12 +239,6 @@
     border-radius: 50%;
     border-top-color: var(--color-primary);
     animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
 }
 
 /* Empty states */

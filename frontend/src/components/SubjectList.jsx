@@ -259,10 +259,10 @@ function SubjectList() {
                   })()
                 ) : '—'}
               </td>
-              <td style={{ textAlign: 'center' }}>
+              <td className="text-center">
                 {subject.has_teacher
-                  ? <span style={{ color: '#22c55e', fontWeight: 'bold' }}>✓</span>
-                  : <span style={{ color: '#ef4444' }}>✗</span>}
+                  ? <span className="text-success font-bold">✓</span>
+                  : <span className="text-danger">✗</span>}
               </td>
               <td>{subject.weekly_hours}</td>
               <td>{subject.max_hours_per_day || 2}</td>

@@ -150,14 +150,14 @@ export default function SubjectForm({ form, setForm, courses, subjects = [], loc
             </label>
             {lockedHours && <div className="form-info">{t('subject_groups.hours_locked_info')}</div>}
             {formError && <div className="form-error">{formError}</div>}
-            <div className="subject-form-actions">
-                <button type="submit" className="subject-btn">
+            <div className="form-actions">
+                <button type="submit" className="btn btn--primary">
                     {t('common.save')}
                 </button>
-                <button type="button" className="subject-btn subject-btn-cancel" onClick={onCancel}>
+                <button type="button" className="btn btn--secondary" onClick={onCancel}>
                     {t('common.cancel')}
                 </button>
-                {onDelete && <button type="button" className="subject-btn" style={{ backgroundColor: '#dc2626', color: 'white' }} onClick={onDelete}>🗑️ {t('common.delete')}</button>}
+                {onDelete && <button type="button" className="btn btn--danger" onClick={onDelete}>{t('common.delete')}</button>}
             </div>
         </form>
     );
