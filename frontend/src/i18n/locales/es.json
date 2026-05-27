@@ -103,7 +103,6 @@
         "name": "Nombre",
         "name_placeholder": "Nombre de la asignatura",
         "add_subject": "Añadir asignatura",
-        "group": "Grupo",
         "weekly_hours": "Horas/semana",
         "max_hours_per_day": "Máx. horas/día",
         "no_course": "Sin curso",
@@ -121,6 +120,7 @@
         "name_placeholder": "Nombre del grupo",
         "add_group": "Añadir grupo",
         "error_hours_mismatch": "ERROR:Todas las asignaturas seleccionadas deben tener el mismo número de horas semanales.",
+        "hours_locked_info": "Las horas semanales están bloqueadas porque la asignatura pertenece a un grupo.",
         "subjects": "Asignaturas"
     },
     "teachers": {

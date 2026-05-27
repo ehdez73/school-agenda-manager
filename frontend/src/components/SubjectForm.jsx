@@ -148,7 +148,7 @@ export default function SubjectForm({ form, setForm, courses, subjects = [], loc
                         ))}
                 </select>
             </label>
-            {lockedHours && <div className="form-error">{t('subject_groups.error_hours_mismatch')}</div>}
+            {lockedHours && <div className="form-info">{t('subject_groups.hours_locked_info')}</div>}
             {formError && <div className="form-error">{formError}</div>}
             <div className="subject-form-actions">
                 <button type="submit" className="subject-btn">

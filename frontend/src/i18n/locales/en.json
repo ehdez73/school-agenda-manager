@@ -103,7 +103,6 @@
         "name": "Name",
         "name_placeholder": "Subject name",
         "add_subject": "Add subject",
-        "group": "Group",
         "weekly_hours": "Hours/week",
         "max_hours_per_day": "Max hours/day",
         "no_course": "No course",
@@ -120,6 +119,7 @@
         "name_placeholder": "Group name",
         "add_group": "Add group",
         "error_hours_mismatch": "ERROR: All selected subjects must have the same weekly hours.",
+        "hours_locked_info": "Weekly hours are locked because the subject belongs to a group.",
         "subjects": "Subjects"
     },
     "teachers": {

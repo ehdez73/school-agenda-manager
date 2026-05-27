@@ -230,7 +230,6 @@ function SubjectList() {
             <th className="subject-table-th-sort" onClick={() => handleSort('course')}>
               {t('subjects.course') || 'Course'} {sortBy === 'course' ? (sortAsc ? '▲' : '▼') : ''}
             </th>
-            <th>{t('subjects.group')}</th>
             <th>{t('subjects.linked') || 'Vinculada'}</th>
             <th>{t('subjects.teacher')}</th>
             <th className="subject-table-th-sort" onClick={() => handleSort('weekly_hours')}>
@@ -245,17 +244,13 @@ function SubjectList() {
           {sortedSubjects.map(subject => (
             <tr key={subject.id} onClick={() => handleEdit(subject)} style={{ cursor: 'pointer' }}>
               <td>{subject.id}</td>
-              <td>{subject.name}</td>
-              <td>{subject.course ? subject.course.name : t('subjects.no_course')}</td>
               <td>
-                {subject.subject_groups && subject.subject_groups.length ? (
-                  <div className="group-chip-list">
-                    {subject.subject_groups.map(g => (
-                      <span key={g.id} className="group-chip">{g.name}</span>
-                    ))}
-                  </div>
-                ) : '—'}
+                <span className="subject-name">{subject.name}</span>
+                {subject.subject_groups?.map(g => (
+                  <span key={g.id} className="group-badge">{g.name}</span>
+                ))}
               </td>
+              <td>{subject.course ? subject.course.name : t('subjects.no_course')}</td>
               <td>
                 {subject.linked_subject_id ? (
                   (() => {

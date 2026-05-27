@@ -153,6 +153,17 @@
     font-size: 0.875rem;
 }
 
+/* Inline form-level info box */
+.form-info {
+    background-color: #e7f3ff;
+    border: 1px solid #b6d4fe;
+    color: #084298;
+    padding: var(--space-sm);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    margin-top: var(--space-sm);
+}
+
 /* Inline form-level error box used in small forms/lists */
 .form-error {
     background-color: #fff5f5;
