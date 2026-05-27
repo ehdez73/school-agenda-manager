@@ -1,7 +1,7 @@
 import React from 'react';
 import { t } from '../i18n';
 
-export default function SubjectForm({ form, setForm, courses, subjects = [], lockedHours, editingId, formError, onSubmit, onCancel, onDelete, daysPerWeek }) {
+export default function SubjectForm({ form, setForm, courses, subjects = [], lockedHours, editingId, formError, onSubmit, onCancel, onDelete, daysPerWeek, subject }) {
     const handleChange = (e) => {
         let value;
         if (e.target.type === 'checkbox') {
@@ -150,6 +150,20 @@ export default function SubjectForm({ form, setForm, courses, subjects = [], loc
             </label>
             {lockedHours && <div className="form-info">{t('subject_groups.hours_locked_info')}</div>}
             {formError && <div className="form-error">{formError}</div>}
+            {subject && (
+                <div className="subject-teachers">
+                    <h4>{t('subjects.assigned_teachers')}</h4>
+                    {subject.teachers && subject.teachers.length > 0 ? (
+                        <ul className="teacher-list">
+                            {subject.teachers.map(t => (
+                                <li key={t.id}>{t.name}</li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-muted">{t('subjects.no_teachers')}</p>
+                    )}
+                </div>
+            )}
             <div className="form-actions">
                 <button type="submit" className="btn btn--primary">
                     {t('common.save')}

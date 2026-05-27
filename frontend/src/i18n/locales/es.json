@@ -111,7 +111,9 @@
         "teach_every_day": "Impartir todos los días",
         "linked_subject": "Asignatura vinculada (consecutiva)",
         "linked": "Vinculada",
-        "teacher": "Docente"
+        "teacher": "Docente",
+        "assigned_teachers": "Profesores asignados",
+        "no_teachers": "Sin profesores asignados"
 
     },
     "subject_groups": {

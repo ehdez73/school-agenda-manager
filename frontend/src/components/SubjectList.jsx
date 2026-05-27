@@ -197,6 +197,7 @@ function SubjectList() {
               onSubmit={handleSubmit}
               onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '' }); setLockedHours(false); }}
               onDelete={() => handleDelete(selectedEntity.id)}
+              subject={selectedEntity}
             />
           </div>
         ) : (
@@ -260,7 +261,7 @@ function SubjectList() {
                 ) : '—'}
               </td>
               <td className="text-center">
-                {subject.has_teacher
+                {subject.teachers && subject.teachers.length > 0
                   ? <span className="text-success font-bold">✓</span>
                   : <span className="text-danger">✗</span>}
               </td>

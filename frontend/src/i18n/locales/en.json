@@ -111,7 +111,9 @@
         "teach_every_day": "Teach every day",
         "linked_subject": "Linked subject (consecutive)",
         "linked": "Linked",
-        "teacher": "Teacher"
+        "teacher": "Teacher",
+        "assigned_teachers": "Assigned teachers",
+        "no_teachers": "No teachers assigned"
     },
     "subject_groups": {
         "title": "Subject groups",

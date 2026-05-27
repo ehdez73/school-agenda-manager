@@ -44,3 +44,30 @@
 .subject-table-th-sort {
   cursor: pointer;
 }
+
+.subject-teachers {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.subject-teachers h4 {
+  margin: 0 0 0.3rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.teacher-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.teacher-list li {
+  background: var(--color-surface-variant, #f0f0f0);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-sm, 4px);
+  font-size: 0.85rem;
+}
