@@ -95,6 +95,8 @@
         "md_error": "Error downloading markdown",
         "generate_failed": "Could not generate a valid timetable",
         "diagnostic_title": "Solver Diagnostic Report",
+        "generating_async": "Generating timetable...",
+        "diagnosing_causes": "Identifying specific causes of infeasibility...",
         "generated_success": "Timetable generated successfully",
         "assignments_cleared": "Assignments cleared"
     },

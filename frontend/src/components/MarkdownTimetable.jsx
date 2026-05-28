@@ -13,9 +13,62 @@ function MarkdownTimetable() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [details, setDetails] = useState(null);
-  const [clearing, setClearing] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [phase, setPhase] = useState(null);
+  const [taskId, setTaskId] = useState(null);
+  const [elapsed, setElapsed] = useState(0);
   const [downloading, setDownloading] = useState(false);
   const timetableRef = useRef();
+  const pollingRef = useRef(null);
+  const elapsedRef = useRef(null);
+  const startTimeRef = useRef(null);
+
+  const stopGeneration = () => {
+    if (pollingRef.current) clearTimeout(pollingRef.current);
+    if (elapsedRef.current) clearInterval(elapsedRef.current);
+    setGenerating(false);
+    setPhase(null);
+    setElapsed(0);
+  };
+
+  const pollTaskStatus = async (tid) => {
+    try {
+      const result = await api.get(`/api/timetable/status/${tid}`);
+      if (!result || !result.status) {
+        pollingRef.current = setTimeout(() => pollTaskStatus(tid), 2000);
+        return;
+      }
+      if (result.phase) setPhase(result.phase);
+      if (result.phase && result.phase_details) {
+        setDetails(result.phase_details);
+      }
+      if (result.status === 'success') {
+        stopGeneration();
+        fetchTimetable();
+        return;
+      }
+      if (result.status === 'error') {
+        stopGeneration();
+        setError(result.error);
+        setDetails(result.details || result.phase_details || null);
+        return;
+      }
+      if (result.status === 'cancelled') {
+        stopGeneration();
+        return;
+      }
+      pollingRef.current = setTimeout(() => pollTaskStatus(tid), 2000);
+    } catch {
+      pollingRef.current = setTimeout(() => pollTaskStatus(tid), 3000);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) clearTimeout(pollingRef.current);
+      if (elapsedRef.current) clearInterval(elapsedRef.current);
+    };
+  }, []);
 
   const fetchTimetable = async () => {
     setLoading(true);
@@ -40,38 +93,56 @@ function MarkdownTimetable() {
     fetchTimetable();
   }, []);
 
-  const handleClear = async () => {
-    setClearing(true);
+  const handleGenerate = async () => {
+    setGenerating(true);
     setError(null);
     setDetails(null);
+    setMarkdown('');
+    try {
+      const result = await api.post('/api/timetable');
+      const tid = result.task_id;
+      setTaskId(tid);
+      startTimeRef.current = Date.now();
+      elapsedRef.current = setInterval(() => {
+        setElapsed(Math.floor((Date.now() - startTimeRef.current) / 1000));
+      }, 1000);
+      pollTaskStatus(tid);
+    } catch (err) {
+      stopGeneration();
+      setError(err.message);
+      setDetails(err.details || null);
+    }
+  };
+
+  const handleClear = async () => {
+    setGenerating(true);
+    setError(null);
+    setDetails(null);
+    setMarkdown('');
     try {
       await api.del('/api/timetable');
-      await api.post('/api/timetable');
-      fetchTimetable();
+      const result = await api.post('/api/timetable');
+      const tid = result.task_id;
+      setTaskId(tid);
+      startTimeRef.current = Date.now();
+      elapsedRef.current = setInterval(() => {
+        setElapsed(Math.floor((Date.now() - startTimeRef.current) / 1000));
+      }, 1000);
+      pollTaskStatus(tid);
     } catch (err) {
+      stopGeneration();
       setError(err.message);
       setDetails(err.details || null);
-    } finally {
-      setClearing(false);
     }
   };
 
-  const handleGenerate = async () => {
-    setClearing(true);
-    setError(null);
-    setDetails(null);
+  const handleCancel = async () => {
+    if (!taskId) return;
     try {
-      await api.post('/api/timetable');
-      fetchTimetable();
-    } catch (err) {
-      setError(err.message);
-      setDetails(err.details || null);
-    } finally {
-      setClearing(false);
-    }
+      await api.post(`/api/timetable/${taskId}/cancel`);
+    } catch { /* ignore */ }
+    stopGeneration();
   };
-
-
 
   const handleDownloadMarkdown = () => {
     if (!markdown.trim()) {
@@ -109,18 +180,22 @@ function MarkdownTimetable() {
         errorMsg={error}
         actions={
           <>
-            {markdown.trim() ? (
-              <button onClick={handleClear} disabled={clearing} className="btn btn--danger btn--compact">
-                {clearing ? t('timetable.recreating') : t('timetable.recreate')}
+            {generating ? (
+              <button onClick={handleCancel} className="btn btn--warning btn--compact">
+                {t('common.cancel')}
+              </button>
+            ) : markdown.trim() ? (
+              <button onClick={handleClear} disabled={generating} className="btn btn--danger btn--compact">
+                {t('timetable.recreate')}
               </button>
             ) : (
-              <button onClick={handleGenerate} disabled={clearing} className="btn btn--primary btn--compact">
-                {clearing ? t('timetable.generating') : t('timetable.generate')}
+              <button onClick={handleGenerate} disabled={generating} className="btn btn--primary btn--compact">
+                {t('timetable.generate')}
               </button>
             )}
             <button
               onClick={handleDownloadMarkdown}
-              disabled={downloading || loading || !!error || !markdown.trim()}
+              disabled={downloading || loading || !!error || !markdown.trim() || generating}
               className="btn btn--secondary btn--compact"
             >
               {downloading ? t('timetable.downloading_md') : (t('timetable.download_md') || 'Download Markdown')}
@@ -128,6 +203,11 @@ function MarkdownTimetable() {
           </>
         }
       >
+        {generating && (
+          <div className="state-loading" role="status" aria-live="polite">
+            <span>{phase === 'phase3' ? t('timetable.diagnosing_causes') : t('timetable.generating_async')}{elapsed > 0 ? ` (${elapsed}s)` : ''}</span>
+          </div>
+        )}
         {!loading && !error && markdown.trim() && (
           <div className="timetable-container markdown-timetable" ref={timetableRef}>
             <ReactMarkdown

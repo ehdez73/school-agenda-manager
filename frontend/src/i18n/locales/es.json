@@ -95,6 +95,8 @@
         "md_error": "Error descargando markdown",
         "generate_failed": "No se pudo generar un horario válido",
         "diagnostic_title": "Informe de diagnóstico del solver",
+        "generating_async": "Generando horario...",
+        "diagnosing_causes": "Identificando causas específicas de la infactibilidad...",
         "generated_success": "Horario generado exitosamente",
         "assignments_cleared": "Assignments eliminadas"
     },

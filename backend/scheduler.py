@@ -208,7 +208,7 @@ def solve_scheduling_model(
     if not diagnostic_mode:
         print("\n🧠 Starting the solver... This may take a moment.")
     solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = 60.0 # 0.0 if diagnostic_mode else 60.0
+    solver.parameters.max_time_in_seconds = 10.0 if diagnostic_mode else 60.0
     status = solver.Solve(model)
 
     return status, assignments, solver
@@ -457,29 +457,31 @@ def _run_entity_diagnosis(suspects, all_teachers, all_subjects, all_groups,
         model.AddAssumption(assume)
 
     solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = 30.0
+    solver.parameters.max_time_in_seconds = 120.0
     status = solver.Solve(model)
 
-    if status != cp_model.INFEASIBLE:
-        return {}
+    if status == cp_model.INFEASIBLE:
+        core_indices = set(solver.SufficientAssumptionsForInfeasibility())
 
-    core_indices = set(solver.SufficientAssumptionsForInfeasibility())
+        # SufficientAssumptionsForInfeasibility() returns integer indices,
+        # not IntVar objects. Build a mapping from index -> entity_info.
+        index_to_info = {assume.Index(): info for assume, info in all_assumptions}
 
-    # SufficientAssumptionsForInfeasibility() returns integer indices,
-    # not IntVar objects. Build a mapping from index -> entity_info.
-    index_to_info = {assume.Index(): info for assume, info in all_assumptions}
+        result = defaultdict(list)
+        for idx in core_indices:
+            if idx in index_to_info:
+                info = index_to_info[idx]
+                result[info["restriction"]].append(info)
 
-    result = defaultdict(list)
-    for idx in core_indices:
-        if idx in index_to_info:
-            info = index_to_info[idx]
-            result[info["restriction"]].append(info)
+        return dict(result), False
 
-    return dict(result)
+    timed_out = status == cp_model.UNKNOWN
+    return {}, timed_out
 
 
 def diagnose_infeasibility(
-    all_teachers, all_subjects, all_groups, all_subjectgroups, num_days, num_hours
+    all_teachers, all_subjects, all_groups, all_subjectgroups, num_days, num_hours,
+    progress_callback=None,
 ):
     """Diagnose which restrictions cause infeasibility.
 
@@ -489,17 +491,23 @@ def diagnose_infeasibility(
     Phase 3: Entity-level diagnosis using assumptions on suspect
              restrictions (1 solve).
 
+    Args:
+        progress_callback: Optional callable(phase: str, partial_markdown: str)
+                           called after each phase with accumulated results.
+
     Returns a dict with keys:
       - sanity_issues: list[str] — Phase 1 issues (empty = all clear)
       - suspects: list[str] — restrictions that cause infeasibility when active
       - cleared: list[str] — restrictions that did NOT cause issues individually
       - entity_conflicts: dict — Phase 3 entity-level results
+      - phase3_timed_out: bool — True if Phase 3 timed out without conclusive result
     """
     result: dict[str, list[str] | dict] = {
         "sanity_issues": [],
         "suspects": [],
         "cleared": [],
         "entity_conflicts": {},
+        "phase3_timed_out": False,
     }
 
     # Phase 1: instant capacity and data sanity checks
@@ -509,6 +517,9 @@ def diagnose_infeasibility(
     )
     result["sanity_issues"] = sanity_issues
     if result["sanity_issues"]:
+        if progress_callback:
+            msg = _build_diagnosis_message(result)
+            progress_callback("phase1", msg)
         return result
 
     # Phase 2: isolation testing (hard restrictions only)
@@ -536,17 +547,67 @@ def diagnose_infeasibility(
         else:
             result["cleared"].append(name)
 
+    if progress_callback:
+        msg = _build_diagnosis_message(result)
+        progress_callback("phase2", msg)
+
     # Phase 3: entity-level diagnosis for suspect restrictions
     if result["suspects"]:
-        result["entity_conflicts"] = _run_entity_diagnosis(
+        entity_conflicts, phase3_timed_out = _run_entity_diagnosis(
             result["suspects"], all_teachers, all_subjects, all_groups,
             all_subjectgroups, num_days, num_hours,
         )
+        result["entity_conflicts"] = entity_conflicts
+        result["phase3_timed_out"] = phase3_timed_out
+
+    if progress_callback:
+        msg = _build_diagnosis_message(result)
+        progress_callback("phase3", msg)
 
     return result
 
 
-def create_timetable(session) -> str | None:
+def _build_diagnosis_message(diagnosis):
+    """Build markdown diagnosis message from a diagnosis result dict."""
+    msg = ["# ❌ No solution found — Diagnostic Results\n"]
+    if diagnosis["sanity_issues"]:
+        msg.append("## Phase 1 — Capacity sanity checks")
+        msg.extend(diagnosis["sanity_issues"])
+        msg.append("")
+    if diagnosis["suspects"]:
+        msg.append("## Phase 2 — Restriction isolation")
+        msg.append("Removing any of these restrictions individually makes the model feasible:")
+        for name in diagnosis["suspects"]:
+            msg.append(f"  - **{name}**")
+        msg.append("")
+    if diagnosis.get("phase3_timed_out"):
+        msg.append("## Phase 3 — Entity diagnosis")
+        msg.append("  ⏱️ The diagnosis timed out. The constraints may be too complex")
+        msg.append("  for the allocated time. Try increasing timeout or simplifying.")
+        msg.append("")
+    if diagnosis["entity_conflicts"]:
+        msg.append("## Phase 3 — Specific entities involved")
+        for restriction_name, entities in diagnosis["entity_conflicts"].items():
+            msg.append(f"- **{restriction_name}** — Conflicts involve:")
+            for ent in entities:
+                name_str = f'{ent["entity_name"]} (id={ent["entity_id"]})'
+                extra = ent.get("extra", {})
+                if "tutor_group" in extra:
+                    name_str += f", tutor of group {extra['tutor_group']}"
+                msg.append(f"    - {name_str}")
+        msg.append("")
+    if diagnosis["cleared"]:
+        msg.append("Restrictions that did NOT cause issues individually:")
+        for name in diagnosis["cleared"]:
+            msg.append(f"  - {name}")
+        msg.append("")
+    if not diagnosis["sanity_issues"] and not diagnosis["suspects"]:
+        msg.append("Could not isolate a single restriction. The infeasibility may arise from")
+        msg.append("the interaction of multiple restrictions, or from data configuration.")
+    return "\n".join(msg) + "\n"
+
+
+def create_timetable(session, progress_callback=None) -> str | None:
     """
     Generates the school timetable using the OR-Tools CP-SAT solver.
 
@@ -554,6 +615,11 @@ def create_timetable(session) -> str | None:
     1. Loads data from the database
     2. Calls solve_scheduling_model to build and solve the model
     3. Saves the results to the database
+
+    Args:
+        session: Database session
+        progress_callback: Optional callable(phase: str, partial_markdown: str)
+                           called after each diagnosis phase completes.
     """
 
     # --- 1. Data Loading ---
@@ -613,35 +679,7 @@ def create_timetable(session) -> str | None:
         diagnosis = diagnose_infeasibility(
             all_teachers, all_subjects, all_groups,
             all_subjectgroups, num_days, num_hours,
+            progress_callback=progress_callback,
         )
-        msg = ["# ❌ No solution found — Diagnostic Results\n"]
-        if diagnosis["sanity_issues"]:
-            msg.append("## Phase 1 — Capacity sanity checks")
-            msg.extend(diagnosis["sanity_issues"])
-            msg.append("")
-        if diagnosis["suspects"]:
-            msg.append("## Phase 2 — Restriction isolation")
-            msg.append("Removing any of these restrictions individually makes the model feasible:")
-            for name in diagnosis["suspects"]:
-                msg.append(f"  - **{name}**")
-            msg.append("")
-        if diagnosis["entity_conflicts"]:
-            msg.append("## Phase 3 — Specific entities involved")
-            for restriction_name, entities in diagnosis["entity_conflicts"].items():
-                msg.append(f"- **{restriction_name}** — Conflicts involve:")
-                for ent in entities:
-                    name_str = f'{ent["entity_name"]} (id={ent["entity_id"]})'
-                    extra = ent.get("extra", {})
-                    if "tutor_group" in extra:
-                        name_str += f", tutor of group {extra['tutor_group']}"
-                    msg.append(f"    - {name_str}")
-            msg.append("")
-        if diagnosis["cleared"]:
-            msg.append("Restrictions that did NOT cause issues individually:")
-            for name in diagnosis["cleared"]:
-                msg.append(f"  - {name}")
-            msg.append("")
-        if not diagnosis["sanity_issues"] and not diagnosis["suspects"]:
-            msg.append("Could not isolate a single restriction. The infeasibility may arise from")
-            msg.append("the interaction of multiple restrictions, or from data configuration.")
-        return "\n".join(msg) + "\n"
+        msg = _build_diagnosis_message(diagnosis)
+        return msg

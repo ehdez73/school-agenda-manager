@@ -4,7 +4,8 @@ from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 from sqlalchemy import Table, ForeignKey, Column as SAColumn
 from sqlalchemy import Boolean
 
-ENGINE = create_engine("sqlite:///agenda.db")
+ENGINE = create_engine("sqlite:///agenda.db",
+                       connect_args={"check_same_thread": False})
 Base = declarative_base()
 Session = sessionmaker(bind=ENGINE)
 
