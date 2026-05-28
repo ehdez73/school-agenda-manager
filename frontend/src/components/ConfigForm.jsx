@@ -18,12 +18,12 @@ const HARD_RESTRICTIONS = [
   "LinkedSubjectsConsecutive",
   "SubjectGroupAssignment",
   "SubjectMustEveryDay",
-  "TutorMandatoryHours",
 ];
 
 const SOFT_RESTRICTIONS = [
   "TeacherPreferredTimes",
   "TutorPreference",
+  "TutorMandatoryHours",
 ];
 
 export default function ConfigForm() {

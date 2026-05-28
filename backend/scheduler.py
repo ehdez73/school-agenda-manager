@@ -124,7 +124,19 @@ def _build_hard_restrictions(model, assignments, all_teachers, all_subjects,
         ("LinkedSubjectsConsecutive", LinkedSubjectsConsecutive(), [model, assignments, all_groups, all_subjects, num_days, num_hours]),
         ("SubjectGroupAssignment", SubjectGroupAssignment(), [model, assignments, all_groups, all_subjects, all_subjectgroups]),
         ("SubjectMustEveryDay", SubjectMustEveryDay(), [model, assignments, all_groups, all_subjects, num_days]),
-        ("TutorMandatoryHours", TutorMandatoryHours(), [model, assignments, all_teachers, num_days, num_hours, all_subjectgroups]),
+    ]
+
+
+def _build_soft_restrictions(model, assignments, all_teachers,
+                              all_subjectgroups, num_days, num_hours):
+    """Build the list of (name, restriction_instance, args) for all soft restrictions."""
+    return [
+        ("TeacherPreferredTimes", TeacherPreferredTimes(),
+         [model, assignments, all_teachers, num_days, num_hours]),
+        ("TutorPreference", TutorPreference(weight=100),
+         [model, assignments, all_teachers]),
+        ("TutorMandatoryHours", TutorMandatoryHours(weight=500),
+         [model, assignments, all_teachers, num_days, num_hours, all_subjectgroups]),
     ]
 
 
@@ -160,16 +172,15 @@ def solve_scheduling_model(
     assignments = _create_assignments(model, all_teachers, all_subjects, all_groups, num_days, num_hours)
 
     # Pre-solve validation: run all sanity checks before building constraints
-    if "TutorMandatoryHours" not in skip_restrictions:
-        sanity_issues = _run_sanity_checks(
-            all_teachers, all_subjects, all_groups,
-            all_subjectgroups, num_days, num_hours,
-        )
-        if sanity_issues:
-            for issue in sanity_issues:
-                print(issue)
-            print("❌ Data sanity check failed. Fix the issues above and try again.")
-            return cp_model.INFEASIBLE, assignments, cp_model.CpSolver()
+    sanity_issues = _run_sanity_checks(
+        all_teachers, all_subjects, all_groups,
+        all_subjectgroups, num_days, num_hours,
+    )
+    if sanity_issues:
+        for issue in sanity_issues:
+            print(issue)
+        print("❌ Data sanity check failed. Fix the issues above and try again.")
+        return cp_model.INFEASIBLE, assignments, cp_model.CpSolver()
 
     # Hard restrictions
     hard_restrictions = _build_hard_restrictions(
@@ -181,15 +192,15 @@ def solve_scheduling_model(
             restriction.apply(*args)
 
     # Soft constraints (preferences) — never cause infeasibility on their own
-    teacher_preferred = TeacherPreferredTimes()
-    if "TeacherPreferredTimes" not in skip_restrictions:
-        teacher_preferred.apply(model, assignments, all_teachers, num_days, num_hours)
-
-    tutor_pref = TutorPreference(weight=100)
-    if "TutorPreference" not in skip_restrictions:
-        tutor_pref.apply(model, assignments, all_teachers)
-
-    preference_terms = teacher_preferred.preference_terms + tutor_pref.preference_terms
+    soft_restrictions = _build_soft_restrictions(
+        model, assignments, all_teachers,
+        all_subjectgroups, num_days, num_hours,
+    )
+    preference_terms = []
+    for name, restriction, args in soft_restrictions:
+        if name not in skip_restrictions:
+            restriction.apply(*args)
+            preference_terms.extend(restriction.preference_terms)
     if preference_terms:
         model.Maximize(sum(preference_terms))
 
@@ -382,92 +393,7 @@ def _check_teach_every_day_viability(all_subjects, all_groups, num_days):
     return issues
 
 
-def _check_tutor_teaches_in_tutor_group(all_teachers, all_subjectgroups):
-    """Check each tutor teaches at least one non-SubjectGroup subject in their group."""
-    from .restrictions.tutor_mandatory_hours import normalize_group_name
 
-    subject_ids_in_groups = set()
-    for sg in all_subjectgroups:
-        subject_ids_in_groups.update(s.id for s in getattr(sg, 'subjects', []))
-
-    issues = []
-    for teacher in all_teachers:
-        tutor_group = getattr(teacher, "tutor_group", None)
-        if not tutor_group:
-            continue
-        normalized = normalize_group_name(tutor_group)
-        if "-" not in normalized:
-            continue
-        course = normalized.split("-")[0]
-        has_non_sg_subject = False
-        for subject in getattr(teacher, 'subjects', []):
-            if (getattr(subject, 'course_id', None) == course
-                    and subject.id not in subject_ids_in_groups):
-                has_non_sg_subject = True
-                break
-        if not has_non_sg_subject:
-            issues.append(
-                f"  - **Teacher \"{teacher.name}\"** is tutor of group "
-                f"\"{normalized}\" but teaches no non-SubjectGroup subject "
-                f"in that course. TutorMandatoryHours will be silently skipped."
-            )
-    return issues
-
-
-def _check_tutor_availability_at_critical_slots(all_teachers, num_days, num_hours):
-    """Check tutors are available at the mandatory first and last slots."""
-    import json
-    from .restrictions.tutor_mandatory_hours import normalize_group_name
-
-    if num_days <= 0 or num_hours <= 0:
-        return []
-
-    first_day, first_hour = 0, 0
-    last_day, last_hour = num_days - 1, num_hours - 1
-
-    issues = []
-    for teacher in all_teachers:
-        tutor_group = getattr(teacher, "tutor_group", None)
-        if not tutor_group:
-            continue
-
-        prefs_raw = getattr(teacher, 'preferences', None)
-        if not prefs_raw:
-            continue
-
-        try:
-            prefs = json.loads(prefs_raw) if isinstance(prefs_raw, str) else prefs_raw
-        except Exception:
-            continue
-
-        if not isinstance(prefs, dict):
-            continue
-
-        def is_unavailable(prefs, day, hour):
-            entry = prefs.get(str(day)) or prefs.get(day)
-            if not entry or not isinstance(entry, dict):
-                return False
-            unavailable = entry.get('unavailable', [])
-            try:
-                return int(hour) in {int(x) for x in unavailable}
-            except Exception:
-                return False
-
-        normalized = normalize_group_name(tutor_group)
-        slots = []
-        if is_unavailable(prefs, first_day, first_hour):
-            slots.append(f"(day={first_day}, hour={first_hour})")
-        if ((first_day != last_day or first_hour != last_hour)
-                and is_unavailable(prefs, last_day, last_hour)):
-            slots.append(f"(day={last_day}, hour={last_hour})")
-
-        if slots:
-            issues.append(
-                f"  - **Teacher \"{teacher.name}\"** is tutor of group "
-                f"\"{normalized}\" but is unavailable at mandatory slot(s): "
-                f"{', '.join(slots)}."
-            )
-    return issues
 
 
 def _run_sanity_checks(all_teachers, all_subjects, all_groups,
@@ -491,12 +417,6 @@ def _run_sanity_checks(all_teachers, all_subjects, all_groups,
     )
     issues += _check_teach_every_day_viability(
         all_subjects, all_groups, num_days,
-    )
-    issues += _check_tutor_teaches_in_tutor_group(
-        all_teachers, all_subjectgroups,
-    )
-    issues += _check_tutor_availability_at_critical_slots(
-        all_teachers, num_days, num_hours,
     )
     return issues
 
@@ -604,7 +524,6 @@ def diagnose_infeasibility(
         "LinkedSubjectsConsecutive",
         "SubjectGroupAssignment",
         "SubjectMustEveryDay",
-        "TutorMandatoryHours",
     ]
     for name in hard_names:
         status, _, _ = solve_scheduling_model(

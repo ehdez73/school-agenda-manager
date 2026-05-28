@@ -640,7 +640,7 @@ def test_my_rule_solution_correct():
 | `linked_subjects_consecutive.py` | `LinkedSubjectsConsecutive` | Hard | Yes |
 | `subjectgroup_assignment.py` | `SubjectGroupAssignment` | Hard | Yes |
 | `subject_must_every_day.py` | `SubjectMustEveryDay` | Hard | Yes |
-| `tutor_mandatory_hours.py` | `TutorMandatoryHours` | Hard | Yes |
+| `tutor_mandatory_hours.py` | `TutorMandatoryHours` | Soft | Yes |
 | `teacher_preferred_times.py` | `TeacherPreferredTimes` | Soft | Yes |
 | `tutor_preference.py` | `TutorPreference` | Soft | Yes |
 | `group_at_most_one_subject_per_hour.py` | `GroupAtMostOneSubjectPerHour` | Hard | No — superseded by `GroupAtMostOneLogicalAssignment` |

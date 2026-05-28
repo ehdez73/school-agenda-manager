@@ -1,9 +1,9 @@
-"""Hard restriction: tutors must teach the first and last hour of the week
+"""Soft constraint: reward tutors for teaching the first and last hour of the week
 
-If a teacher is marked as tutor for a group (teacher.tutor_group), they must be
-assigned to teach that group's first hour of the week (day=0,hour=0) and the
-last hour of the week (day=num_days-1,hour=num_hours-1). This is enforced as
-hard equality constraints on the corresponding assignment variables.
+If a teacher is marked as tutor for a group (teacher.tutor_group), the solver
+is rewarded when the tutor is assigned to that group's first hour (day=0,hour=0)
+and the last hour (day=num_days-1,hour=num_hours-1). This is a soft constraint
+added as preference terms in the objective, so it never causes infeasibility.
 """
 
 from .base import Restriction
@@ -24,14 +24,19 @@ def normalize_group_name(group: str) -> str:
 
 
 class TutorMandatoryHours(Restriction):
-    """Require tutors to teach their group's first and last hours of the week.
+    """Reward tutors for teaching their group's first and last hours of the week.
 
     apply(model, assignments, teachers, num_days, num_hours, all_subjectgroups=None)
     """
 
+    def __init__(self, weight: int = 500):
+        self.weight = weight
+        self.preference_terms = []
+
     def apply(
         self, model, assignments, teachers, num_days, num_hours, all_subjectgroups=None
     ):
+        self.preference_terms = []
         self._apply_impl(model, assignments, teachers, num_days, num_hours,
                          all_subjectgroups)
 
@@ -109,16 +114,20 @@ class TutorMandatoryHours(Restriction):
                     "extra": {"tutor_group": normalized},
                 }))
             elif not diagnostic_mode:
-                # If there are no variables for these slots, skip (possible if the
-                # subject/teacher combination doesn't exist in assignments for that group)
+                # Soft constraint: reward the solver when the tutor is assigned
+                # to the first and last timeslots. Since existing constraints
+                # prevent >1 assignment per slot, sum(vars) is 0 or 1.
                 if first_vars:
-                    # At least one of the assignment variables for this teacher/group
-                    # at the first timeslot must be selected. If multiple subject
-                    # choices exist, exactly one should be selected; we enforce
-                    # sum(first_vars) == 1.
-                    model.Add(sum(first_vars) == 1)
-
+                    expr = sum(first_vars)
+                    if self.weight != 1:
+                        self.preference_terms.append(self.weight * expr)
+                    else:
+                        self.preference_terms.append(expr)
                 if last_vars:
-                    model.Add(sum(last_vars) == 1)
+                    expr = sum(last_vars)
+                    if self.weight != 1:
+                        self.preference_terms.append(self.weight * expr)
+                    else:
+                        self.preference_terms.append(expr)
 
         return assumptions

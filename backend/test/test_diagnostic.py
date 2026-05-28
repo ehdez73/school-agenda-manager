@@ -1,13 +1,9 @@
 """Tests for the infeasibility diagnostic pre-checks (Phase 1 sanity checks)."""
 
-import json
-
 from backend.scheduler import (
     _check_subjectgroup_weekly_hours_consistency,
     _check_teacher_capacity_vs_load,
     _check_teach_every_day_viability,
-    _check_tutor_teaches_in_tutor_group,
-    _check_tutor_availability_at_critical_slots,
     diagnose_infeasibility,
 )
 
@@ -135,69 +131,6 @@ def test_teach_every_day_exceeds_max_per_day():
     issues = _check_teach_every_day_viability([s], ["1-A"], 5)
     assert len(issues) >= 1
     assert any("max_hours_per_day" in i for i in issues)
-
-
-# ---------------------------------------------------------------------------
-# _check_tutor_teaches_in_tutor_group
-# ---------------------------------------------------------------------------
-
-def test_tutor_with_valid_subject():
-    t = MockTeacher(1, "Ana", tutor_group="1-A",
-                    subjects=[MockSubject("M1", "Math", "1", weekly_hours=3)])
-    assert _check_tutor_teaches_in_tutor_group([t], []) == []
-
-
-def test_tutor_without_valid_subject():
-    t = MockTeacher(1, "Ana", tutor_group="1-A",
-                    subjects=[MockSubject("M2", "Music", "2", weekly_hours=2)])
-    issues = _check_tutor_teaches_in_tutor_group([t], [])
-    assert len(issues) == 1
-    assert "tutor" in issues[0].lower()
-
-
-def test_tutor_with_no_subjects():
-    t = MockTeacher(1, "Ana", tutor_group="1-A")
-    issues = _check_tutor_teaches_in_tutor_group([t], [])
-    assert len(issues) == 1
-
-
-def test_not_a_tutor():
-    t = MockTeacher(1, "Ana", tutor_group=None)
-    assert _check_tutor_teaches_in_tutor_group([t], []) == []
-
-
-# ---------------------------------------------------------------------------
-# _check_tutor_availability_at_critical_slots
-# ---------------------------------------------------------------------------
-
-def test_tutor_available_at_critical_slots():
-    prefs = json.dumps({"0": {"unavailable": [2]}, "1": {"unavailable": []}})
-    t = MockTeacher(1, "Ana", tutor_group="1-A", preferences=prefs)
-    assert _check_tutor_availability_at_critical_slots([t], 5, 5) == []
-
-
-def test_tutor_unavailable_at_first_slot():
-    prefs = json.dumps({"0": {"unavailable": [0]}})
-    t = MockTeacher(1, "Ana", tutor_group="1-A", preferences=prefs)
-    issues = _check_tutor_availability_at_critical_slots([t], 5, 5)
-    assert len(issues) == 1
-    assert "unavailable" in issues[0]
-    assert "mandatory" in issues[0]
-
-
-def test_tutor_no_preferences():
-    t = MockTeacher(1, "Ana", tutor_group="1-A", preferences=None)
-    assert _check_tutor_availability_at_critical_slots([t], 5, 5) == []
-
-
-def test_tutor_malformed_preferences():
-    t = MockTeacher(1, "Ana", tutor_group="1-A", preferences="not-json")
-    assert _check_tutor_availability_at_critical_slots([t], 5, 5) == []
-
-
-def test_tutor_not_a_tutor():
-    t = MockTeacher(1, "Ana", tutor_group=None)
-    assert _check_tutor_availability_at_critical_slots([t], 5, 5) == []
 
 
 # ---------------------------------------------------------------------------
