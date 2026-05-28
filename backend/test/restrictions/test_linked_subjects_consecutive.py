@@ -90,3 +90,103 @@ def test_linked_subjects_allow_consecutive():
     status = solver.Solve(model)
 
     assert status == cp_model.OPTIMAL or status == cp_model.FEASIBLE
+
+
+def test_linked_subjects_allow_single_subject_on_day():
+    model = cp_model.CpModel()
+
+    groups = ["1-A"]
+    num_days = 1
+    num_hours = 5
+
+    a = DummySubject("A", "1", linked_subject_id="B")
+    b = DummySubject("B", "1")
+    subjects = [a, b]
+
+    assignments = {}
+    for d in range(num_days):
+        for h in range(num_hours):
+            assignments[("1-A", "A", 1, d, h)] = model.NewBoolVar(f"A_d{d}_h{h}")
+            assignments[("1-A", "B", 1, d, h)] = model.NewBoolVar(f"B_d{d}_h{h}")
+
+    LinkedSubjectsConsecutive().apply(
+        model, assignments, groups, subjects, num_days, num_hours
+    )
+
+    # A appears once, B does not appear on the day.
+    model.Add(assignments[("1-A", "A", 1, 0, 2)] == 1)
+    model.Add(sum(assignments[("1-A", "A", 1, 0, h)] for h in range(num_hours)) == 1)
+    model.Add(sum(assignments[("1-A", "B", 1, 0, h)] for h in range(num_hours)) == 0)
+
+    solver = cp_model.CpSolver()
+    status = solver.Solve(model)
+
+    assert status == cp_model.OPTIMAL or status == cp_model.FEASIBLE
+
+
+def test_linked_subjects_allow_alternating_block_m_l_m():
+    model = cp_model.CpModel()
+
+    groups = ["1-A"]
+    num_days = 1
+    num_hours = 5
+
+    a = DummySubject("A", "1", linked_subject_id="B")
+    b = DummySubject("B", "1")
+    subjects = [a, b]
+
+    assignments = {}
+    for d in range(num_days):
+        for h in range(num_hours):
+            assignments[("1-A", "A", 1, d, h)] = model.NewBoolVar(f"A_d{d}_h{h}")
+            assignments[("1-A", "B", 1, d, h)] = model.NewBoolVar(f"B_d{d}_h{h}")
+
+    LinkedSubjectsConsecutive().apply(
+        model, assignments, groups, subjects, num_days, num_hours
+    )
+
+    # Alternating block is valid: A-B-A.
+    model.Add(assignments[("1-A", "A", 1, 0, 0)] == 1)
+    model.Add(assignments[("1-A", "B", 1, 0, 1)] == 1)
+    model.Add(assignments[("1-A", "A", 1, 0, 2)] == 1)
+    model.Add(sum(assignments[("1-A", "A", 1, 0, h)] for h in range(num_hours)) == 2)
+    model.Add(sum(assignments[("1-A", "B", 1, 0, h)] for h in range(num_hours)) == 1)
+
+    solver = cp_model.CpSolver()
+    status = solver.Solve(model)
+
+    assert status == cp_model.OPTIMAL or status == cp_model.FEASIBLE
+
+
+def test_linked_subjects_forbid_non_alternating_block_m_m_l():
+    model = cp_model.CpModel()
+
+    groups = ["1-A"]
+    num_days = 1
+    num_hours = 5
+
+    a = DummySubject("A", "1", linked_subject_id="B")
+    b = DummySubject("B", "1")
+    subjects = [a, b]
+
+    assignments = {}
+    for d in range(num_days):
+        for h in range(num_hours):
+            assignments[("1-A", "A", 1, d, h)] = model.NewBoolVar(f"A_d{d}_h{h}")
+            assignments[("1-A", "B", 1, d, h)] = model.NewBoolVar(f"B_d{d}_h{h}")
+
+    LinkedSubjectsConsecutive().apply(
+        model, assignments, groups, subjects, num_days, num_hours
+    )
+
+    # Non-alternating block should be invalid when both are present: A-A-B.
+    model.Add(assignments[("1-A", "A", 1, 0, 0)] == 1)
+    model.Add(assignments[("1-A", "A", 1, 0, 1)] == 1)
+    model.Add(assignments[("1-A", "B", 1, 0, 2)] == 1)
+    model.Add(sum(assignments[("1-A", "A", 1, 0, h)] for h in range(num_hours)) == 2)
+    model.Add(sum(assignments[("1-A", "B", 1, 0, h)] for h in range(num_hours)) == 1)
+
+    solver = cp_model.CpSolver()
+    status = solver.Solve(model)
+
+    assert status == cp_model.INFEASIBLE or status == cp_model.MODEL_INVALID
