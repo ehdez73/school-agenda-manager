@@ -136,6 +136,7 @@ def import_payload(session, payload):
             weekly_hours=s.get("weekly_hours", 1),
             max_hours_per_day=s.get("max_hours_per_day", 2),
             consecutive_hours=s.get("consecutive_hours", True),
+            teach_every_day=s.get("teach_every_day", False),
             course_id=course_id,
             linked_subject_id=s.get("linked_subject_id", None),
             included_lines=incl_lines,
