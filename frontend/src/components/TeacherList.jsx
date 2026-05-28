@@ -112,11 +112,11 @@ export default function TeacherList() {
 
   const subjectOptions = Array.from(new Set(
     teachers.flatMap(t => t.subjects ? t.subjects.map(s => s.name) : [])
-  ));
+  )).sort((a, b) => a.localeCompare(b));
 
   const courseOptions = Array.from(new Set(
     subjects.filter(s => s.course).map(s => s.course.name)
-  ));
+  )).sort((a, b) => a.localeCompare(b));
 
   // Build a list of concrete groups (course + letter), e.g. '1ºA', '1ºB'
   const groupsList = courses.flatMap(course => {

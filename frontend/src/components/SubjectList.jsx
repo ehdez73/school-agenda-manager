@@ -120,7 +120,7 @@ function SubjectList() {
     }
   }
 
-  const courseOptions = Array.from(new Set(subjects.map(s => s.course ? s.course.name : t('subjects.no_course'))));
+  const courseOptions = Array.from(new Set(subjects.map(s => s.course ? s.course.name : t('subjects.no_course')))).sort((a, b) => a.localeCompare(b));
 
   const filteredSubjects = subjects.filter(subject => {
     const matchesName = subject.name.toLowerCase().includes(search.toLowerCase());

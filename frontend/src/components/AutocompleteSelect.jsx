@@ -20,12 +20,14 @@ export default function AutocompleteSelect({
     const filteredItems = useMemo(() => {
         const selected = new Set(selectedIds.map(String));
         const query = searchTerm.toLowerCase().trim();
-        return items.filter(item => {
-            if (!singleSelect && selected.has(String(item.id))) return false;
-            if (!query) return true;
-            const label = getDisplayLabel(item).toLowerCase();
-            return label.includes(query);
-        });
+        return items
+            .filter(item => {
+                if (!singleSelect && selected.has(String(item.id))) return false;
+                if (!query) return true;
+                const label = getDisplayLabel(item).toLowerCase();
+                return label.includes(query);
+            })
+            .sort((a, b) => (getDisplayLabel(a) || '').localeCompare(getDisplayLabel(b) || ''));
     }, [items, selectedIds, searchTerm, getDisplayLabel, singleSelect]);
 
     useEffect(() => {

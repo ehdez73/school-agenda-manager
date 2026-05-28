@@ -107,7 +107,7 @@ export default function SubjectForm({ form, setForm, courses, subjects = [], loc
                     className="subject-select"
                 >
                     <option value="">{t('common.search_placeholder')}</option>
-                    {courses.map(c => (
+                    {[...courses].sort((a, b) => (a.name || '').localeCompare(b.name || '')).map(c => (
                         <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                 </select>
