@@ -1,6 +1,10 @@
 import uuid
 import threading
 import time
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class TaskManager:
@@ -21,12 +25,14 @@ class TaskManager:
                 "details": None,
                 "created_at": time.time(),
             }
+        logger.info("Task created id=%s", task_id)
         return task_id
 
     def complete_task(self, task_id):
         with self._lock:
             if task_id in self._tasks and task_id not in self._cancelled:
                 self._tasks[task_id]["status"] = "success"
+                logger.info("Task marked success id=%s", task_id)
 
     def fail_task(self, task_id, error, details=None):
         with self._lock:
@@ -34,12 +40,14 @@ class TaskManager:
                 self._tasks[task_id]["status"] = "error"
                 self._tasks[task_id]["error"] = error
                 self._tasks[task_id]["details"] = details
+                logger.warning("Task marked error id=%s", task_id)
 
     def cancel_task(self, task_id):
         with self._lock:
             self._cancelled.add(task_id)
             if task_id in self._tasks:
                 self._tasks[task_id]["status"] = "cancelled"
+        logger.info("Task marked cancelled id=%s", task_id)
 
     def is_cancelled(self, task_id):
         return task_id in self._cancelled
@@ -49,6 +57,7 @@ class TaskManager:
             if task_id in self._tasks and task_id not in self._cancelled:
                 self._tasks[task_id]["phase"] = phase
                 self._tasks[task_id]["phase_details"] = phase_details
+                logger.debug("Task progress updated id=%s phase=%s", task_id, phase)
 
     def get_status(self, task_id):
         with self._lock:
@@ -75,6 +84,8 @@ class TaskManager:
                 for tid in expired:
                     del self._tasks[tid]
                     self._cancelled.discard(tid)
+                if expired:
+                    logger.info("Task cleanup removed expired tasks count=%d", len(expired))
 
 
 task_manager = TaskManager()

@@ -1,14 +1,17 @@
 from flask import Blueprint, jsonify, request, abort
 import json as _json
+import logging
 from sqlalchemy.orm import joinedload
 from ..models import Teacher, Subject, Session
 from ..schemas import TeacherSchema, PreferencesSchema, DayPreferences
 from ..translations import t
 
 teachers_bp = Blueprint('teachers', __name__)
+logger = logging.getLogger(__name__)
 
 @teachers_bp.route('/teachers', methods=['GET'])
 def get_teachers():
+    logger.info("Listing teachers")
     session = Session()
     teachers = session.query(Teacher).options(joinedload(Teacher.subjects)).all()
     result = []
@@ -28,12 +31,14 @@ def get_teachers():
         }
         result.append(TeacherSchema(**t_dict).model_dump())
     session.close()
+    logger.info("Listed teachers count=%d", len(result))
     return jsonify(result)
 
 @teachers_bp.route('/teachers', methods=['POST'])
 def add_teacher():
     data = request.get_json()
     if not data or 'name' not in data:
+        logger.warning("Create teacher rejected due to missing name")
         abort(400, description=t('errors.missing_field', field='name'))
     subject_ids = data.get('subjects', [])
     session = Session()
@@ -44,6 +49,7 @@ def add_teacher():
     except (ValueError, TypeError):
         max_hours_week = 1
     if max_hours_week < 1:
+        logger.warning("Create teacher rejected due to invalid max_hours_week value=%s", data.get('max_hours_week'))
         abort(400, description=t('errors.invalid_max_hours'))
     ut_raw = data.get('preferences', {})
     try:
@@ -68,6 +74,7 @@ def add_teacher():
         ut = normalized
     except Exception:
         session.close()
+        logger.warning("Create teacher rejected due to invalid preferences")
         abort(400, description=t('errors.invalid_preferences'))
 
     new_teacher = Teacher(
@@ -82,6 +89,7 @@ def add_teacher():
     new_teacher.preferences = _json.dumps(ut)
     session.add(new_teacher)
     session.commit()
+    logger.info("Created teacher id=%s name=%s", new_teacher.id, new_teacher.name)
     response_data = TeacherSchema(**{
         'id': new_teacher.id,
         'name': new_teacher.name,
@@ -95,10 +103,12 @@ def add_teacher():
 
 @teachers_bp.route('/teachers/<int:teacher_id>', methods=['GET'])
 def get_teacher(teacher_id):
+    logger.info("Fetching teacher id=%s", teacher_id)
     session = Session()
     teacher = session.get(Teacher, teacher_id)
     session.close()
     if teacher is None:
+        logger.warning("Teacher not found id=%s", teacher_id)
         abort(404, description=t('errors.not_found', entity='Teacher', id=teacher_id))
     try:
         ut = teacher.preferences and teacher.preferences.strip() and _json.loads(teacher.preferences) or {}
@@ -118,11 +128,13 @@ def get_teacher(teacher_id):
 def update_teacher(teacher_id):
     data = request.get_json()
     if not data:
+        logger.warning("Update teacher rejected due to missing payload id=%s", teacher_id)
         abort(400, description=t('errors.no_data_provided'))
     session = Session()
     teacher = session.get(Teacher, teacher_id)
     if teacher is None:
         session.close()
+        logger.warning("Teacher not found for update id=%s", teacher_id)
         abort(404, description=t('errors.not_found', entity='Teacher', id=teacher_id))
     teacher.name = data.get('name', teacher.name)
     if 'max_hours_week' in data:
@@ -132,6 +144,7 @@ def update_teacher(teacher_id):
             wh = 1
         if wh < 1:
             session.close()
+            logger.warning("Update teacher rejected due to invalid max_hours_week id=%s", teacher_id)
             abort(400, description=t('errors.invalid_max_hours'))
         teacher.max_hours_week = wh
     subject_ids = data.get('subjects', None)
@@ -160,8 +173,10 @@ def update_teacher(teacher_id):
             teacher.preferences = _json.dumps(normalized)
         except Exception:
             session.close()
+            logger.warning("Update teacher rejected due to invalid preferences id=%s", teacher_id)
             abort(400, description=t('errors.invalid_preferences'))
     session.commit()
+    logger.info("Updated teacher id=%s", teacher.id)
     response_data = TeacherSchema(**{
         'id': teacher.id,
         'name': teacher.name,
@@ -175,12 +190,15 @@ def update_teacher(teacher_id):
 
 @teachers_bp.route('/teachers/<int:teacher_id>', methods=['DELETE'])
 def delete_teacher(teacher_id):
+    logger.info("Deleting teacher id=%s", teacher_id)
     session = Session()
     teacher = session.get(Teacher, teacher_id)
     if teacher is None:
         session.close()
+        logger.warning("Teacher not found for delete id=%s", teacher_id)
         abort(404, description=t('errors.not_found', entity='Teacher', id=teacher_id))
     session.delete(teacher)
     session.commit()
     session.close()
+    logger.info("Deleted teacher id=%s", teacher_id)
     return jsonify({"message": t('success.deleted', entity='Teacher', id=teacher_id)}), 200

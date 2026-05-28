@@ -4,6 +4,10 @@ from .models import SubjectGroup
 import json
 from . import export_import as shared_export_import
 import os
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 def populate_db(init_file: str | None = None):
@@ -14,31 +18,31 @@ def populate_db(init_file: str | None = None):
     """
     Base.metadata.drop_all(ENGINE)
     Base.metadata.create_all(ENGINE)
-    print("Database created.")
+    logger.info("Database schema recreated")
     # If an init JSON file is provided, import it using the shared import logic
     session = Session()
     try:
         if init_file:
             if os.path.exists(init_file):
-                print(f"Importing initial data from {init_file}...")
+                logger.info("Importing initial data from %s", init_file)
                 with open(init_file, "r", encoding="utf-8") as fh:
                     payload = json.load(fh)
                 try:
                     shared_export_import.import_payload(session, payload)
                     session.commit()
-                    print("Initial data imported.")
+                    logger.info("Initial data import completed")
                 except Exception as e:
                     session.rollback()
-                    print(f"Failed to import initial data: {e}")
+                    logger.exception("Failed to import initial data: %s", str(e))
             else:
-                print(f"Init file {init_file} does not exist; skipping import.")
+                logger.warning("Init file does not exist; skipping import: %s", init_file)
         else:
             try:
                 init_config(session)
                 init_dummy_data(session)
             except Exception as e:
                 session.rollback()
-                print(f"Failed to initialize dummy data: {e}")
+                logger.exception("Failed to initialize dummy data: %s", str(e))
     finally:
         # Ensure session closed in case import path didn't close it
         try:
@@ -170,14 +174,20 @@ def init_dummy_data(session):
 
     session.add_all(subjects)
     for subject in subjects1:
-        print(
-            f"Subject: {subject.name} -(ID: {subject.id}) - {subject.weekly_hours} weekly hours - max:{subject.max_hours_per_day} hours/day"
+        logger.debug(
+            "Subject seeded name=%s id=%s weekly_hours=%d max_hours_per_day=%d",
+            subject.name,
+            subject.id,
+            subject.weekly_hours,
+            subject.max_hours_per_day,
         )
 
     val_rel_group = SubjectGroup(id="1", name="VAL-REL-1", subjects=[val1, rel1])
     session.add(val_rel_group)
-    print(
-        f"SubjectGroup: {val_rel_group.name} - Subjects: {[s.name for s in val_rel_group.subjects]}"
+    logger.debug(
+        "SubjectGroup seeded name=%s subjects=%s",
+        val_rel_group.name,
+        [s.name for s in val_rel_group.subjects],
     )
     teachers = [
         Teacher(name="Ana", max_hours_week=20, subjects=[math1], tutor_group="1ºA"),
@@ -189,9 +199,9 @@ def init_dummy_data(session):
     session.add_all(teachers)
 
     for teacher in teachers:
-        print(f"Teacher: {teacher.name} - {teacher.max_hours_week} weekly hours")
+        logger.debug("Teacher seeded name=%s max_hours_week=%d", teacher.name, teacher.max_hours_week)
         for subject in teacher.subjects:
-            print(f"  - {subject.name} (ID: {subject.id})")
+            logger.debug("Teacher subject assignment teacher=%s subject=%s", teacher.name, subject.id)
 
     timeslots = []
     # Store weekday as an integer index (0 = first weekday).
@@ -204,10 +214,10 @@ def init_dummy_data(session):
                         Timeslot(day=day, hour=hour, course_id=course.id, line=line)
                     )
     session.add_all(timeslots)
-    print(f"Created {len(timeslots)} timeslots.")
+    logger.info("Seeded timeslots count=%d", len(timeslots))
     session.commit()
     session.close()
-    print("Database populated with example data using SQLAlchemy.")
+    logger.info("Database populated with example data")
 
 
 if __name__ == "__main__":
@@ -218,7 +228,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
         populate_db(sys.argv[1])
     elif len(sys.argv) > 1:
-        print(f"Provided init file {sys.argv[1]} not found; creating empty DB.")
+        logger.warning("Provided init file not found; creating empty DB: %s", sys.argv[1])
         populate_db()
     else:
         populate_db()

@@ -1,5 +1,7 @@
 import json as _json
 from collections import defaultdict
+import logging
+import time
 
 from ortools.sat.python import cp_model
 from .models import (
@@ -11,6 +13,10 @@ from .models import (
     TimeSlotAssignment,
     SubjectGroup,
 )
+from .logging_config import build_log_extra
+
+
+logger = logging.getLogger(__name__)
 
 
 def _is_line_included(entity, line_index):
@@ -55,39 +61,62 @@ from .restrictions import (
 )
 
 
-def save_solution_to_db(session, solver, assignments, groups, num_days, num_hours):
-    # Clear previous schedule
-    session.query(TimeSlotAssignment).delete()
-    session.query(Timeslot).delete()
-    session.commit()
+def save_solution_to_db(session, solver, assignments, groups, num_days, num_hours, task_id=None):
+    logger.info(
+        "Persisting timetable solution groups=%d days=%d hours=%d",
+        len(groups),
+        num_days,
+        num_hours,
+        extra=build_log_extra(task_id=task_id),
+    )
+    assignment_count = 0
+    timeslot_count = 0
 
-    print("Saving solution to the database...")
-    for d in range(num_days):
-        for h in range(num_hours):
-            for group in groups:
-                course_id, line_str = group.split("-")
-                line_num = ord(line_str) - ord("A")
+    try:
+        # Clear previous schedule
+        session.query(TimeSlotAssignment).delete()
+        session.query(Timeslot).delete()
+        session.commit()
+        logger.debug("Cleared previous timetable data", extra=build_log_extra(task_id=task_id))
 
-                # store day as integer index `d` (0 = first weekday)
-                timeslot = Timeslot(day=d, hour=h, course_id=course_id, line=line_num)
-                session.add(timeslot)
+        for d in range(num_days):
+            for h in range(num_hours):
+                for group in groups:
+                    course_id, line_str = group.split("-")
+                    line_num = ord(line_str) - ord("A")
 
-                for key in assignments:
-                    if (
-                        key[0] == group
-                        and key[3] == d
-                        and key[4] == h
-                        and solver.Value(assignments[key]) == 1
-                    ):
-                        _, subject_id, teacher_id, _, _ = key
-                        assignment = TimeSlotAssignment(
-                            timeslot=timeslot,
-                            subject_id=subject_id,
-                            teacher_id=teacher_id,
-                        )
-                        session.add(assignment)
-    session.commit()
-    print("Timetable saved to the database.")
+                    # store day as integer index `d` (0 = first weekday)
+                    timeslot = Timeslot(day=d, hour=h, course_id=course_id, line=line_num)
+                    session.add(timeslot)
+                    timeslot_count += 1
+
+                    for key in assignments:
+                        if (
+                            key[0] == group
+                            and key[3] == d
+                            and key[4] == h
+                            and solver.Value(assignments[key]) == 1
+                        ):
+                            _, subject_id, teacher_id, _, _ = key
+                            assignment = TimeSlotAssignment(
+                                timeslot=timeslot,
+                                subject_id=subject_id,
+                                teacher_id=teacher_id,
+                            )
+                            session.add(assignment)
+                            assignment_count += 1
+
+        session.commit()
+        logger.info(
+            "Timetable persisted successfully timeslots=%d assignments=%d",
+            timeslot_count,
+            assignment_count,
+            extra=build_log_extra(task_id=task_id),
+        )
+    except Exception:
+        session.rollback()
+        logger.exception("Failed to persist timetable solution", extra=build_log_extra(task_id=task_id))
+        raise
 
 
 def _create_assignments(model, all_teachers, all_subjects, all_groups, num_days, num_hours):
@@ -142,7 +171,7 @@ def _build_soft_restrictions(model, assignments, all_teachers,
 
 def solve_scheduling_model(
     all_teachers, all_subjects, all_groups, all_subjectgroups, num_days, num_hours,
-    skip_restrictions=None, diagnostic_mode=False,
+    skip_restrictions=None, diagnostic_mode=False, task_id=None,
 ):
     """
     Builds and solves the scheduling model without requiring a database session.
@@ -167,9 +196,25 @@ def solve_scheduling_model(
     model = cp_model.CpModel()
     if skip_restrictions is None:
         skip_restrictions = set()
+    logger.info(
+        "Building scheduling model teachers=%d subjects=%d groups=%d days=%d hours=%d diagnostic_mode=%s skipped=%d",
+        len(all_teachers),
+        len(all_subjects),
+        len(all_groups),
+        num_days,
+        num_hours,
+        diagnostic_mode,
+        len(skip_restrictions),
+        extra=build_log_extra(task_id=task_id),
+    )
 
     # Create decision variables (group-subject-teacher-day-hour)
     assignments = _create_assignments(model, all_teachers, all_subjects, all_groups, num_days, num_hours)
+    logger.debug(
+        "Created assignment decision variables count=%d",
+        len(assignments),
+        extra=build_log_extra(task_id=task_id),
+    )
 
     # Pre-solve validation: run all sanity checks before building constraints
     sanity_issues = _run_sanity_checks(
@@ -178,8 +223,12 @@ def solve_scheduling_model(
     )
     if sanity_issues:
         for issue in sanity_issues:
-            print(issue)
-        print("❌ Data sanity check failed. Fix the issues above and try again.")
+            logger.warning("Sanity issue: %s", issue, extra=build_log_extra(task_id=task_id))
+        logger.warning(
+            "Data sanity check failed count=%d",
+            len(sanity_issues),
+            extra=build_log_extra(task_id=task_id),
+        )
         return cp_model.INFEASIBLE, assignments, cp_model.CpSolver()
 
     # Hard restrictions
@@ -187,9 +236,16 @@ def solve_scheduling_model(
         model, assignments, all_teachers, all_subjects,
         all_groups, all_subjectgroups, num_days, num_hours,
     )
+    hard_applied = 0
+    hard_skipped = 0
     for name, restriction, args in hard_restrictions:
         if name not in skip_restrictions:
+            logger.debug("Applying hard restriction=%s", name, extra=build_log_extra(task_id=task_id))
             restriction.apply(*args)
+            hard_applied += 1
+        else:
+            hard_skipped += 1
+            logger.debug("Skipping hard restriction=%s", name, extra=build_log_extra(task_id=task_id))
 
     # Soft constraints (preferences) — never cause infeasibility on their own
     soft_restrictions = _build_soft_restrictions(
@@ -197,19 +253,43 @@ def solve_scheduling_model(
         all_subjectgroups, num_days, num_hours,
     )
     preference_terms = []
+    soft_applied = 0
+    soft_skipped = 0
     for name, restriction, args in soft_restrictions:
         if name not in skip_restrictions:
+            logger.debug("Applying soft restriction=%s", name, extra=build_log_extra(task_id=task_id))
             restriction.apply(*args)
             preference_terms.extend(restriction.preference_terms)
+            soft_applied += 1
+        else:
+            soft_skipped += 1
+            logger.debug("Skipping soft restriction=%s", name, extra=build_log_extra(task_id=task_id))
     if preference_terms:
         model.Maximize(sum(preference_terms))
+    logger.info(
+        "Restrictions prepared hard_applied=%d hard_skipped=%d soft_applied=%d soft_skipped=%d preference_terms=%d",
+        hard_applied,
+        hard_skipped,
+        soft_applied,
+        soft_skipped,
+        len(preference_terms),
+        extra=build_log_extra(task_id=task_id),
+    )
 
     # --- 2. Solve ---
-    if not diagnostic_mode:
-        print("\n🧠 Starting the solver... This may take a moment.")
+    logger.info("Starting CP-SAT solver", extra=build_log_extra(task_id=task_id))
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = 10.0 if diagnostic_mode else 60.0
+    started_at = time.perf_counter()
     status = solver.Solve(model)
+    elapsed_ms = (time.perf_counter() - started_at) * 1000
+    logger.info(
+        "Solver finished status=%s elapsed_ms=%.2f timeout_seconds=%.1f",
+        solver.StatusName(status),
+        elapsed_ms,
+        solver.parameters.max_time_in_seconds,
+        extra=build_log_extra(task_id=task_id),
+    )
 
     return status, assignments, solver
 
@@ -418,6 +498,7 @@ def _run_sanity_checks(all_teachers, all_subjects, all_groups,
     issues += _check_teach_every_day_viability(
         all_subjects, all_groups, num_days,
     )
+    logger.info("Sanity checks completed issues=%d", len(issues), extra=build_log_extra())
     return issues
 
 
@@ -432,7 +513,13 @@ def _run_entity_diagnosis(suspects, all_teachers, all_subjects, all_groups,
     Returns dict mapping restriction_name -> list of entity_info dicts.
     """
     if not suspects:
-        return {}
+        return {}, False
+
+    logger.info(
+        "Starting entity-level diagnosis suspect_restrictions=%d",
+        len(suspects),
+        extra=build_log_extra(),
+    )
 
     model = cp_model.CpModel()
     assignments = _create_assignments(
@@ -451,13 +538,15 @@ def _run_entity_diagnosis(suspects, all_teachers, all_subjects, all_groups,
             restriction.apply(*args)
 
     if not all_assumptions:
-        return {}
+        logger.info("Entity-level diagnosis has no assumptions to evaluate", extra=build_log_extra())
+        return {}, False
 
     for assume, _ in all_assumptions:
         model.AddAssumption(assume)
 
     solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = 120.0
+    timeout_seconds = 240.0
+    solver.parameters.max_time_in_seconds = timeout_seconds
     status = solver.Solve(model)
 
     if status == cp_model.INFEASIBLE:
@@ -473,9 +562,22 @@ def _run_entity_diagnosis(suspects, all_teachers, all_subjects, all_groups,
                 info = index_to_info[idx]
                 result[info["restriction"]].append(info)
 
+        logger.info(
+            "Entity-level diagnosis found conflicts restrictions=%d core_size=%d",
+            len(result),
+            len(core_indices),
+            extra=build_log_extra(),
+        )
         return dict(result), False
 
     timed_out = status == cp_model.UNKNOWN
+    logger.info(
+        "Entity-level diagnosis completed status=%s timeout_seconds=%.1f timed_out=%s",
+        solver.StatusName(status),
+        timeout_seconds,
+        timed_out,
+        extra=build_log_extra(),
+    )
     return {}, timed_out
 
 
@@ -511,6 +613,7 @@ def diagnose_infeasibility(
     }
 
     # Phase 1: instant capacity and data sanity checks
+    logger.info("Diagnosis phase 1 started", extra=build_log_extra())
     sanity_issues = _run_sanity_checks(
         all_teachers, all_subjects, all_groups,
         all_subjectgroups, num_days, num_hours,
@@ -520,6 +623,7 @@ def diagnose_infeasibility(
         if progress_callback:
             msg = _build_diagnosis_message(result)
             progress_callback("phase1", msg)
+        logger.info("Diagnosis ended in phase 1 due to sanity issues=%d", len(sanity_issues), extra=build_log_extra())
         return result
 
     # Phase 2: isolation testing (hard restrictions only)
@@ -536,6 +640,10 @@ def diagnose_infeasibility(
         "SubjectGroupAssignment",
         "SubjectMustEveryDay",
     ]
+    logger.info("Diagnosis phase 2 started", extra=build_log_extra())
+    if progress_callback:
+        # Notify UI immediately when entering phase 2 so loading text can update.
+        progress_callback("phase2", "")
     for name in hard_names:
         status, _, _ = solve_scheduling_model(
             all_teachers, all_subjects, all_groups, all_subjectgroups,
@@ -547,18 +655,35 @@ def diagnose_infeasibility(
         else:
             result["cleared"].append(name)
 
+    logger.info(
+        "Diagnosis phase 2 completed suspects=%d cleared=%d",
+        len(result["suspects"]),
+        len(result["cleared"]),
+        extra=build_log_extra(),
+    )
+
     if progress_callback:
         msg = _build_diagnosis_message(result)
         progress_callback("phase2", msg)
 
     # Phase 3: entity-level diagnosis for suspect restrictions
     if result["suspects"]:
+        logger.info("Diagnosis phase 3 started", extra=build_log_extra())
+        if progress_callback:
+            # Notify UI immediately when entering phase 3 (entity diagnosis).
+            progress_callback("phase3", "")
         entity_conflicts, phase3_timed_out = _run_entity_diagnosis(
             result["suspects"], all_teachers, all_subjects, all_groups,
             all_subjectgroups, num_days, num_hours,
         )
         result["entity_conflicts"] = entity_conflicts
         result["phase3_timed_out"] = phase3_timed_out
+        logger.info(
+            "Diagnosis phase 3 completed conflicts=%d timed_out=%s",
+            len(entity_conflicts),
+            phase3_timed_out,
+            extra=build_log_extra(),
+        )
 
     if progress_callback:
         msg = _build_diagnosis_message(result)
@@ -607,7 +732,7 @@ def _build_diagnosis_message(diagnosis):
     return "\n".join(msg) + "\n"
 
 
-def create_timetable(session, progress_callback=None) -> str | None:
+def create_timetable(session, progress_callback=None, task_id=None) -> str | None:
     """
     Generates the school timetable using the OR-Tools CP-SAT solver.
 
@@ -622,23 +747,36 @@ def create_timetable(session, progress_callback=None) -> str | None:
                            called after each diagnosis phase completes.
     """
 
+    logger.info("Timetable generation started", extra=build_log_extra(task_id=task_id))
+
     # --- 1. Data Loading ---
     all_teachers = session.query(Teacher).all()
     all_subjects = session.query(Subject).all()
     all_courses = session.query(Course).all()
     all_subjectgroups = session.query(SubjectGroup).all()
     config = session.query(Config).first()
+    logger.info(
+        "Loaded scheduling inputs teachers=%d subjects=%d courses=%d subject_groups=%d",
+        len(all_teachers),
+        len(all_subjects),
+        len(all_courses),
+        len(all_subjectgroups),
+        extra=build_log_extra(task_id=task_id),
+    )
 
     # Create default configuration if none exists
     if not config:
-        print("⚙️  No configuration found, creating default configuration...")
+        logger.info("No config found. Creating default configuration", extra=build_log_extra(task_id=task_id))
         config = Config(
             classes_per_day=5, days_per_week=5
         )  # Default: 5 classes per day, 5 days per week
         session.add(config)
         session.commit()
-        print(
-            f"✅ Default configuration created: {config.classes_per_day} classes per day"
+        logger.info(
+            "Default configuration created classes_per_day=%d days_per_week=%d",
+            config.classes_per_day,
+            config.days_per_week,
+            extra=build_log_extra(task_id=task_id),
         )
 
     num_days = config.days_per_week
@@ -650,21 +788,24 @@ def create_timetable(session, progress_callback=None) -> str | None:
         for i in range(course.num_lines):
             line_char = chr(ord("A") + i)
             all_groups.append(f"{course.id}-{line_char}")
+    logger.info("Computed class groups count=%d", len(all_groups), extra=build_log_extra(task_id=task_id))
 
     # Parse disabled restrictions from config
     import json as _json
     disabled_raw = getattr(config, 'disabled_restrictions', None)
     skip_restrictions = set(_json.loads(disabled_raw)) if disabled_raw else set()
+    logger.info("Loaded disabled restrictions count=%d", len(skip_restrictions), extra=build_log_extra(task_id=task_id))
 
     # --- 2. Solve the scheduling model ---
     status, assignments, solver = solve_scheduling_model(
         all_teachers, all_subjects, all_groups, all_subjectgroups, num_days, num_hours,
         skip_restrictions=skip_restrictions,
+        task_id=task_id,
     )
 
     # --- 3. Solution Processing ---
     if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
-        print("✅ Solution found!")
+        logger.info("Solver returned feasible solution status=%s", solver.StatusName(status), extra=build_log_extra(task_id=task_id))
         save_solution_to_db(
             session,
             solver,
@@ -672,14 +813,18 @@ def create_timetable(session, progress_callback=None) -> str | None:
             all_groups,
             num_days,
             num_hours,
+            task_id=task_id,
         )
         session.close()
+        logger.info("Timetable generation finished successfully", extra=build_log_extra(task_id=task_id))
         return None
     else:
+        logger.warning("No feasible timetable found. Starting diagnosis", extra=build_log_extra(task_id=task_id))
         diagnosis = diagnose_infeasibility(
             all_teachers, all_subjects, all_groups,
             all_subjectgroups, num_days, num_hours,
             progress_callback=progress_callback,
         )
         msg = _build_diagnosis_message(diagnosis)
+        logger.warning("Timetable generation finished without solution", extra=build_log_extra(task_id=task_id))
         return msg

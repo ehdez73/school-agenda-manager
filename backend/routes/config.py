@@ -1,16 +1,19 @@
 from flask import Blueprint, jsonify, request, abort
 import json
+import logging
 from ..models import Session, Config
 from ..schemas import ConfigSchema
 from ..translations import t
 
 config_bp = Blueprint('config_bp', __name__)
+logger = logging.getLogger(__name__)
 
 DEFAULT_HOUR_NAMES = ["9:00", "10:00", "11:00", "12:00", "13:00"]
 
 
 @config_bp.route('/config', methods=['GET'])
 def get_config():
+    logger.info("Fetching config")
     session = Session()
     config = session.query(Config).first()
     if not config:
@@ -18,6 +21,7 @@ def get_config():
         config = Config(classes_per_day=5, days_per_week=5, hour_names=json.dumps(DEFAULT_HOUR_NAMES))
         session.add(config)
         session.commit()
+        logger.info("Created default config during fetch")
     
     cfg = config.to_dict()
     hour_names = cfg.get('hour_names') or []
@@ -44,20 +48,24 @@ def get_config():
 
     result = ConfigSchema(**cfg).model_dump()
     session.close()
+    logger.info("Fetched config classes_per_day=%d days_per_week=%d", cfg['classes_per_day'], cfg['days_per_week'])
     return jsonify(result)
 
 @config_bp.route('/config', methods=['POST'])
 def set_config():
     data = request.get_json()
     if not data or 'classes_per_day' not in data or 'days_per_week' not in data:
+        logger.warning("Config update rejected due to missing required fields")
         abort(400, description=t('errors.missing_classes_per_day'))
     
     days_per_week = data.get('days_per_week')
     if not isinstance(days_per_week, int) or days_per_week < 1 or days_per_week > 7:
+        logger.warning("Config update rejected due to invalid days_per_week value=%s", days_per_week)
         abort(400, description=t('errors.invalid_days_per_week'))
     
     day_indices = data.get('day_indices', [])
     if len(set(day_indices)) != len(day_indices):
+        logger.warning("Config update rejected due to duplicate day indices")
         abort(400, description=t('errors.duplicate_days'))
     
     session = Session()
@@ -90,6 +98,7 @@ def set_config():
             disabled_restrictions=json.dumps(disabled) if disabled is not None else None,
         )
         session.add(config)
+        logger.info("Created config classes_per_day=%d days_per_week=%d", data['classes_per_day'], data['days_per_week'])
     else:
         config.classes_per_day = data['classes_per_day']
         config.days_per_week = data['days_per_week']
@@ -135,6 +144,7 @@ def set_config():
 
         if 'disabled_restrictions' in data:
             config.disabled_restrictions = json.dumps(data['disabled_restrictions'])
+        logger.info("Updated existing config classes_per_day=%d days_per_week=%d", config.classes_per_day, config.days_per_week)
 
     session.commit()
     cfg_dict = config.to_dict()
@@ -142,4 +152,5 @@ def set_config():
     cfg_dict['day_names'] = day_names
     result = ConfigSchema(**cfg_dict).model_dump()
     session.close()
+    logger.info("Config update completed")
     return jsonify(result)

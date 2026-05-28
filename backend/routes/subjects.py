@@ -1,4 +1,5 @@
 import json
+import logging
 from flask import Blueprint, jsonify, request, abort
 from flask_cors import CORS
 from ..models import Subject, Course, Session, TimeSlotAssignment
@@ -7,14 +8,17 @@ from ..translations import t
 from sqlalchemy.orm import joinedload
 
 subjects_bp = Blueprint("subjects", __name__)
+logger = logging.getLogger(__name__)
 
 
 @subjects_bp.route("/subjects", methods=["GET"])
 def get_subjects():
+    logger.info("Listing subjects")
     session = Session()
     subjects = session.query(Subject).options(joinedload(Subject.course)).all()
     result = [SubjectSchema(**s.to_dict()).model_dump() for s in subjects]
     session.close()
+    logger.info("Listed subjects count=%d", len(result))
     return jsonify(result)
 
 
@@ -22,6 +26,7 @@ def get_subjects():
 def add_subject():
     data = request.get_json()
     if not data or "id" not in data or "name" not in data:
+        logger.warning("Create subject rejected due to missing required fields")
         abort(400, description=t("errors.missing_required_data"))
     weekly_hours = data.get("weekly_hours", 2)
     try:
@@ -65,16 +70,19 @@ def add_subject():
             session.commit()
     response_data = SubjectSchema(**new_subject.to_dict()).model_dump()
     session.close()
+    logger.info("Created subject id=%s", new_subject.id)
     return jsonify(response_data), 201
 
 
 @subjects_bp.route("/subjects/<int:subject_id>", methods=["GET"])
 @subjects_bp.route("/subjects/<string:subject_id>", methods=["GET"])
 def get_subject(subject_id):
+    logger.info("Fetching subject id=%s", subject_id)
     session = Session()
     subject = session.get(Subject, subject_id)
     session.close()
     if subject is None:
+        logger.warning("Subject not found id=%s", subject_id)
         abort(404, description=t("errors.not_found", id=subject_id))
     return jsonify(SubjectSchema(**subject.to_dict()).model_dump())
 
@@ -84,11 +92,13 @@ def get_subject(subject_id):
 def update_subject(subject_id):
     data = request.get_json()
     if not data:
+        logger.warning("Update subject rejected due to missing payload id=%s", subject_id)
         abort(400, description=t("errors.missing_name"))
     session = Session()
     subject = session.get(Subject, subject_id)
     if subject is None:
         session.close()
+        logger.warning("Subject not found for update id=%s", subject_id)
         abort(404, description=t("errors.not_found", id=subject_id))
     subject.name = data.get("name", subject.name)
     if "id" in data and data["id"]:
@@ -102,6 +112,7 @@ def update_subject(subject_id):
         if new_weekly is not None and new_weekly != subject.weekly_hours:
             if getattr(subject, "subject_groups", None) and len(subject.subject_groups) > 0:
                 session.close()
+                logger.warning("Subject update rejected due to hours mismatch id=%s", subject_id)
                 abort(400, description=t("errors.hours_mismatch"))
         if new_weekly is not None:
             subject.weekly_hours = new_weekly
@@ -149,16 +160,19 @@ def update_subject(subject_id):
     session.commit()
     response_data = SubjectSchema(**subject.to_dict()).model_dump()
     session.close()
+    logger.info("Updated subject id=%s", subject.id)
     return jsonify(response_data)
 
 
 @subjects_bp.route("/subjects/<int:subject_id>", methods=["DELETE"])
 @subjects_bp.route("/subjects/<string:subject_id>", methods=["DELETE"])
 def delete_subject(subject_id):
+    logger.info("Deleting subject id=%s", subject_id)
     session = Session()
     subject = session.get(Subject, subject_id)
     if subject is None:
         session.close()
+        logger.warning("Subject not found for delete id=%s", subject_id)
         abort(404, description=t("errors.not_found", id=subject_id))
     # clear reciprocal links from other subjects
     session.query(Subject).filter(Subject.linked_subject_id == subject_id).update(
@@ -168,4 +182,5 @@ def delete_subject(subject_id):
     session.delete(subject)
     session.commit()
     session.close()
+    logger.info("Deleted subject id=%s", subject_id)
     return jsonify({"message": t("success.deleted", id=subject_id)}), 200
