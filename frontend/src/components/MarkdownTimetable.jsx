@@ -205,7 +205,7 @@ function MarkdownTimetable() {
       >
         {generating && (
           <div className="state-loading" role="status" aria-live="polite">
-            <span>{phase === 'phase3' ? t('timetable.diagnosing_causes') : t('timetable.generating_async')}{elapsed > 0 ? ` (${elapsed}s)` : ''}</span>
+            <span>{phase === 'phase2' ? t('timetable.diagnosing_causes') : t('timetable.generating_async')}{elapsed > 0 ? ` (${elapsed}s)` : ''}</span>
           </div>
         )}
         {!loading && !error && markdown.trim() && (

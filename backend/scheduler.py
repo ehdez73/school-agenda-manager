@@ -545,7 +545,7 @@ def _run_entity_diagnosis(suspects, all_teachers, all_subjects, all_groups,
         model.AddAssumption(assume)
 
     solver = cp_model.CpSolver()
-    timeout_seconds = 240.0
+    timeout_seconds = 300.0
     solver.parameters.max_time_in_seconds = timeout_seconds
     status = solver.Solve(model)
 
@@ -641,9 +641,6 @@ def diagnose_infeasibility(
         "SubjectMustEveryDay",
     ]
     logger.info("Diagnosis phase 2 started", extra=build_log_extra())
-    if progress_callback:
-        # Notify UI immediately when entering phase 2 so loading text can update.
-        progress_callback("phase2", "")
     for name in hard_names:
         status, _, _ = solve_scheduling_model(
             all_teachers, all_subjects, all_groups, all_subjectgroups,
@@ -669,9 +666,6 @@ def diagnose_infeasibility(
     # Phase 3: entity-level diagnosis for suspect restrictions
     if result["suspects"]:
         logger.info("Diagnosis phase 3 started", extra=build_log_extra())
-        if progress_callback:
-            # Notify UI immediately when entering phase 3 (entity diagnosis).
-            progress_callback("phase3", "")
         entity_conflicts, phase3_timed_out = _run_entity_diagnosis(
             result["suspects"], all_teachers, all_subjects, all_groups,
             all_subjectgroups, num_days, num_hours,
