@@ -2,8 +2,11 @@ import React from 'react';
 import AutocompleteSelect from './AutocompleteSelect';
 import PreferencesGrid from './PreferencesGrid';
 import { t } from '../i18n';
+import useEscapeToCancel from './useEscapeToCancel';
 
 export default function TeacherForm({ form, setForm, subjects, classesPerDay, onSubmit, onCancel, onDelete, groups = [] }) {
+    useEscapeToCancel(onCancel);
+
     const handleChange = (e) => {
         const { name, value, selectedOptions } = e.target;
         if (name === 'subjects') {

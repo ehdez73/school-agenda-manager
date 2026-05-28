@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import AutocompleteSelect from './AutocompleteSelect';
 import { t } from '../i18n';
+import useEscapeToCancel from './useEscapeToCancel';
 
 function generateLineLetters(numLines) {
     return Array.from({ length: numLines }, (_, i) => String.fromCharCode(65 + i));
@@ -31,6 +32,8 @@ function toggleLine(included, lineIndex, numLines) {
 }
 
 export default function SubjectForm({ form, setForm, courses, subjects = [], lockedHours, editingId, formError, onSubmit, onCancel, onDelete, daysPerWeek, subject }) {
+    useEscapeToCancel(onCancel);
+
     const selectedCourse = useMemo(() => courses.find(c => c.id === form.course_id), [courses, form.course_id]);
     const numLines = selectedCourse ? selectedCourse.num_lines : 0;
     const lineLetters = useMemo(() => generateLineLetters(numLines), [numLines]);

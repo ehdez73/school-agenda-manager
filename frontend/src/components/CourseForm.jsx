@@ -1,7 +1,10 @@
 import React from 'react';
 import { t } from '../i18n';
+import useEscapeToCancel from './useEscapeToCancel';
 
 export default function CourseForm({ form, setForm, editingId, onSubmit, onCancel, onDelete }) {
+    useEscapeToCancel(onCancel);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name === 'num_lineas' || name === 'num_lines') {
