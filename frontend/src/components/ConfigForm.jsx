@@ -13,6 +13,7 @@ const HARD_RESTRICTIONS = [
   "TeacherMaxWeeklyHours",
   "GroupSubjectMaxHoursPerDay",
   "GroupAtMostOneLogicalAssignment",
+  "GroupSubjectAtMostOneTeacherPerTimeslot",
   "GroupSubjectHoursMustBeConsecutive",
   "GroupSubjectHoursMustNotBeConsecutive",
   "LinkedSubjectsConsecutive",

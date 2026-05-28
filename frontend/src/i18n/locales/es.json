@@ -176,6 +176,8 @@
             "GroupSubjectMaxHoursPerDay_desc": "Limita las horas diarias que una asignatura puede impartirse a un grupo.",
             "GroupAtMostOneLogicalAssignment": "Una asignatura lógica por hora y grupo",
             "GroupAtMostOneLogicalAssignment_desc": "Un grupo solo puede tener una asignatura (o Grupo) por franja horaria.",
+            "GroupSubjectAtMostOneTeacherPerTimeslot": "Un único docente por asignatura en cada franja",
+            "GroupSubjectAtMostOneTeacherPerTimeslot_desc": "Evita que la misma asignatura del mismo grupo se asigne a más de un docente en la misma hora.",
             "GroupSubjectHoursMustBeConsecutive": "Horas consecutivas de asignatura por grupo",
             "GroupSubjectHoursMustBeConsecutive_desc": "Solo aplica a asignaturas con 'Horas consecutivas' activado. Si una asignatura tiene varias horas el mismo día, deben formar un único bloque contiguo.",
             "GroupSubjectHoursMustNotBeConsecutive": "Horas NO consecutivas de asignatura por grupo",

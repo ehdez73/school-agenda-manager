@@ -175,6 +175,8 @@
             "GroupSubjectMaxHoursPerDay_desc": "Limits how many hours per day a subject can be taught to a group.",
             "GroupAtMostOneLogicalAssignment": "Group at most one logical assignment",
             "GroupAtMostOneLogicalAssignment_desc": "A group can only have one subject (or SubjectGroup) per hour slot.",
+            "GroupSubjectAtMostOneTeacherPerTimeslot": "One teacher per subject timeslot",
+            "GroupSubjectAtMostOneTeacherPerTimeslot_desc": "Prevents assigning the same subject in the same group and hour to multiple teachers.",
             "GroupSubjectHoursMustBeConsecutive": "Group subject hours must be consecutive",
             "GroupSubjectHoursMustBeConsecutive_desc": "Only applies to subjects with 'Consecutive hours' enabled. If a subject has multiple hours on the same day, they must form a single contiguous block.",
             "GroupSubjectHoursMustNotBeConsecutive": "Group subject hours must NOT be consecutive",
