@@ -11,7 +11,7 @@ export default function SubjectGroupList() {
     const [groups, setGroups] = useState([]);
     const [subjects, setSubjects] = useState([]);
     const [courses, setCourses] = useState([]);
-    const [form, setForm] = useState({ name: '', subjects: [], included_lines: null });
+    const [form, setForm] = useState({ name: '', color: '#fef3c7', subjects: [], included_lines: null });
     const [formError, setFormError] = useState('');
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -52,11 +52,11 @@ export default function SubjectGroupList() {
             }
         }
 
-        const payload = { name: form.name, subjects: form.subjects, included_lines: form.included_lines };
+        const payload = { name: form.name, color: form.color || '#fef3c7', subjects: form.subjects, included_lines: form.included_lines };
         const action = editingId ? api.put(`/subject-groups/${editingId}`, payload) : api.post('/subject-groups', payload);
         action.then(() => {
             fetchGroups();
-            setForm({ name: '', subjects: [], included_lines: null });
+            setForm({ name: '', color: '#fef3c7', subjects: [], included_lines: null });
             setEditingId(null);
             setShowForm(false);
             setSelectedEntity(null);
@@ -64,7 +64,12 @@ export default function SubjectGroupList() {
     }
 
     function handleEdit(group) {
-        setForm({ name: group.name || '', subjects: group.subjects ? group.subjects.map(s => String(s.id)) : [], included_lines: group.included_lines ?? null });
+        setForm({
+            name: group.name || '',
+            color: group.color || '#fef3c7',
+            subjects: group.subjects ? group.subjects.map(s => String(s.id)) : [],
+            included_lines: group.included_lines ?? null,
+        });
         setEditingId(group.id);
         setShowForm(false);
         setSelectedEntity(group);
@@ -82,7 +87,7 @@ export default function SubjectGroupList() {
             setDeleteId(null);
             setSelectedEntity(null);
             setEditingId(null);
-            setForm({ name: '', subjects: [] });
+            setForm({ name: '', color: '#fef3c7', subjects: [], included_lines: null });
         }).catch(() => { });
     }
 
@@ -101,14 +106,14 @@ export default function SubjectGroupList() {
                 onCancel={cancelDelete}
             />
             {showForm && (
-                <FormModal open={showForm} onClose={() => { setForm({ name: '', subjects: [], included_lines: null }); setEditingId(null); setShowForm(false); setFormError(''); }}>
+                <FormModal open={showForm} onClose={() => { setForm({ name: '', color: '#fef3c7', subjects: [], included_lines: null }); setEditingId(null); setShowForm(false); setFormError(''); }}>
                     <SubjectGroupForm
                         form={form}
                         setForm={setForm}
                         subjects={subjects}
                         formError={formError}
                         onSubmit={handleSubmit}
-                        onCancel={() => { setForm({ name: '', subjects: [], included_lines: null }); setEditingId(null); setShowForm(false); }}
+                        onCancel={() => { setForm({ name: '', color: '#fef3c7', subjects: [], included_lines: null }); setEditingId(null); setShowForm(false); }}
                     />
                 </FormModal>
             )}
@@ -118,7 +123,7 @@ export default function SubjectGroupList() {
                     !selectedEntity && (
                         <button
                             className="btn btn--primary btn--compact"
-                            onClick={() => { setForm({ name: '', subjects: [], included_lines: null }); setShowForm(true); }}
+                            onClick={() => { setForm({ name: '', color: '#fef3c7', subjects: [], included_lines: null }); setShowForm(true); }}
                         >
                             {t('subject_groups.add_group')}
                         </button>
@@ -134,7 +139,7 @@ export default function SubjectGroupList() {
                             courses={courses}
                             formError={formError}
                             onSubmit={handleSubmit}
-                            onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', subjects: [], included_lines: null }); }}
+                            onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', color: '#fef3c7', subjects: [], included_lines: null }); }}
                             onDelete={() => handleDelete(selectedEntity.id)}
                         />
                     </div>
@@ -156,7 +161,10 @@ export default function SubjectGroupList() {
                     {groups.map(g => (
                         <tr key={g.id} onClick={() => handleEdit(g)} style={{ cursor: 'pointer' }}>
                             <td>{g.id}</td>
-                            <td>{g.name}</td>
+                            <td>
+                                <span className="group-color-chip" style={{ backgroundColor: g.color || '#fef3c7' }} aria-hidden="true" />
+                                {g.name}
+                            </td>
                             <td>{g.subjects ? g.subjects.map(s => s.full_name || s.name).join(', ') : ''}</td>
 
                         </tr>

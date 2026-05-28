@@ -9,10 +9,34 @@ Each table includes:
 
 from sqlalchemy.orm import Session
 from collections import defaultdict
+from html import escape
+import re
 from .models import TimeSlotAssignment, Timeslot, Config, Teacher
 
 from .translations import t
 from .markdown_utils import align_tables_in_text
+
+
+HEX_COLOR_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
+
+
+def _safe_hex_color(color):
+    if isinstance(color, str) and HEX_COLOR_RE.match(color.strip()):
+        return color.strip().lower()
+    return None
+
+
+def _build_colored_assignment_html(subject_name, teacher_name, subject_color):
+    label = f"{subject_name} ({teacher_name})"
+    safe_label = escape(label)
+    safe_color = _safe_hex_color(subject_color)
+    if not safe_color:
+        return safe_label
+    return (
+        f"<span class=\"tt-subject-entry\" style=\"background-color: {safe_color};\">"
+        f"{safe_label}"
+        "</span>"
+    )
 
 
 def get_timetables_from_db(session):
@@ -35,8 +59,12 @@ def get_timetables_from_db(session):
         weekday = timeslot.day
         subject_name = assignment.subject.name
         teacher_name = assignment.teacher.name
+        group_color = None
+        if timeslot.subject_group is not None:
+            group_color = getattr(timeslot.subject_group, "color", None)
+        subject_color = group_color or assignment.subject.color
         timetable[course_line][(hour, weekday)].append(
-            f"{subject_name} ({teacher_name})"
+            _build_colored_assignment_html(subject_name, teacher_name, subject_color)
         )
     return timetable
 

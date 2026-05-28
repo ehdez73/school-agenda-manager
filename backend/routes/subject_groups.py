@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from flask import Blueprint, jsonify, request, abort
 from ..models import SubjectGroup, Subject, Session
 from ..schemas import SubjectGroupSchema
@@ -8,6 +9,18 @@ from sqlalchemy.orm import joinedload
 
 subject_groups_bp = Blueprint('subject_groups', __name__)
 logger = logging.getLogger(__name__)
+
+
+HEX_COLOR_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
+
+
+def _normalize_group_color(value):
+    if not isinstance(value, str):
+        return "#fef3c7"
+    color = value.strip()
+    if not HEX_COLOR_RE.match(color):
+        return "#fef3c7"
+    return color.lower()
 
 
 @subject_groups_bp.route('/subject-groups', methods=['GET'])
@@ -20,6 +33,7 @@ def get_subject_groups():
         g_dict = {
             'id': g.id,
             'name': g.name,
+            'color': g.color,
             'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in g.subjects],
             'included_lines': json.loads(g.included_lines) if g.included_lines else None,
         }
@@ -50,14 +64,16 @@ def add_subject_group():
     included_lines = data.get("included_lines", None)
     if included_lines is not None:
         included_lines = json.dumps(included_lines)
+    color = _normalize_group_color(data.get('color', '#fef3c7'))
 
-    new_group = SubjectGroup(name=data['name'], subjects=subjects, included_lines=included_lines)
+    new_group = SubjectGroup(name=data['name'], color=color, subjects=subjects, included_lines=included_lines)
     session.add(new_group)
     session.commit()
     logger.info("Created subject group id=%s", new_group.id)
     response_data = SubjectGroupSchema(**{
         'id': new_group.id,
         'name': new_group.name,
+        'color': new_group.color,
         'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in new_group.subjects],
         'included_lines': json.loads(new_group.included_lines) if new_group.included_lines else None,
     }).model_dump()
@@ -77,6 +93,7 @@ def get_subject_group(group_id):
     g_dict = {
         'id': group.id,
         'name': group.name,
+        'color': group.color,
         'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in group.subjects],
         'included_lines': json.loads(group.included_lines) if group.included_lines else None,
     }
@@ -96,6 +113,8 @@ def update_subject_group(group_id):
         logger.warning("Subject group not found for update id=%s", group_id)
         abort(404, description=t('errors.not_found', id=group_id))
     group.name = data.get('name', group.name)
+    if 'color' in data:
+        group.color = _normalize_group_color(data.get('color'))
     subject_ids = data.get('subjects', None)
     if subject_ids is not None:
         subjects = session.query(Subject).filter(Subject.id.in_(subject_ids)).all()
@@ -114,6 +133,7 @@ def update_subject_group(group_id):
     response_data = SubjectGroupSchema(**{
         'id': group.id,
         'name': group.name,
+        'color': group.color,
         'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in group.subjects],
         'included_lines': json.loads(group.included_lines) if group.included_lines else None,
     }).model_dump()

@@ -13,11 +13,12 @@ def test_course_to_dict():
 def test_subject_full_name_and_to_dict():
     # Subject with course relation
     course = Course(id="2º", num_lines=1)
-    s = Subject(id="SUB1", name="Test", weekly_hours=3, max_hours_per_day=2, course=course)
+    s = Subject(id="SUB1", name="Test", color="#112233", weekly_hours=3, max_hours_per_day=2, course=course)
     assert "Test (2º)" == s.full_name
     td = s.to_dict()
     assert td["id"] == "SUB1"
     assert td["full_name"] == "Test (2º)"
+    assert td["color"] == "#112233"
 
 
 def test_teacher_to_dict_preferences():

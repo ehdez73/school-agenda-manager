@@ -18,6 +18,7 @@ def dump_db(session):
         {
             "id": g.id,
             "name": g.name,
+            "color": g.color,
             "subjects": [s.id for s in g.subjects],
             "included_lines": _json.loads(g.included_lines) if g.included_lines else None,
         }
@@ -133,6 +134,7 @@ def import_payload(session, payload):
         subj = Subject(
             id=s.get("id"),
             name=s.get("name"),
+            color=s.get("color", "#dbeafe"),
             weekly_hours=s.get("weekly_hours", 1),
             max_hours_per_day=s.get("max_hours_per_day", 2),
             consecutive_hours=s.get("consecutive_hours", True),
@@ -161,7 +163,11 @@ def import_payload(session, payload):
         if incl_lines is not None:
             incl_lines = _json.dumps(incl_lines)
 
-        sg = SubjectGroup(name=g.get("name"), included_lines=incl_lines)
+        sg = SubjectGroup(
+            name=g.get("name"),
+            color=g.get("color", "#fef3c7"),
+            included_lines=incl_lines,
+        )
         session.add(sg)
         session.flush()
         members = []

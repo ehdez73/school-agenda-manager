@@ -101,6 +101,19 @@ export default function SubjectForm({ form, setForm, courses, subjects = [], loc
                 />
             </label>
             <label className="subject-label">
+                {t('subjects.color')}
+                <div className="subject-color-row">
+                    <input
+                        name="color"
+                        type="color"
+                        value={form.color || '#dbeafe'}
+                        onChange={handleChange}
+                        className="subject-color-picker"
+                    />
+                    <span className="subject-color-value">{(form.color || '#dbeafe').toUpperCase()}</span>
+                </div>
+            </label>
+            <label className="subject-label">
                 {t('subjects.course')}
                 <select
                     name="course_id"

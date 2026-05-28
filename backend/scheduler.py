@@ -73,6 +73,16 @@ def save_solution_to_db(session, solver, assignments, groups, num_days, num_hour
     assignment_count = 0
     timeslot_count = 0
 
+    all_subjectgroups = session.query(SubjectGroup).all()
+    subjectgroup_signatures = {}
+    for sg in all_subjectgroups:
+        subject_ids = frozenset(s.id for s in sg.subjects)
+        if subject_ids:
+            subjectgroup_signatures[sg.id] = {
+                "subject_ids": subject_ids,
+                "included_lines": sg,
+            }
+
     try:
         # Clear previous schedule
         session.query(TimeSlotAssignment).delete()
@@ -86,11 +96,7 @@ def save_solution_to_db(session, solver, assignments, groups, num_days, num_hour
                     course_id, line_str = group.split("-")
                     line_num = ord(line_str) - ord("A")
 
-                    # store day as integer index `d` (0 = first weekday)
-                    timeslot = Timeslot(day=d, hour=h, course_id=course_id, line=line_num)
-                    session.add(timeslot)
-                    timeslot_count += 1
-
+                    active_assignments = []
                     for key in assignments:
                         if (
                             key[0] == group
@@ -98,14 +104,48 @@ def save_solution_to_db(session, solver, assignments, groups, num_days, num_hour
                             and key[4] == h
                             and solver.Value(assignments[key]) == 1
                         ):
-                            _, subject_id, teacher_id, _, _ = key
-                            assignment = TimeSlotAssignment(
-                                timeslot=timeslot,
-                                subject_id=subject_id,
-                                teacher_id=teacher_id,
-                            )
-                            session.add(assignment)
-                            assignment_count += 1
+                            active_assignments.append(key)
+
+                    matching_groups = []
+                    active_subject_ids = frozenset(a[1] for a in active_assignments)
+                    if active_subject_ids:
+                        for sg_id, signature in subjectgroup_signatures.items():
+                            if signature["subject_ids"] != active_subject_ids:
+                                continue
+                            if _is_line_included(signature["included_lines"], line_num):
+                                matching_groups.append(sg_id)
+
+                    if len(matching_groups) > 1:
+                        logger.warning(
+                            "Ambiguous SubjectGroup mapping while persisting slot group=%s day=%d hour=%d candidates=%s",
+                            group,
+                            d,
+                            h,
+                            matching_groups,
+                            extra=build_log_extra(task_id=task_id),
+                        )
+
+                    subject_group_id = matching_groups[0] if len(matching_groups) == 1 else None
+
+                    # store day as integer index `d` (0 = first weekday)
+                    timeslot = Timeslot(
+                        day=d,
+                        hour=h,
+                        course_id=course_id,
+                        line=line_num,
+                        subject_group_id=subject_group_id,
+                    )
+                    session.add(timeslot)
+                    timeslot_count += 1
+
+                    for _, subject_id, teacher_id, _, _ in active_assignments:
+                        assignment = TimeSlotAssignment(
+                            timeslot=timeslot,
+                            subject_id=subject_id,
+                            teacher_id=teacher_id,
+                        )
+                        session.add(assignment)
+                        assignment_count += 1
 
         session.commit()
         logger.info(

@@ -52,6 +52,7 @@ class Subject(Base):
     __tablename__ = "subjects"
     id = Column(String(20), primary_key=True)
     name = Column(String(50), nullable=False)
+    color = Column(String(7), nullable=False, default="#dbeafe")
     weekly_hours = Column(Integer, nullable=False, default=1)
     max_hours_per_day = Column(Integer, nullable=False, default=1)
     # If True, when a subject has more than one hour per day those hours must be consecutive.
@@ -75,6 +76,7 @@ class Subject(Base):
         return {
             "id": self.id,
             "name": self.name,
+            "color": self.color,
             "weekly_hours": self.weekly_hours,
             "teach_every_day": self.teach_every_day,
             "max_hours_per_day": self.max_hours_per_day,
@@ -112,6 +114,7 @@ class SubjectGroup(Base):
     __tablename__ = "subject_groups"
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100), nullable=True)
+    color = Column(String(7), nullable=False, default="#fef3c7")
     # JSON array of line indices to include (null = all lines), e.g. "[0, 1]" for lines A, B only
     included_lines = Column(Text, nullable=True)
 
@@ -126,6 +129,7 @@ class SubjectGroup(Base):
         return {
             "id": self.id,
             "name": self.name,
+            "color": self.color,
             "subjects": [s.to_dict() for s in self.subjects],
             "included_lines": json.loads(self.included_lines) if self.included_lines else None,
         }

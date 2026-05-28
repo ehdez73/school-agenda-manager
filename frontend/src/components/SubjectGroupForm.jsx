@@ -73,6 +73,19 @@ export default function SubjectGroupForm({ form, setForm, subjects, formError, o
                 <input name="name" value={form.name} onChange={handleChange} placeholder={t('subject_groups.name_placeholder')} required className="subject-input" />
             </label>
             <label className="subject-label">
+                {t('subject_groups.color')}
+                <div className="subject-color-row">
+                    <input
+                        name="color"
+                        type="color"
+                        value={form.color || '#fef3c7'}
+                        onChange={handleChange}
+                        className="subject-color-picker"
+                    />
+                    <span className="subject-color-value">{(form.color || '#fef3c7').toUpperCase()}</span>
+                </div>
+            </label>
+            <label className="subject-label">
                 {t('subject_groups.title') + ' - ' + t('subjects.title')}
             </label>
             <AutocompleteSelect

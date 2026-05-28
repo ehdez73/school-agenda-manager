@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from flask import Blueprint, jsonify, request, abort
 from flask_cors import CORS
 from ..models import Subject, Course, Session, TimeSlotAssignment
@@ -9,6 +10,18 @@ from sqlalchemy.orm import joinedload
 
 subjects_bp = Blueprint("subjects", __name__)
 logger = logging.getLogger(__name__)
+
+
+HEX_COLOR_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
+
+
+def _normalize_subject_color(value):
+    if not isinstance(value, str):
+        return "#dbeafe"
+    color = value.strip()
+    if not HEX_COLOR_RE.match(color):
+        return "#dbeafe"
+    return color.lower()
 
 
 @subjects_bp.route("/subjects", methods=["GET"])
@@ -41,6 +54,7 @@ def add_subject():
     course_id = data.get("course_id")
     consecutive_hours = data.get("consecutive_hours", True)
     teach_every_day = bool(data.get("teach_every_day", False))
+    color = _normalize_subject_color(data.get("color", "#dbeafe"))
     session = Session()
     course = session.get(Course, course_id) if course_id else None
     included_lines = data.get("included_lines", None)
@@ -50,6 +64,7 @@ def add_subject():
     new_subject = Subject(
         id=data["id"],
         name=data["name"],
+        color=color,
         weekly_hours=weekly_hours,
         max_hours_per_day=max_hours_per_day,
         consecutive_hours=bool(consecutive_hours),
@@ -121,6 +136,8 @@ def update_subject(subject_id):
             subject.max_hours_per_day = int(data["max_hours_per_day"])
         except (ValueError, TypeError):
             pass
+    if "color" in data:
+        subject.color = _normalize_subject_color(data.get("color"))
     if "consecutive_hours" in data:
         try:
             subject.consecutive_hours = bool(data["consecutive_hours"])

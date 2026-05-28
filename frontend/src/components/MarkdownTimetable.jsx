@@ -11,6 +11,47 @@ const POLL_INTERVAL_MS = 2000;
 const POLL_RETRY_MS = 3000;
 
 
+function collectSubjectEntryColors(node, colors) {
+  if (node === null || node === undefined || typeof node === 'boolean') return;
+  if (Array.isArray(node)) {
+    node.forEach(child => collectSubjectEntryColors(child, colors));
+    return;
+  }
+  if (typeof node !== 'object') return;
+
+  const className = node?.props?.className || '';
+  const isSubjectEntry = typeof className === 'string' && className.split(' ').includes('tt-subject-entry');
+  if (isSubjectEntry) {
+    const bg = node?.props?.style?.backgroundColor;
+    if (typeof bg === 'string' && bg.trim()) {
+      colors.add(bg.trim().toLowerCase());
+    }
+  }
+
+  collectSubjectEntryColors(node?.props?.children, colors);
+}
+
+
+function stripSubjectEntryInlineBg(node) {
+  if (node === null || node === undefined || typeof node === 'boolean') return node;
+  if (Array.isArray(node)) {
+    return node.map(child => stripSubjectEntryInlineBg(child));
+  }
+  if (typeof node !== 'object') return node;
+
+  const className = node?.props?.className || '';
+  const isSubjectEntry = typeof className === 'string' && className.split(' ').includes('tt-subject-entry');
+  const nextChildren = stripSubjectEntryInlineBg(node?.props?.children);
+  if (!isSubjectEntry) {
+    return React.cloneElement(node, undefined, nextChildren);
+  }
+
+  const nextStyle = { ...(node?.props?.style || {}) };
+  delete nextStyle.backgroundColor;
+  return React.cloneElement(node, { style: nextStyle }, nextChildren);
+}
+
+
 function MarkdownTimetable() {
   const [markdown, setMarkdown] = useState('');
   const [loading, setLoading] = useState(true);
@@ -282,6 +323,18 @@ function MarkdownTimetable() {
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
+              components={{
+                td: ({ children, ...props }) => {
+                  const colors = new Set();
+                  collectSubjectEntryColors(children, colors);
+                  const cellStyle = { ...(props.style || {}) };
+                  if (colors.size === 1) {
+                    const [onlyColor] = Array.from(colors);
+                    cellStyle.backgroundColor = onlyColor;
+                  }
+                  return <td {...props} style={cellStyle}>{stripSubjectEntryInlineBg(children)}</td>;
+                },
+              }}
             >
               {markdown}
             </ReactMarkdown>

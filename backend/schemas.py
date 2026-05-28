@@ -18,6 +18,7 @@ class SubjectMinimalSchema(BaseModel):
 class SubjectSchema(BaseModel):
     id: str
     name: str
+    color: str = "#dbeafe"
     weekly_hours: int
     max_hours_per_day: int
     consecutive_hours: bool = True
@@ -33,6 +34,7 @@ class SubjectSchema(BaseModel):
 class SubjectGroupSchema(BaseModel):
     id: int
     name: Optional[str] = None
+    color: str = "#fef3c7"
     subjects: List[SubjectMinimalSchema] = []
     included_lines: Optional[List[int]] = None
 

@@ -105,6 +105,7 @@
         "name": "Nombre",
         "name_placeholder": "Nombre de la asignatura",
         "add_subject": "Añadir asignatura",
+        "color": "Color",
         "weekly_hours": "Horas/semana",
         "max_hours_per_day": "Máx. horas/día",
         "no_course": "Sin curso",
@@ -122,6 +123,7 @@
     "subject_groups": {
         "title": "Grupos de asignaturas",
         "name": "Nombre",
+        "color": "Color del grupo",
         "name_placeholder": "Nombre del grupo",
         "add_group": "Añadir grupo",
         "error_hours_mismatch": "ERROR:Todas las asignaturas seleccionadas deben tener el mismo número de horas semanales.",

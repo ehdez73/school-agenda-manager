@@ -27,6 +27,7 @@ def _seed(session):
     s1 = Subject(
         id="MAT1",
         name="Maths",
+        color="#123456",
         weekly_hours=5,
         max_hours_per_day=2,
         consecutive_hours=False,   # non-default
@@ -38,6 +39,7 @@ def _seed(session):
     s2 = Subject(
         id="LEN1",
         name="Language",
+        color="#abcdef",
         weekly_hours=3,
         max_hours_per_day=1,
         consecutive_hours=True,
@@ -60,6 +62,7 @@ def test_subject_fields_round_trip(memory_session):
 
     # Verify that dump includes the fields
     mat = next(s for s in payload["subjects"] if s["id"] == "MAT1")
+    assert mat["color"] == "#123456"
     assert mat["consecutive_hours"] is False
     assert mat["teach_every_day"] is True
     assert mat["max_hours_per_day"] == 2
@@ -80,9 +83,11 @@ def test_subject_fields_round_trip(memory_session):
     assert restored.teach_every_day is True,     "teach_every_day not restored"
     assert restored.max_hours_per_day == 2,      "max_hours_per_day not restored"
     assert restored.weekly_hours == 5,           "weekly_hours not restored"
+    assert restored.color == "#123456",         "color not restored"
     assert json.loads(restored.included_lines) == [0, 1], "included_lines not restored"
 
     restored2 = memory_session.get(Subject, "LEN1")
     assert restored2.consecutive_hours is True
     assert restored2.teach_every_day is False
+    assert restored2.color == "#abcdef"
     assert restored2.included_lines is None

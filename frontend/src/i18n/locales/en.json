@@ -105,6 +105,7 @@
         "name": "Name",
         "name_placeholder": "Subject name",
         "add_subject": "Add subject",
+        "color": "Color",
         "weekly_hours": "Hours/week",
         "max_hours_per_day": "Max hours/day",
         "no_course": "No course",
@@ -121,6 +122,7 @@
     "subject_groups": {
         "title": "Subject groups",
         "name": "Name",
+        "color": "Group color",
         "name_placeholder": "Group name",
         "add_group": "Add group",
         "error_hours_mismatch": "ERROR: All selected subjects must have the same weekly hours.",

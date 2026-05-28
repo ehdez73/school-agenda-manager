@@ -15,7 +15,7 @@ function SubjectList() {
   const [sortAsc, setSortAsc] = useState(true);
   const [search, setSearch] = useState('');
   const [courseFilter, setCourseFilter] = useState('');
-  const [form, setForm] = useState({ name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '', included_lines: null });
+  const [form, setForm] = useState({ name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '', included_lines: null });
   const [showForm, setShowForm] = useState(false);
   const [formError, setFormError] = useState('');
   const [lockedHours, setLockedHours] = useState(false);
@@ -51,6 +51,7 @@ function SubjectList() {
     const payload = {
       id: form.id,
       name: form.name,
+      color: form.color || '#dbeafe',
       weekly_hours: form.weekly_hours,
       max_hours_per_day: form.max_hours_per_day,
       consecutive_hours: form.consecutive_hours ?? true,
@@ -63,7 +64,7 @@ function SubjectList() {
     const action = editingId ? api.put(`/subjects/${editingId}`, payload) : api.post('/subjects', payload);
     action.then(() => {
       fetchSubjects();
-  setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '', included_lines: null });
+  setForm({ id: '', name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '', included_lines: null });
       setEditingId(null);
       setShowForm(false);
       setLockedHours(false);
@@ -76,6 +77,7 @@ function SubjectList() {
       name: subject.name, 
       course_id: subject.course ? subject.course.id : '', 
       id: subject.id, 
+      color: subject.color || '#dbeafe',
       weekly_hours: subject.weekly_hours ?? 2,
       max_hours_per_day: subject.max_hours_per_day ?? 2,
       consecutive_hours: subject.consecutive_hours ?? true,
@@ -102,7 +104,7 @@ function SubjectList() {
       setDeleteId(null);
       setSelectedEntity(null);
       setEditingId(null);
-      setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '', included_lines: null });
+      setForm({ id: '', name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '', included_lines: null });
     }).catch(() => { });
   }
 
@@ -155,7 +157,7 @@ function SubjectList() {
         onCancel={cancelDelete}
       />
       {showForm && (
-        <FormModal open={showForm} onClose={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 1, consecutive_hours: true, linked_subject_id: '', included_lines: null }); setEditingId(null); setShowForm(false); }}>
+        <FormModal open={showForm} onClose={() => { setForm({ id: '', name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 1, consecutive_hours: true, linked_subject_id: '', included_lines: null }); setEditingId(null); setShowForm(false); }}>
           <SubjectForm
             form={form}
             setForm={setForm}
@@ -166,7 +168,7 @@ function SubjectList() {
             daysPerWeek={daysPerWeek}
             formError={formError}
             onSubmit={handleSubmit}
-            onCancel={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 1, consecutive_hours: true, linked_subject_id: '', included_lines: null }); setEditingId(null); setShowForm(false); }}
+              onCancel={() => { setForm({ id: '', name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 1, consecutive_hours: true, linked_subject_id: '', included_lines: null }); setEditingId(null); setShowForm(false); }}
           />
         </FormModal>
       )}
@@ -176,7 +178,7 @@ function SubjectList() {
           !selectedEntity && (
             <button
               className="btn btn--primary btn--compact"
-              onClick={() => { setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 1, consecutive_hours: true, linked_subject_id: '', included_lines: null }); setShowForm(true); }}
+              onClick={() => { setForm({ id: '', name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 1, consecutive_hours: true, linked_subject_id: '', included_lines: null }); setShowForm(true); }}
             >
               {t('subjects.add_subject')}
             </button>
@@ -200,7 +202,7 @@ function SubjectList() {
               daysPerWeek={daysPerWeek}
               formError={formError}
               onSubmit={handleSubmit}
-              onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ id: '', name: '', course_id: '', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '', included_lines: null }); setLockedHours(false); }}
+              onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ id: '', name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '', included_lines: null }); setLockedHours(false); }}
               onDelete={() => handleDelete(selectedEntity.id)}
               subject={selectedEntity}
             />
@@ -253,6 +255,7 @@ function SubjectList() {
             <tr key={subject.id} onClick={() => handleEdit(subject)} style={{ cursor: 'pointer' }}>
               <td>{subject.id}</td>
               <td>
+                <span className="subject-color-chip" style={{ backgroundColor: subject.color || '#dbeafe' }} aria-hidden="true" />
                 <span className="subject-name">{subject.name}</span>
                 {subject.subject_groups?.map(g => (
                   <span key={g.id} className="group-badge">{g.name}</span>

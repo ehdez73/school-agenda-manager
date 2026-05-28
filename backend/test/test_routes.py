@@ -34,8 +34,10 @@ def test_get_subjects_and_add_subject():
     assert resp.status_code == 200
     before = resp.get_json()
     # add a new subject
-    resp2 = c.post('/subjects', json={'id': 'TST1', 'name': 'Prueba', 'weekly_hours': 2})
+    resp2 = c.post('/subjects', json={'id': 'TST1', 'name': 'Prueba', 'color': '#00ff00', 'weekly_hours': 2})
     assert resp2.status_code == 201
+    created = resp2.get_json()
+    assert created['color'] == '#00ff00'
     after = c.get('/subjects').get_json()
     assert len(after) >= len(before)
 
@@ -49,6 +51,15 @@ def test_get_teachers_and_add_teacher():
     assert resp2.status_code == 201
     data = resp2.get_json()
     assert data['name'] == 'Prueba'
+
+
+def test_add_subject_group_with_color():
+    c = client()
+    resp = c.post('/subject-groups', json={'name': 'Grupo Color', 'subjects': ['REL1', 'ATE1'], 'color': '#ffaa00'})
+    assert resp.status_code == 201
+    data = resp.get_json()
+    assert data['name'] == 'Grupo Color'
+    assert data['color'] == '#ffaa00'
 
 
 def test_get_and_set_config():
