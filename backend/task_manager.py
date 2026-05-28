@@ -14,6 +14,34 @@ class TaskManager:
         self._tasks = {}
         self._lock = threading.Lock()
         self._cancelled = set()
+        self._current_task_id = None
+        self._last_task_id = None
+
+    def has_running_task(self):
+        with self._lock:
+            if not self._current_task_id:
+                return False
+            task = self._tasks.get(self._current_task_id)
+            if not task or task.get("status") != "running":
+                self._current_task_id = None
+                return False
+            return True
+
+    def get_current_task_id(self):
+        with self._lock:
+            if not self._current_task_id:
+                return None
+            task = self._tasks.get(self._current_task_id)
+            if not task or task.get("status") != "running":
+                self._current_task_id = None
+                return None
+            return self._current_task_id
+
+    def get_latest_task_id(self):
+        with self._lock:
+            if self._last_task_id in self._tasks:
+                return self._last_task_id
+            return None
 
     def create_task(self) -> str:
         self._lazy_cleanup()
@@ -25,6 +53,8 @@ class TaskManager:
                 "details": None,
                 "created_at": time.time(),
             }
+            self._current_task_id = task_id
+            self._last_task_id = task_id
         logger.info("Task created id=%s", task_id)
         return task_id
 
@@ -32,6 +62,8 @@ class TaskManager:
         with self._lock:
             if task_id in self._tasks and task_id not in self._cancelled:
                 self._tasks[task_id]["status"] = "success"
+                if self._current_task_id == task_id:
+                    self._current_task_id = None
                 logger.info("Task marked success id=%s", task_id)
 
     def fail_task(self, task_id, error, details=None):
@@ -40,6 +72,8 @@ class TaskManager:
                 self._tasks[task_id]["status"] = "error"
                 self._tasks[task_id]["error"] = error
                 self._tasks[task_id]["details"] = details
+                if self._current_task_id == task_id:
+                    self._current_task_id = None
                 logger.warning("Task marked error id=%s", task_id)
 
     def cancel_task(self, task_id):
@@ -47,6 +81,8 @@ class TaskManager:
             self._cancelled.add(task_id)
             if task_id in self._tasks:
                 self._tasks[task_id]["status"] = "cancelled"
+            if self._current_task_id == task_id:
+                self._current_task_id = None
         logger.info("Task marked cancelled id=%s", task_id)
 
     def is_cancelled(self, task_id):
@@ -65,11 +101,49 @@ class TaskManager:
             if not task:
                 return None
             return {
+                "task_id": task_id,
                 "status": task["status"],
                 "error": task.get("error"),
                 "details": task.get("details"),
                 "phase": task.get("phase"),
                 "phase_details": task.get("phase_details"),
+                "created_at": task.get("created_at"),
+            }
+
+    def get_current_status(self):
+        with self._lock:
+            if not self._current_task_id:
+                return None
+            task = self._tasks.get(self._current_task_id)
+            if not task or task.get("status") != "running":
+                self._current_task_id = None
+                return None
+            return {
+                "task_id": self._current_task_id,
+                "status": task["status"],
+                "error": task.get("error"),
+                "details": task.get("details"),
+                "phase": task.get("phase"),
+                "phase_details": task.get("phase_details"),
+                "created_at": task.get("created_at"),
+            }
+
+    def get_latest_status(self):
+        with self._lock:
+            if not self._last_task_id:
+                return None
+            task = self._tasks.get(self._last_task_id)
+            if not task:
+                self._last_task_id = None
+                return None
+            return {
+                "task_id": self._last_task_id,
+                "status": task["status"],
+                "error": task.get("error"),
+                "details": task.get("details"),
+                "phase": task.get("phase"),
+                "phase_details": task.get("phase_details"),
+                "created_at": task.get("created_at"),
             }
 
     def _lazy_cleanup(self, max_age=600, max_tasks=50):
@@ -84,6 +158,10 @@ class TaskManager:
                 for tid in expired:
                     del self._tasks[tid]
                     self._cancelled.discard(tid)
+                    if self._current_task_id == tid:
+                        self._current_task_id = None
+                    if self._last_task_id == tid:
+                        self._last_task_id = None
                 if expired:
                     logger.info("Task cleanup removed expired tasks count=%d", len(expired))
 

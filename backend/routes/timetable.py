@@ -1,7 +1,7 @@
 import threading
 import logging
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify
 from ..translations import t
 from ..models import Session as DbSession, TimeSlotAssignment
 from ..timetable import print_markdown_timetable_from_assignments, print_markdown_timetable_per_teacher
@@ -88,7 +88,16 @@ def get_timetable_markdown():
 
 @timetable_bp.route('/api/timetable', methods=['POST'])
 def generate_timetable():
-    """Start asynchronous timetable generation. Returns task_id immediately."""
+    """Start asynchronous timetable generation. Returns existing running task when present."""
+    running_status = task_manager.get_current_status()
+    if running_status:
+        task_id = running_status.get("task_id")
+        logger.info(
+            "Timetable generation requested while another task is running",
+            extra=build_log_extra(task_id=task_id),
+        )
+        return jsonify(running_status), 202
+
     task_id = task_manager.create_task()
     logger.info("Timetable generation task created", extra=build_log_extra(task_id=task_id))
     thread = threading.Thread(
@@ -98,7 +107,23 @@ def generate_timetable():
     )
     thread.start()
     logger.info("Timetable generation thread started", extra=build_log_extra(task_id=task_id))
-    return jsonify({"task_id": task_id}), 202
+    return jsonify(task_manager.get_status(task_id)), 202
+
+
+@timetable_bp.route('/api/timetable/status/current', methods=['GET'])
+def get_current_task_status():
+    """Poll current active task, or latest known task if nothing is running."""
+    status = task_manager.get_current_status() or task_manager.get_latest_status()
+    if status is None:
+        logger.debug("Current task status requested with no known tasks", extra=build_log_extra())
+        return jsonify({"status": "idle", "task_id": None}), 200
+
+    logger.debug(
+        "Current task status requested status=%s",
+        status.get("status"),
+        extra=build_log_extra(task_id=status.get("task_id")),
+    )
+    return jsonify(status), 200
 
 
 @timetable_bp.route('/api/timetable/status/<task_id>', methods=['GET'])

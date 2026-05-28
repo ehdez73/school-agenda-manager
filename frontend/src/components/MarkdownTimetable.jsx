@@ -7,6 +7,9 @@ import api from '../lib/api';
 import { t } from '../i18n';
 import SectionLayout from './SectionLayout';
 
+const POLL_INTERVAL_MS = 2000;
+const POLL_RETRY_MS = 3000;
+
 
 function MarkdownTimetable() {
   const [markdown, setMarkdown] = useState('');
@@ -23,74 +26,148 @@ function MarkdownTimetable() {
   const elapsedRef = useRef(null);
   const startTimeRef = useRef(null);
 
-  const stopGeneration = () => {
-    if (pollingRef.current) clearTimeout(pollingRef.current);
-    if (elapsedRef.current) clearInterval(elapsedRef.current);
-    setGenerating(false);
-    setPhase(null);
-    setElapsed(0);
-  };
-
-  const pollTaskStatus = async (tid) => {
-    try {
-      const result = await api.get(`/api/timetable/status/${tid}`);
-      if (!result || !result.status) {
-        pollingRef.current = setTimeout(() => pollTaskStatus(tid), 2000);
-        return;
-      }
-      if (result.phase) setPhase(result.phase);
-      if (result.phase && result.phase_details) {
-        setDetails(result.phase_details);
-      }
-      if (result.status === 'success') {
-        stopGeneration();
-        fetchTimetable();
-        return;
-      }
-      if (result.status === 'error') {
-        stopGeneration();
-        setError(result.error);
-        setDetails(result.details || result.phase_details || null);
-        return;
-      }
-      if (result.status === 'cancelled') {
-        stopGeneration();
-        return;
-      }
-      pollingRef.current = setTimeout(() => pollTaskStatus(tid), 2000);
-    } catch {
-      pollingRef.current = setTimeout(() => pollTaskStatus(tid), 3000);
+  const clearTimers = () => {
+    if (pollingRef.current) {
+      clearTimeout(pollingRef.current);
+      pollingRef.current = null;
+    }
+    if (elapsedRef.current) {
+      clearInterval(elapsedRef.current);
+      elapsedRef.current = null;
     }
   };
 
-  useEffect(() => {
-    return () => {
-      if (pollingRef.current) clearTimeout(pollingRef.current);
-      if (elapsedRef.current) clearInterval(elapsedRef.current);
-    };
-  }, []);
+  const startElapsedTimer = (createdAtSeconds = null) => {
+    if (elapsedRef.current) clearInterval(elapsedRef.current);
+    const startedAtMs = createdAtSeconds ? createdAtSeconds * 1000 : Date.now();
+    startTimeRef.current = startedAtMs;
+    setElapsed(Math.max(0, Math.floor((Date.now() - startedAtMs) / 1000)));
+    elapsedRef.current = setInterval(() => {
+      if (!startTimeRef.current) return;
+      setElapsed(Math.max(0, Math.floor((Date.now() - startTimeRef.current) / 1000)));
+    }, 1000);
+  };
 
-  const fetchTimetable = async () => {
+  const stopGeneration = () => {
+    clearTimers();
+    startTimeRef.current = null;
+    setGenerating(false);
+    setPhase(null);
+    setElapsed(0);
+    setTaskId(null);
+  };
+
+  const fetchTimetable = async ({ silentNotFound = false } = {}) => {
     setLoading(true);
-    setError(null);
-    setDetails(null);
+    if (!silentNotFound) {
+      setError(null);
+      setDetails(null);
+    }
     try {
       const data = await api.get('/api/timetable', { responseType: 'text' });
       if (!data) {
-        setError(t('timetable.no_schedule'));
+        if (!silentNotFound) {
+          setError(t('timetable.no_schedule'));
+        }
         setMarkdown('');
         return;
       }
       setMarkdown(data);
     } catch (err) {
+      if (silentNotFound && err?.status === 404) {
+        setMarkdown('');
+        return;
+      }
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
+  const applyStatus = (result) => {
+    if (!result || !result.status) return result;
+
+    if (result.task_id) {
+      setTaskId(result.task_id);
+    }
+
+    if (result.phase) {
+      setPhase(result.phase);
+    }
+    if (result.phase && result.phase_details) {
+      setDetails(result.phase_details);
+    }
+
+    if (result.status === 'running') {
+      setGenerating(true);
+      startElapsedTimer(result.created_at || null);
+      return result;
+    }
+
+    if (result.status === 'success') {
+      stopGeneration();
+      fetchTimetable();
+      return result;
+    }
+
+    if (result.status === 'error') {
+      stopGeneration();
+      setError(result.error);
+      setDetails(result.details || result.phase_details || null);
+      return result;
+    }
+
+    if (result.status === 'cancelled' || result.status === 'idle') {
+      stopGeneration();
+      return result;
+    }
+
+    return result;
+  };
+
+  const pollTaskStatus = async () => {
+    try {
+      const result = await api.get('/api/timetable/status/current');
+      if (!result || !result.status) {
+        pollingRef.current = setTimeout(() => pollTaskStatus(), POLL_INTERVAL_MS);
+        return;
+      }
+
+      applyStatus(result);
+      if (result.status === 'running') {
+        pollingRef.current = setTimeout(() => pollTaskStatus(), POLL_INTERVAL_MS);
+      }
+    } catch {
+      pollingRef.current = setTimeout(() => pollTaskStatus(), POLL_RETRY_MS);
+    }
+  };
+
   useEffect(() => {
-    fetchTimetable();
+    return () => {
+      clearTimers();
+    };
+  }, []);
+
+  useEffect(() => {
+    const init = async () => {
+      setLoading(true);
+      setError(null);
+      setDetails(null);
+      try {
+        const status = await api.get('/api/timetable/status/current');
+        applyStatus(status);
+        if (status?.status === 'running') {
+          await fetchTimetable({ silentNotFound: true });
+          pollTaskStatus();
+          return;
+        }
+      } catch {
+        // No status available; continue with timetable fetch.
+      }
+      await fetchTimetable();
+    };
+
+    init();
   }, []);
 
   const handleGenerate = async () => {
@@ -98,15 +175,11 @@ function MarkdownTimetable() {
     setError(null);
     setDetails(null);
     setMarkdown('');
+    startElapsedTimer();
     try {
       const result = await api.post('/api/timetable');
-      const tid = result.task_id;
-      setTaskId(tid);
-      startTimeRef.current = Date.now();
-      elapsedRef.current = setInterval(() => {
-        setElapsed(Math.floor((Date.now() - startTimeRef.current) / 1000));
-      }, 1000);
-      pollTaskStatus(tid);
+      applyStatus(result);
+      pollTaskStatus();
     } catch (err) {
       stopGeneration();
       setError(err.message);
@@ -119,16 +192,12 @@ function MarkdownTimetable() {
     setError(null);
     setDetails(null);
     setMarkdown('');
+    startElapsedTimer();
     try {
       await api.del('/api/timetable');
       const result = await api.post('/api/timetable');
-      const tid = result.task_id;
-      setTaskId(tid);
-      startTimeRef.current = Date.now();
-      elapsedRef.current = setInterval(() => {
-        setElapsed(Math.floor((Date.now() - startTimeRef.current) / 1000));
-      }, 1000);
-      pollTaskStatus(tid);
+      applyStatus(result);
+      pollTaskStatus();
     } catch (err) {
       stopGeneration();
       setError(err.message);

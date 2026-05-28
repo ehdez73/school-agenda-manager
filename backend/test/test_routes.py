@@ -1,7 +1,7 @@
-import json
+import time
 from backend.app import app
 from backend.populate_db import populate_db
-from backend.models import Session
+from backend.routes import timetable as timetable_routes
 
 
 def client():
@@ -71,3 +71,65 @@ def test_timetable_endpoints_empty_and_clear():
     # clear assignments should still return ok
     resp2 = c.delete('/api/timetable')
     assert resp2.status_code == 200
+
+
+def test_timetable_status_current_idle_when_no_tasks():
+    c = client()
+    tm = timetable_routes.task_manager
+    with tm._lock:
+        tm._tasks.clear()
+        tm._cancelled.clear()
+        tm._current_task_id = None
+        tm._last_task_id = None
+
+    resp = c.get('/api/timetable/status/current')
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data['status'] == 'idle'
+    assert data['task_id'] is None
+
+
+def test_timetable_post_is_idempotent_with_running_task():
+    c = client()
+    tm = timetable_routes.task_manager
+    running_task_id = 'running-task-id'
+    with tm._lock:
+        tm._tasks.clear()
+        tm._cancelled.clear()
+        tm._tasks[running_task_id] = {
+            'status': 'running',
+            'error': None,
+            'details': None,
+            'created_at': time.time(),
+        }
+        tm._current_task_id = running_task_id
+        tm._last_task_id = running_task_id
+
+    resp = c.post('/api/timetable')
+    assert resp.status_code == 202
+    data = resp.get_json()
+    assert data['task_id'] == running_task_id
+    assert data['status'] == 'running'
+
+
+def test_timetable_status_current_returns_latest_terminal_task():
+    c = client()
+    tm = timetable_routes.task_manager
+    latest_task_id = 'latest-task-id'
+    with tm._lock:
+        tm._tasks.clear()
+        tm._cancelled.clear()
+        tm._tasks[latest_task_id] = {
+            'status': 'success',
+            'error': None,
+            'details': None,
+            'created_at': time.time(),
+        }
+        tm._current_task_id = None
+        tm._last_task_id = latest_task_id
+
+    resp = c.get('/api/timetable/status/current')
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data['task_id'] == latest_task_id
+    assert data['status'] == 'success'
