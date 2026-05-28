@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
@@ -9,6 +9,60 @@ import SectionLayout from './SectionLayout';
 
 const POLL_INTERVAL_MS = 2000;
 const POLL_RETRY_MS = 3000;
+
+
+function parseTimetableSections(markdownText) {
+  if (!markdownText || !markdownText.trim()) return [];
+
+  const lines = markdownText.replace(/\r\n/g, '\n').split('\n');
+  const sections = [];
+  let currentSection = null;
+  let currentEntry = null;
+
+  const commitEntry = () => {
+    if (!currentSection || !currentEntry) return;
+    currentSection.entries.push({
+      id: `${sections.length}-${currentSection.entries.length}`,
+      title: currentEntry.title,
+      markdown: currentEntry.lines.join('\n').trim(),
+    });
+    currentEntry = null;
+  };
+
+  const commitSection = () => {
+    if (!currentSection) return;
+    commitEntry();
+    if (currentSection.entries.length > 0) {
+      sections.push(currentSection);
+    }
+    currentSection = null;
+  };
+
+  for (const line of lines) {
+    const sectionMatch = line.match(/^##\s+(.+)$/);
+    if (sectionMatch) {
+      commitSection();
+      currentSection = { title: sectionMatch[1].trim(), entries: [] };
+      continue;
+    }
+
+    if (!currentSection) continue;
+
+    const entryMatch = line.match(/^###\s+(.+)$/);
+    if (entryMatch) {
+      commitEntry();
+      currentEntry = { title: entryMatch[1].trim(), lines: [] };
+      continue;
+    }
+
+    if (currentEntry) {
+      currentEntry.lines.push(line);
+    }
+  }
+
+  commitSection();
+  return sections;
+}
 
 
 function collectSubjectEntryColors(node, colors) {
@@ -62,7 +116,15 @@ function MarkdownTimetable() {
   const [taskId, setTaskId] = useState(null);
   const [elapsed, setElapsed] = useState(0);
   const [downloading, setDownloading] = useState(false);
+  const [selectedCourseIds, setSelectedCourseIds] = useState([]);
+  const [selectedTeacherIds, setSelectedTeacherIds] = useState([]);
+  const [courseQuery, setCourseQuery] = useState('');
+  const [teacherQuery, setTeacherQuery] = useState('');
+  const [showCourseSuggestions, setShowCourseSuggestions] = useState(false);
+  const [showTeacherSuggestions, setShowTeacherSuggestions] = useState(false);
   const timetableRef = useRef();
+  const courseSelectorRef = useRef(null);
+  const teacherSelectorRef = useRef(null);
   const pollingRef = useRef(null);
   const elapsedRef = useRef(null);
   const startTimeRef = useRef(null);
@@ -190,6 +252,22 @@ function MarkdownTimetable() {
   }, []);
 
   useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (courseSelectorRef.current && !courseSelectorRef.current.contains(event.target)) {
+        setShowCourseSuggestions(false);
+      }
+      if (teacherSelectorRef.current && !teacherSelectorRef.current.contains(event.target)) {
+        setShowTeacherSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
     const init = async () => {
       setLoading(true);
       setError(null);
@@ -281,6 +359,92 @@ function MarkdownTimetable() {
   };
 
   const layoutState = loading ? 'loading' : error ? 'error' : 'ready';
+  const parsedSections = useMemo(() => parseTimetableSections(markdown), [markdown]);
+  const courseSection = parsedSections[0] || null;
+  const teacherSection = parsedSections[1] || null;
+  const canRenderSections = Boolean(courseSection && teacherSection);
+
+  const syncSelectionWithSection = (entries, setSelectedIds) => {
+    if (!entries || entries.length === 0) {
+      setSelectedIds([]);
+      return;
+    }
+    const validIds = new Set(entries.map(entry => entry.id));
+    setSelectedIds((prev) => {
+      const filtered = prev.filter(id => validIds.has(id));
+      if (filtered.length > 0) return filtered;
+      return [entries[0].id];
+    });
+  };
+
+  useEffect(() => {
+    syncSelectionWithSection(courseSection?.entries || [], setSelectedCourseIds);
+  }, [courseSection]);
+
+  useEffect(() => {
+    syncSelectionWithSection(teacherSection?.entries || [], setSelectedTeacherIds);
+  }, [teacherSection]);
+
+  const markdownComponents = {
+    td: ({ children, ...props }) => {
+      const colors = new Set();
+      collectSubjectEntryColors(children, colors);
+      const cellStyle = { ...(props.style || {}) };
+      if (colors.size === 1) {
+        const [onlyColor] = Array.from(colors);
+        cellStyle.backgroundColor = onlyColor;
+      }
+      return <td {...props} style={cellStyle}>{stripSubjectEntryInlineBg(children)}</td>;
+    },
+  };
+
+  const getSelectedEntries = (section, selectedIds) => {
+    if (!section || section.entries.length === 0) return [];
+    const selectedSet = new Set(selectedIds);
+    return section.entries.filter(entry => selectedSet.has(entry.id));
+  };
+
+  const selectedCourseEntries = getSelectedEntries(courseSection, selectedCourseIds);
+  const selectedTeacherEntries = getSelectedEntries(teacherSection, selectedTeacherIds);
+  const allCourseIds = courseSection?.entries.map(entry => entry.id) || [];
+  const allTeacherIds = teacherSection?.entries.map(entry => entry.id) || [];
+  const areAllCoursesSelected = allCourseIds.length > 0 && allCourseIds.every(id => selectedCourseIds.includes(id));
+  const areAllTeachersSelected = allTeacherIds.length > 0 && allTeacherIds.every(id => selectedTeacherIds.includes(id));
+
+  const filterEntriesByQuery = (entries, query) => {
+    const normalized = query.trim().toLowerCase();
+    if (!normalized) return entries;
+    return entries.filter(entry => entry.title.toLowerCase().includes(normalized));
+  };
+
+  const filteredCourseEntries = filterEntriesByQuery(courseSection?.entries || [], courseQuery);
+  const filteredTeacherEntries = filterEntriesByQuery(teacherSection?.entries || [], teacherQuery);
+
+  const toggleEntrySelection = (entryId, selectedIds, setSelectedIds) => {
+    const selectedSet = new Set(selectedIds);
+    if (selectedSet.has(entryId)) {
+      selectedSet.delete(entryId);
+    } else {
+      selectedSet.add(entryId);
+    }
+    setSelectedIds(Array.from(selectedSet));
+  };
+
+  const handleAllSelection = (checked, allIds, setSelectedIds) => {
+    if (checked) {
+      setSelectedIds(allIds);
+      return;
+    }
+    setSelectedIds([]);
+  };
+
+  const handleAutocompleteEnter = (event, entries, selectedIds, setSelectedIds) => {
+    if (event.key !== 'Enter') return;
+    if (!entries.length) return;
+    event.preventDefault();
+    const firstMatch = entries[0];
+    toggleEntrySelection(firstMatch.id, selectedIds, setSelectedIds);
+  };
 
   return (
     <>
@@ -320,24 +484,217 @@ function MarkdownTimetable() {
         )}
         {!loading && !error && markdown.trim() && (
           <div className="timetable-container markdown-timetable" ref={timetableRef}>
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeRaw]}
-              components={{
-                td: ({ children, ...props }) => {
-                  const colors = new Set();
-                  collectSubjectEntryColors(children, colors);
-                  const cellStyle = { ...(props.style || {}) };
-                  if (colors.size === 1) {
-                    const [onlyColor] = Array.from(colors);
-                    cellStyle.backgroundColor = onlyColor;
-                  }
-                  return <td {...props} style={cellStyle}>{stripSubjectEntryInlineBg(children)}</td>;
-                },
-              }}
-            >
-              {markdown}
-            </ReactMarkdown>
+            {canRenderSections ? (
+              <>
+                <section className="timetable-tabs-block">
+                  <h3>{courseSection.title}</h3>
+                  <div
+                    className="timetable-selector"
+                    role="group"
+                    aria-label={courseSection.title}
+                    ref={courseSelectorRef}
+                  >
+                    <div className="timetable-selector__controls">
+                      <label className="timetable-selector__all-option">
+                        <input
+                          type="checkbox"
+                          checked={areAllCoursesSelected}
+                          onChange={(event) => handleAllSelection(
+                            event.target.checked,
+                            allCourseIds,
+                            setSelectedCourseIds,
+                          )}
+                        />
+                        <span>{t('common.all_courses') || 'All courses'}</span>
+                      </label>
+                      <input
+                        type="search"
+                        className="timetable-selector__input"
+                        value={courseQuery}
+                        placeholder={t('common.search_placeholder') || 'Search by name...'}
+                        onFocus={() => setShowCourseSuggestions(true)}
+                        onChange={(event) => {
+                          setCourseQuery(event.target.value);
+                          setShowCourseSuggestions(true);
+                        }}
+                        onKeyDown={(event) => handleAutocompleteEnter(
+                          event,
+                          filteredCourseEntries,
+                          selectedCourseIds,
+                          setSelectedCourseIds,
+                        )}
+                        aria-label={`${courseSection.title} ${t('common.search_placeholder') || 'Search by name...'}`}
+                      />
+                    </div>
+                    {showCourseSuggestions && (
+                      <div
+                        className="timetable-selector__dropdown"
+                        role="listbox"
+                        aria-label={courseSection.title}
+                        onMouseDown={(event) => event.preventDefault()}
+                      >
+                        {filteredCourseEntries.length > 0 ? (
+                          filteredCourseEntries.map((entry) => {
+                            const isSelected = selectedCourseIds.includes(entry.id);
+                            return (
+                              <label
+                                key={entry.id}
+                                className={`timetable-selector__option ${isSelected ? 'selected' : ''}`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() => toggleEntrySelection(
+                                    entry.id,
+                                    selectedCourseIds,
+                                    setSelectedCourseIds,
+                                  )}
+                                  aria-label={entry.title}
+                                />
+                                <span>{entry.title}</span>
+                              </label>
+                            );
+                          })
+                        ) : (
+                          <div className="timetable-selector__empty">No results</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="timetable-panels-group">
+                    {selectedCourseEntries.map((entry) => (
+                      <div
+                        key={entry.id}
+                        id={`course-panel-${entry.id}`}
+                        role="region"
+                        aria-label={entry.title}
+                        className="timetable-tab-panel"
+                      >
+                        <h4 className="timetable-panel-title">{entry.title}</h4>
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          rehypePlugins={[rehypeRaw]}
+                          components={markdownComponents}
+                        >
+                          {entry.markdown}
+                        </ReactMarkdown>
+                      </div>
+                    ))}
+                    {selectedCourseEntries.length === 0 && (
+                      <div className="timetable-selector__empty">No timetables selected</div>
+                    )}
+                  </div>
+                </section>
+
+                <section className="timetable-tabs-block">
+                  <h3>{teacherSection.title}</h3>
+                  <div
+                    className="timetable-selector"
+                    role="group"
+                    aria-label={teacherSection.title}
+                    ref={teacherSelectorRef}
+                  >
+                    <div className="timetable-selector__controls">
+                      <label className="timetable-selector__all-option">
+                        <input
+                          type="checkbox"
+                          checked={areAllTeachersSelected}
+                          onChange={(event) => handleAllSelection(
+                            event.target.checked,
+                            allTeacherIds,
+                            setSelectedTeacherIds,
+                          )}
+                        />
+                        <span>{t('common.all_teachers') || 'All teachers'}</span>
+                      </label>
+                      <input
+                        type="search"
+                        className="timetable-selector__input"
+                        value={teacherQuery}
+                        placeholder={t('common.search_placeholder') || 'Search by name...'}
+                        onFocus={() => setShowTeacherSuggestions(true)}
+                        onChange={(event) => {
+                          setTeacherQuery(event.target.value);
+                          setShowTeacherSuggestions(true);
+                        }}
+                        onKeyDown={(event) => handleAutocompleteEnter(
+                          event,
+                          filteredTeacherEntries,
+                          selectedTeacherIds,
+                          setSelectedTeacherIds,
+                        )}
+                        aria-label={`${teacherSection.title} ${t('common.search_placeholder') || 'Search by name...'}`}
+                      />
+                    </div>
+                    {showTeacherSuggestions && (
+                      <div
+                        className="timetable-selector__dropdown"
+                        role="listbox"
+                        aria-label={teacherSection.title}
+                        onMouseDown={(event) => event.preventDefault()}
+                      >
+                        {filteredTeacherEntries.length > 0 ? (
+                          filteredTeacherEntries.map((entry) => {
+                            const isSelected = selectedTeacherIds.includes(entry.id);
+                            return (
+                              <label
+                                key={entry.id}
+                                className={`timetable-selector__option ${isSelected ? 'selected' : ''}`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() => toggleEntrySelection(
+                                    entry.id,
+                                    selectedTeacherIds,
+                                    setSelectedTeacherIds,
+                                  )}
+                                  aria-label={entry.title}
+                                />
+                                <span>{entry.title}</span>
+                              </label>
+                            );
+                          })
+                        ) : (
+                          <div className="timetable-selector__empty">No results</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="timetable-panels-group">
+                    {selectedTeacherEntries.map((entry) => (
+                      <div
+                        key={entry.id}
+                        id={`teacher-panel-${entry.id}`}
+                        role="region"
+                        aria-label={entry.title}
+                        className="timetable-tab-panel"
+                      >
+                        <h4 className="timetable-panel-title">{entry.title}</h4>
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          rehypePlugins={[rehypeRaw]}
+                          components={markdownComponents}
+                        >
+                          {entry.markdown}
+                        </ReactMarkdown>
+                      </div>
+                    ))}
+                    {selectedTeacherEntries.length === 0 && (
+                      <div className="timetable-selector__empty">No timetables selected</div>
+                    )}
+                  </div>
+                </section>
+              </>
+            ) : (
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw]}
+                components={markdownComponents}
+              >
+                {markdown}
+              </ReactMarkdown>
+            )}
           </div>
         )}
       </SectionLayout>

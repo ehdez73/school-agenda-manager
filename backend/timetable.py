@@ -26,8 +26,7 @@ def _safe_hex_color(color):
     return None
 
 
-def _build_colored_assignment_html(subject_name, teacher_name, subject_color):
-    label = f"{subject_name} ({teacher_name})"
+def _build_colored_label_html(label, subject_color):
     safe_label = escape(label)
     safe_color = _safe_hex_color(subject_color)
     if not safe_color:
@@ -37,6 +36,11 @@ def _build_colored_assignment_html(subject_name, teacher_name, subject_color):
         f"{safe_label}"
         "</span>"
     )
+
+
+def _build_colored_assignment_html(subject_name, teacher_name, subject_color):
+    label = f"{subject_name} ({teacher_name})"
+    return _build_colored_label_html(label, subject_color)
 
 
 def get_timetables_from_db(session):
@@ -190,8 +194,12 @@ def get_teacher_timetables_from_db(session):
         weekday = timeslot.day
         subject_name = assignment.subject.name
         course_line = f"{timeslot.course_id}{chr(ord('A') + timeslot.line)}"
+        group_color = None
+        if timeslot.subject_group is not None:
+            group_color = getattr(timeslot.subject_group, "color", None)
+        subject_color = group_color or assignment.subject.color
         teacher_timetable[teacher_name][(hour, weekday)].append(
-            f"{course_line}: {subject_name}"
+            _build_colored_label_html(f"{course_line}: {subject_name}", subject_color)
         )
     return teacher_timetable
 
