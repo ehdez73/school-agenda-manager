@@ -1,3 +1,4 @@
+import json
 from flask import Blueprint, jsonify, request, abort
 from ..models import SubjectGroup, Subject, Session
 from ..schemas import SubjectGroupSchema
@@ -16,7 +17,8 @@ def get_subject_groups():
         g_dict = {
             'id': g.id,
             'name': g.name,
-            'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in g.subjects]
+            'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in g.subjects],
+            'included_lines': json.loads(g.included_lines) if g.included_lines else None,
         }
         result.append(SubjectGroupSchema(**g_dict).model_dump())
     session.close()
@@ -39,13 +41,18 @@ def add_subject_group():
             session.close()
             abort(400, description=t('errors.hours_mismatch'))
 
-    new_group = SubjectGroup(name=data['name'], subjects=subjects)
+    included_lines = data.get("included_lines", None)
+    if included_lines is not None:
+        included_lines = json.dumps(included_lines)
+
+    new_group = SubjectGroup(name=data['name'], subjects=subjects, included_lines=included_lines)
     session.add(new_group)
     session.commit()
     response_data = SubjectGroupSchema(**{
         'id': new_group.id,
         'name': new_group.name,
-        'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in new_group.subjects]
+        'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in new_group.subjects],
+        'included_lines': json.loads(new_group.included_lines) if new_group.included_lines else None,
     }).model_dump()
     session.close()
     return jsonify(response_data), 201
@@ -61,7 +68,8 @@ def get_subject_group(group_id):
     g_dict = {
         'id': group.id,
         'name': group.name,
-        'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in group.subjects]
+        'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in group.subjects],
+        'included_lines': json.loads(group.included_lines) if group.included_lines else None,
     }
     return jsonify(SubjectGroupSchema(**g_dict).model_dump())
 
@@ -80,18 +88,21 @@ def update_subject_group(group_id):
     subject_ids = data.get('subjects', None)
     if subject_ids is not None:
         subjects = session.query(Subject).filter(Subject.id.in_(subject_ids)).all()
-        # Validación: todas las subjects deben tener el mismo weekly_hours
         if subjects:
             hours_set = set(s.weekly_hours for s in subjects)
             if len(hours_set) > 1:
                 session.close()
                 abort(400, description=t('errors.hours_mismatch'))
         group.subjects = subjects
+    if "included_lines" in data:
+        val = data["included_lines"]
+        group.included_lines = json.dumps(val) if val is not None else None
     session.commit()
     response_data = SubjectGroupSchema(**{
         'id': group.id,
         'name': group.name,
-        'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in group.subjects]
+        'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in group.subjects],
+        'included_lines': json.loads(group.included_lines) if group.included_lines else None,
     }).model_dump()
     session.close()
     return jsonify(response_data)

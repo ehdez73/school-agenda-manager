@@ -113,7 +113,8 @@
         "linked": "Linked",
         "teacher": "Teacher",
         "assigned_teachers": "Assigned teachers",
-        "no_teachers": "No teachers assigned"
+        "no_teachers": "No teachers assigned",
+        "lines": "Lines (uncheck to exclude)"
     },
     "subject_groups": {
         "title": "Subject groups",

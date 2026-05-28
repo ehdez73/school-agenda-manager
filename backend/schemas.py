@@ -27,12 +27,14 @@ class SubjectSchema(BaseModel):
     full_name: Optional[str] = None
     linked_subject_id: Optional[str] = None
     teachers: List[dict] = []
+    included_lines: Optional[List[int]] = None
 
 
 class SubjectGroupSchema(BaseModel):
     id: int
     name: Optional[str] = None
     subjects: List[SubjectMinimalSchema] = []
+    included_lines: Optional[List[int]] = None
 
 
 class DayPreferences(BaseModel):

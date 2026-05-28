@@ -1,4 +1,4 @@
-import json
+import json as _json
 from .models import (
     Course,
     Subject,
@@ -15,7 +15,12 @@ def dump_db(session):
     data["courses"] = [c.to_dict() for c in session.query(Course).all()]
     data["subjects"] = [s.to_dict() for s in session.query(Subject).all()]
     data["subject_groups"] = [
-        {"id": g.id, "name": g.name, "subjects": [s.id for s in g.subjects]}
+        {
+            "id": g.id,
+            "name": g.name,
+            "subjects": [s.id for s in g.subjects],
+            "included_lines": _json.loads(g.included_lines) if g.included_lines else None,
+        }
         for g in session.query(SubjectGroup).all()
     ]
 
@@ -71,7 +76,7 @@ def import_payload(session, payload):
         hour_names = cfg_payload.get("hour_names")
         disabled_raw = cfg_payload.get("disabled_restrictions")
         try:
-            disabled_restrictions = json.dumps(disabled_raw, ensure_ascii=False) if disabled_raw is not None else None
+            disabled_restrictions = _json.dumps(disabled_raw, ensure_ascii=False) if disabled_raw is not None else None
         except Exception:
             disabled_restrictions = None
 
@@ -80,8 +85,8 @@ def import_payload(session, payload):
                 cfg = Config(
                     classes_per_day=cfg_payload.get("classes_per_day", 5),
                     days_per_week=cfg_payload.get("days_per_week", 5),
-                    hour_names=json.dumps(hour_names, ensure_ascii=False),
-                    day_indices=json.dumps(
+                    hour_names=_json.dumps(hour_names, ensure_ascii=False),
+                    day_indices=_json.dumps(
                         cfg_payload.get("day_indices", []), ensure_ascii=False
                     ),
                     disabled_restrictions=disabled_restrictions,
@@ -121,6 +126,10 @@ def import_payload(session, payload):
         elif "course" in s and isinstance(s["course"], str):
             course_id = s["course"]
 
+        incl_lines = s.get("included_lines", None)
+        if incl_lines is not None:
+            incl_lines = _json.dumps(incl_lines)
+
         subj = Subject(
             id=s.get("id"),
             name=s.get("name"),
@@ -129,6 +138,7 @@ def import_payload(session, payload):
             consecutive_hours=s.get("consecutive_hours", True),
             course_id=course_id,
             linked_subject_id=s.get("linked_subject_id", None),
+            included_lines=incl_lines,
         )
         session.add(subj)
         subject_map[subj.id] = subj
@@ -146,7 +156,11 @@ def import_payload(session, payload):
 
     # Subject groups
     for g in payload.get("subject_groups", []) or []:
-        sg = SubjectGroup(name=g.get("name"))
+        incl_lines = g.get("included_lines", None)
+        if incl_lines is not None:
+            incl_lines = _json.dumps(incl_lines)
+
+        sg = SubjectGroup(name=g.get("name"), included_lines=incl_lines)
         session.add(sg)
         session.flush()
         members = []

@@ -1,19 +1,49 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import AutocompleteSelect from './AutocompleteSelect';
 import { t } from '../i18n';
 
+function generateLineLetters(numLines) {
+    return Array.from({ length: numLines }, (_, i) => String.fromCharCode(65 + i));
+}
+
+function getDefaultIncludedLines(numLines) {
+    // null means all lines
+    return null;
+}
+
+function toggleLine(included, lineIndex, numLines) {
+    if (included === null) {
+        // Switching from "all" to all-except-this-one
+        const result = [];
+        for (let i = 0; i < numLines; i++) {
+            if (i !== lineIndex) result.push(i);
+        }
+        return result.length === numLines ? null : result;
+    }
+    const set = new Set(included);
+    if (set.has(lineIndex)) {
+        set.delete(lineIndex);
+    } else {
+        set.add(lineIndex);
+    }
+    const result = Array.from(set).sort((a, b) => a - b);
+    return result.length === 0 ? null : result;
+}
+
 export default function SubjectForm({ form, setForm, courses, subjects = [], lockedHours, editingId, formError, onSubmit, onCancel, onDelete, daysPerWeek, subject }) {
+    const selectedCourse = useMemo(() => courses.find(c => c.id === form.course_id), [courses, form.course_id]);
+    const numLines = selectedCourse ? selectedCourse.num_lines : 0;
+    const lineLetters = useMemo(() => generateLineLetters(numLines), [numLines]);
+
     const handleChange = (e) => {
         let value;
         if (e.target.type === 'checkbox') {
             value = e.target.checked;
         } else if (e.target.name === 'consecutive_hours' || e.target.name === 'teach_every_day') {
-            // convert select string value to boolean
             value = e.target.value === 'true';
         } else {
             value = e.target.value;
         }
-        // If course is changed, ensure linked_subject_id still matches the new course
         if (e.target.name === 'course_id') {
             const newCourseId = value;
             let newLinked = form.linked_subject_id;
@@ -24,13 +54,23 @@ export default function SubjectForm({ form, setForm, courses, subjects = [], loc
                     newLinked = '';
                 }
             }
-            setForm({ ...form, course_id: newCourseId, linked_subject_id: newLinked });
+            setForm({ ...form, course_id: newCourseId, linked_subject_id: newLinked, included_lines: null });
             return;
         }
 
         setForm({ ...form, [e.target.name]: value });
     };
 
+    const handleLineToggle = (lineIndex) => {
+        const current = form.included_lines;
+        const next = toggleLine(current, lineIndex, numLines);
+        setForm({ ...form, included_lines: next });
+    };
+
+    const isLineChecked = (lineIndex) => {
+        if (form.included_lines === null) return true;
+        return form.included_lines.includes(lineIndex);
+    };
 
     return (
         <form onSubmit={onSubmit} className="subject-form">
@@ -72,6 +112,26 @@ export default function SubjectForm({ form, setForm, courses, subjects = [], loc
                     ))}
                 </select>
             </label>
+            {numLines > 1 && (
+                <fieldset className="lines-fieldset">
+                    <legend>{t('subjects.lines')}</legend>
+                    <div className="lines-checkboxes">
+                        {lineLetters.map((letter, idx) => (
+                            <label key={idx} className="line-checkbox-label">
+                                <input
+                                    type="checkbox"
+                                    checked={isLineChecked(idx)}
+                                    onChange={() => handleLineToggle(idx)}
+                                />
+                                {letter}
+                            </label>
+                        ))}
+                        <span className="lines-hint">
+                            {form.included_lines === null ? '(all)' : ''}
+                        </span>
+                    </div>
+                </fieldset>
+            )}
             <label className="subject-label">
                 {t('subjects.weekly_hours')}
                 <input

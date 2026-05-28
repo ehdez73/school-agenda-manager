@@ -1,3 +1,4 @@
+import json as _json
 from collections import defaultdict
 
 from ortools.sat.python import cp_model
@@ -10,6 +11,31 @@ from .models import (
     TimeSlotAssignment,
     SubjectGroup,
 )
+
+
+def _is_line_included(entity, line_index):
+    """Check whether a Subject or SubjectGroup applies to the given line index.
+    
+    Args:
+        entity: Subject or SubjectGroup instance with optional included_lines attribute.
+        line_index: Integer line index (0 = A, 1 = B, etc.).
+    
+    Returns:
+        True if the entity applies to this line (included or included_lines is None).
+    """
+    raw = getattr(entity, "included_lines", None)
+    if raw is None:
+        return True
+    if isinstance(raw, str):
+        try:
+            included = _json.loads(raw)
+        except (ValueError, TypeError):
+            return True
+    else:
+        included = raw
+    if not isinstance(included, list):
+        return True
+    return line_index in included
 
 from .restrictions import (
     SubjectWeeklyHours,
@@ -68,9 +94,10 @@ def _create_assignments(model, all_teachers, all_subjects, all_groups, num_days,
     """Create decision variables (group, subject_id, teacher_id, day, hour)."""
     assignments = {}
     for group in all_groups:
-        course = group.split("-")[0]
+        course, line_letter = group.split("-")
+        line_index = ord(line_letter) - ord("A")
         for subject in all_subjects:
-            if subject.course_id == course:
+            if subject.course_id == course and _is_line_included(subject, line_index):
                 for teacher in all_teachers:
                     if subject in teacher.subjects:
                         for d in range(num_days):
@@ -176,6 +203,12 @@ def solve_scheduling_model(
     return status, assignments, solver
 
 
+def _get_line_index(group):
+    """Extract the line index (0=A, 1=B, ...) from a group identifier."""
+    _, line_letter = group.split("-")
+    return ord(line_letter) - ord("A")
+
+
 def _check_capacity_sanity(all_subjects, all_groups, num_days, num_hours, all_subjectgroups):
     """Quick capacity sanity checks before running the solver.
 
@@ -184,21 +217,27 @@ def _check_capacity_sanity(all_subjects, all_groups, num_days, num_hours, all_su
 
     Returns a list of issue descriptions (empty list = all clear).
     """
-    subject_ids_in_groups = set()
+    subject_ids_in_groups = {}
     for sg in all_subjectgroups:
-        subject_ids_in_groups.update(s.id for s in sg.subjects)
+        for s in sg.subjects:
+            subject_ids_in_groups[s.id] = sg
 
     issues = []
     for group in all_groups:
         course = group.split("-")[0]
+        line_index = _get_line_index(group)
 
         standalone_hours = sum(
             s.weekly_hours for s in all_subjects
-            if s.course_id == course and s.id not in subject_ids_in_groups
+            if s.course_id == course
+            and s.id not in subject_ids_in_groups
+            and _is_line_included(s, line_index)
         )
         grouped_hours = 0
         for sg in all_subjectgroups:
-            group_subjects = [s for s in sg.subjects if s.course_id == course]
+            if not _is_line_included(sg, line_index):
+                continue
+            group_subjects = [s for s in sg.subjects if s.course_id == course and _is_line_included(s, line_index)]
             if group_subjects:
                 grouped_hours += max(s.weekly_hours for s in group_subjects)
 
@@ -229,8 +268,11 @@ def _check_subjects_without_teachers(all_subjects, all_teachers, all_groups,
     issues = []
     for group in all_groups:
         course = group.split("-")[0]
+        line_index = _get_line_index(group)
         for subject in all_subjects:
-            if subject.course_id == course and subject.id not in subjects_with_teachers:
+            if (subject.course_id == course
+                    and _is_line_included(subject, line_index)
+                    and subject.id not in subjects_with_teachers):
                 issues.append(
                     f"  - **Subject \"{subject.name}\" (id={subject.id})** "
                     f"in **Group {group}** has no teacher assigned."
@@ -288,13 +330,18 @@ def _check_teacher_capacity_vs_load(all_teachers, all_subjects, all_groups,
     total_required = 0
     for group in all_groups:
         course = group.split("-")[0]
+        line_index = _get_line_index(group)
         standalone = sum(
             s.weekly_hours for s in all_subjects
-            if s.course_id == course and s.id not in subject_ids_in_groups
+            if s.course_id == course
+            and s.id not in subject_ids_in_groups
+            and _is_line_included(s, line_index)
         )
         grouped = 0
         for sg in all_subjectgroups:
-            gs = [s for s in getattr(sg, 'subjects', []) if s.course_id == course]
+            if not _is_line_included(sg, line_index):
+                continue
+            gs = [s for s in getattr(sg, 'subjects', []) if s.course_id == course and _is_line_included(s, line_index)]
             if gs:
                 grouped += max(s.weekly_hours for s in gs)
         total_required += standalone + grouped

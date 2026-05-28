@@ -113,7 +113,8 @@
         "linked": "Vinculada",
         "teacher": "Docente",
         "assigned_teachers": "Profesores asignados",
-        "no_teachers": "Sin profesores asignados"
+        "no_teachers": "Sin profesores asignados",
+        "lines": "Líneas (desmarca para excluir)"
 
     },
     "subject_groups": {

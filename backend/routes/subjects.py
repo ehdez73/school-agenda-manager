@@ -1,3 +1,4 @@
+import json
 from flask import Blueprint, jsonify, request, abort
 from flask_cors import CORS
 from ..models import Subject, Course, Session, TimeSlotAssignment
@@ -37,6 +38,10 @@ def add_subject():
     teach_every_day = bool(data.get("teach_every_day", False))
     session = Session()
     course = session.get(Course, course_id) if course_id else None
+    included_lines = data.get("included_lines", None)
+    if included_lines is not None:
+        included_lines = json.dumps(included_lines)
+
     new_subject = Subject(
         id=data["id"],
         name=data["name"],
@@ -45,6 +50,7 @@ def add_subject():
         consecutive_hours=bool(consecutive_hours),
         teach_every_day=teach_every_day,
         linked_subject_id=data.get("linked_subject_id", None),
+        included_lines=included_lines,
         course=course,
     )
     session.add(new_subject)
@@ -88,14 +94,17 @@ def update_subject(subject_id):
     if "id" in data and data["id"]:
         subject.id = data["id"]
     if "weekly_hours" in data:
-        # Prevent modifying weekly_hours if subject belongs to any SubjectGroup
-        if getattr(subject, "subject_groups", None) and len(subject.subject_groups) > 0:
-            session.close()
-            abort(400, description=t("errors.hours_mismatch"))
         try:
-            subject.weekly_hours = int(data["weekly_hours"])
+            new_weekly = int(data["weekly_hours"])
         except (ValueError, TypeError):
-            pass
+            new_weekly = None
+        # Only reject if the value is actually changing and subject belongs to a SubjectGroup
+        if new_weekly is not None and new_weekly != subject.weekly_hours:
+            if getattr(subject, "subject_groups", None) and len(subject.subject_groups) > 0:
+                session.close()
+                abort(400, description=t("errors.hours_mismatch"))
+        if new_weekly is not None:
+            subject.weekly_hours = new_weekly
     if "max_hours_per_day" in data:
         try:
             subject.max_hours_per_day = int(data["max_hours_per_day"])
@@ -134,6 +143,9 @@ def update_subject(subject_id):
     course_id = data.get("course_id", None)
     if course_id is not None:
         subject.course = session.get(Course, course_id)
+    if "included_lines" in data:
+        val = data["included_lines"]
+        subject.included_lines = json.dumps(val) if val is not None else None
     session.commit()
     response_data = SubjectSchema(**subject.to_dict()).model_dump()
     session.close()

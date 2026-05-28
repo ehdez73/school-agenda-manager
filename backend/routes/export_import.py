@@ -61,14 +61,12 @@ def import_json():
 
     # Recreate schema (drop and create) to ensure clean import
     try:
-        # Recreate schema (drop and create) to ensure clean import
-        try:
-            Base.metadata.drop_all(ENGINE)
-            Base.metadata.create_all(ENGINE)
-        except Exception:
-            # Fall through; we'll still try to insert
-            pass
+        Base.metadata.drop_all(ENGINE)
+        Base.metadata.create_all(ENGINE)
+    except Exception as e:
+        print(f"Warning: schema recreation failed: {e}")
 
+    try:
         session = Session()
         try:
             shared_export_import.import_payload(session, payload)

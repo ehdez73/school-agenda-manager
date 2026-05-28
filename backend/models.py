@@ -1,5 +1,5 @@
 import json
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, Text
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 from sqlalchemy import Table, ForeignKey, Column as SAColumn
 from sqlalchemy import Boolean
@@ -60,6 +60,8 @@ class Subject(Base):
     teach_every_day = Column(Boolean, nullable=False, default=False)
     # Optional link to another subject that should be scheduled consecutively when on same day
     linked_subject_id = Column(String(20), ForeignKey("subjects.id"), nullable=True)
+    # JSON array of line indices to include (null = all lines), e.g. "[0, 1]" for lines A, B only
+    included_lines = Column(Text, nullable=True)
     course_id = Column(Integer, ForeignKey("courses.id"))
     course = relationship("Course", backref="subjects")
 
@@ -85,6 +87,7 @@ class Subject(Base):
             "full_name": self.full_name,
             "linked_subject_id": getattr(self, "linked_subject_id", None),
             "teachers": [{"id": t.id, "name": t.name} for t in self.teachers],
+            "included_lines": json.loads(self.included_lines) if self.included_lines else None,
         }
 
 
@@ -108,6 +111,8 @@ class SubjectGroup(Base):
     __tablename__ = "subject_groups"
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100), nullable=True)
+    # JSON array of line indices to include (null = all lines), e.g. "[0, 1]" for lines A, B only
+    included_lines = Column(Text, nullable=True)
 
     subjects = relationship(
         "Subject", secondary=subjectgroup_subject, backref="subject_groups"
@@ -121,6 +126,7 @@ class SubjectGroup(Base):
             "id": self.id,
             "name": self.name,
             "subjects": [s.to_dict() for s in self.subjects],
+            "included_lines": json.loads(self.included_lines) if self.included_lines else None,
         }
 
 
