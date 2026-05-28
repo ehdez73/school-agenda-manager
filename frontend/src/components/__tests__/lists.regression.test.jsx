@@ -49,6 +49,6 @@ describe('Lists regression guard', () => {
   it('keeps teacher list add action and filters visible', () => {
     render(<TeacherList />);
     expect(screen.getByRole('button', { name: /teachers\.add/i })).toBeInTheDocument();
-    expect(document.querySelector('.teacher-search-bar')).toBeInTheDocument();
+    expect(document.querySelector('.search-bar')).toBeInTheDocument();
   });
 });

@@ -21,7 +21,7 @@ def get_teachers():
         t_dict = {
             'id': t.id,
             'name': t.name,
-            'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in t.subjects],
+            'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})", 'course_id': s.course_id} for s in t.subjects],
             'max_hours_week': t.max_hours_week,
             'preferences': preferences,
             'tutor_group': t.tutor_group

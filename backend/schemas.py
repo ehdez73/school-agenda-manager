@@ -12,6 +12,7 @@ class SubjectMinimalSchema(BaseModel):
     id: str
     name: str
     full_name: str
+    course_id: Optional[str] = None
 
 
 class SubjectSchema(BaseModel):

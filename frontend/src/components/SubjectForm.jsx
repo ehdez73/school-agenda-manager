@@ -1,4 +1,5 @@
 import React from 'react';
+import AutocompleteSelect from './AutocompleteSelect';
 import { t } from '../i18n';
 
 export default function SubjectForm({ form, setForm, courses, subjects = [], lockedHours, editingId, formError, onSubmit, onCancel, onDelete, daysPerWeek, subject }) {
@@ -129,25 +130,20 @@ export default function SubjectForm({ form, setForm, courses, subjects = [], loc
             )}
              <label className="subject-label">
                 {t('subjects.linked_subject') || 'Linked subject'}
-                <select
-                    name="linked_subject_id"
-                    value={form.linked_subject_id || ''}
-                    onChange={handleChange}
-                    className="subject-select"
-                >
-                    <option value="">{t('common.dashes') || '—'}</option>
-                    {subjects
-                        .filter(s => {
-                            if (!s || s.id === form.id) return false;
-                            const subjCourseId = s.course ? s.course.id : s.course_id;
-                            // only include subjects that belong to the same course as current form
-                            return form.course_id && subjCourseId && String(subjCourseId) === String(form.course_id);
-                        })
-                        .map(s => (
-                            <option key={s.id} value={s.id}>{s.full_name || s.name}</option>
-                        ))}
-                </select>
             </label>
+            <AutocompleteSelect
+                items={subjects.filter(s => {
+                    if (!s || s.id === form.id) return false;
+                    const subjCourseId = s.course ? s.course.id : s.course_id;
+                    return form.course_id && subjCourseId && String(subjCourseId) === String(form.course_id);
+                })}
+                selectedIds={form.linked_subject_id ? [form.linked_subject_id] : []}
+                onAdd={id => setForm({ ...form, linked_subject_id: id })}
+                onRemove={() => setForm({ ...form, linked_subject_id: '' })}
+                placeholder={`${t('subjects.add_subject')}...`}
+                noResultsText="No subjects available"
+                singleSelect={true}
+            />
             {lockedHours && <div className="form-info">{t('subject_groups.hours_locked_info')}</div>}
             {formError && <div className="form-error">{formError}</div>}
             {subject && (

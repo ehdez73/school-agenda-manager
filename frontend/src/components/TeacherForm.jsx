@@ -1,4 +1,5 @@
 import React from 'react';
+import AutocompleteSelect from './AutocompleteSelect';
 import PreferencesGrid from './PreferencesGrid';
 import { t } from '../i18n';
 
@@ -37,27 +38,14 @@ export default function TeacherForm({ form, setForm, subjects, classesPerDay, on
                         className="teacher-input"
                     />
                     <label className="teacher-label">{t('subjects.title')}:</label>
-                    <select
-                        name="subjectsDropdown"
-                        value=""
-                        onChange={e => {
-                            const id = e.target.value;
-                            if (id && !form.subjects.includes(id)) {
-                                setForm(f => ({ ...f, subjects: [...f.subjects, id] }));
-                            }
-                        }}
-                        className="teacher-select"
-                    >
-                        <option value="">{t('subjects.add_subject')}</option>
-                        {subjects
-                            .filter(s => !form.subjects.includes(String(s.id)))
-                            .sort((a, b) => (a.full_name || a.name).localeCompare(b.full_name || b.name))
-                            .map(s => (
-                                <option key={s.id} value={s.id}>
-                                    {s.full_name || s.name}
-                                </option>
-                            ))}
-                    </select>
+                    <AutocompleteSelect
+                        items={subjects}
+                        selectedIds={form.subjects}
+                        onAdd={id => setForm(f => ({ ...f, subjects: [...f.subjects, id] }))}
+                        onRemove={id => setForm(f => ({ ...f, subjects: f.subjects.filter(sid => String(sid) !== String(id)) }))}
+                        placeholder={t('subjects.add_subject') + '...'}
+                        noResultsText="No subjects found"
+                    />
                     <label className="teacher-label teacher-label-margin">{t('teachers.tutor_group')}:</label>
                     <select
                         name="tutor_group"
@@ -67,7 +55,6 @@ export default function TeacherForm({ form, setForm, subjects, classesPerDay, on
                     >
                         <option value="">{t('teachers.no_tutor')}</option>
                         {groups
-                            // show only groups without a tutor (null/undefined), or the group currently assigned to this teacher
                             .filter(g => (g.tutor_id == null) || String(g.tutor_id) === String(form.id))
                             .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
                             .map(g => (
@@ -76,18 +63,6 @@ export default function TeacherForm({ form, setForm, subjects, classesPerDay, on
                                 </option>
                             ))}
                     </select>
-                    <div className="teacher-subject-list">
-                        {form.subjects.map(id => {
-                            const subj = subjects.find(s => String(s.id) === String(id));
-                            if (!subj) return null;
-                            return (
-                                <span key={id} className="teacher-subject-chip">
-                                    {subj.full_name || subj.name}
-                                    <button type="button" className="teacher-chip-btn" onClick={() => setForm(f => ({ ...f, subjects: f.subjects.filter(sid => String(sid) !== String(id)) }))}>×</button>
-                                </span>
-                            );
-                        })}
-                    </div>
                 </div>
 
             </div>

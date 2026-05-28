@@ -134,7 +134,7 @@ export default function TeacherList() {
   const filteredTeachers = teachers.filter(teacher => {
     const matchesName = (teacher.name || '').toLowerCase().includes(search.toLowerCase());
     const matchesSubject = subjectFilter === '' || (teacher.subjects && teacher.subjects.map(s => s.name).includes(subjectFilter));
-    const matchesCourse = courseFilter === '' || (teacher.subjects && teacher.subjects.some(s => s.course && s.course.name === courseFilter));
+    const matchesCourse = courseFilter === '' || (teacher.subjects && teacher.subjects.some(s => s.course_id === courseFilter));
     return matchesName && matchesSubject && matchesCourse;
   });
 
@@ -202,18 +202,18 @@ export default function TeacherList() {
         </div>
       ) : (
       <>
-      <div className="teacher-search-bar">
+      <div className="search-bar">
         <input
           type="text"
           placeholder={t('common.search_placeholder')}
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="teacher-search-input"
+          className="input search-input"
         />
         <select
           value={subjectFilter}
           onChange={e => setSubjectFilter(e.target.value)}
-          className="teacher-search-select"
+          className="select search-select"
         >
           <option value="">{t('common.all_subjects')}</option>
           {subjectOptions.map(s => (
@@ -223,7 +223,7 @@ export default function TeacherList() {
         <select
           value={courseFilter}
           onChange={e => setCourseFilter(e.target.value)}
-          className="teacher-search-select"
+          className="select search-select"
         >
           <option value="">{t('common.all_courses')}</option>
           {courseOptions.map(c => (
