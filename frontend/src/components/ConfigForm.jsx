@@ -7,24 +7,24 @@ import { t } from '../i18n';
 import SectionLayout from './SectionLayout';
 
 const HARD_RESTRICTIONS = [
-  "SubjectWeeklyHours",
-  "TeacherOneClassAtATime",
-  "TeacherUnavailableTimes",
-  "TeacherMaxWeeklyHours",
-  "GroupSubjectMaxHoursPerDay",
   "GroupAtMostOneLogicalAssignment",
   "GroupSubjectAtMostOneTeacherPerTimeslot",
   "GroupSubjectHoursMustBeConsecutive",
   "GroupSubjectHoursMustNotBeConsecutive",
+  "GroupSubjectMaxHoursPerDay",
   "LinkedSubjectsConsecutive",
-  "SubjectGroupAssignment",
   "SubjectMustEveryDay",
+  "SubjectGroupAssignment",
+  "SubjectWeeklyHours",
+  "TeacherMaxWeeklyHours",
+  "TeacherOneClassAtATime",
+  "TeacherUnavailableTimes",
 ];
 
 const SOFT_RESTRICTIONS = [
   "TeacherPreferredTimes",
-  "TutorPreference",
   "TutorMandatoryHours",
+  "TutorPreference",
 ];
 
 export default function ConfigForm() {
@@ -261,7 +261,7 @@ export default function ConfigForm() {
                 onChange={() => toggleRestriction(name)}
               />
               <span>
-                <span className="restriction-name">{t(`config.restrictions.${name}`)}</span>
+                <span className="restriction-name">{name}</span>
                 <span className="restriction-desc">{t(`config.restrictions.${name}_desc`)}</span>
               </span>
             </label>
@@ -276,7 +276,7 @@ export default function ConfigForm() {
                 onChange={() => toggleRestriction(name)}
               />
               <span>
-                <span className="restriction-name">{t(`config.restrictions.${name}`)}</span>
+                <span className="restriction-name">{name}</span>
                 <span className="restriction-desc">{t(`config.restrictions.${name}_desc`)}</span>
               </span>
             </label>

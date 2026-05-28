@@ -130,7 +130,10 @@ function SubjectList() {
 
   const sortedSubjects = [...filteredSubjects].sort((a, b) => {
     let aField, bField;
-    if (sortBy === 'name') {
+    if (sortBy === 'id') {
+      aField = a.id || '';
+      bField = b.id || '';
+    } else if (sortBy === 'name') {
       aField = a.name || '';
       bField = b.name || '';
     } else if (sortBy === 'course') {
@@ -226,7 +229,9 @@ function SubjectList() {
       <table className="modern-table">
         <thead>
           <tr>
-            <th>{t('common.id') || 'ID'}</th>
+            <th className="subject-table-th-sort" onClick={() => handleSort('id')}>
+              {t('common.id') || 'ID'} {sortBy === 'id' ? (sortAsc ? '▲' : '▼') : ''}
+            </th>
             <th className="subject-table-th-sort" onClick={() => handleSort('name')}>
               {t('common.name') || 'Name'} {sortBy === 'name' ? (sortAsc ? '▲' : '▼') : ''}
             </th>
