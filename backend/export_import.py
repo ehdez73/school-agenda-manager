@@ -8,6 +8,7 @@ from .models import (
     TimeSlotAssignment,
     Config,
     FixedSlot,
+    TeacherBusySlot,
     normalize_tutor_groups,
 )
 
@@ -35,6 +36,7 @@ def dump_db(session):
                 "name": t.name,
                 "subjects": [s.id for s in t.subjects],
                 "preferences": t.preferences,
+                "coordination_hours": t.coordination_hours,
                 "max_hours_week": t.max_hours_week,
                 "tutor_group": t.tutor_group,
                 "tutor_groups": normalize_tutor_groups(t.tutor_group),
@@ -68,6 +70,17 @@ def dump_db(session):
     data["config"] = cfg.to_dict() if cfg else {}
 
     data["fixed_slots"] = [fs.to_dict() for fs in session.query(FixedSlot).all()]
+
+    data["teacher_busy_slots"] = [
+        {
+            "id": bs.id,
+            "teacher_id": bs.teacher_id,
+            "day": bs.day,
+            "hour": bs.hour,
+            "slot_type": bs.slot_type,
+        }
+        for bs in session.query(TeacherBusySlot).all()
+    ]
 
     return data
 
@@ -207,6 +220,7 @@ def import_payload(session, payload):
             id=teacher_data.get("id"),
             name=teacher_data.get("name"),
             preferences=teacher_data.get("preferences"),
+            coordination_hours=teacher_data.get("coordination_hours", 0),
             max_hours_week=teacher_data.get("max_hours_week", 1),
         )
         teacher.set_tutor_groups(teacher_data.get("tutor_groups", teacher_data.get("tutor_group")))
@@ -265,5 +279,17 @@ def import_payload(session, payload):
                 teacher_id=(teacher.id if teacher else None),
             )
             session.add(assign)
+
+    # Teacher busy slots (coordination, etc.)
+    for bs in payload.get("teacher_busy_slots", []) or []:
+        teacher = session.get(Teacher, bs.get("teacher_id"))
+        if teacher:
+            busy_slot = TeacherBusySlot(
+                teacher_id=teacher.id,
+                day=bs.get("day", 0),
+                hour=bs.get("hour", 0),
+                slot_type=bs.get("slot_type", "coordinacion"),
+            )
+            session.add(busy_slot)
 
     session.flush()

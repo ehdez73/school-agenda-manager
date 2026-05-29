@@ -153,6 +153,7 @@
         "name_placeholder": "Teacher name",
         "add_teacher": "Add teacher",
         "hours_week": "Hours/week",
+        "coordination_hours": "Coord. hours",
         "tutor_group": "Tutor group",
         "no_tutor": "--"
     },

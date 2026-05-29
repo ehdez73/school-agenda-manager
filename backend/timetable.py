@@ -11,10 +11,13 @@ from sqlalchemy.orm import Session
 from collections import defaultdict
 from html import escape
 import re
-from .models import TimeSlotAssignment, Timeslot, Config, Teacher, FixedSlot, normalize_tutor_groups
+from .models import TimeSlotAssignment, Timeslot, Config, Teacher, FixedSlot, TeacherBusySlot, normalize_tutor_groups
 
 from .translations import t
 from .markdown_utils import align_tables_in_text
+
+
+COORDINATION_COLOR = "#e8f5e9"  # light green
 
 
 HEX_COLOR_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
@@ -237,27 +240,37 @@ def print_markdown_timetable_from_assignments(session) -> str:
 
 def get_teacher_timetables_from_db(session):
     """
-    Retrieve timetables from the Activity table and organize them by teacher.
-    Handles multiple subjects in the same timeslot (SubjectGroups).
+    Retrieve timetables from the database and organize them by teacher.
+    Includes both teaching assignments (TimeSlotAssignment) and non-teaching
+    busy slots (TeacherBusySlot) such as coordination hours.
     Returns:
         Dict[teacher_name, Dict[(hour, day_index), List[str]]]
     """
     teacher_timetable = defaultdict(lambda: defaultdict(list))
+
+    # Teaching assignments
     assignments = session.query(TimeSlotAssignment).all()
     for assignment in assignments:
         timeslot = assignment.timeslot
         teacher_name = assignment.teacher.name
-        hour = timeslot.hour
-        weekday = timeslot.day
         subject_name = assignment.subject.name
         course_line = f"{timeslot.course_id}{chr(ord('A') + timeslot.line)}"
         group_color = None
         if timeslot.subject_group is not None:
             group_color = getattr(timeslot.subject_group, "color", None)
         subject_color = group_color or assignment.subject.color
-        teacher_timetable[teacher_name][(hour, weekday)].append(
+        teacher_timetable[teacher_name][(timeslot.hour, timeslot.day)].append(
             _build_colored_label_html(f"{course_line}: {subject_name}", subject_color)
         )
+
+    # Non-teaching busy slots (coordination, etc.)
+    busy_slots = session.query(TeacherBusySlot).all()
+    for slot in busy_slots:
+        coord_label = _build_colored_label_html(
+            t("timetable.coordination_label"), COORDINATION_COLOR
+        )
+        teacher_timetable[slot.teacher.name][(slot.hour, slot.day)].append(coord_label)
+
     return teacher_timetable
 
 
@@ -265,6 +278,7 @@ def generate_markdown_timetable_by_teacher(
     teacher_timetable,
     teachers_info,
     teachers_tutors=None,
+    teachers_coordination=None,
     cfg_dict=None,
     teacher_fixed_slots=None,
 ):
@@ -299,10 +313,15 @@ def generate_markdown_timetable_by_teacher(
         teacher_fixed_slots = []
     fixed_slots_sorted = sorted(teacher_fixed_slots, key=lambda fs: fs.position)
 
-    # Calculate assigned hours for each teacher
+    # Calculate assigned hours for each teacher (excluding coordination)
     teacher_assigned_hours = {}
+    coord_label_html = _build_colored_label_html(t("timetable.coordination_label"), COORDINATION_COLOR)
     for teacher_name, slots in teacher_timetable.items():
-        total_hours = sum(len(assignments) for assignments in slots.values())
+        total_hours = 0
+        for assignments in slots.values():
+            non_coord = [a for a in assignments if a != coord_label_html]
+            if non_coord:
+                total_hours += len(non_coord)
         teacher_assigned_hours[teacher_name] = total_hours
 
     markdown = []
@@ -311,9 +330,16 @@ def generate_markdown_timetable_by_teacher(
         slots = teacher_timetable[teacher_name]
         assigned_hours = teacher_assigned_hours[teacher_name]
         max_hours = teachers_info.get(teacher_name, 0)
-        hours_info = t(
-            "timetable.teacher_hours", assigned=assigned_hours, max=max_hours
-        )
+        coord_hours = (teachers_coordination or {}).get(teacher_name, 0)
+        effective_max = max_hours - coord_hours
+        if coord_hours > 0:
+            hours_info = t(
+                "timetable.teacher_hours_coord", assigned=assigned_hours, max=effective_max, coord=coord_hours
+            )
+        else:
+            hours_info = t(
+                "timetable.teacher_hours", assigned=assigned_hours, max=effective_max
+            )
         # If a mapping of teacher -> tutor_group is provided, show it after the name
         tutor_suffix = ""
         if teachers_tutors:
@@ -378,9 +404,11 @@ def print_markdown_timetable_per_teacher(session) -> str:
 
     # Get teacher information for hours calculation
     teachers_info = {}
+    teachers_coordination = {}
     teachers = session.query(Teacher).all()
     for teacher in teachers:
         teachers_info[teacher.name] = teacher.max_hours_week
+        teachers_coordination[teacher.name] = getattr(teacher, 'coordination_hours', 0) or 0
 
     # Build a mapping of teacher name -> tutor_group (if any)
     teachers_tutors = {}
@@ -395,7 +423,9 @@ def print_markdown_timetable_per_teacher(session) -> str:
     teacher_fixed_slots = session.query(FixedSlot).filter_by(slot_type="teacher").all()
 
     return generate_markdown_timetable_by_teacher(
-        teacher_timetable, teachers_info, teachers_tutors, cfg_dict,
+        teacher_timetable, teachers_info, teachers_tutors,
+        teachers_coordination=teachers_coordination,
+        cfg_dict=cfg_dict,
         teacher_fixed_slots=teacher_fixed_slots,
     )
 

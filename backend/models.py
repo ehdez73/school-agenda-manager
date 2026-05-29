@@ -193,6 +193,7 @@ class Teacher(Base):
     name = Column(String(50), nullable=False)
     subjects = relationship("Subject", secondary=teacher_subject, backref="teachers")
     max_hours_week = Column(Integer, nullable=False, default=1)
+    coordination_hours = Column(Integer, nullable=False, default=0)
 
     preferences = Column(String(1000), nullable=True)
     # store tutor groups as a JSON array string or a legacy single group string
@@ -213,6 +214,7 @@ class Teacher(Base):
             "id": self.id,
             "name": self.name,
             "subjects": [subject.to_dict() for subject in self.subjects],
+            "coordination_hours": self.coordination_hours,
             "max_hours_week": self.max_hours_week,
             "preferences": json.loads(self.preferences) if self.preferences else {},
             "tutor_group": tutor_groups[0] if tutor_groups else None,
@@ -316,6 +318,30 @@ class FixedSlot(Base):
             "label": self.label,
             "time_range": self.time_range,
         }
+
+
+class TeacherBusySlot(Base):
+    """
+    Represents non-teaching time for a teacher (coordination, meetings, etc.).
+    Persisted after the solver runs so coordination hours are stable across
+    timetable renders and included in export/import.
+
+    Attributes:
+        id (int): Primary key.
+        teacher_id (int): Foreign key to Teacher.
+        day (int): Day index (0 = first weekday).
+        hour (int): Hour index.
+        slot_type (str): Type of busy slot (e.g. "coordinacion").
+    """
+
+    __tablename__ = "teacher_busy_slots"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    teacher_id = Column(Integer, ForeignKey("teachers.id"), nullable=False)
+    day = Column(Integer, nullable=False)
+    hour = Column(Integer, nullable=False)
+    slot_type = Column(String(50), nullable=False, default="coordinacion")
+
+    teacher = relationship("Teacher", backref="busy_slots")
 
 
 class Config(Base):

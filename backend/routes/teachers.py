@@ -26,6 +26,7 @@ def get_teachers():
             'id': t.id,
             'name': t.name,
             'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})", 'course_id': s.course_id} for s in t.subjects],
+            'coordination_hours': t.coordination_hours,
             'max_hours_week': t.max_hours_week,
             'preferences': preferences,
             'tutor_group': tutor_groups[0] if tutor_groups else None,
@@ -81,10 +82,19 @@ def add_teacher():
 
     tutor_groups = normalize_tutor_groups(data.get('tutor_groups', data.get('tutor_group')))
 
+    coordination_hours = data.get('coordination_hours', 0)
+    try:
+        coordination_hours = int(coordination_hours)
+    except (ValueError, TypeError):
+        coordination_hours = 0
+    if coordination_hours < 0:
+        coordination_hours = 0
+
     new_teacher = Teacher(
         name=data['name'],
         subjects=subjects,
-        max_hours_week=max_hours_week
+        max_hours_week=max_hours_week,
+        coordination_hours=coordination_hours,
     )
     new_teacher.set_tutor_groups(tutor_groups)
     new_teacher.preferences = _json.dumps(ut)
@@ -95,6 +105,7 @@ def add_teacher():
         'id': new_teacher.id,
         'name': new_teacher.name,
         'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in new_teacher.subjects],
+        'coordination_hours': new_teacher.coordination_hours,
         'max_hours_week': new_teacher.max_hours_week,
         'preferences': ut,
         'tutor_group': tutor_groups[0] if tutor_groups else None,
@@ -120,6 +131,7 @@ def get_teacher(teacher_id):
         'id': teacher.id,
         'name': teacher.name,
         'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in teacher.subjects],
+        'coordination_hours': teacher.coordination_hours,
         'max_hours_week': teacher.max_hours_week,
         'preferences': ut,
         'tutor_group': normalize_tutor_groups(teacher.tutor_group)[0] if normalize_tutor_groups(teacher.tutor_group) else None,
@@ -140,6 +152,14 @@ def update_teacher(teacher_id):
         logger.warning("Teacher not found for update id=%s", teacher_id)
         abort(404, description=t('errors.not_found', entity='Teacher', id=teacher_id))
     teacher.name = data.get('name', teacher.name)
+    if 'coordination_hours' in data:
+        try:
+            ch = int(data['coordination_hours'])
+        except (ValueError, TypeError):
+            ch = 0
+        if ch < 0:
+            ch = 0
+        teacher.coordination_hours = ch
     if 'max_hours_week' in data:
         try:
             wh = int(data['max_hours_week'])
@@ -184,6 +204,7 @@ def update_teacher(teacher_id):
         'id': teacher.id,
         'name': teacher.name,
         'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in teacher.subjects],
+        'coordination_hours': teacher.coordination_hours,
         'max_hours_week': teacher.max_hours_week
     ,
         'tutor_group': normalize_tutor_groups(teacher.tutor_group)[0] if normalize_tutor_groups(teacher.tutor_group) else None,

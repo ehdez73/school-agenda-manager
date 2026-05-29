@@ -7,7 +7,7 @@ import TeacherForm from './TeacherForm';
 import SectionLayout from './SectionLayout';
 import './TeacherList.css';
 
-const emptyTeacherForm = () => ({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_groups: [] });
+const emptyTeacherForm = () => ({ name: '', subjects: [], max_hours_week: 1, coordination_hours: 0, preferences: {}, tutor_groups: [] });
 
 export default function TeacherList() {
   const [teachers, setTeachers] = useState([]);
@@ -53,6 +53,7 @@ export default function TeacherList() {
       subjects: form.subjects,
       tutor_groups: form.tutor_groups || [],
       max_hours_week: Number(form.max_hours_week) > 0 ? Number(form.max_hours_week) : 1,
+      coordination_hours: Number(form.coordination_hours) >= 0 ? Number(form.coordination_hours) : 0,
       preferences: preferences_obj
     };
     const action = editingId
@@ -75,6 +76,7 @@ export default function TeacherList() {
       subjects: teacher.subjects ? teacher.subjects.map(s => String(s.id)) : [],
       tutor_groups: teacher.tutor_groups ? teacher.tutor_groups.map(group => String(group)) : (teacher.tutor_group ? [String(teacher.tutor_group)] : []),
       max_hours_week: teacher.max_hours_week ?? 1,
+      coordination_hours: teacher.coordination_hours ?? 0,
       preferences: teacher.preferences || {}
     });
     setEditingId(teacher.id);

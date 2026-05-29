@@ -154,6 +154,7 @@
         "name_placeholder": "Nombre del docente",
         "add_teacher": "Añadir docente",
         "hours_week": "Horas/semana",
+        "coordination_hours": "Horas coordinación",
         "tutor_group": "Grupo tutoría",
         "no_tutor": "--"
     },

@@ -12,6 +12,7 @@ from .models import (
     Timeslot,
     TimeSlotAssignment,
     SubjectGroup,
+    TeacherBusySlot,
 )
 from .logging_config import build_log_extra
 
@@ -451,17 +452,23 @@ def _check_teacher_capacity_vs_load(all_teachers, all_subjects, all_groups,
         subjects = getattr(teacher, 'subjects', [])
         if not subjects:
             continue
+        coord = getattr(teacher, 'coordination_hours', 0) or 0
+        effective_max = teacher.max_hours_week - coord
         max_subject_hours = max(s.weekly_hours for s in subjects)
-        if teacher.max_hours_week < max_subject_hours:
+        if effective_max < max_subject_hours:
             subj = next(s for s in subjects if s.weekly_hours == max_subject_hours)
             issues.append(
                 f"  - **Teacher \"{teacher.name}\"** has max_hours_week="
-                f"{teacher.max_hours_week} but teaches \"{subj.name}\" "
+                f"{teacher.max_hours_week} (effective={effective_max} with "
+                f"{coord}h coordination) but teaches \"{subj.name}\" "
                 f"requiring {max_subject_hours}h/week."
             )
 
     # Global: total teacher capacity vs total required
-    total_capacity = sum(t.max_hours_week for t in all_teachers)
+    total_capacity = sum(
+        t.max_hours_week - (getattr(t, 'coordination_hours', 0) or 0)
+        for t in all_teachers
+    )
     total_required = 0
     for group in all_groups:
         course = group.split("-")[0]
@@ -774,6 +781,64 @@ def _build_diagnosis_message(diagnosis):
     return "\n".join(msg) + "\n"
 
 
+def _persist_coordination_slots(session, all_teachers, num_days, num_hours, task_id=None):
+    """Persist coordination hours as TeacherBusySlot records.
+
+    For each teacher with coordination_hours > 0, finds their free slots
+    (day,hour where no teaching assignment exists) and fills up to
+    coordination_hours of them with TeacherBusySlot entries.
+    """
+    logger.info(
+        "Persisting coordination slots",
+        extra=build_log_extra(task_id=task_id),
+    )
+
+    # Clear existing busy slots
+    session.query(TeacherBusySlot).delete()
+    session.flush()
+
+    # Gather all assigned (teacher, day, hour) tuples from the solution
+    assigned_slots = set()
+    for ts in session.query(Timeslot).all():
+        for assign in ts.timeslot_assignments:
+            assigned_slots.add((assign.teacher_id, ts.day, ts.hour))
+
+    created = 0
+    for teacher in all_teachers:
+        coord = getattr(teacher, 'coordination_hours', 0) or 0
+        if coord <= 0:
+            continue
+        filled = 0
+        for d in range(num_days):
+            for h in range(num_hours):
+                if filled >= coord:
+                    break
+                if (teacher.id, d, h) not in assigned_slots:
+                    slot = TeacherBusySlot(
+                        teacher_id=teacher.id,
+                        day=d,
+                        hour=h,
+                        slot_type="coordinacion",
+                    )
+                    session.add(slot)
+                    filled += 1
+            if filled >= coord:
+                break
+        if filled < coord:
+            logger.warning(
+                "Teacher %s has %d coordination hours but only %d free slots available",
+                teacher.name, coord, filled,
+                extra=build_log_extra(task_id=task_id),
+            )
+        created += filled
+
+    session.commit()
+    logger.info(
+        "Persisted coordination slots count=%d", created,
+        extra=build_log_extra(task_id=task_id),
+    )
+
+
 def create_timetable(session, progress_callback=None, task_id=None) -> str | None:
     """
     Generates the school timetable using the OR-Tools CP-SAT solver.
@@ -857,6 +922,10 @@ def create_timetable(session, progress_callback=None, task_id=None) -> str | Non
             num_hours,
             task_id=task_id,
         )
+
+        # Persist coordination hours into teacher_busy_slots
+        _persist_coordination_slots(session, all_teachers, num_days, num_hours, task_id=task_id)
+
         session.close()
         logger.info("Timetable generation finished successfully", extra=build_log_extra(task_id=task_id))
         return None

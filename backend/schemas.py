@@ -65,6 +65,7 @@ class TeacherSchema(BaseModel):
     id: int
     name: str
     subjects: List[SubjectMinimalSchema] = []
+    coordination_hours: int = 0
     max_hours_week: int
     tutor_group: Optional[str] = None
     tutor_groups: List[str] = []

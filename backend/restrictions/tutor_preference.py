@@ -5,7 +5,11 @@ for a group teaches subjects in that same group, prioritizing them over other te
 """
 
 from .base import Restriction
-from ..models import normalize_tutor_groups
+
+try:
+    from models import normalize_tutor_groups
+except ImportError:
+    from ..models import normalize_tutor_groups
 
 
 def normalize_group_name(group: str) -> str:

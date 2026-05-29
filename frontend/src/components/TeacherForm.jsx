@@ -42,6 +42,16 @@ export default function TeacherForm({ form, setForm, subjects, classesPerDay, on
                         placeholder={t('teachers.hours_week')}
                         className="teacher-input"
                     />
+                    <label className="teacher-label teacher-label-margin">{t('teachers.coordination_hours')}:</label>
+                    <input
+                        name="coordination_hours"
+                        type="number"
+                        min="0"
+                        value={form.coordination_hours}
+                        onChange={handleChange}
+                        placeholder={t('teachers.coordination_hours')}
+                        className="teacher-input"
+                    />
                     <label className="teacher-label">{t('subjects.title')}:</label>
                     <AutocompleteSelect
                         items={subjects}

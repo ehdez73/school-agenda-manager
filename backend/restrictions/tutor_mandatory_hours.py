@@ -7,7 +7,11 @@ added as preference terms in the objective, so it never causes infeasibility.
 """
 
 from .base import Restriction
-from ..models import normalize_tutor_groups
+
+try:
+    from models import normalize_tutor_groups
+except ImportError:
+    from ..models import normalize_tutor_groups
 
 
 def normalize_group_name(group: str) -> str:

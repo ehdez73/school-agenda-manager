@@ -56,3 +56,55 @@ def test_teacher_max_weekly_hours_blocks_overload():
     solver = cp_model.CpSolver()
     status = solver.Solve(model)
     assert status == cp_model.INFEASIBLE
+
+
+def test_coordination_hours_reduces_capacity():
+    from restrictions import TeacherMaxWeeklyHours
+
+    model = cp_model.CpModel()
+
+    class MockTeacherWithCoord:
+        def __init__(self, id, max_hours_week, coordination_hours):
+            self.id = id
+            self.max_hours_week = max_hours_week
+            self.coordination_hours = coordination_hours
+
+    teacher = MockTeacherWithCoord(id="t1", max_hours_week=5, coordination_hours=2)
+
+    assignments = {}
+    # 4 teaching assignments — 4 > effective_max(3) so should be infeasible
+    for i in range(4):
+        assignments[("g1", "s1", "t1", 0, i)] = model.NewBoolVar(f"a{i}")
+        model.Add(assignments[("g1", "s1", "t1", 0, i)] == 1)
+
+    TeacherMaxWeeklyHours().apply(model, assignments, [teacher])
+
+    solver = cp_model.CpSolver()
+    status = solver.Solve(model)
+    assert status == cp_model.INFEASIBLE
+
+
+def test_coordination_hours_allows_effective_max():
+    from restrictions import TeacherMaxWeeklyHours
+
+    model = cp_model.CpModel()
+
+    class MockTeacherWithCoord:
+        def __init__(self, id, max_hours_week, coordination_hours):
+            self.id = id
+            self.max_hours_week = max_hours_week
+            self.coordination_hours = coordination_hours
+
+    teacher = MockTeacherWithCoord(id="t1", max_hours_week=5, coordination_hours=2)
+
+    assignments = {}
+    # 3 teaching assignments — 3 <= effective_max(3) so should be feasible
+    for i in range(3):
+        assignments[("g1", "s1", "t1", 0, i)] = model.NewBoolVar(f"a{i}")
+        model.Add(assignments[("g1", "s1", "t1", 0, i)] == 1)
+
+    TeacherMaxWeeklyHours().apply(model, assignments, [teacher])
+
+    solver = cp_model.CpSolver()
+    status = solver.Solve(model)
+    assert status in (cp_model.FEASIBLE, cp_model.OPTIMAL)
