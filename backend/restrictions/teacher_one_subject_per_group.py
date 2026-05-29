@@ -9,25 +9,18 @@ class TeacherOneSubjectPerGroup(Restriction):
     at most one teacher is assigned across all slots.
 
     This prevents multiple teachers from sharing the same subject in the same group.
-    The original implementation had a bug: it used hardcoded range(5) for days/hours
-    and summed total hours <= 1 instead of constraining teacher exclusivity.
     """
 
     def apply(self, model, assignments, teachers, groups, subjects):
-        """
-        Apply the restriction to the CP-SAT model.
+        self._apply_impl(model, assignments, teachers, groups, subjects)
 
-        For each (group, subject) pair, creates a per-teacher BoolVar indicating
-        whether that teacher has any assignment, then constrains at most one
-        teacher to be active.
+    def apply_with_assumptions(self, model, assignments, teachers, groups, subjects):
+        return self._apply_impl(model, assignments, teachers, groups, subjects,
+                                diagnostic_mode=True)
 
-        Args:
-            model: CP-SAT CpModel instance.
-            assignments: dict mapping (group, subject_id, teacher_id, day, hour) to BoolVars.
-            teachers: list of Teacher objects.
-            groups: list of group identifiers.
-            subjects: list of Subject objects.
-        """
+    def _apply_impl(self, model, assignments, teachers, groups, subjects,
+                    diagnostic_mode=False):
+        assumptions = []
         for group in groups:
             course = group.split("-")[0]
             for subject in subjects:
@@ -58,4 +51,18 @@ class TeacherOneSubjectPerGroup(Restriction):
 
                 # At most one teacher active for this (group, subject)
                 if len(teacher_active) > 1:
-                    model.Add(sum(teacher_active) <= 1)
+                    if diagnostic_mode:
+                        assume = model.NewBoolVar(
+                            f"assume_one_teacher_{group}_{subject.id}"
+                        )
+                        model.Add(sum(teacher_active) <= 1).OnlyEnforceIf(assume)
+                        assumptions.append((assume, {
+                            "restriction": "TeacherOneSubjectPerGroup",
+                            "entity_type": "subject",
+                            "entity_id": subject.id,
+                            "entity_name": subject.name,
+                            "extra": {"group": group},
+                        }))
+                    else:
+                        model.Add(sum(teacher_active) <= 1)
+        return assumptions

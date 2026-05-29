@@ -1,9 +1,5 @@
 """Restrictions package - re-export individual restriction classes.
 
-This package exposes a small API so callers may import restrictions like:
-
-    from restrictions import SubjectGroupAssignment
-
 Each restriction implementation lives in its own module inside this package.
 """
 

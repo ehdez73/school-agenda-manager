@@ -59,6 +59,7 @@ from .restrictions import (
     GroupSubjectHoursMustNotBeConsecutive,
     SubjectMustEveryDay,
     LinkedSubjectsConsecutive,
+    TeacherOneSubjectPerGroup,
 )
 
 
@@ -195,6 +196,7 @@ def _build_hard_restrictions(model, assignments, all_teachers, all_subjects,
         ("LinkedSubjectsConsecutive", LinkedSubjectsConsecutive(), [model, assignments, all_groups, all_subjects, num_days, num_hours]),
         ("SubjectGroupAssignment", SubjectGroupAssignment(), [model, assignments, all_groups, all_subjects, all_subjectgroups]),
         ("SubjectMustEveryDay", SubjectMustEveryDay(), [model, assignments, all_groups, all_subjects, num_days]),
+        ("TeacherOneSubjectPerGroup", TeacherOneSubjectPerGroup(), [model, assignments, all_teachers, all_groups, all_subjects]),
     ]
 
 
