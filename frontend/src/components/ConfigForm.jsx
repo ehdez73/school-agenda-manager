@@ -166,7 +166,16 @@ export default function ConfigForm() {
   };
 
   return (
-    <SectionLayout title={t('config.title')}>
+    <SectionLayout
+        title={t('config.title')}
+        actions={
+          activeTab !== 'backup' && (
+            <button type="submit" form={`config-form-${activeTab}`} className="btn btn--primary btn--compact" disabled={loading}>
+              {t('common.save')}
+            </button>
+          )
+        }
+      >
 
       {/* Tabs */}
       <div className="config-tabs">
@@ -198,7 +207,7 @@ export default function ConfigForm() {
 
       {/* General Tab */}
       {activeTab === 'days' && (
-        <form onSubmit={handleSubmit}>
+        <form id="config-form-days" onSubmit={handleSubmit}>
           <label className="config-form-label">
             {t('config.days_per_week')}
             <input
@@ -213,18 +222,13 @@ export default function ConfigForm() {
           </label>
           <DayIndices daysPerWeek={daysPerWeek} dayIndices={dayIndices} setDayIndices={setDayIndices} suppressResize={suppressResize} />
 
-
-
-          <button type="submit" className="btn btn--primary" disabled={loading}>
-            {t('common.save')}
-          </button>
           {message && <div className="config-form-message">{message}</div>}
         </form>
       )}
 
       {/* Hours Tab */}
       {activeTab === 'hours' && (
-        <form onSubmit={handleSubmit}>
+        <form id="config-form-hours" onSubmit={handleSubmit}>
 
           <label className="config-form-label">
             {t('config.classes_per_day')}
@@ -238,16 +242,13 @@ export default function ConfigForm() {
             />
           </label>
           <HourNames classesPerDay={classesPerDay} hourNames={hourNames} setHourNames={setHourNames} suppressResize={suppressResize} />
-          <button type="submit" className="btn btn--primary" disabled={loading}>
-            {t('common.save')}
-          </button>
           {message && <div className="config-form-message">{message}</div>}
         </form>
       )}
 
       {/* Restrictions Tab */}
       {activeTab === 'restrictions' && (
-        <form onSubmit={handleSubmit}>
+        <form id="config-form-restrictions" onSubmit={handleSubmit}>
           <p className="config-form-description">
             {t('config.restrictions_desc')}
           </p>
@@ -282,9 +283,6 @@ export default function ConfigForm() {
             </label>
           ))}
 
-          <button type="submit" className="btn btn--primary" disabled={loading}>
-            {t('common.save')}
-          </button>
           {message && <div className="config-form-message">{message}</div>}
         </form>
       )}
