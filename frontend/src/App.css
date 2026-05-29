@@ -204,6 +204,12 @@
   margin: 0 auto;
 }
 
+@media (min-width: 1600px) {
+  .app__content {
+    max-width: 1800px;
+  }
+}
+
 /* Home page */
 .home {
   text-align: center;
