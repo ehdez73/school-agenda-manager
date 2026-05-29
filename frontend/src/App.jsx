@@ -39,22 +39,22 @@ function App() {
           <span className="nav__brand" onClick={() => setPage('home')}>
             {t('nav.brand')}
           </span>
-          <button className="nav__link" onClick={() => setPage('courses')}>
+          <button className={'nav__link' + (page === 'courses' ? ' nav__link--active' : '')} onClick={() => setPage('courses')}>
             {t('nav.courses')}
           </button>
-          <button className="nav__link" onClick={() => setPage('subjects')}>
+          <button className={'nav__link' + (page === 'subjects' ? ' nav__link--active' : '')} onClick={() => setPage('subjects')}>
             {t('nav.subjects')}
           </button>
-          <button className="nav__link" onClick={() => setPage('subject-groups')}>
+          <button className={'nav__link' + (page === 'subject-groups' ? ' nav__link--active' : '')} onClick={() => setPage('subject-groups')}>
             {t('nav.subject_groups')}
           </button>
-          <button className="nav__link" onClick={() => setPage('teachers')}>
+          <button className={'nav__link' + (page === 'teachers' ? ' nav__link--active' : '')} onClick={() => setPage('teachers')}>
             {t('nav.teachers')}
           </button>
-          <button className="nav__link" onClick={() => setPage('timetable-markdown')}>
+          <button className={'nav__link' + (page === 'timetable-markdown' ? ' nav__link--active' : '')} onClick={() => setPage('timetable-markdown')}>
             {t('nav.timetable')}
           </button>
-          <button className="nav__link" onClick={() => setPage('config')}>
+          <button className={'nav__link' + (page === 'config' ? ' nav__link--active' : '')} onClick={() => setPage('config')}>
             {t('nav.config')}
           </button>
         </div>
