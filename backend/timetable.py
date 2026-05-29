@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from collections import defaultdict
 from html import escape
 import re
-from .models import TimeSlotAssignment, Timeslot, Config, Teacher, normalize_tutor_groups
+from .models import TimeSlotAssignment, Timeslot, Config, Teacher, FixedSlot, normalize_tutor_groups
 
 from .translations import t
 from .markdown_utils import align_tables_in_text
@@ -35,6 +35,13 @@ def _build_colored_label_html(label, subject_color):
         f"<span class=\"tt-subject-entry\" style=\"background-color: {safe_color};\">"
         f"{safe_label}"
         "</span>"
+    )
+
+
+def _build_fixed_slot_html(label):
+    safe_label = escape(label)
+    return (
+        f"<span class=\"tt-fixed-slot\">{safe_label}</span>"
     )
 
 
@@ -73,10 +80,40 @@ def get_timetables_from_db(session):
     return timetable
 
 
+def _interleave_rows(sorted_hours, fixed_slots_sorted):
+    """Interleave solver rows with fixed slot rows by position.
+
+    Args:
+        sorted_hours: List of hour indices from solver output.
+        fixed_slots_sorted: List of FixedSlot sorted by position.
+
+    Yields:
+        Tuple of (row_type: str, data) where:
+        - ("solver", hour_index)
+        - ("fixed", fixed_slot)
+    """
+    solver_idx = 0
+    fixed_idx = 0
+    position = 1
+
+    while solver_idx < len(sorted_hours) or fixed_idx < len(fixed_slots_sorted):
+        next_fixed = fixed_slots_sorted[fixed_idx] if fixed_idx < len(fixed_slots_sorted) else None
+        next_fixed_pos = next_fixed.position if next_fixed else None
+
+        if next_fixed_pos is not None and next_fixed_pos == position:
+            yield ("fixed", next_fixed)
+            fixed_idx += 1
+        elif solver_idx < len(sorted_hours):
+            yield ("solver", sorted_hours[solver_idx])
+            solver_idx += 1
+        position += 1
+
+
 def generate_markdown_timetable_by_course(
     timetable,
     tutors_dict,
     cfg_dict=None,
+    course_fixed_slots=None,
 ):
     """
     Generates markdown tables for each course line without requiring database session.
@@ -90,6 +127,7 @@ def generate_markdown_timetable_by_course(
                  - hour_names: List of hour labels
                  - day_indices: List of day indices
                  - days_per_week: Number of days per week
+        course_fixed_slots: Optional list of FixedSlot objects for courses.
 
     Returns:
         str: The generated markdown string.
@@ -105,6 +143,10 @@ def generate_markdown_timetable_by_course(
     day_indices_from_cfg = None
     if cfg_dict is not None:
         day_indices_from_cfg = cfg_dict.get("day_indices")
+
+    if course_fixed_slots is None:
+        course_fixed_slots = []
+    fixed_slots_sorted = sorted(course_fixed_slots, key=lambda fs: fs.position)
 
     markdown = []
     markdown.append("## " + t("timetable.by_course") + "\n")
@@ -132,20 +174,30 @@ def generate_markdown_timetable_by_course(
         separator = "|-------" + "|".join(["-------"] * (len(weekdays) + 1)) + "|"
         markdown.append(header)
         markdown.append(separator)
-        for hour in sorted_hours:
-            row = []
-            for day_index in range(len(weekdays)):
-                assignments = slots.get((hour, day_index), [])
-                if assignments:
-                    cell = " <br>".join(assignments)
-                else:
-                    cell = ""
-                row.append(cell)
-            hour_label = (
-                cfg_hour_names[hour]
-                if hour < len(cfg_hour_names)
-                else t("hours.label").format(n=hour + 1)
-            )
+
+        fixed_slots_for_course = [
+            fs for fs in fixed_slots_sorted
+        ]
+        for row_type, data in _interleave_rows(sorted_hours, fixed_slots_for_course):
+            if row_type == "fixed":
+                fs = data
+                row = [_build_fixed_slot_html(fs.label) for _ in range(len(weekdays))]
+                hour_label = fs.time_range
+            else:
+                hour = data
+                row = []
+                for day_index in range(len(weekdays)):
+                    assignments = slots.get((hour, day_index), [])
+                    if assignments:
+                        cell = " <br>".join(assignments)
+                    else:
+                        cell = ""
+                    row.append(cell)
+                hour_label = (
+                    cfg_hour_names[hour]
+                    if hour < len(cfg_hour_names)
+                    else t("hours.label").format(n=hour + 1)
+                )
             markdown.append(f"| {hour_label} | " + " | ".join(row) + " |")
         markdown.append("")
     result = "\n".join(markdown)
@@ -175,7 +227,12 @@ def print_markdown_timetable_from_assignments(session) -> str:
     cfg = session.query(Config).first()
     cfg_dict = cfg.to_dict() if cfg else None
 
-    return generate_markdown_timetable_by_course(timetable, tutors_dict, cfg_dict)
+    course_fixed_slots = session.query(FixedSlot).filter_by(slot_type="course").all()
+
+    return generate_markdown_timetable_by_course(
+        timetable, tutors_dict, cfg_dict,
+        course_fixed_slots=course_fixed_slots,
+    )
 
 
 def get_teacher_timetables_from_db(session):
@@ -209,18 +266,20 @@ def generate_markdown_timetable_by_teacher(
     teachers_info,
     teachers_tutors=None,
     cfg_dict=None,
+    teacher_fixed_slots=None,
 ):
     """
     Generates markdown tables of the timetable for each teacher without requiring database session.
 
     Args:
-        teacher_timetable: Dict[teacher_name, Dict[(hour, day_index), List[str]]]
+        teacher_timetable: Dict[teacher_name, Dict[(int, int), List[str]]]
                           {teacher_name: {(hour, day_index): [course_subject_strings]}}
         teachers_info: Dict[teacher_name, max_hours_week]
         cfg_dict: Optional dict with configuration:
                  - hour_names: List of hour labels
                  - day_indices: List of day indices
                  - days_per_week: Number of days per week
+        teacher_fixed_slots: Optional list of FixedSlot objects for teachers.
 
     Returns:
         str: The generated markdown string.
@@ -235,6 +294,10 @@ def generate_markdown_timetable_by_teacher(
     day_indices_from_cfg = None
     if cfg_dict is not None:
         day_indices_from_cfg = cfg_dict.get("day_indices")
+
+    if teacher_fixed_slots is None:
+        teacher_fixed_slots = []
+    fixed_slots_sorted = sorted(teacher_fixed_slots, key=lambda fs: fs.position)
 
     # Calculate assigned hours for each teacher
     teacher_assigned_hours = {}
@@ -270,21 +333,30 @@ def generate_markdown_timetable_by_teacher(
         separator = "|-------" + "|".join(["-------"] * (len(weekdays) + 1)) + "|"
         markdown.append(header)
         markdown.append(separator)
-        for hour in sorted_hours:
-            row = []
-            for day_index in range(len(weekdays)):
-                assignments = slots.get((hour, day_index), [])
-                if assignments:
-                    # Join multiple assignments with markdown line breaks (double space + newline)
-                    cell = " <br> ".join(assignments)
-                else:
-                    cell = ""
-                row.append(cell)
-            hour_label = (
-                cfg_hour_names[hour]
-                if hour < len(cfg_hour_names)
-                else t("hours.label").format(n=hour + 1)
-            )
+
+        fixed_slots_for_teacher = [
+            fs for fs in fixed_slots_sorted
+        ]
+        for row_type, data in _interleave_rows(sorted_hours, fixed_slots_for_teacher):
+            if row_type == "fixed":
+                fs = data
+                row = [_build_fixed_slot_html(fs.label) for _ in range(len(weekdays))]
+                hour_label = fs.time_range
+            else:
+                hour = data
+                row = []
+                for day_index in range(len(weekdays)):
+                    assignments = slots.get((hour, day_index), [])
+                    if assignments:
+                        cell = " <br> ".join(assignments)
+                    else:
+                        cell = ""
+                    row.append(cell)
+                hour_label = (
+                    cfg_hour_names[hour]
+                    if hour < len(cfg_hour_names)
+                    else t("hours.label").format(n=hour + 1)
+                )
             markdown.append(f"| {hour_label} | " + " | ".join(row) + " |")
         markdown.append("")
     result = "\n".join(markdown)
@@ -320,8 +392,11 @@ def print_markdown_timetable_per_teacher(session) -> str:
     cfg = session.query(Config).first()
     cfg_dict = cfg.to_dict() if cfg else None
 
+    teacher_fixed_slots = session.query(FixedSlot).filter_by(slot_type="teacher").all()
+
     return generate_markdown_timetable_by_teacher(
-        teacher_timetable, teachers_info, teachers_tutors, cfg_dict
+        teacher_timetable, teachers_info, teachers_tutors, cfg_dict,
+        teacher_fixed_slots=teacher_fixed_slots,
     )
 
 

@@ -508,6 +508,86 @@
   color: #111827;
 }
 
+.tt-fixed-slot {
+  display: block;
+  width: 100%;
+  padding: 0.4rem 0.2rem;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--color-text-muted);
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.timetable-fixed-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  user-select: none;
+  padding: 0.25rem 0;
+}
+
+.timetable-fixed-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+}
+
+.timetable-fixed-toggle__slider {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.timetable-fixed-toggle__slider::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-radius: var(--radius-full);
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.timetable-fixed-toggle input:checked + .timetable-fixed-toggle__slider {
+  background: var(--color-primary);
+}
+
+.timetable-fixed-toggle input:checked + .timetable-fixed-toggle__slider::after {
+  transform: translateX(16px);
+}
+
+.timetable-fixed-toggle input:focus-visible + .timetable-fixed-toggle__slider {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-primary), transparent 75%);
+}
+
+.timetable-fixed-toggle__label {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .timetable-selector__controls {
+    grid-template-columns: 1fr;
+  }
+
+  .timetable-fixed-toggle {
+    white-space: normal;
+  }
+}
+
 /* Print styles for school schedules */
 @media print {
   .markdown-timetable {

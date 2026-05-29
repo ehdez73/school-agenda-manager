@@ -47,6 +47,14 @@ function clearSelectionFromSessionStorage(storageKey) {
 }
 
 
+function filterFixedRows(markdown) {
+  if (!markdown) return markdown;
+  return markdown.split('\n')
+    .filter(line => !(line.includes('tt-fixed-slot') && line.trimStart().startsWith('|')))
+    .join('\n');
+}
+
+
 function parseTimetableSections(markdownText) {
   if (!markdownText || !markdownText.trim()) return [];
 
@@ -154,6 +162,8 @@ function MarkdownTimetable() {
   const [downloading, setDownloading] = useState(false);
   const [selectedCourseIdsState, setSelectedCourseIds] = useState(() => readSelectionFromSessionStorage(COURSE_SELECTION_STORAGE_KEY));
   const [selectedTeacherIdsState, setSelectedTeacherIds] = useState(() => readSelectionFromSessionStorage(TEACHER_SELECTION_STORAGE_KEY));
+  const [showCourseFixedLines, setShowCourseFixedLines] = useState(true);
+  const [showTeacherFixedLines, setShowTeacherFixedLines] = useState(true);
   const [courseQuery, setCourseQuery] = useState('');
   const [teacherQuery, setTeacherQuery] = useState('');
   const [showCourseSuggestions, setShowCourseSuggestions] = useState(false);
@@ -396,13 +406,15 @@ function MarkdownTimetable() {
     if (courseSection && selectedCourseEntries.length > 0) {
       parts.push(`## ${courseSection.title}`);
       selectedCourseEntries.forEach(entry => {
-        parts.push(`\n### ${entry.title}\n${entry.markdown}`);
+        const md = showCourseFixedLines ? entry.markdown : filterFixedRows(entry.markdown);
+        parts.push(`\n### ${entry.title}\n${md}`);
       });
     }
     if (teacherSection && selectedTeacherEntries.length > 0) {
       parts.push(`\n## ${teacherSection.title}`);
       selectedTeacherEntries.forEach(entry => {
-        parts.push(`\n### ${entry.title}\n${entry.markdown}`);
+        const md = showTeacherFixedLines ? entry.markdown : filterFixedRows(entry.markdown);
+        parts.push(`\n### ${entry.title}\n${md}`);
       });
     }
     return parts.join('\n');
@@ -503,6 +515,7 @@ function MarkdownTimetable() {
   th, td { border: 1px solid #999; padding: 4px 6px; text-align: left; vertical-align: top; word-wrap: break-word; font-size: 9px; }
   th { background: #f5f5f5; font-weight: 600; }
   .tt-subject-entry { display: inline-block; padding: 1px 3px; border-radius: 2px; margin: 1px 0; font-size: 9px; }
+  .tt-fixed-slot { display: inline-block; padding: 2px 4px; font-weight: 700; font-style: italic; color: #666; border-radius: 3px; font-size: 9px; }
   h2 { font-size: 16px; margin-top: 18px; }
   h3 { font-size: 14px; margin-top: 14px; }
   @page { size: landscape; margin: 1cm; }
@@ -762,6 +775,15 @@ function MarkdownTimetable() {
                         )}
                         aria-label={`${courseSection.title} ${t('common.search_placeholder') || 'Search by name...'}`}
                       />
+                      <label className="timetable-fixed-toggle">
+                        <input
+                          type="checkbox"
+                          checked={showCourseFixedLines}
+                          onChange={(e) => setShowCourseFixedLines(e.target.checked)}
+                        />
+                        <span className="timetable-fixed-toggle__slider"></span>
+                        <span className="timetable-fixed-toggle__label">{t('timetable.show_course_fixed')}</span>
+                      </label>
                     </div>
                     {showCourseSuggestions && (
                       <div
@@ -829,7 +851,7 @@ function MarkdownTimetable() {
                           rehypePlugins={[rehypeRaw]}
                           components={markdownComponents}
                         >
-                          {entry.markdown}
+                          {showCourseFixedLines ? entry.markdown : filterFixedRows(entry.markdown)}
                         </ReactMarkdown>
                       </div>
                     ))}
@@ -866,6 +888,15 @@ function MarkdownTimetable() {
                         )}
                         aria-label={`${teacherSection.title} ${t('common.search_placeholder') || 'Search by name...'}`}
                       />
+                      <label className="timetable-fixed-toggle">
+                        <input
+                          type="checkbox"
+                          checked={showTeacherFixedLines}
+                          onChange={(e) => setShowTeacherFixedLines(e.target.checked)}
+                        />
+                        <span className="timetable-fixed-toggle__slider"></span>
+                        <span className="timetable-fixed-toggle__label">{t('timetable.show_teacher_fixed')}</span>
+                      </label>
                     </div>
                     {showTeacherSuggestions && (
                       <div
@@ -933,7 +964,7 @@ function MarkdownTimetable() {
                           rehypePlugins={[rehypeRaw]}
                           components={markdownComponents}
                         >
-                          {entry.markdown}
+                          {showTeacherFixedLines ? entry.markdown : filterFixedRows(entry.markdown)}
                         </ReactMarkdown>
                       </div>
                     ))}

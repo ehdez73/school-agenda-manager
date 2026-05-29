@@ -39,8 +39,7 @@ describe('Forms regression guard', () => {
   it('renders config tabs and keeps save action available', async () => {
     render(<ConfigForm />);
 
-    expect(await screen.findByRole('button', { name: 'config.tab_days' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'config.tab_hours' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'config.tab_schedules' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'config.tab_backup' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'common.save' })).toBeInTheDocument();
   });

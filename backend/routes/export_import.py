@@ -17,6 +17,7 @@ from ..models import (
     Subject,
     Course,
     Config,
+    FixedSlot,
 )
 from .. import export_import as shared_export_import
 
@@ -112,6 +113,7 @@ def clear_all_data():
         session.query(Subject).delete()
         session.query(Course).delete()
         session.query(Config).delete()
+        session.query(FixedSlot).delete()
 
         init_config(session)
 

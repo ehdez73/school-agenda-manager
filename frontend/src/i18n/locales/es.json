@@ -22,6 +22,20 @@
     },
     "id": "ID",
     "name": "Nombre",
+    "fixed_slots": {
+        "title": "Filas Fijas",
+        "course_tab": "Cursos",
+        "teacher_tab": "Docentes",
+        "add_slot": "Añadir fila fija",
+        "position": "Posición",
+        "label": "Etiqueta",
+        "time_range": "Rango horario",
+        "type": "Tipo",
+        "position_placeholder": "Ej: 2",
+        "label_placeholder": "Ej: Recreo",
+        "time_range_placeholder": "Ej: 10:00-11:00",
+        "no_slots": "No hay filas fijas definidas"
+    },
     "nav": {
         "brand": "Gestión Agenda",
         "courses": "Cursos",
@@ -100,7 +114,9 @@
         "generating_async": "Generando horario...",
         "diagnosing_causes": "Identificando causas específicas de la infactibilidad...",
         "generated_success": "Horario generado exitosamente",
-        "assignments_cleared": "Assignments eliminadas"
+        "assignments_cleared": "Assignments eliminadas",
+        "show_course_fixed": "Mostrar filas fijas de cursos",
+        "show_teacher_fixed": "Mostrar filas fijas de docentes"
     },
     "subjects": {
         "title": "Asignaturas",
@@ -159,8 +175,7 @@
         "clear": "Limpiar datos",
         "confirm_clear": "¿Estás seguro de que quieres eliminar TODOS los datos?\n\nEsto eliminará:\n- Todos los cursos\n- Todas las asignaturas\n- Todos los profesores\n- Todos los packs de asignaturas\n- Todos los horarios\n- La configuración\n\nEsta acción NO se puede deshacer.",
         "clear_success": "Todos los datos han sido eliminados",
-        "tab_days": "Días",
-        "tab_hours": "Horas",
+        "tab_schedules": "Horarios",
         "tab_backup": "Copia de seguridad",
         "tab_restrictions": "Restricciones",
         "restrictions_title": "Restricciones activas",

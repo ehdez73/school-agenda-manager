@@ -34,7 +34,7 @@ async function request(method, path, body = undefined, opts = {}) {
         try {
             if (contentType.includes('application/json')) {
                 const json = await res.json();
-                errText = json.error || json.message || JSON.stringify(json);
+                errText = json.message || json.error || JSON.stringify(json);
                 if (json.details) details = json.details;
             } else {
                 const text = await res.text();

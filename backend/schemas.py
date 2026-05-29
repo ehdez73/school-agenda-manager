@@ -73,6 +73,24 @@ class TeacherSchema(BaseModel):
     preferences: Optional[PreferencesSchema] = None
 
 
+class FixedSlotCreate(BaseModel):
+    slot_type: str = Field(..., pattern="^(course|teacher)$")
+    position: int = Field(..., ge=1)
+    label: str = Field(..., min_length=1)
+    time_range: str = Field(..., min_length=1)
+
+
+class FixedSlotUpdate(BaseModel):
+    slot_type: Optional[str] = Field(None, pattern="^(course|teacher)$")
+    position: Optional[int] = Field(None, ge=1)
+    label: Optional[str] = Field(None, min_length=1)
+    time_range: Optional[str] = Field(None, min_length=1)
+
+
+class FixedSlotResponse(FixedSlotCreate):
+    id: int
+
+
 class ConfigSchema(BaseModel):
     id: int
     classes_per_day: int

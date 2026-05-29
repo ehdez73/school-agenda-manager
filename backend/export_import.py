@@ -7,6 +7,7 @@ from .models import (
     Timeslot,
     TimeSlotAssignment,
     Config,
+    FixedSlot,
     normalize_tutor_groups,
 )
 
@@ -65,6 +66,9 @@ def dump_db(session):
 
     cfg = session.query(Config).first()
     data["config"] = cfg.to_dict() if cfg else {}
+
+    data["fixed_slots"] = [fs.to_dict() for fs in session.query(FixedSlot).all()]
+
     return data
 
 
@@ -107,6 +111,17 @@ def import_payload(session, payload):
                 disabled_restrictions=disabled_restrictions,
             )
         session.add(cfg)
+
+    # Fixed slots
+    for fs in payload.get("fixed_slots", []) or []:
+        fixed = FixedSlot(
+            slot_type=fs.get("slot_type"),
+            position=fs.get("position"),
+            label=fs.get("label"),
+            time_range=fs.get("time_range"),
+        )
+        session.add(fixed)
+    session.flush()
 
     # Courses
     course_map = {}

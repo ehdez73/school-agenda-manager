@@ -22,6 +22,20 @@
     },
     "id": "ID",
     "name": "Name",
+    "fixed_slots": {
+        "title": "Fixed Slots",
+        "course_tab": "Courses",
+        "teacher_tab": "Teachers",
+        "add_slot": "Add fixed slot",
+        "position": "Position",
+        "label": "Label",
+        "time_range": "Time range",
+        "type": "Type",
+        "position_placeholder": "e.g. 2",
+        "label_placeholder": "e.g. Recess",
+        "time_range_placeholder": "e.g. 10:00-11:00",
+        "no_slots": "No fixed slots defined"
+    },
     "nav": {
         "brand": "Agenda Manager",
         "courses": "Courses",
@@ -100,7 +114,9 @@
         "generating_async": "Generating timetable...",
         "diagnosing_causes": "Identifying specific causes of infeasibility...",
         "generated_success": "Timetable generated successfully",
-        "assignments_cleared": "Assignments cleared"
+        "assignments_cleared": "Assignments cleared",
+        "show_course_fixed": "Show course fixed slots",
+        "show_teacher_fixed": "Show teacher fixed slots"
     },
     "subjects": {
         "title": "Subjects",
@@ -158,8 +174,7 @@
         "clear": "Clear data",
         "confirm_clear": "Are you sure you want to clear ALL data?\nThis will remove:\n- All courses\n- All subjects\n- All teachers\n- All subject packs\n- All timetables\n- Configuration\n\nThis action CANNOT be undone.",
         "clear_success": "All data has been cleared",
-        "tab_days": "Days",
-        "tab_hours": "Hours",
+        "tab_schedules": "Schedules",
         "tab_backup": "Backup",
         "tab_restrictions": "Restrictions",
         "restrictions_title": "Active Restrictions",

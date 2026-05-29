@@ -8,6 +8,7 @@ from .routes.courses import courses_bp
 from .routes.subjects import subjects_bp
 from .routes.teachers import teachers_bp
 from .routes.subject_groups import subject_groups_bp
+from .routes.fixed_slots import fixed_slots_bp
 from .routes.export_import import export_import_bp
 
 from .populate_db import populate_db
@@ -67,4 +68,5 @@ app.register_blueprint(teachers_bp)
 app.register_blueprint(subject_groups_bp)
 app.register_blueprint(export_import_bp)
 app.register_blueprint(timetable_bp)
+app.register_blueprint(fixed_slots_bp)
 app.register_blueprint(config_bp)

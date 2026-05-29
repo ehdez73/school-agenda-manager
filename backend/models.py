@@ -1,5 +1,5 @@
 import json
-from sqlalchemy import create_engine, Column, Integer, String, Text
+from sqlalchemy import create_engine, Column, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 from sqlalchemy import Table, ForeignKey, Column as SAColumn
 from sqlalchemy import Boolean
@@ -275,6 +275,47 @@ class TimeSlotAssignment(Base):
 
     def __repr__(self):
         return f"<TimeSlotAssignment(id={self.id}, subject={self.subject_id}, teacher={self.teacher_id}, timeslot_id={self.timeslot_id})>"
+
+
+class FixedSlot(Base):
+    """
+    Represents a fixed/predefined row inserted into timetable display.
+    These are visual-only entries that appear in the timetable at a given
+    position, managed independently for courses vs teachers.
+    Attributes:
+        id (int): Primary key.
+        slot_type (str): "course" or "teacher".
+        position (int): 1-indexed position in the final timetable table.
+        label (str): Display text, e.g., "Recreo", "Comedor".
+        time_range (str): Time range display, e.g., "10:00-11:00".
+    """
+
+    __tablename__ = "fixed_slots"
+
+    __table_args__ = (
+        UniqueConstraint("slot_type", "position", name="uq_fixed_slots_type_position"),
+    )
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    slot_type = Column(String(20), nullable=False)
+    position = Column(Integer, nullable=False)
+    label = Column(String(200), nullable=False)
+    time_range = Column(String(50), nullable=False)
+
+    def __repr__(self):
+        return (
+            f"<FixedSlot(id={self.id}, type='{self.slot_type}', "
+            f"pos={self.position}, label='{self.label}')>"
+        )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "slot_type": self.slot_type,
+            "position": self.position,
+            "label": self.label,
+            "time_range": self.time_range,
+        }
 
 
 class Config(Base):

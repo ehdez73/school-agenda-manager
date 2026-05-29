@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './ConfigForm.css';
 import HourNames from './HourNames';
 import DayIndices from './DayIndices';
+import FixedSlotList from './FixedSlotList';
 import api from '../lib/api';
 import { t } from '../i18n';
 import SectionLayout from './SectionLayout';
@@ -39,7 +40,7 @@ export default function ConfigForm() {
   const [message, setMessage] = useState('');
   const [exportLoading, setExportLoading] = useState(false);
   const [exportMessage, setExportMessage] = useState('');
-  const [activeTab, setActiveTab] = useState('days');
+  const [activeTab, setActiveTab] = useState('schedules');
 
   useEffect(() => {
     api.get('/config', { cacheBust: true }).then(data => {
@@ -180,16 +181,10 @@ export default function ConfigForm() {
       {/* Tabs */}
       <div className="config-tabs">
         <button
-          className={`config-tab ${activeTab === 'days' ? 'active' : ''}`}
-          onClick={() => setActiveTab('days')}
+          className={`config-tab ${activeTab === 'schedules' ? 'active' : ''}`}
+          onClick={() => setActiveTab('schedules')}
         >
-          {t('config.tab_days')}
-        </button>
-        <button
-          className={`config-tab ${activeTab === 'hours' ? 'active' : ''}`}
-          onClick={() => setActiveTab('hours')}
-        >
-          {t('config.tab_hours')}
+          {t('config.tab_schedules')}
         </button>
         <button
           className={`config-tab ${activeTab === 'restrictions' ? 'active' : ''}`}
@@ -205,45 +200,46 @@ export default function ConfigForm() {
         </button>
       </div>
 
-      {/* General Tab */}
-      {activeTab === 'days' && (
-        <form id="config-form-days" onSubmit={handleSubmit}>
-          <label className="config-form-label">
-            {t('config.days_per_week')}
-            <input
-              type="number"
-              min={1}
-              max={7}
-              value={daysPerWeek}
-              onChange={e => setDaysPerWeek(e.target.value)}
-              required
-              className="config-form-input"
-            />
-          </label>
-          <DayIndices daysPerWeek={daysPerWeek} dayIndices={dayIndices} setDayIndices={setDayIndices} suppressResize={suppressResize} />
+      {/* Schedules Tab: days first, then hours + fixed slots */}
+      {activeTab === 'schedules' && (
+        <>
+          <form id="config-form-schedules" onSubmit={handleSubmit}>
+            <label className="config-form-label">
+              {t('config.days_per_week')}
+              <input
+                type="number"
+                min={1}
+                max={7}
+                value={daysPerWeek}
+                onChange={e => setDaysPerWeek(e.target.value)}
+                required
+                className="config-form-input"
+              />
+            </label>
+            <DayIndices daysPerWeek={daysPerWeek} dayIndices={dayIndices} setDayIndices={setDayIndices} suppressResize={suppressResize} />
 
-          {message && <div className="config-form-message">{message}</div>}
-        </form>
-      )}
+            <hr className="config-form-divider" />
 
-      {/* Hours Tab */}
-      {activeTab === 'hours' && (
-        <form id="config-form-hours" onSubmit={handleSubmit}>
+            <label className="config-form-label">
+              {t('config.classes_per_day')}
+              <input
+                type="number"
+                min={1}
+                value={classesPerDay}
+                onChange={e => setClassesPerDay(e.target.value)}
+                required
+                className="config-form-input"
+              />
+            </label>
+            <HourNames classesPerDay={classesPerDay} hourNames={hourNames} setHourNames={setHourNames} suppressResize={suppressResize} />
 
-          <label className="config-form-label">
-            {t('config.classes_per_day')}
-            <input
-              type="number"
-              min={1}
-              value={classesPerDay}
-              onChange={e => setClassesPerDay(e.target.value)}
-              required
-              className="config-form-input"
-            />
-          </label>
-          <HourNames classesPerDay={classesPerDay} hourNames={hourNames} setHourNames={setHourNames} suppressResize={suppressResize} />
-          {message && <div className="config-form-message">{message}</div>}
-        </form>
+            {message && <div className="config-form-message">{message}</div>}
+          </form>
+
+          <hr className="config-form-divider" />
+          <h3 className="config-form-section-title">{t('fixed_slots.title')}</h3>
+          <FixedSlotList standalone={false} />
+        </>
       )}
 
       {/* Restrictions Tab */}

@@ -96,6 +96,12 @@
     font-size: 0.9rem;
 }
 
+.config-form-divider {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin: var(--space-xl) 0;
+}
+
 .config-form-section-title {
     margin-top: var(--space-xl);
     margin-bottom: var(--space-sm);
