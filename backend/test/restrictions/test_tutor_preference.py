@@ -9,10 +9,11 @@ from backend.restrictions.tutor_preference import TutorPreference
 class MockTeacher:
     """Mock teacher for testing."""
 
-    def __init__(self, teacher_id, name, tutor_group=None):
+    def __init__(self, teacher_id, name, tutor_group=None, tutor_groups=None):
         self.id = teacher_id
         self.name = name
         self.tutor_group = tutor_group
+        self.tutor_groups = tutor_groups
 
 
 def test_tutor_preference_no_tutor():
@@ -90,6 +91,24 @@ def test_tutor_preference_multiple_tutors():
     restriction.apply(model, assignments, [teacher1, teacher2, teacher3])
 
     # Should have 2 preference terms (one for each tutor)
+    assert len(restriction.preference_terms) == 2
+
+
+def test_tutor_preference_multiple_groups_for_one_teacher():
+    """Test that one teacher can contribute preference terms for multiple tutor groups."""
+    model = cp_model.CpModel()
+
+    teacher = MockTeacher(1, "Alice", tutor_groups=["1-A", "1-B"])
+
+    assignments = {
+        ("1-A", "MATH1", 1, 0, 0): model.NewBoolVar("1-A_MATH1_1_0_0"),
+        ("1-B", "MATH1", 1, 0, 0): model.NewBoolVar("1-B_MATH1_1_0_0"),
+        ("1-C", "MATH1", 1, 0, 0): model.NewBoolVar("1-C_MATH1_1_0_0"),
+    }
+
+    restriction = TutorPreference()
+    restriction.apply(model, assignments, [teacher])
+
     assert len(restriction.preference_terms) == 2
 
 

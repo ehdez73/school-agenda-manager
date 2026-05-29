@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, abort
 import json as _json
 import logging
 from sqlalchemy.orm import joinedload
-from ..models import Teacher, Subject, Session
+from ..models import Teacher, Subject, Session, normalize_tutor_groups
 from ..schemas import TeacherSchema, PreferencesSchema, DayPreferences
 from ..translations import t
 
@@ -21,13 +21,15 @@ def get_teachers():
             preferences = t.preferences and t.preferences.strip() and __import__('json').loads(t.preferences) or {}
         except Exception:
             preferences = {}
+        tutor_groups = normalize_tutor_groups(t.tutor_group)
         t_dict = {
             'id': t.id,
             'name': t.name,
             'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})", 'course_id': s.course_id} for s in t.subjects],
             'max_hours_week': t.max_hours_week,
             'preferences': preferences,
-            'tutor_group': t.tutor_group
+            'tutor_group': tutor_groups[0] if tutor_groups else None,
+            'tutor_groups': tutor_groups,
         }
         result.append(TeacherSchema(**t_dict).model_dump())
     session.close()
@@ -77,15 +79,14 @@ def add_teacher():
         logger.warning("Create teacher rejected due to invalid preferences")
         abort(400, description=t('errors.invalid_preferences'))
 
+    tutor_groups = normalize_tutor_groups(data.get('tutor_groups', data.get('tutor_group')))
+
     new_teacher = Teacher(
         name=data['name'],
         subjects=subjects,
         max_hours_week=max_hours_week
     )
-    # optional tutor_group string like '1ºA'
-    if 'tutor_group' in data:
-        tg = data.get('tutor_group')
-        new_teacher.tutor_group = tg if tg is not None else None
+    new_teacher.set_tutor_groups(tutor_groups)
     new_teacher.preferences = _json.dumps(ut)
     session.add(new_teacher)
     session.commit()
@@ -95,8 +96,9 @@ def add_teacher():
         'name': new_teacher.name,
         'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in new_teacher.subjects],
         'max_hours_week': new_teacher.max_hours_week,
-    'preferences': ut,
-    'tutor_group': new_teacher.tutor_group
+        'preferences': ut,
+        'tutor_group': tutor_groups[0] if tutor_groups else None,
+        'tutor_groups': tutor_groups,
     }).model_dump()
     session.close()
     return jsonify(response_data), 201
@@ -120,7 +122,8 @@ def get_teacher(teacher_id):
         'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in teacher.subjects],
         'max_hours_week': teacher.max_hours_week,
         'preferences': ut,
-        'tutor_group': teacher.tutor_group
+        'tutor_group': normalize_tutor_groups(teacher.tutor_group)[0] if normalize_tutor_groups(teacher.tutor_group) else None,
+        'tutor_groups': normalize_tutor_groups(teacher.tutor_group),
     }
     return jsonify(TeacherSchema(**t_dict).model_dump())
 
@@ -150,8 +153,8 @@ def update_teacher(teacher_id):
     subject_ids = data.get('subjects', None)
     if subject_ids is not None:
         teacher.subjects = session.query(Subject).filter(Subject.id.in_(subject_ids)).all()
-    if 'tutor_group' in data:
-        teacher.tutor_group = data.get('tutor_group') if data.get('tutor_group') is not None else None
+    if 'tutor_groups' in data or 'tutor_group' in data:
+        teacher.set_tutor_groups(data.get('tutor_groups', data.get('tutor_group')))
     if 'preferences' in data:
         ut_raw = data.get('preferences', {})
         try:
@@ -183,7 +186,8 @@ def update_teacher(teacher_id):
         'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in teacher.subjects],
         'max_hours_week': teacher.max_hours_week
     ,
-    'tutor_group': teacher.tutor_group
+        'tutor_group': normalize_tutor_groups(teacher.tutor_group)[0] if normalize_tutor_groups(teacher.tutor_group) else None,
+        'tutor_groups': normalize_tutor_groups(teacher.tutor_group),
     }).model_dump()
     session.close()
     return jsonify(response_data)

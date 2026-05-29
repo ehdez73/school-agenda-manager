@@ -7,6 +7,8 @@ import TeacherForm from './TeacherForm';
 import SectionLayout from './SectionLayout';
 import './TeacherList.css';
 
+const emptyTeacherForm = () => ({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_groups: [] });
+
 export default function TeacherList() {
   const [teachers, setTeachers] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -15,7 +17,7 @@ export default function TeacherList() {
    const [courses, setCourses] = useState([]);
   const [search, setSearch] = useState('');
   const [subjectFilter, setSubjectFilter] = useState('');
-  const [form, setForm] = useState({ name: '', subjects: [], max_hours_week: 1, preferences: {} });
+  const [form, setForm] = useState(emptyTeacherForm());
   const [classesPerDay, setClassesPerDay] = useState(5);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -49,7 +51,7 @@ export default function TeacherList() {
     const payload = {
       name: form.name,
       subjects: form.subjects,
-      tutor_group: form.tutor_group || null,
+      tutor_groups: form.tutor_groups || [],
       max_hours_week: Number(form.max_hours_week) > 0 ? Number(form.max_hours_week) : 1,
       preferences: preferences_obj
     };
@@ -59,7 +61,7 @@ export default function TeacherList() {
 
     action.then(() => {
       fetchTeachers();
-      setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null });
+      setForm(emptyTeacherForm());
       setEditingId(null);
       setShowForm(false);
       setSelectedEntity(null);
@@ -71,7 +73,7 @@ export default function TeacherList() {
       id: teacher.id,
       name: teacher.name,
       subjects: teacher.subjects ? teacher.subjects.map(s => String(s.id)) : [],
-      tutor_group: teacher.tutor_group ?? null,
+      tutor_groups: teacher.tutor_groups ? teacher.tutor_groups.map(group => String(group)) : (teacher.tutor_group ? [String(teacher.tutor_group)] : []),
       max_hours_week: teacher.max_hours_week ?? 1,
       preferences: teacher.preferences || {}
     });
@@ -92,7 +94,7 @@ export default function TeacherList() {
       setDeleteId(null);
       setSelectedEntity(null);
       setEditingId(null);
-      setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null });
+      setForm(emptyTeacherForm());
     }).catch(() => { });
   }
 
@@ -126,9 +128,10 @@ export default function TeacherList() {
       return { id: name, name };
     });
   }).map(g => {
-    // detect if any teacher has this group assigned (teacher.tutor_group expected to be group id/name)
-    const tutor = teachers.find(t => String(t.tutor_group) === String(g.id));
-    return { ...g, tutor_id: tutor ? tutor.id : null };
+    const tutorIds = teachers
+      .filter(t => (t.tutor_groups && t.tutor_groups.some(group => String(group) === String(g.id))) || String(t.tutor_group || '') === String(g.id))
+      .map(t => t.id);
+    return { ...g, tutor_ids: tutorIds };
   });
 
   const filteredTeachers = teachers.filter(teacher => {
@@ -162,7 +165,7 @@ export default function TeacherList() {
         onCancel={cancelDelete}
       />
       {showForm && (
-        <FormModal open={showForm} onClose={() => { setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null }); setEditingId(null); setShowForm(false); }}>
+        <FormModal open={showForm} onClose={() => { setForm(emptyTeacherForm()); setEditingId(null); setShowForm(false); }}>
           <TeacherForm
             form={form}
             setForm={setForm}
@@ -170,7 +173,7 @@ export default function TeacherList() {
             groups={groupsList}
             classesPerDay={classesPerDay}
             onSubmit={handleSubmit}
-            onCancel={() => { setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null }); setEditingId(null); setShowForm(false); }}
+            onCancel={() => { setForm(emptyTeacherForm()); setEditingId(null); setShowForm(false); }}
           />
         </FormModal>
       )}
@@ -180,7 +183,7 @@ export default function TeacherList() {
           !selectedEntity && (
             <button
               className="btn btn--primary btn--compact"
-              onClick={() => { setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null }); setShowForm(true); }}
+              onClick={() => { setForm(emptyTeacherForm()); setShowForm(true); }}
             >
               {t('teachers.add_teacher')}
             </button>
@@ -196,7 +199,7 @@ export default function TeacherList() {
             groups={groupsList}
             classesPerDay={classesPerDay}
             onSubmit={handleSubmit}
-            onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null }); }}
+            onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm(emptyTeacherForm()); }}
             onDelete={() => handleDelete(selectedEntity.id)}
           />
         </div>
@@ -234,7 +237,6 @@ export default function TeacherList() {
       <table className="modern-table">
         <thead>
           <tr>
-            <th>{t('common.id') || 'ID'}</th>
             <th className="teacher-table-th-sort" onClick={() => handleSort('name')}>
               {t('common.name') || 'Name'} {sortBy === 'name' ? (sortAsc ? '▲' : '▼') : ''}
             </th>
@@ -248,10 +250,9 @@ export default function TeacherList() {
         <tbody>
           {sortedTeachers.map(teacher => (
             <tr key={teacher.id} onClick={() => handleEdit(teacher)} style={{ cursor: 'pointer' }}>
-              <td>{teacher.id}</td>
               <td>{teacher.name}</td>
               <td>{teacher.subjects ? teacher.subjects.map(s => `${s.full_name}`).join(', ') : ''}</td>
-              <td>{teacher.tutor_group ?? ''}</td>
+              <td>{teacher.tutor_groups ? teacher.tutor_groups.join(', ') : (teacher.tutor_group ?? '')}</td>
               <td>{teacher.max_hours_week ?? ''}</td>
             </tr>
           ))}

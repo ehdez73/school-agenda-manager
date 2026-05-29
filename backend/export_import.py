@@ -7,6 +7,7 @@ from .models import (
     Timeslot,
     TimeSlotAssignment,
     Config,
+    normalize_tutor_groups,
 )
 
 
@@ -35,6 +36,7 @@ def dump_db(session):
                 "preferences": t.preferences,
                 "max_hours_week": t.max_hours_week,
                 "tutor_group": t.tutor_group,
+                "tutor_groups": normalize_tutor_groups(t.tutor_group),
             }
         )
     data["teachers"] = teachers
@@ -191,10 +193,8 @@ def import_payload(session, payload):
             name=teacher_data.get("name"),
             preferences=teacher_data.get("preferences"),
             max_hours_week=teacher_data.get("max_hours_week", 1),
-            tutor_group=teacher_data.get("tutor_group")
-            if "tutor_group" in teacher_data
-            else None,
         )
+        teacher.set_tutor_groups(teacher_data.get("tutor_groups", teacher_data.get("tutor_group")))
         session.add(teacher)
         session.flush()
         if subj_objs:

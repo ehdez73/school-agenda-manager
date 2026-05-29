@@ -755,7 +755,10 @@ def _build_diagnosis_message(diagnosis):
                 name_str = f'{ent["entity_name"]} (id={ent["entity_id"]})'
                 extra = ent.get("extra", {})
                 if "tutor_group" in extra:
-                    name_str += f", tutor of group {extra['tutor_group']}"
+                    tutor_group = extra["tutor_group"]
+                    if isinstance(tutor_group, (list, tuple, set)):
+                        tutor_group = ", ".join(str(item) for item in tutor_group)
+                    name_str += f", tutor of group {tutor_group}"
                 msg.append(f"    - {name_str}")
         msg.append("")
     if diagnosis["cleared"]:

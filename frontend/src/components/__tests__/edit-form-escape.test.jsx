@@ -59,7 +59,7 @@ const baseSubjectGroupForm = {
 };
 
 const baseTeacherForm = {
-  form: { name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_group: null },
+  form: { name: '', subjects: [], max_hours_week: 1, preferences: {}, tutor_groups: [] },
   setForm: vi.fn(),
   subjects: [],
   classesPerDay: 5,
@@ -82,5 +82,16 @@ describe('edit forms close on Escape', () => {
     fireEvent.keyDown(window, { key: 'Escape' });
 
     expect(onCancel).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders separate autocomplete controls for subjects and tutor groups in TeacherForm', () => {
+    const { getAllByTestId } = render(
+      <TeacherForm
+        {...baseTeacherForm}
+        groups={[{ id: '1-A', name: '1-A' }]}
+      />
+    );
+
+    expect(getAllByTestId('autocomplete-select')).toHaveLength(2);
   });
 });

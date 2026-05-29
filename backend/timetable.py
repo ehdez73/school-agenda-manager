@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from collections import defaultdict
 from html import escape
 import re
-from .models import TimeSlotAssignment, Timeslot, Config, Teacher
+from .models import TimeSlotAssignment, Timeslot, Config, Teacher, normalize_tutor_groups
 
 from .translations import t
 from .markdown_utils import align_tables_in_text
@@ -169,8 +169,8 @@ def print_markdown_timetable_from_assignments(session) -> str:
     tutors_dict = {}
     teachers = session.query(Teacher).all()
     for teacher in teachers:
-        if teacher.tutor_group:
-            tutors_dict[teacher.tutor_group] = teacher.name
+        for tutor_group in normalize_tutor_groups(teacher.tutor_group):
+            tutors_dict[tutor_group] = teacher.name
 
     cfg = session.query(Config).first()
     cfg_dict = cfg.to_dict() if cfg else None
@@ -313,8 +313,9 @@ def print_markdown_timetable_per_teacher(session) -> str:
     # Build a mapping of teacher name -> tutor_group (if any)
     teachers_tutors = {}
     for teacher in teachers:
-        if teacher.tutor_group:
-            teachers_tutors[teacher.name] = teacher.tutor_group
+        tutor_groups = normalize_tutor_groups(teacher.tutor_group)
+        if tutor_groups:
+            teachers_tutors[teacher.name] = ", ".join(tutor_groups)
 
     cfg = session.query(Config).first()
     cfg_dict = cfg.to_dict() if cfg else None

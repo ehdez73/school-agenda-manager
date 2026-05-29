@@ -5,6 +5,7 @@ for a group teaches subjects in that same group, prioritizing them over other te
 """
 
 from .base import Restriction
+from ..models import normalize_tutor_groups
 
 
 def normalize_group_name(group: str) -> str:
@@ -62,27 +63,26 @@ class TutorPreference(Restriction):
         self.preference_terms = []
 
         for teacher in teachers:
-            # Check if this teacher has an assigned tutor group
-            tutor_group = getattr(teacher, "tutor_group", None)
-            if not tutor_group:
+            tutor_groups = normalize_tutor_groups(getattr(teacher, "tutor_groups", None))
+            if not tutor_groups:
+                tutor_groups = normalize_tutor_groups(getattr(teacher, "tutor_group", None))
+            if not tutor_groups:
                 continue
 
-            # Normalize the tutor_group to match scheduler format
-            normalized_tutor_group = normalize_group_name(tutor_group)
+            for tutor_group in tutor_groups:
+                normalized_tutor_group = normalize_group_name(tutor_group)
 
-            # Collect all assignments where this teacher teaches in their tutor group
-            tutor_group_assignments = [
-                assignments[key]
-                for key in assignments
-                if key[0] == normalized_tutor_group and key[2] == teacher.id
-            ]
+                tutor_group_assignments = [
+                    assignments[key]
+                    for key in assignments
+                    if key[0] == normalized_tutor_group and key[2] == teacher.id
+                ]
 
-            if not tutor_group_assignments:
-                continue
+                if not tutor_group_assignments:
+                    continue
 
-            # Add preference terms (sum of all assignments for this tutor in their group)
-            expr = sum(tutor_group_assignments)
-            if self.weight != 1:
-                self.preference_terms.append(self.weight * expr)
-            else:
-                self.preference_terms.append(expr)
+                expr = sum(tutor_group_assignments)
+                if self.weight != 1:
+                    self.preference_terms.append(self.weight * expr)
+                else:
+                    self.preference_terms.append(expr)

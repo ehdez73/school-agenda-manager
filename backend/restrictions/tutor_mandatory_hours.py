@@ -7,6 +7,7 @@ added as preference terms in the objective, so it never causes infeasibility.
 """
 
 from .base import Restriction
+from ..models import normalize_tutor_groups
 
 
 def normalize_group_name(group: str) -> str:
@@ -70,64 +71,61 @@ class TutorMandatoryHours(Restriction):
         assumptions = []
 
         for teacher in teachers:
-            tutor_group = getattr(teacher, "tutor_group", None)
-            if not tutor_group:
+            tutor_groups = normalize_tutor_groups(getattr(teacher, "tutor_groups", None))
+            if not tutor_groups:
+                tutor_groups = normalize_tutor_groups(getattr(teacher, "tutor_group", None))
+            if not tutor_groups:
                 continue
 
-            normalized = normalize_group_name(tutor_group)
+            for tutor_group in tutor_groups:
+                normalized = normalize_group_name(tutor_group)
 
-            # Collect vars for the specific group taught by this teacher at the
-            # first and last timeslots, excluding subjects that belong to a
-            # SubjectGroup (we require a single subject in the timeslot).
-            first_vars = [
-                assignments[k]
-                for k in assignments
-                if k[0] == normalized
-                and k[2] == teacher.id
-                and k[3] == first_day
-                and k[4] == first_hour
-                and k[1] not in subject_ids_in_groups
-            ]
-            last_vars = [
-                assignments[k]
-                for k in assignments
-                if k[0] == normalized
-                and k[2] == teacher.id
-                and k[3] == last_day
-                and k[4] == last_hour
-                and k[1] not in subject_ids_in_groups
-            ]
+                first_vars = [
+                    assignments[k]
+                    for k in assignments
+                    if k[0] == normalized
+                    and k[2] == teacher.id
+                    and k[3] == first_day
+                    and k[4] == first_hour
+                    and k[1] not in subject_ids_in_groups
+                ]
+                last_vars = [
+                    assignments[k]
+                    for k in assignments
+                    if k[0] == normalized
+                    and k[2] == teacher.id
+                    and k[3] == last_day
+                    and k[4] == last_hour
+                    and k[1] not in subject_ids_in_groups
+                ]
 
-            has_constraints = bool(first_vars) or bool(last_vars)
+                has_constraints = bool(first_vars) or bool(last_vars)
 
-            if diagnostic_mode and has_constraints:
-                assume = model.NewBoolVar(f"assume_tutor_{teacher.id}")
-                if first_vars:
-                    model.Add(sum(first_vars) == 1).OnlyEnforceIf(assume)
-                if last_vars:
-                    model.Add(sum(last_vars) == 1).OnlyEnforceIf(assume)
-                assumptions.append((assume, {
-                    "restriction": "TutorMandatoryHours",
-                    "entity_type": "teacher",
-                    "entity_id": teacher.id,
-                    "entity_name": teacher.name,
-                    "extra": {"tutor_group": normalized},
-                }))
-            elif not diagnostic_mode:
-                # Soft constraint: reward the solver when the tutor is assigned
-                # to the first and last timeslots. Since existing constraints
-                # prevent >1 assignment per slot, sum(vars) is 0 or 1.
-                if first_vars:
-                    expr = sum(first_vars)
-                    if self.weight != 1:
-                        self.preference_terms.append(self.weight * expr)
-                    else:
-                        self.preference_terms.append(expr)
-                if last_vars:
-                    expr = sum(last_vars)
-                    if self.weight != 1:
-                        self.preference_terms.append(self.weight * expr)
-                    else:
-                        self.preference_terms.append(expr)
+                if diagnostic_mode and has_constraints:
+                    assume = model.NewBoolVar(f"assume_tutor_{teacher.id}_{normalized}")
+                    if first_vars:
+                        model.Add(sum(first_vars) == 1).OnlyEnforceIf(assume)
+                    if last_vars:
+                        model.Add(sum(last_vars) == 1).OnlyEnforceIf(assume)
+                    assumptions.append((assume, {
+                        "restriction": "TutorMandatoryHours",
+                        "entity_type": "teacher",
+                        "entity_id": teacher.id,
+                        "entity_name": teacher.name,
+                        "extra": {"tutor_group": normalized},
+                    }))
+                elif not diagnostic_mode:
+                    if first_vars:
+                        expr = sum(first_vars)
+                        if self.weight != 1:
+                            self.preference_terms.append(self.weight * expr)
+                        else:
+                            self.preference_terms.append(expr)
+                    if last_vars:
+                        expr = sum(last_vars)
+                        if self.weight != 1:
+                            self.preference_terms.append(self.weight * expr)
+                        else:
+                            self.preference_terms.append(expr)
 
         return assumptions

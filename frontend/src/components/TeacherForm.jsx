@@ -8,14 +8,16 @@ export default function TeacherForm({ form, setForm, subjects, classesPerDay, on
     useEscapeToCancel(onCancel);
 
     const handleChange = (e) => {
-        const { name, value, selectedOptions } = e.target;
-        if (name === 'subjects') {
-            const values = Array.from(selectedOptions, opt => Number(opt.value));
-            setForm({ ...form, subjects: values });
-        } else {
-            setForm({ ...form, [name]: value });
-        }
+        const { name, value } = e.target;
+        setForm({ ...form, [name]: value });
     };
+
+    const tutorGroups = form.tutor_groups || [];
+    const availableGroups = groups.filter(group => {
+        if (!group) return false;
+        if (!group.tutor_ids || group.tutor_ids.length === 0) return true;
+        return group.tutor_ids.some(id => String(id) === String(form.id));
+    });
 
     return (
         <form onSubmit={onSubmit} className="teacher-form">
@@ -50,22 +52,14 @@ export default function TeacherForm({ form, setForm, subjects, classesPerDay, on
                         noResultsText="No subjects found"
                     />
                     <label className="teacher-label teacher-label-margin">{t('teachers.tutor_group')}:</label>
-                    <select
-                        name="tutor_group"
-                        value={form.tutor_group || ''}
-                        onChange={handleChange}
-                        className="teacher-select"
-                    >
-                        <option value="">{t('teachers.no_tutor')}</option>
-                        {groups
-                            .filter(g => (g.tutor_id == null) || String(g.tutor_id) === String(form.id))
-                            .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
-                            .map(g => (
-                                <option key={g.id} value={g.id}>
-                                    {g.name}
-                                </option>
-                            ))}
-                    </select>
+                    <AutocompleteSelect
+                        items={availableGroups.sort((a, b) => (a.name || '').localeCompare(b.name || ''))}
+                        selectedIds={tutorGroups}
+                        onAdd={id => setForm(f => ({ ...f, tutor_groups: [...(f.tutor_groups || []), id] }))}
+                        onRemove={id => setForm(f => ({ ...f, tutor_groups: (f.tutor_groups || []).filter(groupId => String(groupId) !== String(id)) }))}
+                        placeholder={t('teachers.tutor_group') + '...'}
+                        noResultsText="No tutor groups found"
+                    />
                 </div>
 
             </div>

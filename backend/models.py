@@ -10,6 +10,39 @@ Base = declarative_base()
 Session = sessionmaker(bind=ENGINE)
 
 
+def normalize_tutor_groups(value):
+    if value is None:
+        return []
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return []
+        try:
+            parsed = json.loads(text)
+        except Exception:
+            return [text]
+        value = parsed
+    if isinstance(value, (list, tuple, set)):
+        normalized = []
+        seen = set()
+        for item in value:
+            if item is None:
+                continue
+            text = str(item).strip()
+            if not text or text in seen:
+                continue
+            seen.add(text)
+            normalized.append(text)
+        return normalized
+    text = str(value).strip()
+    return [text] if text else []
+
+
+def serialize_tutor_groups(value):
+    groups = normalize_tutor_groups(value)
+    return json.dumps(groups, ensure_ascii=False) if groups else None
+
+
 class Course(Base):
     """
     Represents a school course.
@@ -162,20 +195,28 @@ class Teacher(Base):
     max_hours_week = Column(Integer, nullable=False, default=1)
 
     preferences = Column(String(1000), nullable=True)
-    # store the tutor group as a string like '1ºA' or null when no tutor assigned
-    tutor_group = Column(String(50), nullable=True)
+    # store tutor groups as a JSON array string or a legacy single group string
+    tutor_group = Column(String(1000), nullable=True)
 
     def __repr__(self):
         return f"<Teacher(id={self.id}, name='{self.name}')>"
 
+    def get_tutor_groups(self):
+        return normalize_tutor_groups(self.tutor_group)
+
+    def set_tutor_groups(self, value):
+        self.tutor_group = serialize_tutor_groups(value)
+
     def to_dict(self):
+        tutor_groups = self.get_tutor_groups()
         return {
             "id": self.id,
             "name": self.name,
             "subjects": [subject.to_dict() for subject in self.subjects],
             "max_hours_week": self.max_hours_week,
             "preferences": json.loads(self.preferences) if self.preferences else {},
-            "tutor_group": self.tutor_group,
+            "tutor_group": tutor_groups[0] if tutor_groups else None,
+            "tutor_groups": tutor_groups,
         }
 
 

@@ -7,10 +7,11 @@ from backend.restrictions.tutor_mandatory_hours import TutorMandatoryHours
 
 
 class MockTeacher:
-    def __init__(self, teacher_id, name, tutor_group=None):
+    def __init__(self, teacher_id, name, tutor_group=None, tutor_groups=None):
         self.id = teacher_id
         self.name = name
         self.tutor_group = tutor_group
+        self.tutor_groups = tutor_groups
 
 
 def test_no_tutor_does_nothing():
@@ -110,6 +111,23 @@ def test_subjectgroup_subjects_are_excluded():
     # First slot subjects are excluded (belong to SubjectGroup), so only
     # the last slot gets a preference term
     assert len(r.preference_terms) == 1
+
+
+def test_multiple_tutor_groups_add_multiple_terms():
+    model = cp_model.CpModel()
+    teacher = MockTeacher(1, "Alice", tutor_groups=["1-A", "1-B"])
+
+    assignments = {
+        ("1-A", "S1", 1, 0, 0): model.NewBoolVar("a1"),
+        ("1-A", "S2", 1, 4, 4): model.NewBoolVar("a2"),
+        ("1-B", "S1", 1, 0, 0): model.NewBoolVar("b1"),
+        ("1-B", "S2", 1, 4, 4): model.NewBoolVar("b2"),
+    }
+
+    r = TutorMandatoryHours()
+    r.apply(model, assignments, [teacher], 5, 5)
+
+    assert len(r.preference_terms) == 4
 
 
 if __name__ == "__main__":
