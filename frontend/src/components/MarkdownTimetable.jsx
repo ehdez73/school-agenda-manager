@@ -391,15 +391,33 @@ function MarkdownTimetable() {
     stopGeneration();
   };
 
+  const buildFilteredMarkdown = () => {
+    const parts = [];
+    if (courseSection && selectedCourseEntries.length > 0) {
+      parts.push(`## ${courseSection.title}`);
+      selectedCourseEntries.forEach(entry => {
+        parts.push(`\n### ${entry.title}\n${entry.markdown}`);
+      });
+    }
+    if (teacherSection && selectedTeacherEntries.length > 0) {
+      parts.push(`\n## ${teacherSection.title}`);
+      selectedTeacherEntries.forEach(entry => {
+        parts.push(`\n### ${entry.title}\n${entry.markdown}`);
+      });
+    }
+    return parts.join('\n');
+  };
+
   const handleDownloadMarkdown = () => {
-    if (!markdown.trim()) {
+    const content = buildFilteredMarkdown();
+    if (!content.trim()) {
       setError(t('timetable.no_content_download'));
       return;
     }
 
     try {
       setDownloading(true);
-      const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+      const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       const date = new Date().toISOString().split('T')[0];
@@ -415,6 +433,88 @@ function MarkdownTimetable() {
     } finally {
       setDownloading(false);
     }
+  };
+
+  const pipeTableToHtml = (md) => {
+    const lines = md.split('\n');
+    const result = [];
+    let inTable = false;
+    let tableRows = [];
+
+    const flushTable = () => {
+      if (!inTable) return;
+      if (tableRows.length > 1) {
+        result.push('<table>');
+        tableRows.forEach((row, i) => {
+          const cells = row.split('|').slice(1, -1).map(c => c.trim());
+          const tag = i === 1 ? 'th' : 'td';
+          if (i === 1) return;
+          result.push(`<tr>${cells.map(c => `<${tag}>${c}</${tag}>`).join('')}</tr>`);
+        });
+        result.push('</table>');
+      }
+      inTable = false;
+      tableRows = [];
+    };
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      const isPipeRow = trimmed.startsWith('|') && trimmed.endsWith('|');
+      const isSeparator = isPipeRow && /^[\s|:\-]+$/.test(trimmed);
+
+      if (isPipeRow && !isSeparator) {
+        if (!inTable) {
+          inTable = true;
+          tableRows = [];
+        }
+        tableRows.push(line);
+        continue;
+      }
+      flushTable();
+      if (isSeparator) continue;
+      const h2 = line.match(/^## (.+)/);
+      if (h2) { result.push(`<h2>${h2[1]}</h2>`); continue; }
+      const h3 = line.match(/^### (.+)/);
+      if (h3) { result.push(`<h3>${h3[1]}</h3>`); continue; }
+      if (trimmed) {
+        result.push(`<p>${trimmed}</p>`);
+      }
+    }
+    flushTable();
+    return result.join('\n');
+  };
+
+  const handlePrint = () => {
+    const content = buildFilteredMarkdown();
+    if (!content.trim()) {
+      setError(t('timetable.no_content_print'));
+      return;
+    }
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      setError(t('timetable.no_content_print'));
+      return;
+    }
+    printWindow.document.write(`<!DOCTYPE html><html><head><title>${t('timetable.print_md')}</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; line-height: 1.5; }
+  table { border-collapse: collapse; margin: 12px 0; width: 100%; table-layout: fixed; }
+  th, td { border: 1px solid #999; padding: 4px 6px; text-align: left; vertical-align: top; word-wrap: break-word; font-size: 9px; }
+  th { background: #f5f5f5; font-weight: 600; }
+  .tt-subject-entry { display: inline-block; padding: 1px 3px; border-radius: 2px; margin: 1px 0; font-size: 9px; }
+  h2 { font-size: 16px; margin-top: 18px; }
+  h3 { font-size: 14px; margin-top: 14px; }
+  @page { size: landscape; margin: 1cm; }
+  @media print { body { padding: 0; } }
+</style></head><body>
+`);
+    const html = pipeTableToHtml(content);
+    printWindow.document.write(html);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => printWindow.print(), 300);
   };
 
   const layoutState = loading ? 'loading' : error ? 'error' : 'ready';
@@ -543,8 +643,27 @@ function MarkdownTimetable() {
               onClick={handleDownloadMarkdown}
               disabled={downloading || loading || !!error || !markdown.trim() || generating}
               className="btn btn--secondary btn--compact"
+              aria-label={t('timetable.download_md') || 'Download Markdown'}
+              title={t('timetable.download_md') || 'Download Markdown'}
             >
-              {downloading ? t('timetable.downloading_md') : (t('timetable.download_md') || 'Download Markdown')}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            </button>
+            <button
+              onClick={handlePrint}
+              disabled={loading || !!error || !markdown.trim() || generating}
+              className="btn btn--secondary btn--compact"
+              aria-label={t('timetable.print_md') || 'Print'}
+              title={t('timetable.print_md') || 'Print'}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 6 2 18 2 18 9"/>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                <rect x="6" y="14" width="12" height="8"/>
+              </svg>
             </button>
           </>
         }
