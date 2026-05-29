@@ -1,3 +1,5 @@
+"""Ensure at most one teacher is assigned per group-subject combination."""
+
 from .base import Restriction
 
 

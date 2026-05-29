@@ -10,6 +10,13 @@ from .base import Restriction
 
 
 class LinkedSubjectsConsecutive(Restriction):
+    """Enforce that linked subjects scheduled on the same day must occupy adjacent hours.
+
+    Uses auxiliary BoolVars to model per-hour presence of each subject, then
+    constrains adjacency and alternation between the pair when both appear
+    on the same day.
+    """
+
     def apply(self, model, assignments, groups, subjects, num_days, num_hours):
         # Build a mapping id->subject for quick lookup
         subj_map = {s.id: s for s in subjects}

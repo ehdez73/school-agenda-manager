@@ -1,3 +1,5 @@
+"""Restrict the maximum number of hours a subject can be scheduled per day across all groups."""
+
 from .base import Restriction
 
 

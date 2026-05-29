@@ -9,6 +9,8 @@ from .base import Restriction
 
 
 class SubjectMustEveryDay(Restriction):
+    """Enforce that subjects marked with teach_every_day have at least one hour per day."""
+
     def apply(self, model, assignments, all_groups, all_subjects, num_days):
         """Add constraints: for each group and subject with teach_every_day True,
         sum of assignments across teachers and hours for each day >= 1.
