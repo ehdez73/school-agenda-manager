@@ -131,10 +131,22 @@ export default function CourseList() {
           />
         </FormModal>
       )}
+      {selectedEntity && (
+        <FormModal open={!!selectedEntity} onClose={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', num_lines: 1 }); }}>
+          <CourseForm
+            form={form}
+            setForm={setForm}
+            editingId={editingId}
+            onSubmit={handleSubmit}
+            onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', num_lines: 1 }); }}
+            onDelete={() => handleDelete(selectedEntity.name)}
+          />
+        </FormModal>
+      )}
       <SectionLayout
-        title={selectedEntity ? `${t('common.edit')}: ${selectedEntity.name}` : t('courses.title')}
+        title={t('courses.title')}
         actions={
-          !selectedEntity && (
+          !showForm && !selectedEntity && (
             <button
               className="btn btn--primary btn--compact"
               onClick={() => { setForm({ name: '', num_lines: 1 }); setShowForm(true); }}
@@ -154,19 +166,6 @@ export default function CourseList() {
             <span className="visually-hidden">{t('courses.loading')}</span>
           </div>
         )}
-        {selectedEntity ? (
-          <div className="edit-view">
-            <CourseForm
-              form={form}
-              setForm={setForm}
-              editingId={editingId}
-              onSubmit={handleSubmit}
-              onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', num_lines: 1 }); }}
-              onDelete={() => handleDelete(selectedEntity.name)}
-            />
-          </div>
-        ) : (
-        <>
         <div className="search-bar">
           <input
             type="text"
@@ -176,29 +175,27 @@ export default function CourseList() {
             onChange={e => setSearch(e.target.value)}
           />
         </div>
-      <table className="modern-table">
-        <thead>
-          <tr>
-            <th>{t('courses.name')}</th>
-            <th>{t('courses.num_lines')}</th>
-            <th>{t('courses.groups')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedCourses.map(course => {
-            const grupos = Array.from({ length: course.num_lines }, (_, i) => `${course.name}${String.fromCharCode(65 + i)}`);
-            return (
-              <tr key={course.name} onClick={() => handleEdit(course)} style={{ cursor: 'pointer' }}>
-                <td>{course.name}</td>
-                <td>{course.num_lines}</td>
-                <td>{grupos.join(', ')}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      </>
-      )}
+        <table className="modern-table">
+          <thead>
+            <tr>
+              <th>{t('courses.name')}</th>
+              <th>{t('courses.num_lines')}</th>
+              <th>{t('courses.groups')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedCourses.map(course => {
+              const grupos = Array.from({ length: course.num_lines }, (_, i) => `${course.name}${String.fromCharCode(65 + i)}`);
+              return (
+                <tr key={course.name} onClick={() => handleEdit(course)} style={{ cursor: 'pointer' }}>
+                  <td>{course.name}</td>
+                  <td>{course.num_lines}</td>
+                  <td>{grupos.join(', ')}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </SectionLayout>
     </>
   );

@@ -172,10 +172,28 @@ function SubjectList() {
           />
         </FormModal>
       )}
+      {selectedEntity && (
+        <FormModal open={!!selectedEntity} onClose={() => { setSelectedEntity(null); setEditingId(null); setForm({ id: '', name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '', included_lines: null }); setLockedHours(false); }}>
+          <SubjectForm
+            form={form}
+            setForm={setForm}
+            courses={courses}
+            subjects={subjects}
+            lockedHours={lockedHours}
+            editingId={editingId}
+            daysPerWeek={daysPerWeek}
+            formError={formError}
+            onSubmit={handleSubmit}
+            onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ id: '', name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '', included_lines: null }); setLockedHours(false); }}
+            onDelete={() => handleDelete(selectedEntity.id)}
+            subject={selectedEntity}
+          />
+        </FormModal>
+      )}
       <SectionLayout
-        title={selectedEntity ? `${t('common.edit')}: ${selectedEntity.name}` : t('subjects.title')}
+        title={t('subjects.title')}
         actions={
-          !selectedEntity && (
+          !showForm && !selectedEntity && (
             <button
               className="btn btn--primary btn--compact"
               onClick={() => { setForm({ id: '', name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 1, consecutive_hours: true, linked_subject_id: '', included_lines: null }); setShowForm(true); }}
@@ -190,25 +208,6 @@ function SubjectList() {
             {formError}
           </div>
         )}
-        {selectedEntity ? (
-          <div className="edit-view">
-            <SubjectForm
-              form={form}
-              setForm={setForm}
-              courses={courses}
-              subjects={subjects}
-              lockedHours={lockedHours}
-              editingId={editingId}
-              daysPerWeek={daysPerWeek}
-              formError={formError}
-              onSubmit={handleSubmit}
-              onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ id: '', name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '', included_lines: null }); setLockedHours(false); }}
-              onDelete={() => handleDelete(selectedEntity.id)}
-              subject={selectedEntity}
-            />
-          </div>
-        ) : (
-        <>
         <div className="search-bar">
           <input
             type="text"
@@ -281,8 +280,6 @@ function SubjectList() {
           ))}
         </tbody>
       </table>
-      </>
-      )}
       </SectionLayout>
     </>
   );

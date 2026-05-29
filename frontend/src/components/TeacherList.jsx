@@ -177,21 +177,8 @@ export default function TeacherList() {
           />
         </FormModal>
       )}
-      <SectionLayout
-        title={selectedEntity ? `${t('common.edit')}: ${selectedEntity.name}` : t('teachers.title')}
-        actions={
-          !selectedEntity && (
-            <button
-              className="btn btn--primary btn--compact"
-              onClick={() => { setForm(emptyTeacherForm()); setShowForm(true); }}
-            >
-              {t('teachers.add_teacher')}
-            </button>
-          )
-        }
-      >
-      {selectedEntity ? (
-        <div className="edit-view">
+      {selectedEntity && (
+        <FormModal open={!!selectedEntity} onClose={() => { setSelectedEntity(null); setEditingId(null); setForm(emptyTeacherForm()); }}>
           <TeacherForm
             form={form}
             setForm={setForm}
@@ -202,9 +189,21 @@ export default function TeacherList() {
             onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm(emptyTeacherForm()); }}
             onDelete={() => handleDelete(selectedEntity.id)}
           />
-        </div>
-      ) : (
-      <>
+        </FormModal>
+      )}
+      <SectionLayout
+        title={t('teachers.title')}
+        actions={
+          !showForm && !selectedEntity && (
+            <button
+              className="btn btn--primary btn--compact"
+              onClick={() => { setForm(emptyTeacherForm()); setShowForm(true); }}
+            >
+              {t('teachers.add_teacher')}
+            </button>
+          )
+        }
+      >
       <div className="search-bar">
         <input
           type="text"
@@ -258,8 +257,6 @@ export default function TeacherList() {
           ))}
         </tbody>
       </table>
-      </>
-      )}
       </SectionLayout>
     </>
   );

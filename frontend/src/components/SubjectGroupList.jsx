@@ -117,10 +117,24 @@ export default function SubjectGroupList() {
                     />
                 </FormModal>
             )}
+            {selectedEntity && (
+                <FormModal open={!!selectedEntity} onClose={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', color: '#fef3c7', subjects: [], included_lines: null }); }}>
+                    <SubjectGroupForm
+                        form={form}
+                        setForm={setForm}
+                        subjects={subjects}
+                        courses={courses}
+                        formError={formError}
+                        onSubmit={handleSubmit}
+                        onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', color: '#fef3c7', subjects: [], included_lines: null }); }}
+                        onDelete={() => handleDelete(selectedEntity.id)}
+                    />
+                </FormModal>
+            )}
             <SectionLayout
-                title={selectedEntity ? `${t('common.edit')}: ${selectedEntity.name}` : t('subject_groups.title')}
+                title={t('subject_groups.title')}
                 actions={
-                    !selectedEntity && (
+                    !showForm && !selectedEntity && (
                         <button
                             className="btn btn--primary btn--compact"
                             onClick={() => { setForm({ name: '', color: '#fef3c7', subjects: [], included_lines: null }); setShowForm(true); }}
@@ -130,21 +144,6 @@ export default function SubjectGroupList() {
                     )
                 }
             >
-                {selectedEntity ? (
-                    <div className="edit-view">
-                    <SubjectGroupForm
-                            form={form}
-                            setForm={setForm}
-                            subjects={subjects}
-                            courses={courses}
-                            formError={formError}
-                            onSubmit={handleSubmit}
-                            onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', color: '#fef3c7', subjects: [], included_lines: null }); }}
-                            onDelete={() => handleDelete(selectedEntity.id)}
-                        />
-                    </div>
-                ) : (
-                <>
                 {formError && (
                     <div role="alert" className="state-error mb-md">{formError}</div>
                 )}
@@ -171,8 +170,6 @@ export default function SubjectGroupList() {
                     ))}
                 </tbody>
             </table>
-            </>
-            )}
             </SectionLayout>
         </>
     );
