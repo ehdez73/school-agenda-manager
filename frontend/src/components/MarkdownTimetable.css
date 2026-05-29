@@ -276,20 +276,9 @@
   background-color: var(--color-table-row-odd);
 }
 
-.markdown-timetable tr:hover {
-  background-color: var(--color-table-hover);
-  transform: scale(1.01);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.markdown-timetable tr:hover td {
-  border-color: var(--color-primary);
-}
-
 /* Subject cells styling */
 .markdown-timetable td:not(:first-child) {
   position: relative;
-  cursor: pointer;
 }
 
 .markdown-timetable td:not(:first-child):not(:empty) {
@@ -416,10 +405,6 @@
 
 [data-theme="dark"] .markdown-timetable td:not(:first-child):not(:empty) {
   border-color: #60a5fa;
-}
-
-[data-theme="dark"] .markdown-timetable td:not(:first-child):not(:empty):hover {
-  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.25);
 }
 
 .tt-subject-entry {
