@@ -618,6 +618,11 @@ function MarkdownTimetable() {
     toggleEntrySelection(firstMatch.id, selectedIds, setSelectedIds);
   };
 
+  const handleSidebarScroll = (entryId, type) => {
+    const el = document.getElementById(`${type}-panel-${entryId}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <>
       <SectionLayout
@@ -674,11 +679,64 @@ function MarkdownTimetable() {
           </div>
         )}
         {!loading && !error && markdown.trim() && (
-          <div className="timetable-container markdown-timetable" ref={timetableRef}>
-            {canRenderSections ? (
-              <>
+          <div className="timetable-with-sidebar">
+            {canRenderSections && (
+              <aside className="timetable-sidebar">
+                <div className="timetable-sidebar__group">
+                  <a
+                    href="#course-section-title"
+                    className="timetable-sidebar__link timetable-sidebar__link--section"
+                    onClick={(e) => { e.preventDefault(); document.getElementById('course-section-title')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+                  >
+                    {courseSection.title}
+                  </a>
+                  {selectedCourseEntries.length > 0 && (
+                    <ul className="timetable-sidebar__list">
+                      {selectedCourseEntries.map(entry => (
+                        <li key={entry.id}>
+                          <a
+                            href={`#course-panel-${entry.id}`}
+                            className="timetable-sidebar__link"
+                            onClick={(e) => { e.preventDefault(); handleSidebarScroll(entry.id, 'course'); }}
+                          >
+                            {entry.title.replace(/ — .*/, '')}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <div className="timetable-sidebar__group">
+                  <a
+                    href="#teacher-section-title"
+                    className="timetable-sidebar__link timetable-sidebar__link--section"
+                    onClick={(e) => { e.preventDefault(); document.getElementById('teacher-section-title')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+                  >
+                    {teacherSection.title}
+                  </a>
+                  {selectedTeacherEntries.length > 0 && (
+                    <ul className="timetable-sidebar__list">
+                      {selectedTeacherEntries.map(entry => (
+                        <li key={entry.id}>
+                          <a
+                            href={`#teacher-panel-${entry.id}`}
+                            className="timetable-sidebar__link"
+                            onClick={(e) => { e.preventDefault(); handleSidebarScroll(entry.id, 'teacher'); }}
+                          >
+                            {entry.title.replace(/ — .*/, '')}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </aside>
+            )}
+            <div className="timetable-container markdown-timetable" ref={timetableRef}>
+              {canRenderSections ? (
+                <div className="timetable-content">
                 <section className="timetable-tabs-block">
-                  <h3>{courseSection.title}</h3>
+                  <h3 id="course-section-title">{courseSection.title}</h3>
                   <div
                     className="timetable-selector"
                     role="group"
@@ -782,7 +840,7 @@ function MarkdownTimetable() {
                 </section>
 
                 <section className="timetable-tabs-block">
-                  <h3>{teacherSection.title}</h3>
+                  <h3 id="teacher-section-title">{teacherSection.title}</h3>
                   <div
                     className="timetable-selector"
                     role="group"
@@ -884,7 +942,7 @@ function MarkdownTimetable() {
                     )}
                   </div>
                 </section>
-              </>
+              </div>
             ) : (
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
@@ -895,6 +953,7 @@ function MarkdownTimetable() {
               </ReactMarkdown>
             )}
           </div>
+        </div>
         )}
       </SectionLayout>
       {details && (

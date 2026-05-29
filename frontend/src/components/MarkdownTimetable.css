@@ -399,6 +399,105 @@
   border-color: #60a5fa;
 }
 
+.timetable-with-sidebar {
+  display: flex;
+  gap: var(--space-lg);
+  align-items: flex-start;
+}
+
+.timetable-sidebar {
+  position: sticky;
+  top: 1rem;
+  flex-shrink: 0;
+  width: 220px;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+}
+
+.timetable-sidebar__group {
+  margin-bottom: var(--space-md);
+}
+
+.timetable-sidebar__group:last-child {
+  margin-bottom: 0;
+}
+
+.timetable-sidebar__group-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0 0 var(--space-xs) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.timetable-sidebar__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.timetable-sidebar__link {
+  display: block;
+  padding: 0.35rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-text);
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timetable-sidebar__link:hover {
+  background-color: color-mix(in oklab, var(--color-primary), transparent 90%);
+  color: var(--color-primary);
+}
+
+.timetable-sidebar__link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.timetable-sidebar__link--section {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  border-bottom: 1px solid var(--color-border-light);
+  margin-bottom: var(--space-xs);
+  padding: 0.35rem 0.5rem;
+}
+
+.timetable-sidebar__link--section:hover {
+  color: var(--color-primary);
+  background-color: transparent;
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .timetable-with-sidebar {
+    flex-direction: column;
+  }
+
+  .timetable-sidebar {
+    position: static;
+    width: 100%;
+    max-height: none;
+  }
+}
+
 .tt-subject-entry {
   display: block;
   width: 100%;
