@@ -22,6 +22,7 @@ vi.mock('../../i18n', () => ({
 describe('MarkdownTimetable cell color behavior', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    sessionStorage.clear();
   });
 
   it('paints full cell when all subject entries share the same color', async () => {
@@ -128,14 +129,15 @@ describe('MarkdownTimetable cell color behavior', () => {
 
     fireEvent.focus(searchInputs[0]);
     fireEvent.change(searchInputs[0], { target: { value: 'Course: 1B' } });
-    fireEvent.click(await screen.findByLabelText('Course: 1B'));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Course: 1B' }));
     expect(screen.queryByText('SCI (Luis)')).not.toBeInTheDocument();
     expect(screen.getByText('MATH (Ana)')).toBeInTheDocument();
     expect(screen.getByText('1B: SCI')).toBeInTheDocument();
 
     fireEvent.focus(searchInputs[1]);
     fireEvent.change(searchInputs[1], { target: { value: 'Luis' } });
-    fireEvent.click(await screen.findByLabelText('Luis'));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'common.all_teachers' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Luis' }));
     expect(screen.getByText('1B: SCI')).toBeInTheDocument();
   });
 
@@ -243,5 +245,130 @@ describe('MarkdownTimetable cell color behavior', () => {
     expect(screen.queryByText('MATH (Ana)')).not.toBeInTheDocument();
     expect(screen.queryByText('1A: MATH')).not.toBeInTheDocument();
     expect(screen.getAllByText('No timetables selected')).toHaveLength(2);
+  });
+
+  it('keeps timetable filter selections across navigation within the same session', async () => {
+    apiMock.get.mockImplementation((path) => {
+      if (path === '/api/timetable/status/current') return Promise.resolve({ status: 'idle' });
+      if (path === '/api/timetable') {
+        return Promise.resolve(
+          [
+            '## By course',
+            '### Course: 1A',
+            '| Hour | Monday |',
+            '|---|---|',
+            '| 9:00 | MATH (Ana) |',
+            '',
+            '### Course: 1B',
+            '| Hour | Monday |',
+            '|---|---|',
+            '| 9:00 | SCI (Luis) |',
+            '',
+            '## By teacher',
+            '### Ana',
+            'Assigned: 1/10',
+            '| Hour | Monday |',
+            '|---|---|',
+            '| 9:00 | 1A: MATH |',
+            '',
+            '### Luis',
+            'Assigned: 1/10',
+            '| Hour | Monday |',
+            '|---|---|',
+            '| 9:00 | 1B: SCI |',
+          ].join('\n')
+        );
+      }
+      return Promise.resolve({});
+    });
+
+    const { unmount } = render(<MarkdownTimetable />);
+
+    const searchInputs = await screen.findAllByRole('searchbox');
+    fireEvent.focus(searchInputs[0]);
+    fireEvent.change(searchInputs[0], { target: { value: 'Course: 1B' } });
+    fireEvent.click(screen.getByRole('checkbox', { name: 'common.all_courses' }));
+    fireEvent.click(await screen.findByRole('checkbox', { name: 'Course: 1B' }));
+    fireEvent.focus(searchInputs[1]);
+    fireEvent.change(searchInputs[1], { target: { value: 'Luis' } });
+    fireEvent.click(screen.getByRole('checkbox', { name: 'common.all_teachers' }));
+    fireEvent.click(await screen.findByRole('checkbox', { name: 'Luis' }));
+
+    expect(screen.queryByText('MATH (Ana)')).not.toBeInTheDocument();
+    expect(screen.getByText('SCI (Luis)')).toBeInTheDocument();
+    expect(screen.queryByText('1A: MATH')).not.toBeInTheDocument();
+    expect(screen.getByText('1B: SCI')).toBeInTheDocument();
+
+    unmount();
+
+    render(<MarkdownTimetable />);
+
+    await waitFor(() => {
+      expect(screen.queryByText('MATH (Ana)')).not.toBeInTheDocument();
+      expect(screen.getByText('SCI (Luis)')).toBeInTheDocument();
+      expect(screen.queryByText('1A: MATH')).not.toBeInTheDocument();
+      expect(screen.getByText('1B: SCI')).toBeInTheDocument();
+    });
+  });
+
+  it('resets timetable filter selections when recreating the timetable', async () => {
+    apiMock.get.mockImplementation((path) => {
+      if (path === '/api/timetable/status/current') return Promise.resolve({ status: 'idle' });
+      if (path === '/api/timetable') {
+        return Promise.resolve(
+          [
+            '## By course',
+            '### Course: 1A',
+            '| Hour | Monday |',
+            '|---|---|',
+            '| 9:00 | MATH (Ana) |',
+            '',
+            '### Course: 1B',
+            '| Hour | Monday |',
+            '|---|---|',
+            '| 9:00 | SCI (Luis) |',
+            '',
+            '## By teacher',
+            '### Ana',
+            'Assigned: 1/10',
+            '| Hour | Monday |',
+            '|---|---|',
+            '| 9:00 | 1A: MATH |',
+            '',
+            '### Luis',
+            'Assigned: 1/10',
+            '| Hour | Monday |',
+            '|---|---|',
+            '| 9:00 | 1B: SCI |',
+          ].join('\n')
+        );
+      }
+      return Promise.resolve({});
+    });
+    apiMock.post.mockResolvedValue({ status: 'success' });
+
+    render(<MarkdownTimetable />);
+
+    const searchInputs = await screen.findAllByRole('searchbox');
+    fireEvent.focus(searchInputs[0]);
+    fireEvent.change(searchInputs[0], { target: { value: 'Course: 1B' } });
+    fireEvent.click(screen.getByRole('checkbox', { name: 'common.all_courses' }));
+    fireEvent.click(await screen.findByRole('checkbox', { name: 'Course: 1B' }));
+    fireEvent.focus(searchInputs[1]);
+    fireEvent.change(searchInputs[1], { target: { value: 'Luis' } });
+    fireEvent.click(screen.getByRole('checkbox', { name: 'common.all_teachers' }));
+    fireEvent.click(await screen.findByRole('checkbox', { name: 'Luis' }));
+
+    expect(screen.queryByText('MATH (Ana)')).not.toBeInTheDocument();
+    expect(screen.getByText('SCI (Luis)')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'timetable.recreate' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('MATH (Ana)')).toBeInTheDocument();
+      expect(screen.getByText('SCI (Luis)')).toBeInTheDocument();
+      expect(screen.getByText('1A: MATH')).toBeInTheDocument();
+      expect(screen.getByText('1B: SCI')).toBeInTheDocument();
+    });
   });
 });

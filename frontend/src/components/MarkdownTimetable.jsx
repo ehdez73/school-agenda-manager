@@ -9,6 +9,42 @@ import SectionLayout from './SectionLayout';
 
 const POLL_INTERVAL_MS = 2000;
 const POLL_RETRY_MS = 3000;
+const COURSE_SELECTION_STORAGE_KEY = 'timetable.selectedCourseIds';
+const TEACHER_SELECTION_STORAGE_KEY = 'timetable.selectedTeacherIds';
+
+
+function readSelectionFromSessionStorage(storageKey) {
+  try {
+    const rawValue = sessionStorage.getItem(storageKey);
+    if (rawValue === null) return null;
+    const parsedValue = JSON.parse(rawValue);
+    return Array.isArray(parsedValue) ? parsedValue.map(value => String(value)) : null;
+  } catch {
+    return null;
+  }
+}
+
+
+function writeSelectionToSessionStorage(storageKey, selectedIds) {
+  try {
+    if (selectedIds === null) {
+      sessionStorage.removeItem(storageKey);
+      return;
+    }
+    sessionStorage.setItem(storageKey, JSON.stringify(selectedIds));
+  } catch {
+    // Ignore storage failures in private mode or restricted environments.
+  }
+}
+
+
+function clearSelectionFromSessionStorage(storageKey) {
+  try {
+    sessionStorage.removeItem(storageKey);
+  } catch {
+    // Ignore storage failures in private mode or restricted environments.
+  }
+}
 
 
 function parseTimetableSections(markdownText) {
@@ -116,8 +152,8 @@ function MarkdownTimetable() {
   const [taskId, setTaskId] = useState(null);
   const [elapsed, setElapsed] = useState(0);
   const [downloading, setDownloading] = useState(false);
-  const [selectedCourseIds, setSelectedCourseIds] = useState([]);
-  const [selectedTeacherIds, setSelectedTeacherIds] = useState([]);
+  const [selectedCourseIdsState, setSelectedCourseIds] = useState(() => readSelectionFromSessionStorage(COURSE_SELECTION_STORAGE_KEY));
+  const [selectedTeacherIdsState, setSelectedTeacherIds] = useState(() => readSelectionFromSessionStorage(TEACHER_SELECTION_STORAGE_KEY));
   const [courseQuery, setCourseQuery] = useState('');
   const [teacherQuery, setTeacherQuery] = useState('');
   const [showCourseSuggestions, setShowCourseSuggestions] = useState(false);
@@ -160,6 +196,17 @@ function MarkdownTimetable() {
     setPhase(null);
     setElapsed(0);
     setTaskId(null);
+  };
+
+  const resetPersistedSelections = () => {
+    clearSelectionFromSessionStorage(COURSE_SELECTION_STORAGE_KEY);
+    clearSelectionFromSessionStorage(TEACHER_SELECTION_STORAGE_KEY);
+    setSelectedCourseIds(null);
+    setSelectedTeacherIds(null);
+    setCourseQuery('');
+    setTeacherQuery('');
+    setShowCourseSuggestions(false);
+    setShowTeacherSuggestions(false);
   };
 
   const fetchTimetable = async ({ silentNotFound = false } = {}) => {
@@ -254,6 +301,14 @@ function MarkdownTimetable() {
   }, []);
 
   useEffect(() => {
+    writeSelectionToSessionStorage(COURSE_SELECTION_STORAGE_KEY, selectedCourseIdsState);
+  }, [selectedCourseIdsState]);
+
+  useEffect(() => {
+    writeSelectionToSessionStorage(TEACHER_SELECTION_STORAGE_KEY, selectedTeacherIdsState);
+  }, [selectedTeacherIdsState]);
+
+  useEffect(() => {
     const handleClickOutside = (event) => {
       if (courseSelectorRef.current && !courseSelectorRef.current.contains(event.target)) {
         setShowCourseSuggestions(false);
@@ -292,6 +347,7 @@ function MarkdownTimetable() {
   }, []);
 
   const handleGenerate = async () => {
+    resetPersistedSelections();
     setGenerating(true);
     setError(null);
     setDetails(null);
@@ -309,6 +365,7 @@ function MarkdownTimetable() {
   };
 
   const handleClear = async () => {
+    resetPersistedSelections();
     setGenerating(true);
     setError(null);
     setDetails(null);
@@ -366,25 +423,22 @@ function MarkdownTimetable() {
   const teacherSection = parsedSections[1] || null;
   const canRenderSections = Boolean(courseSection && teacherSection);
 
-  const syncSelectionWithSection = (entries, setSelectedIds) => {
-    if (!entries || entries.length === 0) {
-      setSelectedIds([]);
+  const syncSelectionWithSection = (entries, currentSelectedIds, setSelectedIds) => {
+    if (!entries || entries.length === 0) return;
+    const validIds = new Set(entries.map(entry => entry.id));
+    if (currentSelectedIds === null) {
+      setSelectedIds(entries.map(entry => entry.id));
       return;
     }
-    const validIds = new Set(entries.map(entry => entry.id));
-    setSelectedIds((prev) => {
-      const filtered = prev.filter(id => validIds.has(id));
-      if (filtered.length > 0) return filtered;
-      return entries.map(entry => entry.id);
-    });
+    setSelectedIds(currentSelectedIds.filter(id => validIds.has(id)));
   };
 
   useEffect(() => {
-    syncSelectionWithSection(courseSection?.entries || [], setSelectedCourseIds);
+    syncSelectionWithSection(courseSection?.entries || [], selectedCourseIdsState, setSelectedCourseIds);
   }, [courseSection]);
 
   useEffect(() => {
-    syncSelectionWithSection(teacherSection?.entries || [], setSelectedTeacherIds);
+    syncSelectionWithSection(teacherSection?.entries || [], selectedTeacherIdsState, setSelectedTeacherIds);
   }, [teacherSection]);
 
   const markdownComponents = {
@@ -406,6 +460,8 @@ function MarkdownTimetable() {
     return section.entries.filter(entry => selectedSet.has(entry.id));
   };
 
+  const selectedCourseIds = selectedCourseIdsState ?? [];
+  const selectedTeacherIds = selectedTeacherIdsState ?? [];
   const selectedCourseEntries = getSelectedEntries(courseSection, selectedCourseIds);
   const selectedTeacherEntries = getSelectedEntries(teacherSection, selectedTeacherIds);
   const allCourseIds = courseSection?.entries.map(entry => entry.id) || [];
