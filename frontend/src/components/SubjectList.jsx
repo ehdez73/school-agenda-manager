@@ -4,6 +4,7 @@ import { t } from '../i18n';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import FormModal from './FormModal';
 import SubjectForm from './SubjectForm';
+import SubjectGroupList from './SubjectGroupList';
 import './SubjectList.css';
 import SectionLayout from './SectionLayout';
 
@@ -23,6 +24,7 @@ function SubjectList() {
   const [selectedEntity, setSelectedEntity] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [activeTab, setActiveTab] = useState('subjects');
 
   useEffect(() => {
     fetchSubjects();
@@ -192,17 +194,34 @@ function SubjectList() {
       )}
       <SectionLayout
         title={t('subjects.title')}
-        actions={
-          !showForm && !selectedEntity && (
+      >
+        <div className="subject-tabs">
+          <button
+            className={`subject-tab${activeTab === 'subjects' ? ' active' : ''}`}
+            onClick={() => setActiveTab('subjects')}
+          >
+            {t('subjects.tab_subjects')}
+          </button>
+          <button
+            className={`subject-tab${activeTab === 'packs' ? ' active' : ''}`}
+            onClick={() => setActiveTab('packs')}
+          >
+            {t('subjects.tab_packs')}
+          </button>
+        </div>
+
+        {activeTab === 'subjects' && (
+          <>
+        <div className="tab-content-header">
+          {!showForm && !selectedEntity && (
             <button
               className="btn btn--primary btn--compact"
               onClick={() => { setForm({ id: '', name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 1, consecutive_hours: true, linked_subject_id: '', included_lines: null }); setShowForm(true); }}
             >
               {t('subjects.add_subject')}
             </button>
-          )
-        }
-      >
+          )}
+        </div>
         {formError && (
           <div role="alert" className="state-error mb-md">
             {formError}
@@ -280,6 +299,12 @@ function SubjectList() {
           ))}
         </tbody>
       </table>
+          </>
+        )}
+
+        {activeTab === 'packs' && (
+          <SubjectGroupList standalone={false} />
+        )}
       </SectionLayout>
     </>
   );

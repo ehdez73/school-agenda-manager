@@ -7,7 +7,7 @@ import SubjectGroupForm from './SubjectGroupForm';
 import './SubjectGroupList.css';
 import SectionLayout from './SectionLayout';
 
-export default function SubjectGroupList() {
+export default function SubjectGroupList({ standalone = true }) {
     const [groups, setGroups] = useState([]);
     const [subjects, setSubjects] = useState([]);
     const [courses, setCourses] = useState([]);
@@ -18,6 +18,7 @@ export default function SubjectGroupList() {
     const [selectedEntity, setSelectedEntity] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
+    const [search, setSearch] = useState('');
 
     useEffect(() => {
         fetchGroups();
@@ -96,6 +97,62 @@ export default function SubjectGroupList() {
         setDeleteId(null);
     }
 
+    const filteredGroups = groups.filter(g => {
+        const q = search.toLowerCase();
+        if (g.name.toLowerCase().includes(q)) return true;
+        if (g.subjects?.some(s => (s.full_name || s.name).toLowerCase().includes(q))) return true;
+        return false;
+    });
+
+    const addButton = !showForm && !selectedEntity && (
+        <button
+            className="btn btn--primary btn--compact"
+            onClick={() => { setForm({ name: '', color: '#fef3c7', subjects: [], included_lines: null }); setShowForm(true); }}
+        >
+            {t('subject_groups.add_group')}
+        </button>
+    );
+
+    const tableContent = (
+        <>
+            {formError && (
+                <div role="alert" className="state-error mb-md">{formError}</div>
+            )}
+
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder={t('common.search_placeholder')}
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="input search-input"
+          />
+        </div>
+        <table className="modern-table">
+            <thead>
+                <tr>
+                    <th>{t('common.id') || 'ID'}</th>
+                    <th>{t('common.name') || 'Name'}</th>
+                    <th>{t('subject_groups.subjects') || 'Subjects'}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {filteredGroups.map(g => (
+                    <tr key={g.id} onClick={() => handleEdit(g)} style={{ cursor: 'pointer' }}>
+                        <td>{g.id}</td>
+                        <td>
+                            <span className="group-color-chip" style={{ backgroundColor: g.color || '#fef3c7' }} aria-hidden="true" />
+                            {g.name}
+                        </td>
+                        <td>{g.subjects ? g.subjects.map(s => s.full_name || s.name).join(', ') : ''}</td>
+
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+        </>
+    );
+
     return (
         <>
             <ConfirmDeleteModal
@@ -131,46 +188,21 @@ export default function SubjectGroupList() {
                     />
                 </FormModal>
             )}
-            <SectionLayout
-                title={t('subject_groups.title')}
-                actions={
-                    !showForm && !selectedEntity && (
-                        <button
-                            className="btn btn--primary btn--compact"
-                            onClick={() => { setForm({ name: '', color: '#fef3c7', subjects: [], included_lines: null }); setShowForm(true); }}
-                        >
-                            {t('subject_groups.add_group')}
-                        </button>
-                    )
-                }
-            >
-                {formError && (
-                    <div role="alert" className="state-error mb-md">{formError}</div>
-                )}
-
-            <table className="modern-table">
-                <thead>
-                    <tr>
-                        <th>{t('common.id') || 'ID'}</th>
-                        <th>{t('common.name') || 'Name'}</th>
-                        <th>{t('subject_groups.subjects') || 'Subjects'}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {groups.map(g => (
-                        <tr key={g.id} onClick={() => handleEdit(g)} style={{ cursor: 'pointer' }}>
-                            <td>{g.id}</td>
-                            <td>
-                                <span className="group-color-chip" style={{ backgroundColor: g.color || '#fef3c7' }} aria-hidden="true" />
-                                {g.name}
-                            </td>
-                            <td>{g.subjects ? g.subjects.map(s => s.full_name || s.name).join(', ') : ''}</td>
-
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            </SectionLayout>
+            {standalone ? (
+                <SectionLayout
+                    title={t('subject_groups.title')}
+                    actions={addButton}
+                >
+                    {tableContent}
+                </SectionLayout>
+            ) : (
+                <div className="subject-groups-embedded">
+                    <div className="tab-content-header">
+                        {addButton}
+                    </div>
+                    {tableContent}
+                </div>
+            )}
         </>
     );
 }

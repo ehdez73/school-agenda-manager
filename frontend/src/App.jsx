@@ -4,7 +4,6 @@ import { t } from './i18n';
 import CourseList from './components/CourseList';
 import SubjectList from './components/SubjectList';
 import TeacherList from './components/TeacherList';
-import SubjectGroupList from './components/SubjectGroupList';
 import ConfigForm from './components/ConfigForm';
 import MarkdownTimetable from './components/MarkdownTimetable';
 import LanguageSelector from './components/LanguageSelector';
@@ -45,9 +44,6 @@ function App() {
           <button className={'nav__link' + (page === 'subjects' ? ' nav__link--active' : '')} onClick={() => setPage('subjects')}>
             {t('nav.subjects')}
           </button>
-          <button className={'nav__link' + (page === 'subject-groups' ? ' nav__link--active' : '')} onClick={() => setPage('subject-groups')}>
-            {t('nav.subject_groups')}
-          </button>
           <button className={'nav__link' + (page === 'teachers' ? ' nav__link--active' : '')} onClick={() => setPage('teachers')}>
             {t('nav.teachers')}
           </button>
@@ -82,7 +78,6 @@ function App() {
         {page === 'courses' && <CourseList />}
         {page === 'subjects' && <SubjectList />}
         {page === 'teachers' && <TeacherList />}
-        {page === 'subject-groups' && <SubjectGroupList />}
         {page === 'timetable-markdown' && <MarkdownTimetable />}
         {page === 'config' && <ConfigForm />}
       </main>

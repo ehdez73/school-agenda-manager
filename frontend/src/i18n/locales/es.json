@@ -135,8 +135,9 @@
         "teacher": "Docente",
         "assigned_teachers": "Profesores asignados",
         "no_teachers": "Sin profesores asignados",
-        "lines": "Líneas (desmarca para excluir)"
-
+        "lines": "Líneas (desmarca para excluir)",
+        "tab_subjects": "Asignaturas",
+        "tab_packs": "Packs"
     },
     "subject_groups": {
         "title": "Packs de Asignaturas",

@@ -135,7 +135,9 @@
         "teacher": "Teacher",
         "assigned_teachers": "Assigned teachers",
         "no_teachers": "No teachers assigned",
-        "lines": "Lines (uncheck to exclude)"
+        "lines": "Lines (uncheck to exclude)",
+        "tab_subjects": "Subjects",
+        "tab_packs": "Packs"
     },
     "subject_groups": {
         "title": "Subject Packs",
