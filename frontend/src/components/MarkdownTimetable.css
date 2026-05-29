@@ -108,26 +108,9 @@
 
 .timetable-selector__controls {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 1fr;
   gap: 0.6rem;
   align-items: center;
-}
-
-.timetable-selector__all-option {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.55rem 0.65rem;
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  background: color-mix(in oklab, var(--color-surface-variant), white 15%);
-  color: var(--color-text);
-  font-size: 0.86rem;
-  font-weight: 600;
-}
-
-.timetable-selector__all-option input {
-  margin: 0;
 }
 
 .timetable-selector__input {
@@ -185,6 +168,15 @@
 .timetable-selector__option.selected {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: #ffffff;
+}
+
+.timetable-selector__option--all {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border-bottom: 1px solid var(--color-border-light);
+  background: color-mix(in oklab, var(--color-surface-variant), white 20%);
+  font-weight: 700;
 }
 
 .timetable-selector__option input {
@@ -385,9 +377,9 @@
   color: #dbeafe;
 }
 
-[data-theme="dark"] .timetable-selector__all-option {
+[data-theme="dark"] .timetable-selector__option--all {
   border-color: rgba(148, 163, 184, 0.35);
-  background: rgba(30, 41, 59, 0.6);
+  background: rgba(30, 41, 59, 0.9);
 }
 
 [data-theme="dark"] .timetable-selector__option.selected {

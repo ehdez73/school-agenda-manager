@@ -121,17 +121,17 @@ describe('MarkdownTimetable cell color behavior', () => {
     const searchInputs = await screen.findAllByRole('searchbox');
     expect(searchInputs).toHaveLength(2);
 
-    expect(screen.getByText('MATH (Ana)')).toBeInTheDocument();
+    expect(await screen.findByText('MATH (Ana)')).toBeInTheDocument();
+    expect(screen.getByText('SCI (Luis)')).toBeInTheDocument();
     expect(screen.getByText('1A: MATH')).toBeInTheDocument();
-    expect(screen.queryByText('SCI (Luis)')).not.toBeInTheDocument();
-    expect(screen.queryByText('1B: SCI')).not.toBeInTheDocument();
+    expect(screen.getByText('1B: SCI')).toBeInTheDocument();
 
     fireEvent.focus(searchInputs[0]);
     fireEvent.change(searchInputs[0], { target: { value: 'Course: 1B' } });
     fireEvent.click(await screen.findByLabelText('Course: 1B'));
-    expect(screen.getByText('SCI (Luis)')).toBeInTheDocument();
-    expect(screen.getByText('1A: MATH')).toBeInTheDocument();
-    expect(screen.queryByText('1B: SCI')).not.toBeInTheDocument();
+    expect(screen.queryByText('SCI (Luis)')).not.toBeInTheDocument();
+    expect(screen.getByText('MATH (Ana)')).toBeInTheDocument();
+    expect(screen.getByText('1B: SCI')).toBeInTheDocument();
 
     fireEvent.focus(searchInputs[1]);
     fireEvent.change(searchInputs[1], { target: { value: 'Luis' } });
@@ -183,26 +183,26 @@ describe('MarkdownTimetable cell color behavior', () => {
     const searchInputs = await screen.findAllByRole('searchbox');
     expect(searchInputs).toHaveLength(2);
 
-    expect(screen.getByText('SUB1 (Teacher 1)')).toBeInTheDocument();
-    expect(screen.queryByText('SUB9 (Teacher 9)')).not.toBeInTheDocument();
+    expect(await screen.findByText('SUB1 (Teacher 1)')).toBeInTheDocument();
+    expect(screen.getByText('SUB9 (Teacher 9)')).toBeInTheDocument();
 
     fireEvent.focus(searchInputs[0]);
     fireEvent.change(searchInputs[0], { target: { value: 'Course: 9A' } });
     fireEvent.click(screen.getByLabelText('common.all_courses'));
-    expect(screen.getByText('SUB1 (Teacher 1)')).toBeInTheDocument();
-    expect(screen.getByText('SUB9 (Teacher 9)')).toBeInTheDocument();
+    expect(screen.queryByText('SUB1 (Teacher 1)')).not.toBeInTheDocument();
+    expect(screen.queryByText('SUB9 (Teacher 9)')).not.toBeInTheDocument();
 
     expect(screen.getByText('1A: SUB1')).toBeInTheDocument();
-    expect(screen.queryByText('9A: SUB9')).not.toBeInTheDocument();
+    expect(screen.getByText('9A: SUB9')).toBeInTheDocument();
 
     fireEvent.focus(searchInputs[1]);
     fireEvent.change(searchInputs[1], { target: { value: 'Teacher 9' } });
     fireEvent.click(screen.getByLabelText('common.all_teachers'));
-    expect(screen.getByText('1A: SUB1')).toBeInTheDocument();
-    expect(screen.getByText('9A: SUB9')).toBeInTheDocument();
+    expect(screen.queryByText('1A: SUB1')).not.toBeInTheDocument();
+    expect(screen.queryByText('9A: SUB9')).not.toBeInTheDocument();
   });
 
-  it('shows no timetable panel when all options are deselected after initial selection', async () => {
+  it('shows no timetable panel when all options are deselected from default all-selected state', async () => {
     apiMock.get.mockImplementation((path) => {
       if (path === '/api/timetable/status/current') return Promise.resolve({ status: 'idle' });
       if (path === '/api/timetable') {
@@ -230,7 +230,7 @@ describe('MarkdownTimetable cell color behavior', () => {
 
     const searchInputs = await screen.findAllByRole('searchbox');
     expect(searchInputs).toHaveLength(2);
-    expect(screen.getByText('MATH (Ana)')).toBeInTheDocument();
+    expect(await screen.findByText('MATH (Ana)')).toBeInTheDocument();
     expect(screen.getByText('1A: MATH')).toBeInTheDocument();
 
     fireEvent.focus(searchInputs[0]);

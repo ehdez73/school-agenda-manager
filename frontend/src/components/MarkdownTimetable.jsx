@@ -125,6 +125,8 @@ function MarkdownTimetable() {
   const timetableRef = useRef();
   const courseSelectorRef = useRef(null);
   const teacherSelectorRef = useRef(null);
+  const allCoursesCheckboxRef = useRef(null);
+  const allTeachersCheckboxRef = useRef(null);
   const pollingRef = useRef(null);
   const elapsedRef = useRef(null);
   const startTimeRef = useRef(null);
@@ -373,7 +375,7 @@ function MarkdownTimetable() {
     setSelectedIds((prev) => {
       const filtered = prev.filter(id => validIds.has(id));
       if (filtered.length > 0) return filtered;
-      return [entries[0].id];
+      return entries.map(entry => entry.id);
     });
   };
 
@@ -410,6 +412,20 @@ function MarkdownTimetable() {
   const allTeacherIds = teacherSection?.entries.map(entry => entry.id) || [];
   const areAllCoursesSelected = allCourseIds.length > 0 && allCourseIds.every(id => selectedCourseIds.includes(id));
   const areAllTeachersSelected = allTeacherIds.length > 0 && allTeacherIds.every(id => selectedTeacherIds.includes(id));
+  const areSomeCoursesSelected = selectedCourseIds.length > 0 && !areAllCoursesSelected;
+  const areSomeTeachersSelected = selectedTeacherIds.length > 0 && !areAllTeachersSelected;
+
+  useEffect(() => {
+    if (allCoursesCheckboxRef.current) {
+      allCoursesCheckboxRef.current.indeterminate = areSomeCoursesSelected;
+    }
+  }, [areSomeCoursesSelected]);
+
+  useEffect(() => {
+    if (allTeachersCheckboxRef.current) {
+      allTeachersCheckboxRef.current.indeterminate = areSomeTeachersSelected;
+    }
+  }, [areSomeTeachersSelected]);
 
   const filterEntriesByQuery = (entries, query) => {
     const normalized = query.trim().toLowerCase();
@@ -495,18 +511,6 @@ function MarkdownTimetable() {
                     ref={courseSelectorRef}
                   >
                     <div className="timetable-selector__controls">
-                      <label className="timetable-selector__all-option">
-                        <input
-                          type="checkbox"
-                          checked={areAllCoursesSelected}
-                          onChange={(event) => handleAllSelection(
-                            event.target.checked,
-                            allCourseIds,
-                            setSelectedCourseIds,
-                          )}
-                        />
-                        <span>{t('common.all_courses') || 'All courses'}</span>
-                      </label>
                       <input
                         type="search"
                         className="timetable-selector__input"
@@ -533,6 +537,22 @@ function MarkdownTimetable() {
                         aria-label={courseSection.title}
                         onMouseDown={(event) => event.preventDefault()}
                       >
+                        <label
+                          className={`timetable-selector__option timetable-selector__option--all ${areAllCoursesSelected ? 'selected' : ''}`}
+                        >
+                          <input
+                            ref={allCoursesCheckboxRef}
+                            type="checkbox"
+                            checked={areAllCoursesSelected}
+                            onChange={(event) => handleAllSelection(
+                              event.target.checked,
+                              allCourseIds,
+                              setSelectedCourseIds,
+                            )}
+                            aria-label={t('common.all_courses') || 'All courses'}
+                          />
+                          <span>{t('common.all_courses') || 'All courses'}</span>
+                        </label>
                         {filteredCourseEntries.length > 0 ? (
                           filteredCourseEntries.map((entry) => {
                             const isSelected = selectedCourseIds.includes(entry.id);
@@ -595,18 +615,6 @@ function MarkdownTimetable() {
                     ref={teacherSelectorRef}
                   >
                     <div className="timetable-selector__controls">
-                      <label className="timetable-selector__all-option">
-                        <input
-                          type="checkbox"
-                          checked={areAllTeachersSelected}
-                          onChange={(event) => handleAllSelection(
-                            event.target.checked,
-                            allTeacherIds,
-                            setSelectedTeacherIds,
-                          )}
-                        />
-                        <span>{t('common.all_teachers') || 'All teachers'}</span>
-                      </label>
                       <input
                         type="search"
                         className="timetable-selector__input"
@@ -633,6 +641,22 @@ function MarkdownTimetable() {
                         aria-label={teacherSection.title}
                         onMouseDown={(event) => event.preventDefault()}
                       >
+                        <label
+                          className={`timetable-selector__option timetable-selector__option--all ${areAllTeachersSelected ? 'selected' : ''}`}
+                        >
+                          <input
+                            ref={allTeachersCheckboxRef}
+                            type="checkbox"
+                            checked={areAllTeachersSelected}
+                            onChange={(event) => handleAllSelection(
+                              event.target.checked,
+                              allTeacherIds,
+                              setSelectedTeacherIds,
+                            )}
+                            aria-label={t('common.all_teachers') || 'All teachers'}
+                          />
+                          <span>{t('common.all_teachers') || 'All teachers'}</span>
+                        </label>
                         {filteredTeacherEntries.length > 0 ? (
                           filteredTeacherEntries.map((entry) => {
                             const isSelected = selectedTeacherIds.includes(entry.id);
