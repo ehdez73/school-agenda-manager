@@ -454,6 +454,23 @@ function MarkdownTimetable() {
     }
   };
 
+  function consolidateCellBg(cellHtml) {
+    const colorRe = /background-color:\s*(#[0-9a-fA-F]{6})/g;
+    const colors = [];
+    let m;
+    while ((m = colorRe.exec(cellHtml)) !== null) {
+      colors.push(m[1].toLowerCase());
+    }
+    if (colors.length === 0) return { html: cellHtml, bgColor: null };
+    const unique = [...new Set(colors)];
+    if (unique.length === 1) {
+      let cleaned = cellHtml.replace(/background-color:\s*#[0-9a-fA-F]{6};?\s*/gi, '');
+      cleaned = cleaned.replace(/\s*style="\s*"/g, '');
+      return { html: cleaned, bgColor: unique[0] };
+    }
+    return { html: cellHtml, bgColor: null };
+  }
+
   const pipeTableToHtml = (md) => {
     const lines = md.split('\n');
     const result = [];
@@ -468,7 +485,12 @@ function MarkdownTimetable() {
           const cells = row.split('|').slice(1, -1).map(c => c.trim());
           const tag = i === 1 ? 'th' : 'td';
           if (i === 1) return;
-          result.push(`<tr>${cells.map(c => `<${tag}>${c}</${tag}>`).join('')}</tr>`);
+          const processedCells = cells.map(c => {
+            const { html, bgColor } = consolidateCellBg(c);
+            const styleAttr = bgColor ? ` style="background-color: ${bgColor};"` : '';
+            return `<${tag}${styleAttr}>${html}</${tag}>`;
+          });
+          result.push(`<tr>${processedCells.join('')}</tr>`);
         });
         result.push('</table>');
       }
