@@ -47,6 +47,13 @@ function clearSelectionFromSessionStorage(storageKey) {
 }
 
 
+function stripHtmlTags(text) {
+  return text
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, '');
+}
+
+
 function filterFixedRows(markdown) {
   if (!markdown) return markdown;
   return markdown.split('\n')
@@ -421,7 +428,7 @@ function MarkdownTimetable() {
   };
 
   const handleDownloadMarkdown = () => {
-    const content = buildFilteredMarkdown();
+    const content = stripHtmlTags(buildFilteredMarkdown());
     if (!content.trim()) {
       setError(t('timetable.no_content_download'));
       return;
