@@ -19,7 +19,6 @@ function SubjectList() {
   const [form, setForm] = useState({ name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '', included_lines: null });
   const [showForm, setShowForm] = useState(false);
   const [formError, setFormError] = useState('');
-  const [lockedHours, setLockedHours] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [selectedEntity, setSelectedEntity] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -69,7 +68,6 @@ function SubjectList() {
   setForm({ id: '', name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '', included_lines: null });
       setEditingId(null);
       setShowForm(false);
-      setLockedHours(false);
       setSelectedEntity(null);
     }).catch(err => setFormError(err.message));
   }
@@ -87,8 +85,6 @@ function SubjectList() {
       linked_subject_id: subject.linked_subject_id || '',
       included_lines: subject.included_lines ?? null,
     });
-    const isLocked = subject.subject_groups && subject.subject_groups.length > 0;
-    setLockedHours(Boolean(isLocked));
     setEditingId(subject.id);
     setShowForm(false);
     setSelectedEntity(subject);
@@ -165,7 +161,6 @@ function SubjectList() {
             setForm={setForm}
             courses={courses}
             subjects={subjects}
-            lockedHours={lockedHours}
             editingId={editingId}
             daysPerWeek={daysPerWeek}
             formError={formError}
@@ -175,18 +170,17 @@ function SubjectList() {
         </FormModal>
       )}
       {selectedEntity && (
-        <FormModal open={!!selectedEntity} onClose={() => { setSelectedEntity(null); setEditingId(null); setForm({ id: '', name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '', included_lines: null }); setLockedHours(false); }}>
+        <FormModal open={!!selectedEntity} onClose={() => { setSelectedEntity(null); setEditingId(null); setForm({ id: '', name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '', included_lines: null }); }}>
           <SubjectForm
             form={form}
             setForm={setForm}
             courses={courses}
             subjects={subjects}
-            lockedHours={lockedHours}
             editingId={editingId}
             daysPerWeek={daysPerWeek}
             formError={formError}
             onSubmit={handleSubmit}
-            onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ id: '', name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '', included_lines: null }); setLockedHours(false); }}
+            onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ id: '', name: '', course_id: '', color: '#dbeafe', weekly_hours: 2, max_hours_per_day: 2, consecutive_hours: true, linked_subject_id: '', included_lines: null }); }}
             onDelete={() => handleDelete(selectedEntity.id)}
             subject={selectedEntity}
           />

@@ -18,6 +18,7 @@
         "name": "Nombre",
         "yes": "Sí",
         "no": "No",
+        "all": "Todas",
         "dashes": "--"
     },
     "id": "ID",
@@ -147,7 +148,12 @@
         "add_group": "Añadir pack",
         "error_hours_mismatch": "ERROR:Todas las asignaturas seleccionadas deben tener el mismo número de horas semanales.",
         "hours_locked_info": "Las horas semanales están bloqueadas porque la asignatura pertenece a un pack.",
-        "subjects": "Asignaturas"
+        "subjects": "Asignaturas",
+        "shared_hours": "H. compartidas",
+        "shared_hours_placeholder": "Todas las horas",
+        "shared_hours_hint": "Horas que se imparten juntas. El resto son independientes.",
+        "all_hours_hint": "Todas las horas se imparten juntas.",
+        "error_shared_hours_invalid": "Las horas compartidas deben estar entre 1 y el mínimo de horas semanales de las asignaturas seleccionadas."
     },
     "teachers": {
         "title": "Docentes",

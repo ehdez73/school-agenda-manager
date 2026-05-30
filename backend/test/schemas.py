@@ -13,6 +13,7 @@ class TestSubject(BaseModel):
 class TestSubjectGroup(BaseModel):
     id: str
     subject_ids: List[str]
+    shared_hours: Optional[int] = None
     __test__ = False
 
 

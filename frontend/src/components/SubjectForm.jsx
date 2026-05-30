@@ -31,7 +31,7 @@ function toggleLine(included, lineIndex, numLines) {
     return result.length === 0 ? null : result;
 }
 
-export default function SubjectForm({ form, setForm, courses, subjects = [], lockedHours, editingId, formError, onSubmit, onCancel, onDelete, daysPerWeek, subject }) {
+export default function SubjectForm({ form, setForm, courses, subjects = [], editingId, formError, onSubmit, onCancel, onDelete, daysPerWeek, subject }) {
     useEscapeToCancel(onCancel);
 
     const selectedCourse = useMemo(() => courses.find(c => c.id === form.course_id), [courses, form.course_id]);
@@ -159,7 +159,6 @@ export default function SubjectForm({ form, setForm, courses, subjects = [], loc
                     placeholder={t('subjects.weekly_hours')}
                     required
                     className="subject-input subject-input-short"
-                    disabled={lockedHours}
                 />
             </label>
             <label className="subject-label">
@@ -220,7 +219,6 @@ export default function SubjectForm({ form, setForm, courses, subjects = [], loc
                 noResultsText="No subjects available"
                 singleSelect={true}
             />
-            {lockedHours && <div className="form-info">{t('subject_groups.hours_locked_info')}</div>}
             {formError && <div className="form-error">{formError}</div>}
             {subject && (
                 <div className="subject-teachers">

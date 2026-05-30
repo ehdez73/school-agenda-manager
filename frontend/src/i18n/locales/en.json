@@ -18,6 +18,7 @@
         "name": "Name",
         "yes": "Yes",
         "no": "No",
+        "all": "All",
         "dashes": "--"
     },
     "id": "ID",
@@ -147,7 +148,12 @@
         "add_group": "Add pack",
         "error_hours_mismatch": "ERROR: All selected subjects must have the same weekly hours.",
         "hours_locked_info": "Weekly hours are locked because the subject belongs to a pack.",
-        "subjects": "Subjects"
+        "subjects": "Subjects",
+        "shared_hours": "Shared h.",
+        "shared_hours_placeholder": "All hours",
+        "shared_hours_hint": "Hours taught together. Remaining hours are standalone.",
+        "all_hours_hint": "All hours are taught together.",
+        "error_shared_hours_invalid": "Shared hours must be between 1 and the minimum weekly hours of selected subjects."
     },
     "teachers": {
         "title": "Teachers",

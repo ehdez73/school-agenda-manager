@@ -375,7 +375,12 @@ def _check_capacity_sanity(all_subjects, all_groups, num_days, num_hours, all_su
                 continue
             group_subjects = [s for s in sg.subjects if s.course_id == course and _is_line_included(s, line_index)]
             if group_subjects:
-                grouped_hours += max(s.weekly_hours for s in group_subjects)
+                wh = [s.weekly_hours for s in group_subjects]
+                sh = getattr(sg, 'shared_hours', None)
+                if sh is not None:
+                    grouped_hours += sh + sum(w - sh for w in wh)
+                else:
+                    grouped_hours += max(wh)
 
         required = standalone_hours + grouped_hours
         available = num_days * num_hours
@@ -417,21 +422,36 @@ def _check_subjects_without_teachers(all_subjects, all_teachers, all_groups,
 
 
 def _check_subjectgroup_weekly_hours_consistency(all_subjectgroups):
-    """Check all SubjectGroup members have identical weekly_hours."""
+    """Check SubjectGroup hours constraints.
+
+    - If shared_hours is set: validate shared_hours <= min(weekly_hours).
+    - If shared_hours is None: all members must have identical weekly_hours.
+    """
     issues = []
     for sg in all_subjectgroups:
         subjects_list = getattr(sg, 'subjects', [])
         if not subjects_list or len(subjects_list) < 2:
             continue
-        hours = {s.weekly_hours for s in subjects_list}
-        if len(hours) > 1:
-            names = [f"{s.name}({s.weekly_hours}h)" for s in subjects_list]
-            sg_name = getattr(sg, 'name', None) or getattr(sg, 'id', 'unknown')
-            issues.append(
-                f"  - **SubjectGroup \"{sg_name}\"**: members have different "
-                f"weekly_hours: {', '.join(names)}. "
-                f"All subjects in a SubjectGroup must have the same weekly hours."
-            )
+        shared_hours = getattr(sg, 'shared_hours', None)
+        if shared_hours is not None:
+            min_hours = min(s.weekly_hours for s in subjects_list)
+            if shared_hours > min_hours:
+                names = [f"{s.name}({s.weekly_hours}h)" for s in subjects_list]
+                sg_name = getattr(sg, 'name', None) or getattr(sg, 'id', 'unknown')
+                issues.append(
+                    f"  - **SubjectGroup \"{sg_name}\"**: shared_hours={shared_hours} "
+                    f"exceeds min weekly_hours of members: {', '.join(names)}."
+                )
+        else:
+            hours = {s.weekly_hours for s in subjects_list}
+            if len(hours) > 1:
+                names = [f"{s.name}({s.weekly_hours}h)" for s in subjects_list]
+                sg_name = getattr(sg, 'name', None) or getattr(sg, 'id', 'unknown')
+                issues.append(
+                    f"  - **SubjectGroup \"{sg_name}\"**: members have different "
+                    f"weekly_hours: {', '.join(names)}. "
+                    f"All subjects in a SubjectGroup must have the same weekly hours."
+                )
     return issues
 
 
@@ -485,7 +505,12 @@ def _check_teacher_capacity_vs_load(all_teachers, all_subjects, all_groups,
                 continue
             gs = [s for s in getattr(sg, 'subjects', []) if s.course_id == course and _is_line_included(s, line_index)]
             if gs:
-                grouped += max(s.weekly_hours for s in gs)
+                wh = [s.weekly_hours for s in gs]
+                sh = getattr(sg, 'shared_hours', None)
+                if sh is not None:
+                    grouped += sh + sum(w - sh for w in wh)
+                else:
+                    grouped += max(wh)
         total_required += standalone + grouped
 
     if total_required > total_capacity:

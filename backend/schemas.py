@@ -37,6 +37,7 @@ class SubjectGroupSchema(BaseModel):
     color: str = "#fef3c7"
     subjects: List[SubjectMinimalSchema] = []
     included_lines: Optional[List[int]] = None
+    shared_hours: Optional[int] = None
 
 
 class DayPreferences(BaseModel):

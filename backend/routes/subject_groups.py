@@ -23,21 +23,38 @@ def _normalize_group_color(value):
     return color.lower()
 
 
+def _build_group_dict(g):
+    return {
+        'id': g.id,
+        'name': g.name,
+        'color': g.color,
+        'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in g.subjects],
+        'included_lines': json.loads(g.included_lines) if g.included_lines else None,
+        'shared_hours': g.shared_hours,
+    }
+
+
+def _validate_subjects_hours(subjects, shared_hours):
+    if not subjects:
+        return
+    if shared_hours is not None:
+        if not isinstance(shared_hours, int) or shared_hours < 1:
+            abort(400, description="shared_hours must be a positive integer")
+        min_hours = min(s.weekly_hours for s in subjects)
+        if shared_hours > min_hours:
+            abort(400, description="shared_hours exceeds minimum weekly_hours of subjects")
+    else:
+        hours_set = set(s.weekly_hours for s in subjects)
+        if len(hours_set) > 1:
+            abort(400, description=t('errors.hours_mismatch'))
+
+
 @subject_groups_bp.route('/subject-groups', methods=['GET'])
 def get_subject_groups():
     logger.info("Listing subject groups")
     session = Session()
     groups = session.query(SubjectGroup).options(joinedload(SubjectGroup.subjects)).all()
-    result = []
-    for g in groups:
-        g_dict = {
-            'id': g.id,
-            'name': g.name,
-            'color': g.color,
-            'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in g.subjects],
-            'included_lines': json.loads(g.included_lines) if g.included_lines else None,
-        }
-        result.append(SubjectGroupSchema(**g_dict).model_dump())
+    result = [SubjectGroupSchema(**_build_group_dict(g)).model_dump() for g in groups]
     session.close()
     logger.info("Listed subject groups count=%d", len(result))
     return jsonify(result)
@@ -53,30 +70,23 @@ def add_subject_group():
     session = Session()
     subjects = session.query(Subject).filter(Subject.id.in_(subject_ids)).all() if subject_ids else []
 
-    # Validación: todas las subjects deben tener el mismo weekly_hours
-    if subjects:
-        hours_set = set(s.weekly_hours for s in subjects)
-        if len(hours_set) > 1:
-            session.close()
-            logger.warning("Create subject group rejected due to weekly_hours mismatch")
-            abort(400, description=t('errors.hours_mismatch'))
+    shared_hours = data.get('shared_hours', None)
+    _validate_subjects_hours(subjects, shared_hours)
 
     included_lines = data.get("included_lines", None)
     if included_lines is not None:
         included_lines = json.dumps(included_lines)
     color = _normalize_group_color(data.get('color', '#fef3c7'))
 
-    new_group = SubjectGroup(name=data['name'], color=color, subjects=subjects, included_lines=included_lines)
+    new_group = SubjectGroup(
+        name=data['name'], color=color, subjects=subjects,
+        included_lines=included_lines, shared_hours=shared_hours,
+    )
     session.add(new_group)
     session.commit()
     logger.info("Created subject group id=%s", new_group.id)
-    response_data = SubjectGroupSchema(**{
-        'id': new_group.id,
-        'name': new_group.name,
-        'color': new_group.color,
-        'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in new_group.subjects],
-        'included_lines': json.loads(new_group.included_lines) if new_group.included_lines else None,
-    }).model_dump()
+    g_dict = _build_group_dict(new_group)
+    response_data = SubjectGroupSchema(**g_dict).model_dump()
     session.close()
     return jsonify(response_data), 201
 
@@ -90,13 +100,7 @@ def get_subject_group(group_id):
     if group is None:
         logger.warning("Subject group not found id=%s", group_id)
         abort(404, description=t('errors.not_found', entity='SubjectGroup', id=group_id))
-    g_dict = {
-        'id': group.id,
-        'name': group.name,
-        'color': group.color,
-        'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in group.subjects],
-        'included_lines': json.loads(group.included_lines) if group.included_lines else None,
-    }
+    g_dict = _build_group_dict(group)
     return jsonify(SubjectGroupSchema(**g_dict).model_dump())
 
 
@@ -118,25 +122,21 @@ def update_subject_group(group_id):
     subject_ids = data.get('subjects', None)
     if subject_ids is not None:
         subjects = session.query(Subject).filter(Subject.id.in_(subject_ids)).all()
-        if subjects:
-            hours_set = set(s.weekly_hours for s in subjects)
-            if len(hours_set) > 1:
-                session.close()
-                logger.warning("Update subject group rejected due to weekly_hours mismatch id=%s", group_id)
-                abort(400, description=t('errors.hours_mismatch'))
+        shared_hours = data.get('shared_hours', group.shared_hours)
+        _validate_subjects_hours(subjects, shared_hours)
         group.subjects = subjects
+        group.shared_hours = shared_hours
+    elif 'shared_hours' in data:
+        group.shared_hours = data.get('shared_hours')
+        subjects = group.subjects
+        _validate_subjects_hours(subjects, group.shared_hours)
     if "included_lines" in data:
         val = data["included_lines"]
         group.included_lines = json.dumps(val) if val is not None else None
     session.commit()
     logger.info("Updated subject group id=%s", group.id)
-    response_data = SubjectGroupSchema(**{
-        'id': group.id,
-        'name': group.name,
-        'color': group.color,
-        'subjects': [{'id': s.id, 'name': s.name, 'full_name': f"{s.name} ({s.course_id})"} for s in group.subjects],
-        'included_lines': json.loads(group.included_lines) if group.included_lines else None,
-    }).model_dump()
+    g_dict = _build_group_dict(group)
+    response_data = SubjectGroupSchema(**g_dict).model_dump()
     session.close()
     return jsonify(response_data)
 

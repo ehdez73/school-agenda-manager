@@ -123,12 +123,22 @@ def update_subject(subject_id):
             new_weekly = int(data["weekly_hours"])
         except (ValueError, TypeError):
             new_weekly = None
-        # Only reject if the value is actually changing and subject belongs to a SubjectGroup
         if new_weekly is not None and new_weekly != subject.weekly_hours:
-            if getattr(subject, "subject_groups", None) and len(subject.subject_groups) > 0:
-                session.close()
-                logger.warning("Subject update rejected due to hours mismatch id=%s", subject_id)
-                abort(400, description=t("errors.hours_mismatch"))
+            sgs = getattr(subject, "subject_groups", None)
+            if sgs:
+                for sg in sgs:
+                    sh = getattr(sg, 'shared_hours', None)
+                    if sh is None:
+                        session.close()
+                        logger.warning("Subject update rejected due to hours mismatch id=%s", subject_id)
+                        abort(400, description=t("errors.hours_mismatch"))
+                    elif new_weekly < sh:
+                        session.close()
+                        logger.warning("Subject update rejected: new hours < shared_hours id=%s", subject_id)
+                        abort(400, description=(
+                            f"New weekly_hours ({new_weekly}) cannot be less than "
+                            f"shared_hours ({sh}) of SubjectGroup '{sg.name}'"
+                        ))
         if new_weekly is not None:
             subject.weekly_hours = new_weekly
     if "max_hours_per_day" in data:

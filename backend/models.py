@@ -150,6 +150,8 @@ class SubjectGroup(Base):
     color = Column(String(7), nullable=False, default="#fef3c7")
     # JSON array of line indices to include (null = all lines), e.g. "[0, 1]" for lines A, B only
     included_lines = Column(Text, nullable=True)
+    # Number of hours that must be shared among all members. None = share all hours.
+    shared_hours = Column(Integer, nullable=True)
 
     subjects = relationship(
         "Subject", secondary=subjectgroup_subject, backref="subject_groups"
@@ -165,6 +167,7 @@ class SubjectGroup(Base):
             "color": self.color,
             "subjects": [s.to_dict() for s in self.subjects],
             "included_lines": json.loads(self.included_lines) if self.included_lines else None,
+            "shared_hours": self.shared_hours,
         }
 
 

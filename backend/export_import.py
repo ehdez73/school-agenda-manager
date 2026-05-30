@@ -24,6 +24,7 @@ def dump_db(session):
             "color": g.color,
             "subjects": [s.id for s in g.subjects],
             "included_lines": _json.loads(g.included_lines) if g.included_lines else None,
+            "shared_hours": g.shared_hours,
         }
         for g in session.query(SubjectGroup).all()
     ]
@@ -197,6 +198,7 @@ def import_payload(session, payload):
             name=g.get("name"),
             color=g.get("color", "#fef3c7"),
             included_lines=incl_lines,
+            shared_hours=g.get("shared_hours"),
         )
         session.add(sg)
         session.flush()

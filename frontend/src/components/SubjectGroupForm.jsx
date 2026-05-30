@@ -25,7 +25,7 @@ function toggleLine(included, lineIndex, numLines) {
     return result.length === 0 ? null : result;
 }
 
-export default function SubjectGroupForm({ form, setForm, subjects, formError, onSubmit, onCancel, onDelete, courses }) {
+export default function SubjectGroupForm({ form, setForm, subjects = [], formError, onSubmit, onCancel, onDelete, courses = [] }) {
     useEscapeToCancel(onCancel);
 
     const handleChange = (e) => {
@@ -47,7 +47,7 @@ export default function SubjectGroupForm({ form, setForm, subjects, formError, o
 
     const selectedCourse = useMemo(() => {
         if (courseIds.length === 1) {
-            return courses.find(c => c.id === courseIds[0]);
+            return courses?.find(c => c.id === courseIds[0]);
         }
         return null;
     }, [courseIds, courses]);
@@ -84,6 +84,26 @@ export default function SubjectGroupForm({ form, setForm, subjects, formError, o
                     />
                     <span className="subject-color-value">{(form.color || '#fef3c7').toUpperCase()}</span>
                 </div>
+            </label>
+            <label className="subject-label">
+                {t('subject_groups.shared_hours') || 'Shared hours'}
+                <input
+                    name="shared_hours"
+                    type="number"
+                    min={1}
+                    value={form.shared_hours ?? ''}
+                    onChange={e => setForm({
+                        ...form,
+                        shared_hours: e.target.value === '' ? null : parseInt(e.target.value, 10)
+                    })}
+                    placeholder={t('subject_groups.shared_hours_placeholder') || 'All hours'}
+                    className="subject-input"
+                />
+                <span className="subject-hint">
+                    {form.shared_hours !== null && form.shared_hours !== undefined
+                        ? (t('subject_groups.shared_hours_hint') || 'Hours taught together. Remaining hours are standalone.')
+                        : (t('subject_groups.all_hours_hint') || 'All hours are taught together.')}
+                </span>
             </label>
             <label className="subject-label">
                 {t('subject_groups.title') + ' - ' + t('subjects.title')}
