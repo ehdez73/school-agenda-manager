@@ -5,6 +5,24 @@ import useEscapeToCancel from './useEscapeToCancel';
 export default function CourseForm({ form, setForm, editingId, onSubmit, onCancel, onDelete }) {
     useEscapeToCancel(onCancel);
 
+    const getLineSuffix = (index) => {
+        let value = index + 1;
+        let suffix = '';
+        while (value > 0) {
+            value -= 1;
+            suffix = String.fromCharCode(65 + (value % 26)) + suffix;
+            value = Math.floor(value / 26);
+        }
+        return suffix;
+    };
+
+    const numLines = Number.parseInt(form.num_lines, 10);
+    const safeNumLines = Number.isFinite(numLines) && numLines > 0 ? numLines : 0;
+    const courseName = (form.name || '').trim();
+    const groupPreview = safeNumLines > 0 && courseName
+        ? Array.from({ length: safeNumLines }, (_, i) => `${courseName}${getLineSuffix(i)}`).join(', ')
+        : '';
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name === 'num_lineas' || name === 'num_lines') {
@@ -30,7 +48,7 @@ export default function CourseForm({ form, setForm, editingId, onSubmit, onCance
                     />
                 </label>
             </div>
-            <div className="course-form-row">
+            <div className="course-form-row course-form-row--split">
                 <label className="course-label">
                     {t('courses.num_lines')}
                     <input
@@ -44,6 +62,10 @@ export default function CourseForm({ form, setForm, editingId, onSubmit, onCance
                         className="course-input course-input-short"
                     />
                 </label>
+                <div className="course-preview" aria-live="polite">
+                    <span className="course-preview__label">{t('courses.groups')}</span>
+                    <span className="course-preview__value">{groupPreview || '-'}</span>
+                </div>
             </div>
             <div className="course-form-actions">
                 <button type="submit" className="btn btn--primary">{t('common.save')}</button>
