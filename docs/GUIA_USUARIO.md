@@ -11,15 +11,16 @@ Nota: este índice está pensado para usarse como navegación rápida en el pane
 - [1. Objetivo de la aplicación](#1-objetivo-de-la-aplicacion)
 - [2. Mapa rápido de secciones](#2-mapa-rapido-de-secciones)
 - [3. Definiciones clave](#3-definiciones-clave)
-- [4. Orden recomendado de trabajo](#4-orden-recomendado-de-trabajo)
-- [5. Cómo crear cada elemento](#5-como-crear-cada-elemento)
-- [6. Casuísticas de Packs](#6-casuisticas-de-packs)
-- [7. Generación del horario y revisión](#7-generacion-del-horario-y-revision)
-- [8. Cómo funciona el proceso de generación](#8-como-funciona-el-proceso-de-generacion)
-- [9. Restricciones: HARD y SOFT](#9-restricciones-hard-y-soft)
-- [10. Problemas frecuentes y cómo resolverlos](#10-problemas-frecuentes-y-como-resolverlos)
-- [11. Buenas prácticas de gestión](#11-buenas-practicas-de-gestion)
-- [12. Checklist final antes de generar](#12-checklist-final-antes-de-generar)
+- [4. Pantalla de configuración](#4-pantalla-de-configuracion)
+- [5. Orden recomendado de trabajo](#5-orden-recomendado-de-trabajo)
+- [6. Cómo crear cada elemento](#6-como-crear-cada-elemento)
+- [7. Casuísticas de Packs](#7-casuisticas-de-packs)
+- [8. Generación del horario y revisión](#8-generacion-del-horario-y-revision)
+- [9. Cómo funciona el proceso de generación](#9-como-funciona-el-proceso-de-generacion)
+- [10. Restricciones: HARD y SOFT](#10-restricciones-hard-y-soft)
+- [11. Problemas frecuentes y cómo resolverlos](#11-problemas-frecuentes-y-como-resolverlos)
+- [12. Buenas prácticas de gestión](#12-buenas-practicas-de-gestion)
+- [13. Checklist final antes de generar](#13-checklist-final-antes-de-generar)
 
 ## 1. Objetivo de la aplicación
 
@@ -84,7 +85,42 @@ Franjas donde el docente no puede impartir clase.
 
 Franjas deseadas para priorizar la ubicación de clases al generar horario.
 
-## 4. Orden recomendado de trabajo
+## 4. Pantalla de configuración
+
+La pantalla de **Configuración** (menú superior) se organiza en tres pestañas.
+
+### 4.1 Pestaña Horarios
+
+Define la estructura temporal del centro:
+
+- **Nº días por semana** (1-7): número de días lectivos.
+- **Asignación de días**: qué día de la semana (lunes a domingo) corresponde a cada posición del horario.
+- **Nº clases por día**: número de tramos horarios por día lectivo.
+- **Nombres de horas**: etiquetas personalizadas para cada tramo (ej. "8:30-9:30", "Recreo", ...).
+- **Bloques fijos**: tramos que se repiten todas las semanas (ej. recreo, guardias). Se muestran en el horario pero no participan en la asignación de clases.
+
+Guarda siempre los cambios con el botón **Guardar**.
+
+### 4.2 Pestaña Restricciones
+
+Permite activar o desactivar restricciones individuales. Consulta la [sección 10](#10-restricciones-hard-y-soft) para una definición detallada de cada una.
+
+- **Restricciones obligatorias (HARD)**: condiciones que el horario debe cumplir para ser válido. Desactivar una puede facilitar la generación, pero el resultado podría ser pedagógicamente inválido.
+- **Restricciones opcionales (SOFT)**: preferencias que mejoran la calidad del horario pero no bloquean la generación si no se cumplen.
+
+Todas las restricciones están activadas por defecto. Desmarca una casilla para desactivarla.
+
+### 4.3 Pestaña Copia de seguridad
+
+Gestiona los datos completos de la aplicación (cursos, asignaturas, packs, docentes, horarios):
+
+- **Exportar**: descarga un archivo `agenda_export.json` con todos los datos.
+- **Importar**: selecciona un archivo JSON previamente exportado para restaurar los datos.
+- **Limpiar datos**: elimina todos los datos de la aplicación. Requiere confirmación.
+
+> **Recomendación:** exporta los datos antes de hacer cambios estructurales importantes.
+
+## 5. Orden recomendado de trabajo
 
 Para evitar errores y retrabajo, sigue siempre este orden:
 
@@ -97,9 +133,9 @@ Para evitar errores y retrabajo, sigue siempre este orden:
 7. Generación de horarios.
 8. Revisión y ajustes.
 
-## 5. Cómo crear cada elemento
+## 6. Cómo crear cada elemento
 
-### 5.1 Crear cursos
+### 6.1 Crear cursos
 
 1. Entra en Cursos.
 2. Crea cada curso con su nombre.
@@ -109,7 +145,7 @@ Para evitar errores y retrabajo, sigue siempre este orden:
 > - Revisa que todas las líneas reales del centro estén creadas.
 > - Si un curso tiene dos grupos, indica 2 líneas desde el inicio.
 
-### 5.2 Crear asignaturas
+### 6.2 Crear asignaturas
 
 1. Entra en **Asignaturas**.
 2. Crea cada asignatura con nombre, curso, color y horas semanales.
@@ -121,7 +157,7 @@ Para evitar errores y retrabajo, sigue siempre este orden:
 > - Evita duplicados con nombres similares.
 > - Si una asignatura solo se imparte en algunas líneas, usa los checkboxes de línea para excluir las que no correspondan.
 
-### 5.3 Crear Packs
+### 6.3 Crear Packs
 
 1. Entra en la pestaña **Packs** dentro de Asignaturas.
 2. Crea el Pack con nombre identificable.
@@ -133,7 +169,7 @@ Para evitar errores y retrabajo, sigue siempre este orden:
 > - Las asignaturas de un Pack deben estar bien definidas antes.
 > - Si usas horas compartidas, su valor debe ser coherente con las horas semanales de las asignaturas del Pack.
 
-### 5.4 Crear docentes
+### 6.4 Crear docentes
 
 1. Entra en Docentes.
 2. Crea cada docente con nombre.
@@ -145,7 +181,7 @@ Para evitar errores y retrabajo, sigue siempre este orden:
 > - Ninguna asignatura debe quedarse sin docentes asignados.
 > - Ajusta máximos semanales realistas para evitar bloqueos en la generación.
 
-#### 5.4.1 Configurar disponibilidad y preferencias
+#### 6.4.1 Configurar disponibilidad y preferencias
 
 Cada celda de la cuadrícula (día × hora) es un botón que alterna entre tres estados al hacer clic:
 
@@ -160,9 +196,9 @@ Cada clic avanza al siguiente estado: `Sin preferencia → No disponible → Pre
 > - Usa **Preferida** para orientar el resultado sin bloquear en exceso.
 > - Los cambios se guardan junto con el resto del formulario del docente.
 
-## 6. Casuísticas de Packs
+## 7. Casuísticas de Packs
 
-### 6.1 Caso Religión / Atención Educativa
+### 7.1 Caso Religión / Atención Educativa
 
 Objetivo: que ambas opciones se gestionen como bloque coordinado.
 
@@ -179,7 +215,7 @@ Resultado esperado:
 - El horario trata esta combinación como Pack.
 - Se mantiene la coherencia de franjas para este caso.
 
-### 6.2 Caso Comunicación y representación de la realidad / Música
+### 7.2 Caso Comunicación y representación de la realidad / Música
 
 Objetivo: modelar el caso específico de Infantil con horas compartidas.
 
@@ -197,12 +233,12 @@ Resultado esperado:
 - El Pack existe con horas compartidas = 1.
 - El horario fuerza la coincidencia en 1 hora compartida semanal para ese Pack.
 
-### 6.3 Diferencia entre Pack sin horas compartidas y Pack con horas compartidas
+### 7.3 Diferencia entre Pack sin horas compartidas y Pack con horas compartidas
 
 - Pack **sin** horas compartidas (vacío = "Todas las horas"): **todas las horas** de las asignaturas del Pack se imparten juntas en la misma franja.
 - Pack **con** horas compartidas (valor concreto): solo ese número de horas se imparte conjuntamente; el resto de horas son independientes por asignatura.
 
-## 7. Generación del horario y revisión
+## 8. Generación del horario y revisión
 
 1. Ve a **Horarios**.
 2. Pulsa **Generar Horario**. El proceso puede tardar unos segundos.
@@ -218,13 +254,13 @@ Resultado esperado:
 > - Tras cambios importantes en cursos, packs o disponibilidades.
 > - Recrear Horarios elimina el horario actual y genera uno nuevo desde cero.
 
-## 8. Cómo funciona el proceso de generación
+## 9. Cómo funciona el proceso de generación
 
-### 8.1 Generar un horario
+### 9.1 Generar un horario
 
 Cuando pulsas **Generar Horario**, el sistema utiliza Google OR-Tools, un motor de optimización, para buscar una combinación válida de asignaciones de clases que cumpla con todas las restricciones configuradas.
 
-### 8.2 Fases del proceso
+### 9.2 Fases del proceso
 
 La generación pasa por hasta dos fases:
 
@@ -240,7 +276,7 @@ Si el solver no encuentra una solución válida, se inicia automáticamente un p
 
 El resultado es un informe de diagnóstico que describe exactamente qué impide generar el horario y qué cambios se recomiendan.
 
-### 8.3 ¿Por qué puede tardar tanto?
+### 9.3 ¿Por qué puede tardar tanto?
 
 La generación de horarios es un problema de **explosión combinatoria**. Piensa en un centro pequeño:
 
@@ -266,7 +302,7 @@ A pesar de estas optimizaciones, algunas configuraciones pueden tardar más:
 
 En la mayoría de los casos reales, el solver encuentra una solución en segundos o un par de minutos. Si tarda demasiado, considera revisar tus restricciones o simplificar la configuración.
 
-## 9. Restricciones: HARD y SOFT
+## 10. Restricciones: HARD y SOFT
 
 Ve a **Configuración** y haz clic en la pestaña **Restricciones**. Allí verás dos bloques:
 
@@ -304,9 +340,9 @@ Ejemplo rápido:
 | SOFT | **TutorPreference** | Favorece que los tutores impartan clase en su grupo tutorizado. | Tutora de 3ºB → más horas en 3ºB que en otros grupos. |
 | SOFT | **TeacherAvoidGaps** | Penaliza huecos entre clases, buscando bloques más compactos. | Mejor 2ª-3ª-4ª seguidas que 2ª y 5ª con huecos. |
 
-## 10. Problemas frecuentes y cómo resolverlos
+## 11. Problemas frecuentes y cómo resolverlos
 
-### Error 10.1: no se puede generar horario válido
+### Error 11.1: no se puede generar horario válido
 
 Revisa:
 
@@ -315,7 +351,7 @@ Revisa:
 - Demasiadas indisponibilidades.
 - Packs mal definidos o horas compartidas incoherentes.
 
-### Error 10.2: una asignatura no aparece con las horas esperadas
+### Error 11.2: una asignatura no aparece con las horas esperadas
 
 Revisa:
 
@@ -323,7 +359,7 @@ Revisa:
 - Si pertenece a Pack y tiene horas condicionadas.
 - Si está restringida por máximo por día o por reglas de consecutividad.
 
-### Error 10.3: sobrecarga de un docente
+### Error 11.3: sobrecarga de un docente
 
 Revisa:
 
@@ -331,14 +367,14 @@ Revisa:
 - Reparto de asignaturas entre más docentes.
 - Disponibilidad excesivamente limitada.
 
-### Error 10.4: conflicto en grupos de tutoría
+### Error 11.4: conflicto en grupos de tutoría
 
 Revisa:
 
 - Asignación de tutorías en Docentes.
 - Que el mismo docente no acumule tutorías imposibles de cubrir.
 
-## 11. Buenas prácticas de gestión
+## 12. Buenas prácticas de gestión
 
 - Mantener nomenclatura consistente para cursos, asignaturas y packs.
 - Crear primero estructura académica y luego profesorado.
@@ -346,7 +382,7 @@ Revisa:
 - Evitar usar restricciones muy duras en demasiados docentes a la vez.
 - Regenerar el horario después de cada bloque de cambios relevantes.
 
-## 12. Checklist final antes de generar
+## 13. Checklist final antes de generar
 
 - [ ] Configuración general revisada.
 - [ ] Cursos y líneas completos.

@@ -11,15 +11,16 @@ Note: this index is intended for quick navigation in your Markdown viewer side p
 - [1. Application purpose](#1-application-purpose)
 - [2. Quick section map](#2-quick-section-map)
 - [3. Key definitions](#3-key-definitions)
-- [4. Recommended workflow](#4-recommended-workflow)
-- [5. How to create each element](#5-how-to-create-each-element)
-- [6. Pack use cases](#6-pack-use-cases)
-- [7. Timetable generation and review](#7-timetable-generation-and-review)
-- [8. How the generation process works](#8-how-the-generation-process-works)
-- [9. Constraints: HARD and SOFT](#9-constraints-hard-and-soft)
-- [10. Common issues and how to solve them](#10-common-issues-and-how-to-solve-them)
-- [11. Management best practices](#11-management-best-practices)
-- [12. Final checklist before generating](#12-final-checklist-before-generating)
+- [4. Configuration screen](#4-configuration-screen)
+- [5. Recommended workflow](#5-recommended-workflow)
+- [6. How to create each element](#6-how-to-create-each-element)
+- [7. Pack use cases](#7-pack-use-cases)
+- [8. Timetable generation and review](#8-timetable-generation-and-review)
+- [9. How the generation process works](#9-how-the-generation-process-works)
+- [10. Constraints: HARD and SOFT](#10-constraints-hard-and-soft)
+- [11. Common issues and how to solve them](#11-common-issues-and-how-to-solve-them)
+- [12. Management best practices](#12-management-best-practices)
+- [13. Final checklist before generating](#13-final-checklist-before-generating)
 
 ## 1. Application purpose
 
@@ -84,7 +85,42 @@ Timeslots where the teacher cannot teach.
 
 Preferred timeslots used to prioritize placement when generating the timetable.
 
-## 4. Recommended workflow
+## 4. Configuration screen
+
+The **Configuration** screen (top menu) is organized into three tabs.
+
+### 4.1 Schedules tab
+
+Defines the school's time structure:
+
+- **Days per week** (1-7): number of school days.
+- **Day assignment**: which weekday (Monday to Sunday) corresponds to each position in the timetable.
+- **Classes per day**: number of time slots per school day.
+- **Hour names**: custom labels for each slot (e.g. "8:30-9:30", "Recess", ...).
+- **Fixed slots**: recurring weekly blocks (e.g. recess, duty). They appear in the timetable but do not participate in class assignment.
+
+Always save changes with the **Save** button.
+
+### 4.2 Restrictions tab
+
+Allows enabling or disabling individual restrictions. See [section 10](#10-constraints-hard-and-soft) for a detailed definition of each one.
+
+- **Hard constraints**: conditions the timetable must satisfy to be valid. Disabling one may make generation easier, but the result could be pedagogically invalid.
+- **Soft constraints**: preferences that improve timetable quality but do not block generation if unfulfilled.
+
+All restrictions are enabled by default. Uncheck a box to disable it.
+
+### 4.3 Backup tab
+
+Manages all application data (courses, subjects, packs, teachers, timetables):
+
+- **Export**: downloads an `agenda_export.json` file with all data.
+- **Import**: select a previously exported JSON file to restore data.
+- **Clear all data**: deletes all application data. Requires confirmation.
+
+> **Recommendation:** export data before making major structural changes.
+
+## 5. Recommended workflow
 
 To avoid errors and rework, always follow this order:
 
@@ -97,9 +133,9 @@ To avoid errors and rework, always follow this order:
 7. Timetable generation.
 8. Review and adjustments.
 
-## 5. How to create each element
+## 6. How to create each element
 
-### 5.1 Create courses
+### 6.1 Create courses
 
 1. Go to Courses.
 2. Create each course with its name.
@@ -109,7 +145,7 @@ To avoid errors and rework, always follow this order:
 > - Check that all real lines in the school are created.
 > - If a course has two groups, set 2 lines from the beginning.
 
-### 5.2 Create subjects
+### 6.2 Create subjects
 
 1. Go to **Subjects**.
 2. Create each subject with a name, course, color, and weekly hours.
@@ -121,7 +157,7 @@ To avoid errors and rework, always follow this order:
 > - Avoid duplicates with similar names.
 > - If a subject is only taught in some lines, use the line checkboxes to exclude the ones it does not apply to.
 
-### 5.3 Create Packs
+### 6.3 Create Packs
 
 1. Open the **Packs** tab inside Subjects.
 2. Create the Pack with a clear name.
@@ -133,7 +169,7 @@ To avoid errors and rework, always follow this order:
 > - Subjects in a Pack must be correctly defined first.
 > - If you use shared hours, their value must be consistent with the weekly hours of the Pack subjects.
 
-### 5.4 Create teachers
+### 6.4 Create teachers
 
 1. Go to Teachers.
 2. Create each teacher with name.
@@ -145,7 +181,7 @@ To avoid errors and rework, always follow this order:
 > - No subject should remain without assigned teachers.
 > - Set realistic weekly maximums to avoid generation blocks.
 
-#### 5.4.1 Configure availability and preferences
+#### 6.4.1 Configure availability and preferences
 
 Each cell in the grid (day × hour) is a single button that cycles through three states on each click:
 
@@ -160,9 +196,9 @@ Each click advances to the next state: `No preference → Not available → Pref
 > - Use **Preferred** to guide the result without over-constraining it.
 > - Changes are saved together with the rest of the teacher form.
 
-## 6. Pack use cases
+## 7. Pack use cases
 
-### 6.1 Religion / Educational Support case
+### 7.1 Religion / Educational Support case
 
 Goal: manage both options as one coordinated block.
 
@@ -179,7 +215,7 @@ Expected result:
 - The timetable treats this combination as a Pack.
 - Timeslot consistency is preserved for this case.
 
-### 6.2 Communication and Representation of Reality / Music case
+### 7.2 Communication and Representation of Reality / Music case
 
 Goal: model the specific Early Years case with shared hours.
 
@@ -197,12 +233,12 @@ Expected result:
 - The Pack exists with shared hours = 1.
 - The timetable enforces one shared weekly hour for that Pack.
 
-### 6.3 Difference between a Pack without shared hours and a Pack with shared hours
+### 7.3 Difference between a Pack without shared hours and a Pack with shared hours
 
 - Pack **without** shared hours (empty = "All hours"): **all hours** of the Pack subjects are taught together in the same timeslot.
 - Pack **with** shared hours (specific value): only that number of hours are taught together; the remaining hours are independent per subject.
 
-## 7. Timetable generation and review
+## 8. Timetable generation and review
 
 1. Go to **Timetable**.
 2. Click **Generate Timetable**. The process may take a few seconds.
@@ -218,13 +254,13 @@ Expected result:
 > - After major changes in courses, packs, or availability.
 > - Recreate Timetables deletes the current timetable and generates a new one from scratch.
 
-## 8. How the generation process works
+## 9. How the generation process works
 
-### 8.1 Generating a timetable
+### 9.1 Generating a timetable
 
 When you click **Generate Timetable**, the system uses Google OR-Tools, an optimization engine, to search for a valid combination of class assignments that satisfies all configured constraints.
 
-### 8.2 Phases of the process
+### 9.2 Phases of the process
 
 The generation goes through up to two phases:
 
@@ -240,7 +276,7 @@ If the solver cannot find a valid solution, it automatically starts a multi-step
 
 The result is a diagnostic report describing exactly what prevents the timetable from being generated and what changes are recommended.
 
-### 8.3 Why can it take so long?
+### 9.3 Why can it take so long?
 
 Timetable generation is a **combinatorial explosion** problem. Consider a small school:
 
@@ -266,7 +302,7 @@ Despite these optimizations, some configurations can take longer:
 
 In most real-world cases, the solver finds a solution within seconds or a couple of minutes. If it takes too long, consider reviewing your constraints or simplifying the configuration.
 
-## 9. Constraints: HARD and SOFT
+## 10. Constraints: HARD and SOFT
 
 Go to **Configuration** and click the **Restrictions** tab. You will see two blocks:
 
@@ -304,9 +340,9 @@ Quick example:
 | SOFT | **TutorPreference** | Rewards tutors teaching in their own tutor group. | 3rdB tutor → more hours in 3rdB than other groups. |
 | SOFT | **TeacherAvoidGaps** | Penalizes gaps between classes, favoring compact daily blocks. | Better 2nd-3rd-4th consecutive than 2nd and 5th with gaps. |
 
-## 10. Common issues and how to solve them
+## 11. Common issues and how to solve them
 
-### Error 10.1: no valid timetable can be generated
+### Error 11.1: no valid timetable can be generated
 
 Check:
 
@@ -315,7 +351,7 @@ Check:
 - Too many unavailable timeslots.
 - Misconfigured packs or inconsistent shared hours.
 
-### Error 10.2: a subject does not appear with expected hours
+### Error 11.2: a subject does not appear with expected hours
 
 Check:
 
@@ -323,7 +359,7 @@ Check:
 - Whether it belongs to a Pack with constrained hours.
 - Whether it is limited by max per day or consecutive/non-consecutive rules.
 
-### Error 10.3: teacher overload
+### Error 11.3: teacher overload
 
 Check:
 
@@ -331,14 +367,14 @@ Check:
 - Subject distribution across more teachers.
 - Overly restrictive availability.
 
-### Error 10.4: tutor group conflict
+### Error 11.4: tutor group conflict
 
 Check:
 
 - Tutor assignments in Teachers.
 - That the same teacher is not overloaded with incompatible tutor group responsibilities.
 
-## 11. Management best practices
+## 12. Management best practices
 
 - Keep naming consistent for courses, subjects, and packs.
 - Create academic structure first, then teaching staff.
@@ -346,7 +382,7 @@ Check:
 - Avoid applying too many strict constraints to many teachers at once.
 - Regenerate the timetable after each relevant block of changes.
 
-## 12. Final checklist before generating
+## 13. Final checklist before generating
 
 - [ ] General settings reviewed.
 - [ ] Courses and lines completed.
