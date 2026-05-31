@@ -15,10 +15,11 @@ Nota: este índice está pensado para usarse como navegación rápida en el pane
 - [5. Cómo crear cada elemento](#5-como-crear-cada-elemento)
 - [6. Casuísticas de Packs](#6-casuisticas-de-packs)
 - [7. Generación del horario y revisión](#7-generacion-del-horario-y-revision)
-- [8. Restricciones: HARD y SOFT](#8-restricciones-hard-y-soft)
-- [9. Problemas frecuentes y cómo resolverlos](#9-problemas-frecuentes-y-como-resolverlos)
-- [10. Buenas prácticas de gestión](#10-buenas-practicas-de-gestion)
-- [11. Checklist final antes de generar](#11-checklist-final-antes-de-generar)
+- [8. Cómo funciona el proceso de generación](#8-como-funciona-el-proceso-de-generacion)
+- [9. Restricciones: HARD y SOFT](#9-restricciones-hard-y-soft)
+- [10. Problemas frecuentes y cómo resolverlos](#10-problemas-frecuentes-y-como-resolverlos)
+- [11. Buenas prácticas de gestión](#11-buenas-practicas-de-gestion)
+- [12. Checklist final antes de generar](#12-checklist-final-antes-de-generar)
 
 ## 1. Objetivo de la aplicación
 
@@ -217,7 +218,55 @@ Resultado esperado:
 > - Tras cambios importantes en cursos, packs o disponibilidades.
 > - Recrear Horarios elimina el horario actual y genera uno nuevo desde cero.
 
-## 8. Restricciones: HARD y SOFT
+## 8. Cómo funciona el proceso de generación
+
+### 8.1 Generar un horario
+
+Cuando pulsas **Generar Horario**, el sistema utiliza Google OR-Tools, un motor de optimización, para buscar una combinación válida de asignaciones de clases que cumpla con todas las restricciones configuradas.
+
+### 8.2 Fases del proceso
+
+La generación pasa por hasta dos fases:
+
+**Fase 1 — Búsqueda de solución**  
+El solver intenta encontrar un horario válido que cumpla con todas las restricciones HARD. Si lo consigue, el horario se muestra inmediatamente.
+
+**Fase 2 — Diagnóstico de infactibilidad (solo si la Fase 1 falla)**  
+Si el solver no encuentra una solución válida, se inicia automáticamente un proceso de diagnóstico en varios pasos:
+
+1. **Comprobaciones de sanidad** — Validación rápida del modelo de datos (ej. cada asignatura tiene un docente, las horas totales son coherentes).
+2. **Pruebas de aislamiento** — El sistema elimina restricciones temporalmente una a una para identificar cuál causa el conflicto.
+3. **Análisis por entidad** — Para cada restricción conflictiva, identifica los cursos, docentes o asignaturas específicos implicados.
+
+El resultado es un informe de diagnóstico que describe exactamente qué impide generar el horario y qué cambios se recomiendan.
+
+### 8.3 ¿Por qué puede tardar tanto?
+
+La generación de horarios es un problema de **explosión combinatoria**. Piensa en un centro pequeño:
+
+- 6 cursos × 2 líneas = 12 grupos
+- 10 asignaturas por grupo
+- 5 días × 6 horas = 30 franjas semanales
+- 15 docentes
+
+Cada clase (grupo + asignatura) debe colocarse en una de las franjas disponibles, respetando todas las restricciones a la vez. El número de combinaciones posibles es astronómicamente grande — mucho mayor que el número de átomos en el universo.
+
+OR-Tools utiliza una técnica llamada **CP-SAT** (Programación con Restricciones — Satisfacibilidad) para navegar este espacio de búsqueda de forma inteligente:
+
+- Aplica **propagación de restricciones**: cuando una variable toma un valor, elimina inmediatamente todos los valores de otras variables que violarían alguna restricción.
+- Usa **heurísticas** para decidir qué variable probar a continuación y qué valor asignar primero.
+- Puede **retroceder** cuando llega a un punto muerto y probar caminos alternativos.
+- Para las restricciones SOFT, utiliza una **función objetivo** para maximizar la calidad global de la solución.
+
+A pesar de estas optimizaciones, algunas configuraciones pueden tardar más:
+
+- **Restricciones muy ajustadas** (muchos docentes con indisponibilidades que se solapan).
+- **Gran número de grupos y asignaturas** (más variables y combinaciones).
+- **Packs u horas compartidas conflictivas** que reducen el espacio de búsqueda pero aumentan la complejidad de cada comprobación.
+
+En la mayoría de los casos reales, el solver encuentra una solución en segundos o un par de minutos. Si tarda demasiado, considera revisar tus restricciones o simplificar la configuración.
+
+## 9. Restricciones: HARD y SOFT
 
 Ve a **Configuración** y haz clic en la pestaña **Restricciones**. Allí verás dos bloques:
 
@@ -255,9 +304,9 @@ Ejemplo rápido:
 | SOFT | **TutorPreference** | Favorece que los tutores impartan clase en su grupo tutorizado. | Tutora de 3ºB → más horas en 3ºB que en otros grupos. |
 | SOFT | **TeacherAvoidGaps** | Penaliza huecos entre clases, buscando bloques más compactos. | Mejor 2ª-3ª-4ª seguidas que 2ª y 5ª con huecos. |
 
-## 9. Problemas frecuentes y cómo resolverlos
+## 10. Problemas frecuentes y cómo resolverlos
 
-### Error 1: no se puede generar horario válido
+### Error 10.1: no se puede generar horario válido
 
 Revisa:
 
@@ -266,7 +315,7 @@ Revisa:
 - Demasiadas indisponibilidades.
 - Packs mal definidos o horas compartidas incoherentes.
 
-### Error 2: una asignatura no aparece con las horas esperadas
+### Error 10.2: una asignatura no aparece con las horas esperadas
 
 Revisa:
 
@@ -274,7 +323,7 @@ Revisa:
 - Si pertenece a Pack y tiene horas condicionadas.
 - Si está restringida por máximo por día o por reglas de consecutividad.
 
-### Error 3: sobrecarga de un docente
+### Error 10.3: sobrecarga de un docente
 
 Revisa:
 
@@ -282,14 +331,14 @@ Revisa:
 - Reparto de asignaturas entre más docentes.
 - Disponibilidad excesivamente limitada.
 
-### Error 4: conflicto en grupos de tutoría
+### Error 10.4: conflicto en grupos de tutoría
 
 Revisa:
 
 - Asignación de tutorías en Docentes.
 - Que el mismo docente no acumule tutorías imposibles de cubrir.
 
-## 10. Buenas prácticas de gestión
+## 11. Buenas prácticas de gestión
 
 - Mantener nomenclatura consistente para cursos, asignaturas y packs.
 - Crear primero estructura académica y luego profesorado.
@@ -297,7 +346,7 @@ Revisa:
 - Evitar usar restricciones muy duras en demasiados docentes a la vez.
 - Regenerar el horario después de cada bloque de cambios relevantes.
 
-## 11. Checklist final antes de generar
+## 12. Checklist final antes de generar
 
 - [ ] Configuración general revisada.
 - [ ] Cursos y líneas completos.

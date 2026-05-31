@@ -15,10 +15,11 @@ Note: this index is intended for quick navigation in your Markdown viewer side p
 - [5. How to create each element](#5-how-to-create-each-element)
 - [6. Pack use cases](#6-pack-use-cases)
 - [7. Timetable generation and review](#7-timetable-generation-and-review)
-- [8. Constraints: HARD and SOFT](#8-constraints-hard-and-soft)
-- [9. Common issues and how to solve them](#9-common-issues-and-how-to-solve-them)
-- [10. Management best practices](#10-management-best-practices)
-- [11. Final checklist before generating](#11-final-checklist-before-generating)
+- [8. How the generation process works](#8-how-the-generation-process-works)
+- [9. Constraints: HARD and SOFT](#9-constraints-hard-and-soft)
+- [10. Common issues and how to solve them](#10-common-issues-and-how-to-solve-them)
+- [11. Management best practices](#11-management-best-practices)
+- [12. Final checklist before generating](#12-final-checklist-before-generating)
 
 ## 1. Application purpose
 
@@ -217,7 +218,55 @@ Expected result:
 > - After major changes in courses, packs, or availability.
 > - Recreate Timetables deletes the current timetable and generates a new one from scratch.
 
-## 8. Constraints: HARD and SOFT
+## 8. How the generation process works
+
+### 8.1 Generating a timetable
+
+When you click **Generate Timetable**, the system uses Google OR-Tools, an optimization engine, to search for a valid combination of class assignments that satisfies all configured constraints.
+
+### 8.2 Phases of the process
+
+The generation goes through up to two phases:
+
+**Phase 1 — Search for a solution**  
+The solver attempts to find a valid timetable that meets all HARD constraints. If it succeeds, the timetable is displayed immediately.
+
+**Phase 2 — Infeasibility diagnosis (only if Phase 1 fails)**  
+If the solver cannot find a valid solution, it automatically starts a multi-step diagnostic process:
+
+1. **Sanity checks** — Quick validation of the data model (e.g., every subject has a teacher, total hours are consistent).
+2. **Isolation tests** — The system temporarily removes restrictions one by one to identify which constraint causes the conflict.
+3. **Entity-level analysis** — For each conflictive constraint, it identifies the specific courses, teachers, or subjects involved.
+
+The result is a diagnostic report describing exactly what prevents the timetable from being generated and what changes are recommended.
+
+### 8.3 Why can it take so long?
+
+Timetable generation is a **combinatorial explosion** problem. Consider a small school:
+
+- 6 courses × 2 lines = 12 groups
+- 10 subjects per group
+- 5 days × 6 hours = 30 timeslots per week
+- 15 teachers
+
+Each class (group + subject) must be placed in one of the available timeslots, while respecting all constraints simultaneously. The number of possible combinations is astronomically large — far more than the number of atoms in the universe.
+
+OR-Tools uses a technique called **CP-SAT** (Constraint Programming — SATisfiability) to navigate this search space intelligently:
+
+- It applies **constraint propagation**: when a variable is assigned a value, it immediately removes all values from other variables that would violate a constraint.
+- It uses **heuristics** to decide which variable to try next and which value to assign first.
+- It can **backtrack** when it reaches a dead end and try alternative paths.
+- For soft constraints, it uses an **objective function** to maximize the overall quality of the solution.
+
+Despite these optimizations, some configurations can take longer:
+
+- **Very tight constraints** (many teachers with overlapping unavailability).
+- **Large numbers of groups and subjects** (more variables and combinations).
+- **Conflicting packs or shared hours** that reduce the search space but increase the complexity of each check.
+
+In most real-world cases, the solver finds a solution within seconds or a couple of minutes. If it takes too long, consider reviewing your constraints or simplifying the configuration.
+
+## 9. Constraints: HARD and SOFT
 
 Go to **Configuration** and click the **Restrictions** tab. You will see two blocks:
 
@@ -255,9 +304,9 @@ Quick example:
 | SOFT | **TutorPreference** | Rewards tutors teaching in their own tutor group. | 3rdB tutor → more hours in 3rdB than other groups. |
 | SOFT | **TeacherAvoidGaps** | Penalizes gaps between classes, favoring compact daily blocks. | Better 2nd-3rd-4th consecutive than 2nd and 5th with gaps. |
 
-## 9. Common issues and how to solve them
+## 10. Common issues and how to solve them
 
-### Error 1: no valid timetable can be generated
+### Error 10.1: no valid timetable can be generated
 
 Check:
 
@@ -266,7 +315,7 @@ Check:
 - Too many unavailable timeslots.
 - Misconfigured packs or inconsistent shared hours.
 
-### Error 2: a subject does not appear with expected hours
+### Error 10.2: a subject does not appear with expected hours
 
 Check:
 
@@ -274,7 +323,7 @@ Check:
 - Whether it belongs to a Pack with constrained hours.
 - Whether it is limited by max per day or consecutive/non-consecutive rules.
 
-### Error 3: teacher overload
+### Error 10.3: teacher overload
 
 Check:
 
@@ -282,14 +331,14 @@ Check:
 - Subject distribution across more teachers.
 - Overly restrictive availability.
 
-### Error 4: tutor group conflict
+### Error 10.4: tutor group conflict
 
 Check:
 
 - Tutor assignments in Teachers.
 - That the same teacher is not overloaded with incompatible tutor group responsibilities.
 
-## 10. Management best practices
+## 11. Management best practices
 
 - Keep naming consistent for courses, subjects, and packs.
 - Create academic structure first, then teaching staff.
@@ -297,7 +346,7 @@ Check:
 - Avoid applying too many strict constraints to many teachers at once.
 - Regenerate the timetable after each relevant block of changes.
 
-## 11. Final checklist before generating
+## 12. Final checklist before generating
 
 - [ ] General settings reviewed.
 - [ ] Courses and lines completed.
