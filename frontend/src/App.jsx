@@ -14,7 +14,6 @@ function App() {
   const [page, setPage] = useState(() => {
     try { return localStorage.getItem('currentPage') || 'home'; } catch { return 'home'; }
   });
-  const [theme, setTheme] = useState('light');
   const [locale, setLocaleState] = useState(() => {
     try { return localStorage.getItem('locale') || (navigator.language && navigator.language.startsWith('es') ? 'es' : 'en'); } catch { return 'en'; }
   });
@@ -23,10 +22,6 @@ function App() {
     // keep i18n module in sync so its t() uses the same current locale
     try { i18nSetLocale(locale); } catch { /* ignore */ }
   }, [locale]);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
 
   useEffect(() => {
     if ('scrollRestoration' in window.history) {
@@ -108,18 +103,7 @@ function App() {
             {t('nav.help')}
           </button>
         </div>
-        <div className="nav__theme-controls">
-          <label className="nav__theme-label">{t('nav.theme_label')}</label>
-          <select
-            value={theme}
-            onChange={e => setTheme(e.target.value)}
-            className="nav__theme-select"
-          >
-            <option value="light">{t('nav.theme_light')}</option>
-            <option value="dark">{t('nav.theme_dark')}</option>
-          </select>
-          <LanguageSelector value={locale} onChange={setLocaleState} />
-        </div>
+        <LanguageSelector value={locale} onChange={setLocaleState} />
       </nav>
 
       <main className="app__content">

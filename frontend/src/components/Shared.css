@@ -174,11 +174,6 @@
     white-space: nowrap;
 }
 
-[data-theme="dark"] .group-badge {
-    background-color: #1e1b4b;
-    color: #a5b4fc;
-}
-
 /* Subject selection in forms */
 .subject-selection {
     display: flex;

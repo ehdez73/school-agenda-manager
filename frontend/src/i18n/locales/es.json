@@ -48,10 +48,7 @@
         "teachers": "Docentes",
         "timetable": "Horarios",
         "config": "Configuración",
-        "help": "Ayuda",
-        "theme_label": "Tema:",
-        "theme_light": "Claro",
-        "theme_dark": "Oscuro"
+        "help": "Ayuda"
     },
     "language_en": "Inglés",
     "language_es": "Español",

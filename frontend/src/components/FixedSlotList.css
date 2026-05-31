@@ -34,10 +34,6 @@
     box-shadow: var(--shadow-sm);
 }
 
-[data-theme="dark"] .tab-btn--active {
-    background: var(--color-bg-tertiary, #333);
-}
-
 .text-muted {
     color: var(--color-text-muted);
     font-style: italic;

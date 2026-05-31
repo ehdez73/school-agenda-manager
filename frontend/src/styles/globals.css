@@ -36,12 +36,12 @@ body {
     --color-border: #e2e8f0;
     --color-border-light: #f1f5f9;
 
-    /* Table colors */
-    --color-table-header: #f5f7fa;
-    --color-table-header-text: #374151;
-    --color-table-row-even: #f7faff;
+    /* Table colors — slate-based */
+    --color-table-header: #334155;
+    --color-table-header-text: #ffffff;
+    --color-table-row-even: #f8fafc;
     --color-table-row-odd: #ffffff;
-    --color-table-hover: #dbeafe;
+    --color-table-hover: #f1f5f9;
 
     /* Input colors */
     --color-input-bg: #ffffff;
@@ -68,27 +68,6 @@ body {
     --space-lg: 1.5rem;
     --space-xl: 2rem;
     --space-2xl: 3rem;
-}
-
-/* Dark theme */
-[data-theme="dark"] {
-    --color-bg: #18181b;
-    --color-text: #f4f7f6;
-    --color-text-muted: #94a3b8;
-    --color-surface: #23272f;
-    --color-surface-variant: #1e293b;
-    --color-border: #374151;
-    --color-border-light: #4b5563;
-
-    --color-table-header: #23272f;
-    --color-table-header-text: #f4f7f6;
-    --color-table-row-even: #18181b;
-    --color-table-row-odd: #23272f;
-    --color-table-hover: #334155;
-
-    --color-input-bg: #23272f;
-    --color-input-text: #f4f7f6;
-    --color-input-border: #4b5563;
 }
 
 /* Global utility classes */

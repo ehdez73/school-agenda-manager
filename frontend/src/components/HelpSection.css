@@ -160,7 +160,7 @@
 }
 
 .help-section__markdown th {
-  background-color: var(--color-table-header-bg);
+  background-color: var(--color-table-header);
 }
 
 .help-section__markdown code {

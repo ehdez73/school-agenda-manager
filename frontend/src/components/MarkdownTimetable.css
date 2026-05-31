@@ -217,22 +217,22 @@
 }
 
 .markdown-timetable th {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--color-table-header) 0%, #1e293b 100%);
+  color: var(--color-table-header-text);
   font-weight: 700;
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   padding: var(--space-sm);
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
 .markdown-timetable th:first-child {
-  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-nav-bg) 100%);
+  background: linear-gradient(135deg, #475569 0%, #334155 100%);
   min-width: 150px;
   font-weight: 600;
   white-space: nowrap;
@@ -275,7 +275,7 @@
 }
 
 .markdown-timetable td:not(:first-child):not(:empty) {
-  border: 2px solid color-mix(in oklab, var(--color-primary), transparent 35%);
+  border: 2px solid color-mix(in oklab, var(--color-table-header), transparent 60%);
 }
 
 /* Hour column styling */
@@ -283,7 +283,7 @@
   background: linear-gradient(135deg, var(--color-surface-variant) 0%, var(--color-border) 100%);
   font-weight: 700;
   color: var(--color-text);
-  border-right: 3px solid var(--color-primary);
+  border-right: 3px solid var(--color-table-header);
   position: sticky;
   left: 0;
   z-index: 5;
@@ -362,43 +362,6 @@
   .markdown-timetable td:not(:first-child) {
     min-width: 160px;
   }
-}
-
-/* Dark theme adjustments */
-[data-theme="dark"] .timetable-tabs {
-  background: linear-gradient(180deg, rgba(51, 65, 85, 0.65) 0%, rgba(30, 41, 59, 0.7) 100%);
-  box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.15);
-}
-
-[data-theme="dark"] .timetable-selector__dropdown {
-  border-color: rgba(148, 163, 184, 0.35);
-}
-
-[data-theme="dark"] .timetable-selector__option:hover {
-  background-color: rgba(96, 165, 250, 0.16);
-  color: #dbeafe;
-}
-
-[data-theme="dark"] .timetable-selector__option--all {
-  border-color: rgba(148, 163, 184, 0.35);
-  background: rgba(30, 41, 59, 0.9);
-}
-
-[data-theme="dark"] .timetable-selector__option.selected {
-  color: #ffffff;
-}
-
-[data-theme="dark"] .timetable-tab:hover {
-  background-color: rgba(96, 165, 250, 0.16);
-  color: #dbeafe;
-}
-
-[data-theme="dark"] .timetable-tab:focus-visible {
-  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.35);
-}
-
-[data-theme="dark"] .markdown-timetable td:not(:first-child):not(:empty) {
-  border-color: #60a5fa;
 }
 
 .timetable-with-sidebar {
