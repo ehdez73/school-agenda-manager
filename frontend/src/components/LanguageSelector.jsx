@@ -66,13 +66,13 @@ function LanguageSelector({ value, onChange }) {
         <div className="nav__lang-wrapper" ref={ref}>
             <button
                 type="button"
-                className={`nav__lang-button ${value === current.code ? 'nav__lang-button--active' : ''}`}
+                className="nav__lang-button"
                 onClick={() => setOpen(o => !o)}
                 aria-haspopup="true"
                 aria-expanded={open}
                 title={t(current.titleKey) || current.code}
             >
-                {LANGS.find(l => l.code === value)?.flag || current.flag}
+                <span className="nav__lang-flag">{LANGS.find(l => l.code === value)?.flag || current.flag}</span>
             </button>
             {open && (
                 <div className="nav__lang-popover nav__lang-popover--vertical" role="dialog" aria-label={t('nav.language_label') || 'Language selector'}>
