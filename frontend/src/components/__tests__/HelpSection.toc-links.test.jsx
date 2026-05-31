@@ -72,6 +72,72 @@ describe('HelpSection TOC links', () => {
     });
   });
 
+  it('scrolls inside app content using container-relative offsets', async () => {
+    render(
+      <div className="app__content">
+        <HelpSection locale="en" />
+      </div>
+    );
+
+    await screen.findByRole('heading', { name: 'User Guide' });
+
+    const content = document.querySelector('.app__content');
+    expect(content).toBeTruthy();
+
+    const target = document.getElementById('section-3');
+    expect(target).toBeTruthy();
+
+    Object.defineProperty(content, 'scrollTop', {
+      value: 200,
+      writable: true,
+      configurable: true,
+    });
+
+    Object.defineProperty(content, 'getBoundingClientRect', {
+      value: () => ({
+        top: 300,
+        left: 0,
+        bottom: 900,
+        right: 1000,
+        width: 1000,
+        height: 600,
+        x: 0,
+        y: 300,
+        toJSON: () => ({}),
+      }),
+      configurable: true,
+    });
+
+    Object.defineProperty(target, 'getBoundingClientRect', {
+      value: () => ({
+        top: 350,
+        left: 0,
+        bottom: 370,
+        right: 1000,
+        width: 1000,
+        height: 20,
+        x: 0,
+        y: 350,
+        toJSON: () => ({}),
+      }),
+      configurable: true,
+    });
+
+    const scrollToMock = vi.fn();
+    Object.defineProperty(content, 'scrollTo', {
+      value: scrollToMock,
+      configurable: true,
+    });
+
+    const subsectionLink = await screen.findByRole('link', { name: 'Subsection A' });
+    fireEvent.click(subsectionLink);
+
+    await waitFor(() => {
+      expect(scrollToMock).toHaveBeenCalledWith(expect.objectContaining({ top: 238 }));
+      expect(window.location.hash).toBe('#section-3');
+    });
+  });
+
   it('resolves hash targets using normalized ids when hash has punctuation differences', async () => {
     window.location.hash = '#10.-buenas-practicas-de-gestion';
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
@@ -98,13 +98,6 @@ function flattenNodeText(children) {
 
 function resolveDocLanguage(locale) {
   return locale === 'es' ? 'es' : 'en';
-}
-
-function canUseNativeScrollTo() {
-  if (typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent || '')) {
-    return false;
-  }
-  return typeof window.scrollTo === 'function' && /\[native code\]/.test(String(window.scrollTo));
 }
 
 function getAlternateDocLanguage(locale) {
@@ -213,63 +206,44 @@ function resolveHashTargetElement(targetId) {
   ) || null;
 }
 
-function scrollToHashTarget({ behavior = 'auto' } = {}) {
-  const targetId = getHashTargetId();
-  if (!targetId) return false;
+function scrollToHashTarget({ behavior = 'auto', targetId = null } = {}) {
+  const resolvedTargetId = targetId || getHashTargetId();
+  if (!resolvedTargetId) return false;
 
-  const target = resolveHashTargetElement(targetId);
+  const target = resolveHashTargetElement(resolvedTargetId);
   if (!target) return false;
 
-  // Keep headings visible below the sticky app navigation.
-  const nav = document.querySelector('.app__nav');
-  const navOffset = nav instanceof HTMLElement ? nav.offsetHeight : 0;
+  const content = target.closest('.app__content') || document.querySelector('.app__content');
+  if (!(content instanceof HTMLElement)) return false;
+
+  const contentRect = content.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const offset = 12;
 
   const targetTop = Math.max(
     0,
-    Math.round(target.getBoundingClientRect().top + window.scrollY - navOffset - 12)
+    Math.round(content.scrollTop + (targetRect.top - contentRect.top) - offset)
   );
 
-  try {
-    if (canUseNativeScrollTo()) {
-      window.scrollTo({ top: targetTop, behavior });
-    } else {
-      throw new Error('scrollTo unavailable');
-    }
-  } catch {
-    const root = document.documentElement || document.body;
-    if (root) {
-      root.scrollTop = targetTop;
-    }
-    if (document.body) {
-      document.body.scrollTop = targetTop;
-    }
+  if (typeof content.scrollTo === 'function') {
+    content.scrollTo({ top: targetTop, behavior });
+  } else {
+    content.scrollTop = targetTop;
   }
-
   return true;
 }
 
-function scheduleHashScroll({ behavior = 'auto' } = {}) {
-  let attempts = 0;
-  const maxAttempts = 24;
+function scrollToCurrentHashTarget({ behavior = 'auto' } = {}) {
+  const targetId = getHashTargetId();
+  if (!targetId) return false;
 
-  const tryScroll = () => {
-    const currentBehavior = attempts === 0 ? behavior : 'auto';
-    if (scrollToHashTarget({ behavior: currentBehavior })) return;
-    if (attempts >= maxAttempts) return;
-    attempts += 1;
-    window.setTimeout(tryScroll, 90);
-  };
-
-  window.requestAnimationFrame(() => {
-    window.requestAnimationFrame(tryScroll);
-  });
+  return scrollToHashTarget({ behavior, targetId });
 }
 
 export default function HelpSection({ locale = 'en' }) {
   const [markdown, setMarkdown] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [expandedGroupIds, setExpandedGroupIds] = useState([]);
   const [hashToken, setHashToken] = useState(() => window.location.hash || '');
   const [downloading, setDownloading] = useState(false);
 
@@ -350,7 +324,7 @@ export default function HelpSection({ locale = 'en' }) {
         window.clearInterval(intervalId);
       }
     };
-  }, [locale, hashToken]);
+  }, [locale]);
 
   useEffect(() => {
     if (!markdown) return;
@@ -360,7 +334,7 @@ export default function HelpSection({ locale = 'en' }) {
     let timerId = null;
 
     const tryScroll = () => {
-      if (scrollToHashTarget()) return;
+      if (scrollToCurrentHashTarget()) return;
       if (attempts >= maxAttempts) return;
       attempts += 1;
       timerId = window.setTimeout(tryScroll, 90);
@@ -376,10 +350,6 @@ export default function HelpSection({ locale = 'en' }) {
   useEffect(() => {
     const onHashChange = () => {
       setHashToken(window.location.hash || '');
-      // Let the browser update location first, then align with sticky nav offset.
-      window.setTimeout(() => {
-        scrollToHashTarget({ behavior: 'smooth' });
-      }, 0);
     };
 
     window.addEventListener('hashchange', onHashChange);
@@ -423,19 +393,6 @@ export default function HelpSection({ locale = 'en' }) {
   const headings = useMemo(() => extractHeadings(markdown), [markdown]);
   const tocHeadings = useMemo(() => headings.filter(heading => heading.level <= 3), [headings]);
   const tocGroups = useMemo(() => buildTocGroups(tocHeadings), [tocHeadings]);
-  const tocGroupSignature = useMemo(() => tocGroups.map(group => group.id).join('|'), [tocGroups]);
-
-  useEffect(() => {
-    setExpandedGroupIds(tocGroups.filter(group => group.children.length > 0).map(group => group.id));
-  }, [tocGroupSignature]);
-
-  const toggleGroup = groupId => {
-    setExpandedGroupIds(prev => (
-      prev.includes(groupId)
-        ? prev.filter(id => id !== groupId)
-        : [...prev, groupId]
-    ));
-  };
 
   const handleTocLinkClick = (event, targetId) => {
     if (
@@ -452,14 +409,11 @@ export default function HelpSection({ locale = 'en' }) {
     event.preventDefault();
 
     const nextHash = `#${targetId}`;
-    if (window.location.hash !== nextHash) {
-      window.location.hash = nextHash.slice(1);
-    } else {
-      window.history.replaceState(null, '', nextHash);
-    }
-
+    window.history.replaceState(null, '', nextHash);
     setHashToken(nextHash);
-    scheduleHashScroll({ behavior: 'smooth' });
+
+    // Perform the internal container scroll immediately for direct TOC clicks.
+    scrollToHashTarget({ behavior: 'smooth', targetId });
   };
 
   const headingUsageBySlug = new Map();
@@ -530,22 +484,11 @@ export default function HelpSection({ locale = 'en' }) {
               <ul className="help-section__toc-list">
                 {tocGroups.map(group => {
                   const hasChildren = group.children.length > 0;
-                  const isExpanded = expandedGroupIds.includes(group.id);
 
                   return (
                     <li key={group.id} className={`help-section__toc-item help-section__toc-item--level-${group.level}`}>
                       <div className="help-section__toc-row">
-                        {hasChildren ? (
-                          <button
-                            type="button"
-                            className="help-section__toc-toggle"
-                            onClick={() => toggleGroup(group.id)}
-                            aria-expanded={isExpanded}
-                            aria-label={isExpanded ? t('help.collapse') : t('help.expand')}
-                          />
-                        ) : (
-                          <span className="help-section__toc-spacer" aria-hidden="true" />
-                        )}
+                        <span className="help-section__toc-spacer" aria-hidden="true" />
                         <a
                           href={`#${group.id}`}
                           className="help-section__toc-link"
@@ -554,7 +497,7 @@ export default function HelpSection({ locale = 'en' }) {
                           {group.title}
                         </a>
                       </div>
-                      {hasChildren && isExpanded && (
+                      {hasChildren && (
                         <ul className="help-section__toc-sublist">
                           {group.children.map(child => (
                             <li key={child.id} className={`help-section__toc-item help-section__toc-item--level-${child.level}`}>
