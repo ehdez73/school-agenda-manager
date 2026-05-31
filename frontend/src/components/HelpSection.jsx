@@ -478,9 +478,7 @@ export default function HelpSection({ locale = 'en' }) {
                             onClick={() => toggleGroup(group.id)}
                             aria-expanded={isExpanded}
                             aria-label={isExpanded ? t('help.collapse') : t('help.expand')}
-                          >
-                            {isExpanded ? '▾' : '▸'}
-                          </button>
+                          />
                         ) : (
                           <span className="help-section__toc-spacer" aria-hidden="true" />
                         )}

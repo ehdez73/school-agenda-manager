@@ -56,6 +56,22 @@
   line-height: 1;
 }
 
+.help-section__toc-toggle::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.2s ease-in-out;
+  border-radius: 1px;
+}
+
+.help-section__toc-toggle[aria-expanded="true"]::before {
+  transform: rotate(45deg);
+}
+
 .help-section__toc-toggle:hover {
   color: var(--color-primary);
 }
