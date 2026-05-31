@@ -7,6 +7,7 @@ import TeacherList from './components/TeacherList';
 import ConfigForm from './components/ConfigForm';
 import MarkdownTimetable from './components/MarkdownTimetable';
 import LanguageSelector from './components/LanguageSelector';
+import HelpSection from './components/HelpSection';
 import { setLocale as i18nSetLocale } from './i18n';
 
 function App() {
@@ -28,7 +29,43 @@ function App() {
   }, [theme]);
 
   useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      const previous = window.history.scrollRestoration;
+      window.history.scrollRestoration = 'manual';
+      return () => {
+        window.history.scrollRestoration = previous;
+      };
+    }
+    return undefined;
+  }, []);
+
+  useEffect(() => {
     try { localStorage.setItem('currentPage', page); } catch { /* ignore */ }
+  }, [page]);
+
+  useEffect(() => {
+    // Deep links with hashes are intended for Help guide headings.
+    if (window.location.hash && page !== 'help') {
+      setPage('help');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (page === 'help' || !window.location.hash) return;
+
+    const nextUrl = `${window.location.pathname}${window.location.search}`;
+    window.history.replaceState(null, '', nextUrl);
+  }, [page]);
+
+  useEffect(() => {
+    const onHashChange = () => {
+      if (window.location.hash && page !== 'help') {
+        setPage('help');
+      }
+    };
+
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
   }, [page]);
 
   return (
@@ -52,6 +89,9 @@ function App() {
           </button>
           <button className={'nav__link' + (page === 'config' ? ' nav__link--active' : '')} onClick={() => setPage('config')}>
             {t('nav.config')}
+          </button>
+          <button className={'nav__link' + (page === 'help' ? ' nav__link--active' : '')} onClick={() => setPage('help')}>
+            {t('nav.help')}
           </button>
         </div>
         <div className="nav__theme-controls">
@@ -80,6 +120,7 @@ function App() {
         {page === 'teachers' && <TeacherList />}
         {page === 'timetable-markdown' && <MarkdownTimetable />}
         {page === 'config' && <ConfigForm />}
+        {page === 'help' && <HelpSection locale={locale} />}
       </main>
     </div>
   );

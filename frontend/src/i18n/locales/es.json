@@ -48,6 +48,7 @@
         "teachers": "Docentes",
         "timetable": "Horarios",
         "config": "Configuración",
+        "help": "Ayuda",
         "theme_label": "Tema:",
         "theme_light": "Claro",
         "theme_dark": "Oscuro"
@@ -57,6 +58,15 @@
     "home": {
         "title": "Bienvenido a Gestión Agenda",
         "description": "Utiliza el menú superior para acceder a la administración de profesores, asignaturas, cursos y la generación de horarios."
+    },
+    "help": {
+        "title": "Ayuda",
+        "description": "Consulta las guías de usuario oficiales en formato HTML generadas directamente desde los archivos Markdown.",
+        "load_error": "No se pudo cargar la guía de ayuda.",
+        "empty": "No hay contenido de ayuda disponible.",
+        "toc_title": "Indice",
+        "expand": "Expandir sección",
+        "collapse": "Contraer sección"
     },
     "weekdays": [
         "Lunes",

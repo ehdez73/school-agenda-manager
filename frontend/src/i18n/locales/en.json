@@ -48,6 +48,7 @@
         "teachers": "Teachers",
         "timetable": "Timetable",
         "config": "Configuration",
+        "help": "Help",
         "theme_label": "Theme:",
         "theme_light": "Light",
         "theme_dark": "Dark"
@@ -57,6 +58,15 @@
     "home": {
         "title": "Welcome to Agenda Manager",
         "description": "Use the top menu to manage teachers, subjects, courses and generate timetables."
+    },
+    "help": {
+        "title": "Help",
+        "description": "Read the official user guides in HTML, rendered directly from the Markdown source files.",
+        "load_error": "Could not load help documentation.",
+        "empty": "No help content is currently available.",
+        "toc_title": "On this page",
+        "expand": "Expand section",
+        "collapse": "Collapse section"
     },
     "weekdays": [
         "Monday",
