@@ -131,7 +131,8 @@
         "generated_success": "Timetable generated successfully",
         "assignments_cleared": "Assignments cleared",
         "show_course_fixed": "Show course fixed slots",
-        "show_teacher_fixed": "Show teacher fixed slots"
+        "show_teacher_fixed": "Show teacher fixed slots",
+        "confirm_recreate": "The current timetables will be deleted and new ones will be generated. Do you wish to continue?"
     },
     "subjects": {
         "title": "Subjects",

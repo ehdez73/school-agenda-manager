@@ -6,6 +6,7 @@ import './MarkdownTimetable.css';
 import api from '../lib/api';
 import { t } from '../i18n';
 import SectionLayout from './SectionLayout';
+import ConfirmDeleteModal from './ConfirmDeleteModal';
 
 const POLL_INTERVAL_MS = 2000;
 const POLL_RETRY_MS = 3000;
@@ -169,6 +170,7 @@ function MarkdownTimetable() {
   const [downloading, setDownloading] = useState(false);
   const [selectedCourseIdsState, setSelectedCourseIds] = useState(() => readSelectionFromSessionStorage(COURSE_SELECTION_STORAGE_KEY));
   const [selectedTeacherIdsState, setSelectedTeacherIds] = useState(() => readSelectionFromSessionStorage(TEACHER_SELECTION_STORAGE_KEY));
+  const [showRecreateModal, setShowRecreateModal] = useState(false);
   const [showCourseFixedLines, setShowCourseFixedLines] = useState(true);
   const [showTeacherFixedLines, setShowTeacherFixedLines] = useState(true);
   const [courseQuery, setCourseQuery] = useState('');
@@ -381,7 +383,16 @@ function MarkdownTimetable() {
     }
   };
 
-  const handleClear = async () => {
+  const handleRecreateClick = () => {
+    setShowRecreateModal(true);
+  };
+
+  const cancelRecreate = () => {
+    setShowRecreateModal(false);
+  };
+
+  const confirmRecreate = async () => {
+    setShowRecreateModal(false);
     resetPersistedSelections();
     setGenerating(true);
     setError(null);
@@ -678,7 +689,7 @@ function MarkdownTimetable() {
                 {t('common.cancel')}
               </button>
             ) : markdown.trim() ? (
-              <button onClick={handleClear} disabled={generating} className="btn btn--danger btn--compact">
+              <button onClick={handleRecreateClick} disabled={generating} className="btn btn--danger btn--compact">
                 {t('timetable.recreate')}
               </button>
             ) : (
@@ -1024,6 +1035,14 @@ function MarkdownTimetable() {
           </ReactMarkdown>
         </details>
       )}
+      <ConfirmDeleteModal
+        open={showRecreateModal}
+        entity={t('nav.timetable')}
+        text={t('timetable.confirm_recreate')}
+        confirmText={t('timetable.recreate')}
+        onConfirm={confirmRecreate}
+        onCancel={cancelRecreate}
+      />
     </>
   );
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import './ConfirmDeleteModal.css';
 import { t } from '../i18n';
 
-export default function ConfirmDeleteModal({ open, entity, onConfirm, onCancel, text, id }) {
+export default function ConfirmDeleteModal({ open, entity, onConfirm, onCancel, text, id, confirmText }) {
   React.useEffect(() => {
     if (!open) return;
     const handleEsc = (e) => {
@@ -22,7 +22,7 @@ export default function ConfirmDeleteModal({ open, entity, onConfirm, onCancel, 
         <p>{text || defaultMessage}</p>
         <div className="confirm-modal-actions">
           <button className="confirm-modal-cancel" onClick={onCancel}>{t('common.cancel')}</button>
-          <button className="confirm-modal-delete" onClick={onConfirm}>{t('common.delete')}</button>
+          <button className="confirm-modal-delete" onClick={onConfirm}>{confirmText || t('common.delete')}</button>
         </div>
       </div>
     </div>

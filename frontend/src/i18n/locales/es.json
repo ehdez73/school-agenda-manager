@@ -131,7 +131,8 @@
         "generated_success": "Horario generado exitosamente",
         "assignments_cleared": "Assignments eliminadas",
         "show_course_fixed": "Mostrar filas fijas de cursos",
-        "show_teacher_fixed": "Mostrar filas fijas de docentes"
+        "show_teacher_fixed": "Mostrar filas fijas de docentes",
+        "confirm_recreate": "Se eliminarán los horarios actuales y se generarán unos nuevos. ¿Deseas continuar?"
     },
     "subjects": {
         "title": "Asignaturas",
