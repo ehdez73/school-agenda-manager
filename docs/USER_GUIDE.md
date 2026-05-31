@@ -33,12 +33,12 @@ The application allows you to build and maintain school timetables in a centrali
 
 In the top menu, day-to-day management is organized into:
 
-- Courses
-- Subjects
-- Packs
-- Teachers
-- Timetables
-- Settings
+- **Courses**
+- **Subjects** (includes a **Packs** tab for grouping subjects)
+- **Teachers**
+- **Timetable**
+- **Configuration**
+- **Help**
 
 ## 3. Key definitions
 
@@ -61,9 +61,11 @@ Example: Language 1st, Mathematics 3rd, Music I4A.
 A set of subjects managed in a coordinated way in the timetable.
 In this guide, Pack is equivalent to Subject Group.
 
-### shared_hours (shared hours within a Pack)
+### Shared hours
 
 Number of weekly hours where subjects in the Pack must coincide in the same timeslot.
+- If no number is set (empty = "All hours"), **all hours** in the Pack are taught together.
+- If a specific number is set, only those hours are shared; the remaining hours are independent per subject.
 
 ### Teacher
 
@@ -102,34 +104,33 @@ To avoid errors and rework, always follow this order:
 2. Create each course with its name.
 3. Define the number of lines (A, B, etc.).
 
-Recommendations:
-
-- Check that all real lines in the school are created.
-- If a course has two groups, set 2 lines from the beginning.
+> **Recommendations:**
+> - Check that all real lines in the school are created.
+> - If a course has two groups, set 2 lines from the beginning.
 
 ### 5.2 Create subjects
 
-1. Go to Subjects.
-2. Create each subject by setting course and weekly hours.
-3. Complete optional fields when needed (max per day, teach every day, consecutive hours, etc.).
+1. Go to **Subjects**.
+2. Create each subject with a name, course, color, and weekly hours.
+3. If the course has multiple lines, you can **uncheck specific lines** to exclude the subject from those lines.
+4. Complete optional fields when needed (max per day, consecutive hours, teach every day, linked subject, etc.).
 
-Recommendations:
-
-- Check that each subject has the correct weekly load.
-- Avoid duplicates with similar names.
+> **Recommendations:**
+> - Check that each subject has the correct weekly load.
+> - Avoid duplicates with similar names.
+> - If a subject is only taught in some lines, use the line checkboxes to exclude the ones it does not apply to.
 
 ### 5.3 Create Packs
 
-1. Open the Packs tab inside Subjects.
+1. Open the **Packs** tab inside Subjects.
 2. Create the Pack with a clear name.
 3. Select the subjects included in the Pack.
-4. If needed, define shared_hours.
+4. If needed, define shared hours.
 5. Save.
 
-Useful validations:
-
-- Subjects in a Pack must be correctly defined first.
-- If you use shared_hours, its value must be consistent with the weekly hours of the Pack subjects.
+> **Useful validations:**
+> - Subjects in a Pack must be correctly defined first.
+> - If you use shared hours, their value must be consistent with the weekly hours of the Pack subjects.
 
 ### 5.4 Create teachers
 
@@ -139,22 +140,24 @@ Useful validations:
 4. Set maximum weekly hours.
 5. Assign tutor group(s) when applicable.
 
-Recommendations:
+> **Recommendations:**
+> - No subject should remain without assigned teachers.
+> - Set realistic weekly maximums to avoid generation blocks.
 
-- No subject should remain without assigned teachers.
-- Set realistic weekly maximums to avoid generation blocks.
+#### 5.4.1 Configure availability and preferences
 
-### 5.5 Configure availability and preferences
+Each cell in the grid (day × hour) is a single button that cycles through three states on each click:
 
-1. Open a teacher profile.
-2. Mark unavailable timeslots.
-3. Mark preferred timeslots.
-4. Save.
+1. **No preference** (neutral/gray) — the teacher may or may not have class in that slot.
+2. **Not available** (red) — the teacher cannot teach in that slot. The system will not assign classes here.
+3. **Preferred** (green) — the teacher prefers to teach in that slot. The system will try to prioritize it.
 
-Practical criterion:
+Each click advances to the next state: `No preference → Not available → Preferred → No preference → ...`
 
-- Use unavailable slots only when mandatory.
-- Use preferences to guide the result without over-constraining it.
+> **Practical criterion:**
+> - Use **Not available** only when mandatory (medical, duty, other school).
+> - Use **Preferred** to guide the result without over-constraining it.
+> - Changes are saved together with the rest of the teacher form.
 
 ## 6. Pack use cases
 
@@ -185,34 +188,38 @@ How to configure:
 2. Create Music for the same level.
 3. Create one Pack per group/level (example: COMUI3A, COMUI4A, COMUI5A).
 4. Add both subjects to the Pack.
-5. Set shared_hours = 1.
+5. Set shared hours = 1.
 6. Save and verify.
 
 Expected result:
 
-- The Pack exists with shared_hours = 1.
+- The Pack exists with shared hours = 1.
 - The timetable enforces one shared weekly hour for that Pack.
 
-### 6.3 Difference between a Pack without shared_hours and a Pack with shared_hours
+### 6.3 Difference between a Pack without shared hours and a Pack with shared hours
 
-- Pack without shared_hours: links subjects in the Pack without forcing an explicit number of shared hours.
-- Pack with shared_hours: enforces exactly the number of shared hours indicated.
+- Pack **without** shared hours (empty = "All hours"): **all hours** of the Pack subjects are taught together in the same timeslot.
+- Pack **with** shared hours (specific value): only that number of hours are taught together; the remaining hours are independent per subject.
 
 ## 7. Timetable generation and review
 
-1. Go to Timetables.
-2. Click Generate Timetable.
+1. Go to **Timetable**.
+2. Click **Generate Timetable**. The process may take a few seconds.
 3. Wait for the process to finish.
-4. Review by course and by teacher.
-5. If needed, correct data and generate again.
+4. The timetable appears in two sections: **by course** and **by teacher**.
+   - Use the search filters and checkboxes at the top to choose which courses or teachers to display.
+   - The sidebar provides quick navigation between groups or teachers.
+   - Toggle **Show course/teacher fixed slots** to include or hide recess and other fixed blocks.
+5. You can **Download Markdown** to save the timetable as a file, or **Print** for a paper-friendly view.
+6. If needed, correct source data and generate again.
 
-When to use Recreate Timetables:
-
-- After major changes in courses, packs, or availability.
+> **When to use Recreate Timetables:**
+> - After major changes in courses, packs, or availability.
+> - Recreate Timetables deletes the current timetable and generates a new one from scratch.
 
 ## 8. Constraints: HARD and SOFT
 
-In Settings > Constraints you will see two blocks:
+Go to **Configuration** and click the **Restrictions** tab. You will see two blocks:
 
 - Mandatory constraints (HARD).
 - Optional preference constraints (SOFT).
@@ -231,22 +238,22 @@ Quick example:
 
 | Type | Constraint | What it is for | Example |
 | --- | --- | --- | --- |
-| HARD | Subject weekly hours (SubjectWeeklyHours) | Ensures each subject meets its weekly hours for each group. | Mathematics 1st with 5 hours must appear exactly 5 hours. |
-| HARD | One class at a time per teacher (TeacherOneClassAtATime) | Prevents a teacher from teaching two classes in the same timeslot. | The English teacher cannot be in 2ndA and 2ndB at 10:00 at the same time. |
-| HARD | Teacher unavailable times (TeacherUnavailableTimes) | Blocks timeslots marked as unavailable. | If a teacher is unavailable on Tuesday 5th period, no class will be assigned there. |
-| HARD | Teacher max weekly hours (TeacherMaxWeeklyHours) | Enforces each teacher's configured weekly maximum. | With a max of 23 hours, 24 or more cannot be assigned. |
-| HARD | Subject max hours/day by group (GroupSubjectMaxHoursPerDay) | Limits how many times a subject can appear in one day for a group. | If Language has max 2 per day, it cannot appear 3 times on Tuesday in 3rdA. |
-| HARD | One logical assignment per hour and group (GroupAtMostOneLogicalAssignment) | Ensures a group has only one subject (or Pack) per timeslot. | 1stA cannot have Mathematics and Science simultaneously in the 3rd period. |
-| HARD | One teacher per subject in each timeslot (GroupSubjectAtMostOneTeacherPerTimeslot) | Prevents assigning two teachers to the same subject and group in the same timeslot. | Music in 4thA during the 2nd period cannot have two teachers at once. |
-| HARD | Consecutive subject hours by group (GroupSubjectHoursMustBeConsecutive) | If a subject marked as consecutive appears multiple times in one day, those hours must form one continuous block. | If PE in 5thA has 2 hours on Thursday, they must be 4th-5th, not 2nd and 5th. |
-| HARD | Non-consecutive subject hours by group (GroupSubjectHoursMustNotBeConsecutive) | For subjects marked as non-consecutive, separates same-day hours. | Language in 2ndB with 2 hours on Monday cannot be 2nd-3rd consecutively. |
-| HARD | Linked subjects consecutive (LinkedSubjectsConsecutive) | When two subjects are linked, they must be in contiguous periods when they occur on the same day. | A lab linked to Science must be placed immediately before or after it. |
-| HARD | Subject pack assignment (SubjectGroupAssignment) | Forces all Pack subjects to be assigned in the same timeslot. | Religion and Educational Support inside RELAT1 must share the Pack timeslot. |
-| HARD | Subject must be taught every day (SubjectMustEveryDay) | For subjects marked with this option, requires at least one daily hour. | If a reading subject is marked daily, it must appear Monday to Friday. |
-| SOFT | Tutor mandatory hours (TutorMandatoryHours) | Favors assigning the tutor in first and last weekly periods for their group. | Prioritizes the 1stA tutor teaching 1stA at the beginning and end of the week. |
-| SOFT | Teacher preferred times (TeacherPreferredTimes) | Prioritizes placing classes in each teacher's preferred timeslots. | If a teacher prefers early morning, the system tries to place classes there. |
-| SOFT | Tutor preference (TutorPreference) | Favors tutors teaching in their own tutor group. | Prioritizes the 3rdB tutor teaching more hours in 3rdB than in other groups. |
-| SOFT | Avoid teacher gaps (TeacherAvoidGaps) | Penalizes timetables with gaps between classes, favoring compact blocks. | Better 2nd-3rd-4th consecutive than 2nd and 5th with gaps in between. |
+| HARD | **SubjectWeeklyHours** | Ensures each subject meets its weekly hours per group. | Math 1st with 5h → appears exactly 5h. |
+| HARD | **TeacherOneClassAtATime** | A teacher cannot teach two classes in the same timeslot. | English teacher cannot be in 2ndA and 2ndB at 10:00. |
+| HARD | **TeacherUnavailableTimes** | Blocks timeslots marked as unavailable. | Tue 5th period unavailable → no class assigned there. |
+| HARD | **TeacherMaxWeeklyHours** | Enforces each teacher's weekly max. | Max 23h → 24h cannot be assigned. |
+| HARD | **GroupSubjectMaxHoursPerDay** | Limits how many times a subject can repeat in one day for a group. | Language max 2/day → cannot appear 3× on Tue in 3rdA. |
+| HARD | **GroupAtMostOneLogicalAssignment** | A group can have only one subject (or Pack) per timeslot. | 1stA cannot have Math and Science at the same 3rd period. |
+| HARD | **GroupSubjectAtMostOneTeacherPerTimeslot** | One subject+group cannot have two teachers in the same slot. | Music 4thA, 2nd period → one teacher only. |
+| HARD | **GroupSubjectHoursMustBeConsecutive** | Subjects with "Consecutive hours": same-day hours form a contiguous block. | PE 5thA, 2h on Thu → must be 4th-5th, not 2nd and 5th. |
+| HARD | **GroupSubjectHoursMustNotBeConsecutive** | Subjects WITHOUT "Consecutive hours": same-day hours cannot be adjacent. | Language 2ndB, 2h on Mon → cannot be 2nd-3rd. |
+| HARD | **LinkedSubjectsConsecutive** | Linked subjects: when on the same day, they must be in contiguous hours. | Lab linked to Science → placed just before or after. |
+| HARD | **SubjectGroupAssignment** | All Pack subjects are assigned to the same timeslot. | Religion and Educ. Support in RELAT1 → same slot. |
+| HARD | **SubjectMustEveryDay** | Subjects marked "Teach every day": at least one hour daily. | Reading daily → appears Mon-Fri. |
+| SOFT | **TutorMandatoryHours** | Rewards assigning the tutor to the first and last weekly periods of their group. | 1stA tutor preferred at start and end of week. |
+| SOFT | **TeacherPreferredTimes** | Rewards placing classes in each teacher's preferred slots. | Teacher prefers morning → system tries to place classes there. |
+| SOFT | **TutorPreference** | Rewards tutors teaching in their own tutor group. | 3rdB tutor → more hours in 3rdB than other groups. |
+| SOFT | **TeacherAvoidGaps** | Penalizes gaps between classes, favoring compact daily blocks. | Better 2nd-3rd-4th consecutive than 2nd and 5th with gaps. |
 
 ## 9. Common issues and how to solve them
 
@@ -257,7 +264,7 @@ Check:
 - Subjects without assigned teacher.
 - Teachers with weekly maximum too low.
 - Too many unavailable timeslots.
-- Misconfigured packs or inconsistent shared_hours.
+- Misconfigured packs or inconsistent shared hours.
 
 ### Error 2: a subject does not appear with expected hours
 
@@ -286,22 +293,22 @@ Check:
 
 - Keep naming consistent for courses, subjects, and packs.
 - Create academic structure first, then teaching staff.
-- Use shared_hours only when there is a real pedagogical need.
+- Use shared hours only when there is a real pedagogical need.
 - Avoid applying too many strict constraints to many teachers at once.
 - Regenerate the timetable after each relevant block of changes.
 
 ## 11. Final checklist before generating
 
-- General settings reviewed.
-- Courses and lines completed.
-- All subjects created with correct hours.
-- Packs created and validated.
-- Special cases configured:
-  - Religion / Educational Support.
-  - Communication and Representation of Reality / Music with shared_hours=1 when applicable.
-- All teachers assigned to subjects.
-- Weekly maximums reviewed.
-- Availabilities loaded correctly.
-- Tutor assignments completed.
+- [ ] General settings reviewed.
+- [ ] Courses and lines completed.
+- [ ] All subjects created with correct hours.
+- [ ] Packs created and validated.
+- [ ] Special cases configured:
+  - [ ] Religion / Educational Support.
+  - [ ] Communication and Representation of Reality / Music with shared hours=1 when applicable.
+- [ ] All teachers assigned to subjects.
+- [ ] Weekly maximums reviewed.
+- [ ] Availabilities loaded correctly.
+- [ ] Tutor assignments completed.
 
 If the checklist is complete, generate the timetable.
