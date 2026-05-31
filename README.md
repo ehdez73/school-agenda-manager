@@ -62,7 +62,7 @@ uv run python -m pytest -q
 
 ## Where to look
 
-- Backend core: `backend/models.py`, `backend/scheduler.py`, `backend/restrictions/`.
+- Backend core: `backend/models.py`, `backend/scheduler.py`, `backend/schemas.py`, `backend/restrictions/`.
 - Frontend core: `frontend/src/components/`, `frontend/src/lib/`, `frontend/STYLING_GUIDE.md`.
 - DB: `agenda.db` (repo root) — use `backend/populate_db.py` to recreate seed data.
 
