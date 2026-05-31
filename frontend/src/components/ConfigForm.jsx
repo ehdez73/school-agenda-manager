@@ -205,34 +205,38 @@ export default function ConfigForm() {
       {activeTab === 'schedules' && (
         <>
           <form id="config-form-schedules" onSubmit={handleSubmit}>
-            <label className="config-form-label">
-              {t('config.days_per_week')}
-              <input
-                type="number"
-                min={1}
-                max={7}
-                value={daysPerWeek}
-                onChange={e => setDaysPerWeek(e.target.value)}
-                required
-                className="config-form-input"
-              />
-            </label>
-            <DayIndices daysPerWeek={daysPerWeek} dayIndices={dayIndices} setDayIndices={setDayIndices} suppressResize={suppressResize} />
+            <div className="config-schedule-metrics">
+              <div className="config-schedule-column">
+                <label className="config-form-label">
+                  {t('config.days_per_week')}
+                  <input
+                    type="number"
+                    min={1}
+                    max={7}
+                    value={daysPerWeek}
+                    onChange={e => setDaysPerWeek(e.target.value)}
+                    required
+                    className="config-form-input"
+                  />
+                </label>
+                <DayIndices daysPerWeek={daysPerWeek} dayIndices={dayIndices} setDayIndices={setDayIndices} suppressResize={suppressResize} />
+              </div>
 
-            <hr className="config-form-divider" />
-
-            <label className="config-form-label">
-              {t('config.classes_per_day')}
-              <input
-                type="number"
-                min={1}
-                value={classesPerDay}
-                onChange={e => setClassesPerDay(e.target.value)}
-                required
-                className="config-form-input"
-              />
-            </label>
-            <HourNames classesPerDay={classesPerDay} hourNames={hourNames} setHourNames={setHourNames} suppressResize={suppressResize} />
+              <div className="config-schedule-column">
+                <label className="config-form-label">
+                  {t('config.classes_per_day')}
+                  <input
+                    type="number"
+                    min={1}
+                    value={classesPerDay}
+                    onChange={e => setClassesPerDay(e.target.value)}
+                    required
+                    className="config-form-input"
+                  />
+                </label>
+                <HourNames classesPerDay={classesPerDay} hourNames={hourNames} setHourNames={setHourNames} suppressResize={suppressResize} />
+              </div>
+            </div>
 
             {message && <div className="config-form-message">{message}</div>}
           </form>

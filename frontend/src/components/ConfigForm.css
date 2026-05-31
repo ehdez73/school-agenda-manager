@@ -14,6 +14,22 @@
 	display: block;
 }
 
+.config-schedule-metrics {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--space-md);
+	align-items: start;
+}
+
+.config-schedule-column {
+	min-width: 0;
+}
+
+.config-schedule-metrics .config-form-input {
+	width: 100%;
+	max-width: 180px;
+}
+
 .config-form-input {
 	display: block;
 	padding: var(--space-sm) var(--space-md);
@@ -142,6 +158,10 @@
 @media (max-width: 768px) {
 	.config-form-container {
 		max-width: 100%;
+	}
+
+	.config-schedule-metrics {
+		grid-template-columns: 1fr;
 	}
 
 	.config-tabs {
