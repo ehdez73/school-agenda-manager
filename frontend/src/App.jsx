@@ -70,6 +70,20 @@ function App() {
 
   return (
     <div className="app">
+      <a
+        href="https://github.com/ehdez73/school-agenda-manager"
+        className="github-ribbon"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Fork me on GitHub"
+      >
+        <img
+          width="149"
+          height="149"
+          src="https://github.blog/wp-content/uploads/2008/12/forkme_right_red_aa0000.png"
+          alt="Fork me on GitHub"
+        />
+      </a>
       <nav className="app__nav">
         <div className="nav__links">
           <span className="nav__brand" onClick={() => setPage('home')}>

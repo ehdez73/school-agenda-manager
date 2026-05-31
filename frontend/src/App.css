@@ -279,3 +279,29 @@
     text-align: center;
   }
 }
+
+/* GitHub "Fork me" ribbon */
+.github-ribbon {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 200;
+  line-height: 0;
+}
+
+.github-ribbon img {
+  border: 0;
+}
+
+/* push nav controls away from the ribbon */
+@media (min-width: 769px) {
+  .app__nav {
+    padding-right: 170px;
+  }
+}
+
+@media (max-width: 768px) {
+  .github-ribbon {
+    display: none;
+  }
+}
