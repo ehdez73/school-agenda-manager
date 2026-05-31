@@ -246,11 +246,11 @@ function SubjectList() {
             <th className="subject-table-th-sort" onClick={() => handleSort('id')}>
               {t('common.id') || 'ID'} {sortBy === 'id' ? (sortAsc ? '▲' : '▼') : ''}
             </th>
-            <th className="subject-table-th-sort" onClick={() => handleSort('name')}>
-              {t('common.name') || 'Name'} {sortBy === 'name' ? (sortAsc ? '▲' : '▼') : ''}
-            </th>
             <th className="subject-table-th-sort" onClick={() => handleSort('course')}>
               {t('subjects.course') || 'Course'} {sortBy === 'course' ? (sortAsc ? '▲' : '▼') : ''}
+            </th>
+            <th className="subject-table-th-sort" onClick={() => handleSort('name')}>
+              {t('common.name') || 'Name'} {sortBy === 'name' ? (sortAsc ? '▲' : '▼') : ''}
             </th>
             <th>{t('subjects.linked') || 'Vinculada'}</th>
             <th>{t('subjects.teacher')}</th>
@@ -266,6 +266,7 @@ function SubjectList() {
           {sortedSubjects.map(subject => (
             <tr key={subject.id} onClick={() => handleEdit(subject)} style={{ cursor: 'pointer' }}>
               <td>{subject.id}</td>
+              <td>{subject.course ? subject.course.name : t('subjects.no_course')}</td>
               <td>
                 <span className="subject-color-chip" style={{ backgroundColor: subject.color || '#dbeafe' }} aria-hidden="true" />
                 <span className="subject-name">{subject.name}</span>
@@ -273,7 +274,6 @@ function SubjectList() {
                   <span key={g.id} className="group-badge">{g.name}</span>
                 ))}
               </td>
-              <td>{subject.course ? subject.course.name : t('subjects.no_course')}</td>
               <td>
                 {subject.linked_subject_id ? (
                   (() => {
