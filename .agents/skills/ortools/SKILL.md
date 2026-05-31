@@ -88,7 +88,7 @@ if preference_terms:
 
 ---
 
-## 1. Quick Start — Add a New Restriction in 5 Steps
+## 1. Quick Start — Add a New Restriction in 6 Steps
 
 ### Step 1: Create the restriction file
 
@@ -191,6 +191,17 @@ def test_your_rule_works():
     status = cp_model.CpSolver().Solve(model)
     assert status in (cp_model.OPTIMAL, cp_model.FEASIBLE)
 ```
+
+### Step 6: Update `CONSTRAINTS.md`
+
+Add a row to the implementation classes table at `CONSTRAINTS.md:76-94`:
+
+```markdown
+| Your constraint description | `YourRuleName` | Hard/Soft | `backend/restrictions/your_rule_name.py` |
+```
+
+Also add a bullet to the hard/soft list at `CONSTRAINTS.md:44-58` (hard) or `:60-66` (soft).
+If the restriction replaces a legacy/unused class, update the legacy section at `:96-103` too.
 
 ---
 
@@ -662,8 +673,10 @@ def test_my_rule_solution_correct():
 | Ignoring `FEASIBLE` status | Still a valid solution; increase timeout if optimal needed |
 | Group name mismatch (`"1ºA"` vs `"1º-A"`) | Use `normalize_group_name()` |
 | Subject in multiple SubjectGroups | Invalid — causes conflicting constraints |
+| Pack without shared_hours (null) | Means **all hours** are shared between Pack subjects, not "no hours". Empty/null = "Todas las horas/All hours" = full overlap. Specific value = partial overlap. |
 | Missing `__init__.py` import | Restriction silently not used |
 | Missing `scheduler.py` wiring | Restriction silently not used |
+| Missing `CONSTRAINTS.md` update | Document out of sync with implementation |
 
 ---
 
