@@ -1,4 +1,4 @@
-# Guía de Usuario - School Agenda Manager
+# Guía de Usuario
 
 Guía orientada a Jefatura de Estudios para administrar la aplicación: crear estructura académica, configurar profesorado y generar horarios.
 
@@ -77,9 +77,9 @@ Profesor o profesora que imparte una o varias asignaturas, con límite máximo s
 
 Docente asignado a uno o varios grupos de tutoría.
 
-### Disponibilidad
+### Cuadrícula de disponibilidad
 
-Franjas donde el docente no puede impartir clase.
+Cuadrícula donde se configuran las franjas no disponibles y preferidas del docente para la generación del horario.
 
 ### Preferencias
 
@@ -176,6 +176,8 @@ Para evitar errores y retrabajo, sigue siempre este orden:
 3. Asigna asignaturas que puede impartir.
 4. Define máximo de horas semanales.
 5. Asigna grupo tutor cuando corresponda.
+6. Configura la cuadrícula de disponibilidad (más abajo).
+7. Si el docente es coordinador, asígnale las horas que usará para coordinación.
 
 > **Recomendaciones:**
 > - Ninguna asignatura debe quedarse sin docentes asignados.

@@ -1,4 +1,4 @@
-# User Guide - School Agenda Manager
+# User Guide
 
 Guide aimed at Heads of Studies to manage the application: create the academic structure, configure teaching staff, and generate timetables.
 
@@ -77,9 +77,9 @@ A teacher who teaches one or more subjects, with a maximum weekly load.
 
 A teacher assigned to one or more tutor groups.
 
-### Availability
+### Availability grid
 
-Timeslots where the teacher cannot teach.
+Grid where the teacher's unavailable and preferred timeslots are configured for timetable generation.
 
 ### Preferences
 
@@ -176,6 +176,8 @@ To avoid errors and rework, always follow this order:
 3. Assign the subjects they can teach.
 4. Set maximum weekly hours.
 5. Assign tutor group(s) when applicable.
+6. Configure the availability grid (below).
+7. If the teacher is a coordinator, assign the hours they will use for coordination.
 
 > **Recommendations:**
 > - No subject should remain without assigned teachers.
