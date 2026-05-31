@@ -122,6 +122,10 @@ function App() {
         {page === 'config' && <ConfigForm />}
         {page === 'help' && <HelpSection locale={locale} />}
       </main>
+
+      <footer className="app__footer">
+        <span>Made with <span className="footer__heart">&hearts;</span> by ehdez73</span>
+      </footer>
     </div>
   );
 }

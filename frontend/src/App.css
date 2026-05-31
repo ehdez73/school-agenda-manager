@@ -1,12 +1,13 @@
 /* App-specific styles */
 
 .app {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: var(--color-bg);
   color: var(--color-text);
   transition: background-color 0.3s ease, color 0.3s ease;
+  overflow: hidden;
 }
 
 /* Navigation */
@@ -202,6 +203,7 @@
   max-width: 1400px;
   width: 100%;
   margin: 0 auto;
+  overflow-y: auto;
 }
 
 @media (min-width: 1600px) {
@@ -229,6 +231,20 @@
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
+}
+
+/* Footer */
+.app__footer {
+  text-align: center;
+  padding: var(--space-md);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border-light);
+  background-color: var(--color-surface);
+}
+
+.footer__heart {
+  color: #e25555;
 }
 
 /* Responsive design */
