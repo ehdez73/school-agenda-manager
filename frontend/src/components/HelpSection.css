@@ -178,3 +178,37 @@
     max-height: none;
   }
 }
+
+@media print {
+  @page {
+    size: portrait;
+    margin: 1cm;
+  }
+
+  .app__nav,
+  .section-layout__header,
+  .help-section__toc {
+    display: none !important;
+  }
+
+  .help-section__layout {
+    display: block;
+  }
+
+  .help-section__markdown {
+    max-width: none;
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  .help-section__markdown h1 { font-size: 16px; }
+  .help-section__markdown h2 { font-size: 14px; }
+  .help-section__markdown h3 { font-size: 12px; }
+  .help-section__markdown h4 { font-size: 11px; }
+  .help-section__markdown p,
+  .help-section__markdown li { font-size: 10px; line-height: 1.4; }
+  .help-section__markdown th,
+  .help-section__markdown td { font-size: 9px; padding: 3px 5px; }
+  .help-section__markdown code { font-size: 9px; }
+  .help-section__markdown pre { font-size: 9px; }
+}

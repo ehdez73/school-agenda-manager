@@ -271,6 +271,7 @@ export default function HelpSection({ locale = 'en' }) {
   const [error, setError] = useState(null);
   const [expandedGroupIds, setExpandedGroupIds] = useState([]);
   const [hashToken, setHashToken] = useState(() => window.location.hash || '');
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -385,6 +386,39 @@ export default function HelpSection({ locale = 'en' }) {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
+  const handleDownload = () => {
+    if (!markdown.trim()) {
+      setError(t('help.no_content_download'));
+      return;
+    }
+    try {
+      setDownloading(true);
+      const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const date = new Date().toISOString().split('T')[0];
+      const filename = (t('help.md_filename') || 'help-{date}').replace('{date}', date) + '.md';
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError((t('help.md_error') || 'Error downloading markdown') + ': ' + err.message);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const handlePrint = () => {
+    if (!markdown.trim()) {
+      setError(t('help.no_content_print'));
+      return;
+    }
+    window.print();
+  };
+
   const sectionState = loading ? 'loading' : error ? 'error' : markdown ? 'ready' : 'empty';
   const headings = useMemo(() => extractHeadings(markdown), [markdown]);
   const tocHeadings = useMemo(() => headings.filter(heading => heading.level <= 3), [headings]);
@@ -457,6 +491,36 @@ export default function HelpSection({ locale = 'en' }) {
       emptyMsg={t('help.empty')}
       className="help-section"
       data-testid="help-section"
+      actions={
+        <>
+          <button
+            onClick={handleDownload}
+            disabled={downloading || loading || !!error || !markdown.trim()}
+            className="btn btn--secondary btn--compact"
+            aria-label={t('help.download_md')}
+            title={t('help.download_md')}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </button>
+          <button
+            onClick={handlePrint}
+            disabled={loading || !!error || !markdown.trim()}
+            className="btn btn--secondary btn--compact"
+            aria-label={t('help.print_md')}
+            title={t('help.print_md')}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9"/>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+          </button>
+        </>
+      }
     >
       <div className="help-section__layout">
         {tocGroups.length > 0 && (

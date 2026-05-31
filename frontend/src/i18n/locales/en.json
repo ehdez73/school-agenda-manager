@@ -66,7 +66,14 @@
         "empty": "No help content is currently available.",
         "toc_title": "On this page",
         "expand": "Expand section",
-        "collapse": "Collapse section"
+        "collapse": "Collapse section",
+        "download_md": "Download Markdown",
+        "downloading_md": "Preparing Markdown...",
+        "print_md": "Print",
+        "md_filename": "help-{date}",
+        "md_error": "Error downloading markdown",
+        "no_content_download": "No content to download",
+        "no_content_print": "No content to print"
     },
     "weekdays": [
         "Monday",

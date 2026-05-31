@@ -66,7 +66,14 @@
         "empty": "No hay contenido de ayuda disponible.",
         "toc_title": "Indice",
         "expand": "Expandir sección",
-        "collapse": "Contraer sección"
+        "collapse": "Contraer sección",
+        "download_md": "Descargar Markdown",
+        "downloading_md": "Preparando Markdown...",
+        "print_md": "Imprimir",
+        "md_filename": "ayuda-{date}",
+        "md_error": "Error descargando markdown",
+        "no_content_download": "No hay contenido para descargar",
+        "no_content_print": "No hay contenido para imprimir"
     },
     "weekdays": [
         "Lunes",
