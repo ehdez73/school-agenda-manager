@@ -111,6 +111,24 @@ function getAlternateDocLanguage(locale) {
   return resolveDocLanguage(locale) === 'es' ? 'en' : 'es';
 }
 
+function isExternalAsset(src) {
+  return /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(src) || src.startsWith('data:') || src.startsWith('#');
+}
+
+function resolveHelpImageSrc(src) {
+  const cleanedSrc = (src || '').trim();
+  if (!cleanedSrc || isExternalAsset(cleanedSrc)) return cleanedSrc;
+
+  const normalizedSrc = cleanedSrc
+    .replace(/^\.\//, '')
+    .replace(/^\//, '')
+    .replace(/^assets\//, '')
+    .replace(/^docs\//, '');
+
+  const apiBase = api.API_BASE || '/api';
+  return `${apiBase}/api/docs/assets/${normalizedSrc}`;
+}
+
 function markdownContainsHashTarget(markdown, hashTargetId) {
   if (!markdown || !hashTargetId) return false;
 
@@ -505,6 +523,9 @@ export default function HelpSection({ locale = 'en' }) {
               h2: headingRenderer(2),
               h3: headingRenderer(3),
               h4: headingRenderer(4),
+              img: ({ src, alt, ...props }) => (
+                <img {...props} src={resolveHelpImageSrc(src)} alt={alt || ''} loading="lazy" />
+              ),
             }}
           >
             {markdown}

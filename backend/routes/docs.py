@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, send_from_directory
 
 
 docs_bp = Blueprint('docs_bp', __name__)
@@ -8,6 +8,7 @@ docs_bp = Blueprint('docs_bp', __name__)
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 DOCS_DIR = ROOT_DIR / 'docs'
+DOCS_ASSETS_DIR = DOCS_DIR / 'assets'
 LANG_DOC_MAP = {
     'es': 'GUIA_USUARIO.md',
     'en': 'USER_GUIDE.md',
@@ -31,3 +32,8 @@ def get_documentation(lang):
         return jsonify({'error': f'Failed to read documentation: {exc}'}), 500
 
     return content, 200, {'Content-Type': 'text/plain; charset=utf-8'}
+
+
+@docs_bp.route('/api/docs/assets/<path:filename>', methods=['GET'])
+def get_documentation_asset(filename):
+    return send_from_directory(DOCS_ASSETS_DIR, filename)

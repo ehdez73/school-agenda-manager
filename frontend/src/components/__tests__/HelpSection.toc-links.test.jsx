@@ -206,4 +206,19 @@ describe('HelpSection TOC links', () => {
       expect(window.location.hash).toBe('');
     });
   });
+
+  it('rewrites relative image sources to the docs assets endpoint', async () => {
+    const imageMarkdown = [
+      '# User Guide',
+      '',
+      '![Screenshot](assets/screenshots/help.png)',
+    ].join('\n');
+
+    apiMock.get.mockResolvedValue(imageMarkdown);
+
+    render(<HelpSection locale="en" />);
+
+    const image = await screen.findByRole('img', { name: 'Screenshot' });
+    expect(image.getAttribute('src')).toBe('/api/api/docs/assets/screenshots/help.png');
+  });
 });
