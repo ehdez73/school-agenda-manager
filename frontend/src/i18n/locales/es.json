@@ -220,7 +220,9 @@
             "TeacherPreferredTimes": "Franjas preferidas del docente",
             "TeacherPreferredTimes_desc": "Premia la asignación del docente en sus franjas horarias preferidas.",
             "TutorPreference": "Preferencia del tutor",
-            "TutorPreference_desc": "Premia que los tutores impartan clase en su grupo tutorizado."
+            "TutorPreference_desc": "Premia que los tutores impartan clase en su grupo tutorizado.",
+            "TeacherAvoidGaps": "Evitar huecos del profesorado",
+            "TeacherAvoidGaps_desc": "Penaliza los huecos en el horario diario del profesorado, favoreciendo que todas sus clases estén en un único bloque contiguo."
         }
     }
 }

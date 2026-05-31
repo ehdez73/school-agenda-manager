@@ -26,6 +26,7 @@ const SOFT_RESTRICTIONS = [
   "TeacherPreferredTimes",
   "TutorMandatoryHours",
   "TutorPreference",
+  "TeacherAvoidGaps",
 ];
 
 export default function ConfigForm() {

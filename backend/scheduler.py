@@ -61,6 +61,7 @@ from .restrictions import (
     SubjectMustEveryDay,
     LinkedSubjectsConsecutive,
     TeacherOneSubjectPerGroup,
+    TeacherAvoidGaps,
 )
 
 
@@ -211,6 +212,8 @@ def _build_soft_restrictions(model, assignments, all_teachers,
          [model, assignments, all_teachers]),
         ("TutorMandatoryHours", TutorMandatoryHours(weight=500),
          [model, assignments, all_teachers, num_days, num_hours, all_subjectgroups]),
+        ("TeacherAvoidGaps", TeacherAvoidGaps(weight=50),
+         [model, assignments, all_teachers, num_days, num_hours]),
     ]
 
 
