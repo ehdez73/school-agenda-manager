@@ -98,11 +98,24 @@
   display: block;
   color: var(--color-text-muted);
   text-decoration: none;
-  padding: 0.2rem 0;
+  padding: 0.2rem 0.35rem;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
 }
 
 .help-section__toc-link:hover {
   color: var(--color-primary);
+  background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+
+.help-section__toc-link--active {
+  color: var(--color-primary);
+  font-weight: 600;
+  background-color: color-mix(in srgb, var(--color-primary) 15%, transparent);
+}
+
+.help-section__toc-link--active-parent {
+  font-weight: 600;
 }
 
 .help-section__markdown {

@@ -69,6 +69,7 @@ describe('HelpSection TOC links', () => {
     fireEvent.click(subsectionLink);
     await waitFor(() => {
       expect(window.location.hash).toBe('#section-3');
+      expect(subsectionLink).toHaveClass('help-section__toc-link--active');
     });
   });
 

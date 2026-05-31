@@ -245,6 +245,7 @@ export default function HelpSection({ locale = 'en' }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [hashToken, setHashToken] = useState(() => window.location.hash || '');
+  const [activeTocId, setActiveTocId] = useState('');
   const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
@@ -348,6 +349,55 @@ export default function HelpSection({ locale = 'en' }) {
   }, [markdown, hashToken]);
 
   useEffect(() => {
+    if (!markdown) {
+      setActiveTocId('');
+      return;
+    }
+
+    const content = document.querySelector('.app__content');
+    if (!(content instanceof HTMLElement)) return;
+
+    const getHeadingNodes = () => {
+      return Array.from(
+        document.querySelectorAll('.help-section__markdown h1, .help-section__markdown h2, .help-section__markdown h3, .help-section__markdown h4')
+      ).filter(node => node.id);
+    };
+
+    const updateActiveHeading = () => {
+      const headingNodes = getHeadingNodes();
+      if (!headingNodes.length) {
+        setActiveTocId('');
+        return;
+      }
+
+      const contentTop = content.getBoundingClientRect().top;
+      const activationOffset = 36;
+      let candidate = headingNodes[0];
+
+      for (const heading of headingNodes) {
+        const relativeTop = heading.getBoundingClientRect().top - contentTop;
+        if (relativeTop <= activationOffset) {
+          candidate = heading;
+          continue;
+        }
+        break;
+      }
+
+      const nextActiveId = candidate?.id || '';
+      setActiveTocId(prev => (prev === nextActiveId ? prev : nextActiveId));
+    };
+
+    updateActiveHeading();
+    content.addEventListener('scroll', updateActiveHeading, { passive: true });
+    window.addEventListener('resize', updateActiveHeading);
+
+    return () => {
+      content.removeEventListener('scroll', updateActiveHeading);
+      window.removeEventListener('resize', updateActiveHeading);
+    };
+  }, [markdown, hashToken]);
+
+  useEffect(() => {
     const onHashChange = () => {
       setHashToken(window.location.hash || '');
     };
@@ -411,6 +461,7 @@ export default function HelpSection({ locale = 'en' }) {
     const nextHash = `#${targetId}`;
     window.history.replaceState(null, '', nextHash);
     setHashToken(nextHash);
+    setActiveTocId(targetId);
 
     // Perform the internal container scroll immediately for direct TOC clicks.
     scrollToHashTarget({ behavior: 'smooth', targetId });
@@ -484,6 +535,8 @@ export default function HelpSection({ locale = 'en' }) {
               <ul className="help-section__toc-list">
                 {tocGroups.map(group => {
                   const hasChildren = group.children.length > 0;
+                  const hasActiveChild = group.children.some(child => child.id === activeTocId);
+                  const isGroupActive = activeTocId === group.id || hasActiveChild;
 
                   return (
                     <li key={group.id} className={`help-section__toc-item help-section__toc-item--level-${group.level}`}>
@@ -491,7 +544,7 @@ export default function HelpSection({ locale = 'en' }) {
                         <span className="help-section__toc-spacer" aria-hidden="true" />
                         <a
                           href={`#${group.id}`}
-                          className="help-section__toc-link"
+                          className={`help-section__toc-link${isGroupActive ? ' help-section__toc-link--active' : ''}${hasActiveChild ? ' help-section__toc-link--active-parent' : ''}`}
                           onClick={event => handleTocLinkClick(event, group.id)}
                         >
                           {group.title}
@@ -503,7 +556,7 @@ export default function HelpSection({ locale = 'en' }) {
                             <li key={child.id} className={`help-section__toc-item help-section__toc-item--level-${child.level}`}>
                               <a
                                 href={`#${child.id}`}
-                                className="help-section__toc-link"
+                                className={`help-section__toc-link${activeTocId === child.id ? ' help-section__toc-link--active' : ''}`}
                                 onClick={event => handleTocLinkClick(event, child.id)}
                               >
                                 {child.title}
