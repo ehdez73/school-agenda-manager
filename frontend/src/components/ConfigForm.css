@@ -39,12 +39,14 @@
 	width: 100px;
 }
 
-.day-index-row .config-form-input {
+.day-index-row .config-form-input,
+.day-index-row .custom-select {
 	width: 200px;
 }
 
 @media (max-width: 768px) {
-	.day-index-row .config-form-input {
+	.day-index-row .config-form-input,
+	.day-index-row .custom-select {
 		width: 100%;
 	}
 }

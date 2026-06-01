@@ -14,12 +14,11 @@ function getDefaultIncludedLines(numLines) {
 
 function toggleLine(included, lineIndex, numLines) {
     if (included === null) {
-        // Switching from "all" to all-except-this-one
         const result = [];
         for (let i = 0; i < numLines; i++) {
             if (i !== lineIndex) result.push(i);
         }
-        return result.length === numLines ? null : result;
+        return result;
     }
     const set = new Set(included);
     if (set.has(lineIndex)) {
@@ -28,7 +27,9 @@ function toggleLine(included, lineIndex, numLines) {
         set.add(lineIndex);
     }
     const result = Array.from(set).sort((a, b) => a - b);
-    return result.length === 0 ? null : result;
+    if (result.length === 0) return [];
+    if (result.length === numLines) return null;
+    return result;
 }
 
 export default function SubjectForm({ form, setForm, courses, subjects = [], editingId, formError, onSubmit, onCancel, onDelete, daysPerWeek, subject }) {
@@ -106,11 +107,11 @@ export default function SubjectForm({ form, setForm, courses, subjects = [], edi
                     <input
                         name="color"
                         type="color"
-                        value={form.color || '#dbeafe'}
+                        value={form.color || '#f1f5f9'}
                         onChange={handleChange}
                         className="subject-color-picker"
                     />
-                    <span className="subject-color-value">{(form.color || '#dbeafe').toUpperCase()}</span>
+                    <span className="subject-color-value">{(form.color || '#f1f5f9').toUpperCase()}</span>
                 </div>
             </label>
             <label className="subject-label">
@@ -143,7 +144,7 @@ export default function SubjectForm({ form, setForm, courses, subjects = [], edi
                             </label>
                         ))}
                         <span className="lines-hint">
-                            {form.included_lines === null ? '(all)' : ''}
+                            {form.included_lines === null ? t('common.all') : ''}
                         </span>
                     </div>
                 </fieldset>

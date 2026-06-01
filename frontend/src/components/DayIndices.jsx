@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { t } from '../i18n';
+import Select from './Select';
 
 export default function DayIndices({ daysPerWeek = 5, dayIndices = [], setDayIndices = () => { }, suppressResize = false }) {
     useEffect(() => {
@@ -38,18 +39,12 @@ export default function DayIndices({ daysPerWeek = 5, dayIndices = [], setDayInd
             <div className="day-indices-grid">
                 {displayIndices.map((idx, i) => (
                     <label key={i} className="day-index-row">
-                        {`Day ${i + 1}:`}
-                        <select
+                        {t('days.label').replace('{n}', String(i + 1))}
+                        <Select
                             value={idx}
                             onChange={e => handleDayIndexChange(i, e.target.value)}
-                            className="config-form-input"
-                        >
-                            {dayOptions.map(option => (
-                                <option key={option.value} value={option.value}>
-                                    {option.label}
-                                </option>
-                            ))}
-                        </select>
+                            options={dayOptions}
+                        />
                     </label>
                 ))}
             </div>

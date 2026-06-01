@@ -135,7 +135,7 @@
 }
 
 .nav__lang-popover-flag:focus-visible {
-  outline: 2px solid var(--color-primary, #2563eb);
+  outline: 2px solid var(--color-accent, #475569);
   outline-offset: 1px;
 }
 

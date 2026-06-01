@@ -108,7 +108,8 @@
         "label": "Hora {n}"
     },
     "days": {
-        "names_title": "Nombres de los días"
+        "names_title": "Nombres de los días",
+        "label": "Día {n}:"
     },
     "timetable": {
         "no_schedule": "No hay horarios generados",

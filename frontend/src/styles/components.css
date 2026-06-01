@@ -87,7 +87,7 @@
 .input:focus {
     outline: none;
     border-color: var(--color-input-focus);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-input-focus) 15%, transparent);
 }
 
 .input::placeholder {
@@ -98,6 +98,7 @@
 .select {
     width: 100%;
     padding: var(--space-sm) var(--space-md);
+    padding-right: 2.25rem;
     border: 1px solid var(--color-input-border);
     border-radius: var(--radius-md);
     background-color: var(--color-input-bg);
@@ -106,12 +107,19 @@
     font-family: inherit;
     cursor: pointer;
     transition: border-color 0.2s ease-in-out;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    background-size: 1rem;
 }
 
 .select:focus {
     outline: none;
     border-color: var(--color-input-focus);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-input-focus) 15%, transparent);
 }
 
 /* Textarea component */
@@ -132,7 +140,7 @@
 .textarea:focus {
     outline: none;
     border-color: var(--color-input-focus);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-input-focus) 15%, transparent);
 }
 
 /* Form group */
@@ -211,9 +219,9 @@
 }
 
 .alert--info {
-    background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
-    border-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
-    color: var(--color-primary);
+    background-color: color-mix(in srgb, var(--color-secondary) 8%, transparent);
+    border-color: color-mix(in srgb, var(--color-secondary) 25%, transparent);
+    color: var(--color-secondary);
 }
 
 /* Chip component */
@@ -222,7 +230,7 @@
     align-items: center;
     gap: var(--space-xs);
     padding: var(--space-xs) var(--space-sm);
-    background-color: var(--color-primary);
+    background-color: var(--color-table-header);
     color: white;
     border-radius: var(--radius-full);
     font-size: 0.875rem;

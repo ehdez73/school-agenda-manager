@@ -3,6 +3,7 @@ import api from '../lib/api';
 import { t } from '../i18n';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import FormModal from './FormModal';
+import Select from './Select';
 import TeacherForm from './TeacherForm';
 import SectionLayout from './SectionLayout';
 import './TeacherList.css';
@@ -214,26 +215,24 @@ export default function TeacherList() {
           onChange={e => setSearch(e.target.value)}
           className="input search-input"
         />
-        <select
+        <Select
           value={subjectFilter}
           onChange={e => setSubjectFilter(e.target.value)}
-          className="select search-select"
-        >
-          <option value="">{t('common.all_subjects')}</option>
-          {subjectOptions.map(s => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </select>
-        <select
+          options={[
+            { value: '', label: t('common.all_subjects') },
+            ...subjectOptions.map(s => ({ value: s, label: s })),
+          ]}
+          className="search-select"
+        />
+        <Select
           value={courseFilter}
           onChange={e => setCourseFilter(e.target.value)}
-          className="select search-select"
-        >
-          <option value="">{t('common.all_courses')}</option>
-          {courseOptions.map(c => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
+          options={[
+            { value: '', label: t('common.all_courses') },
+            ...courseOptions.map(c => ({ value: c, label: c })),
+          ]}
+          className="search-select"
+        />
       </div>
       <table className="modern-table">
         <thead>

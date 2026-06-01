@@ -73,7 +73,7 @@
 }
 
 .help-section__toc-toggle:hover {
-  color: var(--color-primary);
+  color: var(--color-hover-text);
 }
 
 .help-section__toc-sublist {
@@ -108,14 +108,14 @@
 }
 
 .help-section__toc-link:hover {
-  color: var(--color-primary);
-  background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  color: var(--color-hover-text);
+  background-color: var(--color-hover-bg);
 }
 
 .help-section__toc-link--active {
-  color: var(--color-primary);
+  color: var(--color-hover-text);
   font-weight: 600;
-  background-color: color-mix(in srgb, var(--color-primary) 15%, transparent);
+  background-color: var(--color-hover-bg);
 }
 
 .help-section__toc-link--active-parent {
@@ -182,7 +182,8 @@
 }
 
 .help-section__markdown a {
-  color: var(--color-primary);
+  color: var(--color-hover-text);
+  text-decoration: underline;
 }
 
 @media (max-width: 1024px) {

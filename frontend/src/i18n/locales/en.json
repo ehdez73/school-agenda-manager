@@ -108,7 +108,8 @@
         "label": "Hour {n}"
     },
     "days": {
-        "names_title": "Day names"
+        "names_title": "Day names",
+        "label": "Day {n}:"
     },
     "timetable": {
         "no_schedule": "No timetables generated",

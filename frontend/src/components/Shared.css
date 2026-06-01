@@ -126,7 +126,7 @@
     width: 1.5rem;
     height: 1.5rem;
     border: 2px solid var(--color-border);
-    border-top-color: var(--color-primary);
+    border-top-color: var(--color-table-header);
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
     margin-left: var(--space-sm);
@@ -163,8 +163,8 @@
 
 .group-badge {
     display: inline-block;
-    background-color: #eef2ff;
-    color: #3730a3;
+    background-color: var(--color-hover-bg);
+    color: var(--color-hover-text);
     padding: 0 0.4rem;
     border-radius: var(--radius-sm);
     font-size: 0.7rem;
@@ -232,7 +232,7 @@
     height: 20px;
     border: 2px solid var(--color-border);
     border-radius: 50%;
-    border-top-color: var(--color-primary);
+    border-top-color: var(--color-table-header);
     animation: spin 1s ease-in-out infinite;
 }
 
