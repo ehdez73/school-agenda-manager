@@ -29,6 +29,10 @@ def setup_logging() -> None:
     root_logger.handlers.clear()
     root_logger.addHandler(handler)
 
+    werkzeug_logger = logging.getLogger("werkzeug")
+    werkzeug_logger.setLevel(logging.ERROR)
+    werkzeug_logger.propagate = False
+
     setup_logging._configured = True
 
 
