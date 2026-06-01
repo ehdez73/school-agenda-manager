@@ -1,4 +1,4 @@
-import React from 'react';
+
 import AutocompleteSelect from './AutocompleteSelect';
 import PreferencesGrid from './PreferencesGrid';
 import { t } from '../i18n';

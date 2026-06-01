@@ -77,10 +77,10 @@ def test_get_and_set_config():
 def test_timetable_endpoints_empty_and_clear():
     c = client()
     # Initially no assignments so GET should 404
-    resp = c.get('/api/timetable')
+    resp = c.get('/timetable')
     assert resp.status_code == 404
     # clear assignments should still return ok
-    resp2 = c.delete('/api/timetable')
+    resp2 = c.delete('/timetable')
     assert resp2.status_code == 200
 
 
@@ -93,7 +93,7 @@ def test_timetable_status_current_idle_when_no_tasks():
         tm._current_task_id = None
         tm._last_task_id = None
 
-    resp = c.get('/api/timetable/status/current')
+    resp = c.get('/timetable/status/current')
     assert resp.status_code == 200
     data = resp.get_json()
     assert data['status'] == 'idle'
@@ -116,7 +116,7 @@ def test_timetable_post_is_idempotent_with_running_task():
         tm._current_task_id = running_task_id
         tm._last_task_id = running_task_id
 
-    resp = c.post('/api/timetable')
+    resp = c.post('/timetable')
     assert resp.status_code == 202
     data = resp.get_json()
     assert data['task_id'] == running_task_id
@@ -139,7 +139,7 @@ def test_timetable_status_current_returns_latest_terminal_task():
         tm._current_task_id = None
         tm._last_task_id = latest_task_id
 
-    resp = c.get('/api/timetable/status/current')
+    resp = c.get('/timetable/status/current')
     assert resp.status_code == 200
     data = resp.get_json()
     assert data['task_id'] == latest_task_id

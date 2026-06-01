@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { t, setLocale } from '../i18n';
 
 const LANGS = [
@@ -25,7 +25,7 @@ function LanguageSelector({ value, onChange }) {
         return () => window.removeEventListener('mousedown', onDoc);
     }, [open]);
 
-    const select = React.useCallback((code) => {
+    const select = useCallback((code) => {
         try {
             setLocale(code);
         } catch (err) {

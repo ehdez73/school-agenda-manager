@@ -70,7 +70,7 @@ def _run_solver_in_background(task_id):
         logger.info("Background solver thread finished", extra=build_log_extra(task_id=task_id))
 
 
-@timetable_bp.route('/api/timetable', methods=['GET'])
+@timetable_bp.route('/timetable', methods=['GET'])
 def get_timetable_markdown():
     session = DbSession()
 
@@ -86,7 +86,7 @@ def get_timetable_markdown():
     return markdown, 200, {'Content-Type': 'text/plain; charset=utf-8'}
 
 
-@timetable_bp.route('/api/timetable', methods=['POST'])
+@timetable_bp.route('/timetable', methods=['POST'])
 def generate_timetable():
     """Start asynchronous timetable generation. Returns existing running task when present."""
     running_status = task_manager.get_current_status()
@@ -110,7 +110,7 @@ def generate_timetable():
     return jsonify(task_manager.get_status(task_id)), 202
 
 
-@timetable_bp.route('/api/timetable/status/current', methods=['GET'])
+@timetable_bp.route('/timetable/status/current', methods=['GET'])
 def get_current_task_status():
     """Poll current active task, or latest known task if nothing is running."""
     status = task_manager.get_current_status() or task_manager.get_latest_status()
@@ -126,7 +126,7 @@ def get_current_task_status():
     return jsonify(status), 200
 
 
-@timetable_bp.route('/api/timetable/status/<task_id>', methods=['GET'])
+@timetable_bp.route('/timetable/status/<task_id>', methods=['GET'])
 def get_task_status(task_id):
     """Poll task status. Returns running/success/error/cancelled."""
     status = task_manager.get_status(task_id)
@@ -137,7 +137,7 @@ def get_task_status(task_id):
     return jsonify(status), 200
 
 
-@timetable_bp.route('/api/timetable/<task_id>/cancel', methods=['POST'])
+@timetable_bp.route('/timetable/<task_id>/cancel', methods=['POST'])
 def cancel_generation(task_id):
     """Mark a running generation task as cancelled."""
     task_manager.cancel_task(task_id)
@@ -145,7 +145,7 @@ def cancel_generation(task_id):
     return jsonify({"status": "cancelled"}), 200
 
 
-@timetable_bp.route('/api/timetable', methods=['DELETE'])
+@timetable_bp.route('/timetable', methods=['DELETE'])
 def clear_assignments():
     """Delete all timetable assignments (previously /api/assignments)."""
     from ..models import Session

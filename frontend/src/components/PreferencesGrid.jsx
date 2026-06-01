@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import api from '../lib/api';
 import { t } from '../i18n';
 import './PreferencesGrid.css';
@@ -7,9 +7,9 @@ export default function PreferencesGrid({ value = {}, onChange = () => { }, days
 
     const [dayNames, setDayNames] = useState([]);
 
-    const daysList = React.useMemo(() => days ?? dayNames, [days, dayNames]);
+    const daysList = useMemo(() => days ?? dayNames, [days, dayNames]);
 
-    const normalizeIncoming = React.useCallback((val) => {
+    const normalizeIncoming = useCallback((val) => {
         if (!val) return {};
         const out = {};
 
@@ -116,7 +116,7 @@ export default function PreferencesGrid({ value = {}, onChange = () => { }, days
         <table className="preferences-table" role="grid">
             <thead>
                 <tr>
-                    <th>Hora</th>
+                    <th>{t('hours.column_header')}</th>
                     {daysList.map((day, idx) => (
                         <th key={idx}>{day}</th>
                     ))}

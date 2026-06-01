@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import AutocompleteSelect from './AutocompleteSelect';
 import { t } from '../i18n';
 import useEscapeToCancel from './useEscapeToCancel';

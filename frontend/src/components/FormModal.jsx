@@ -1,4 +1,4 @@
-import React from 'react';
+
 import './FormModal.css';
 
 export default function FormModal({ open, children, onClose }) {

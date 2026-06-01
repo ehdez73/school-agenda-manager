@@ -119,18 +119,7 @@ function resolveHelpImageSrc(src) {
     .replace(/^docs\//, '');
 
   const apiBase = api.API_BASE || '/api';
-  return `${apiBase}/api/docs/assets/${normalizedSrc}`;
-}
-
-function markdownContainsHashTarget(markdown, hashTargetId) {
-  if (!markdown || !hashTargetId) return false;
-
-  const targetSlug = slugify(hashTargetId);
-  if (!targetSlug) return false;
-
-  return extractHeadings(markdown).some(heading => {
-    return heading.id === hashTargetId || (heading.aliases || []).includes(targetSlug);
-  });
+  return `${apiBase}/docs/assets/${normalizedSrc}`;
 }
 
 function mapHashTargetByHeadingOrder(hashTargetId, sourceMarkdown, targetMarkdown) {
@@ -258,7 +247,7 @@ export default function HelpSection({ locale = 'en' }) {
       const alternateDocLocale = getAlternateDocLanguage(locale);
 
       const loadDoc = async docLocale => {
-        const response = await api.get(`/api/docs/${docLocale}`, { responseType: 'text', cacheBust: true });
+        const response = await api.get(`/docs/${docLocale}`, { responseType: 'text', cacheBust: true });
         if (!isMounted) return null;
         return response || '';
       };
@@ -309,8 +298,8 @@ export default function HelpSection({ locale = 'en' }) {
         }
         setError(err?.message || t('help.load_error'));
       } finally {
-        if (!isMounted || silent) return;
-        setLoading(false);
+        if (!isMounted || silent) {/* don't set loading */}
+        else { setLoading(false); }
       }
     };
 

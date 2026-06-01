@@ -1,15 +1,10 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import AutocompleteSelect from './AutocompleteSelect';
 import { t } from '../i18n';
 import useEscapeToCancel from './useEscapeToCancel';
 
 function generateLineLetters(numLines) {
     return Array.from({ length: numLines }, (_, i) => String.fromCharCode(65 + i));
-}
-
-function getDefaultIncludedLines(numLines) {
-    // null means all lines
-    return null;
 }
 
 function toggleLine(included, lineIndex, numLines) {

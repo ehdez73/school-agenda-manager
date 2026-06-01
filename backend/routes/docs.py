@@ -15,7 +15,7 @@ LANG_DOC_MAP = {
 }
 
 
-@docs_bp.route('/api/docs/<lang>', methods=['GET'])
+@docs_bp.route('/docs/<lang>', methods=['GET'])
 def get_documentation(lang):
     normalized_lang = (lang or '').strip().lower()
     doc_name = LANG_DOC_MAP.get(normalized_lang)
@@ -34,6 +34,6 @@ def get_documentation(lang):
     return content, 200, {'Content-Type': 'text/plain; charset=utf-8'}
 
 
-@docs_bp.route('/api/docs/assets/<path:filename>', methods=['GET'])
+@docs_bp.route('/docs/assets/<path:filename>', methods=['GET'])
 def get_documentation_asset(filename):
     return send_from_directory(DOCS_ASSETS_DIR, filename)

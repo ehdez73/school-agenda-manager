@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { t } from '../i18n';
 import './CourseList.css';
 import FormModal from './FormModal';
@@ -8,7 +8,6 @@ import SectionLayout from './SectionLayout';
 
 export default function CourseList() {
   const [courses, setCourses] = useState([]);
-  const [sortAsc] = useState(true);
   const [search, setSearch] = useState('');
   const [form, setForm] = useState({ name: '', num_lines: 1 });
   const [showForm, setShowForm] = useState(false);
@@ -21,7 +20,7 @@ export default function CourseList() {
 
   const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
-  const fetchCourses = React.useCallback(() => {
+  const fetchCourses = useCallback(() => {
     setLoading(true);
     setError(null);
     fetch(`${API_BASE}/courses`)
@@ -106,8 +105,8 @@ export default function CourseList() {
   );
 
   const sortedCourses = [...filteredCourses].sort((a, b) => {
-    if (a.name < b.name) return sortAsc ? -1 : 1;
-    if (a.name > b.name) return sortAsc ? 1 : -1;
+    if (a.name < b.name) return -1;
+    if (a.name > b.name) return 1;
     return 0;
   });
 

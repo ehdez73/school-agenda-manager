@@ -44,6 +44,9 @@ frontend/src/
 │   ├── ConfirmDeleteModal.jsx # — Deletion confirmation dialog
 │   ├── AutocompleteSelect.jsx # — Multi/single-select with autocomplete
 │   ├── LanguageSelector.jsx   # — Language switcher (EN/ES) popover
+│   ├── Select.jsx             # — Custom dropdown select (used by DayIndices, ConfigForm)
+│   ├── PreferencesGrid.jsx    # — Sub-component: availability grid
+│   ├── useEscapeToCancel.js   # — Hook: Escape key listener for forms
 │   ├── CourseList.jsx         # — Section: course management
 │   ├── CourseForm.jsx         # — Form: create/edit course
 │   ├── SubjectList.jsx        # — Section: subject management
@@ -52,10 +55,28 @@ frontend/src/
 │   ├── SubjectGroupForm.jsx   # — Form: create/edit subject group
 │   ├── TeacherList.jsx        # — Section: teacher management
 │   ├── TeacherForm.jsx        # — Form: teacher + preferences grid
+│   ├── FixedSlotList.jsx      # — Section: fixed slots list (embedded in ConfigForm)
+│   ├── FixedSlotForm.jsx      # — Form: fixed slot create/edit
 │   ├── ConfigForm.jsx         # — Section: app configuration
+│   ├── HelpSection.jsx        # — Section: markdown docs viewer + TOC sidebar
+│   ├── MarkdownTimetable.jsx  # — Section: timetable viewer with filters, print, diagnostics
 │   ├── HourNames.jsx          # — Sub-component: config hour names
 │   ├── DayIndices.jsx         # — Sub-component: config day indices
-│   ├── PreferencesGrid.jsx    # — Sub-component: availability grid
+│   ├── SectionLayout.css      # — SectionLayout styles
+│   ├── Shared.css             # — Shared state blocks, form patterns, modals
+│   ├── FormModal.css          # — Modal overlay styles
+│   ├── ConfirmDeleteModal.css # — Delete confirmation styles
+│   ├── AutocompleteSelect.css # — Autocomplete dropdown styles
+│   ├── Select.css             # — Custom select styles
+│   ├── PreferencesGrid.css    # — Availability grid styles
+│   ├── CourseList.css         # — Course CRUD styles
+│   ├── SubjectList.css        # — Subject CRUD styles
+│   ├── SubjectGroupList.css   # — Subject group CRUD styles
+│   ├── TeacherList.css        # — Teacher CRUD styles
+│   ├── FixedSlotList.css      # — Fixed slot list styles
+│   ├── ConfigForm.css         # — Config form styles
+│   ├── HelpSection.css        # — Help viewer styles
+│   ├── MarkdownTimetable.css  # — Timetable styles (618 lines)
 │   └── __tests__/             # — Vitest test files
 ├── i18n/
 │   ├── index.js               # t(), setLocale(), getLocale()
@@ -94,6 +115,7 @@ The value maps to conditional rendering. Each page section mounts/unmounts on na
 | `'subject-groups'` | `<SubjectGroupList />` |
 | `'timetable-markdown'` | `<MarkdownTimetable />` |
 | `'config'` | `<ConfigForm />` |
+| `'help'` | `<HelpSection />` |
 
 **To add a new page:**
 1. Create a new section component (see §3)
@@ -158,7 +180,7 @@ This is the pattern used by `SubjectList.jsx`, `TeacherList.jsx`, and `SubjectGr
 (`CourseList.jsx` is legacy and still uses raw `fetch` — prefer the `api.js` pattern below.)
 
 ```jsx
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import api from '../lib/api';
 import { t } from '../i18n';
 import SectionLayout from './SectionLayout';
@@ -339,7 +361,7 @@ export default function YourForm({ form, setForm, editingId, onSubmit, onCancel,
           value={form.name}
           onChange={handleChange}
           required
-          disabled={editingId !== null} // disable PK when editing
+          disabled={editingId !== null}
         />
       </div>
       <div className="form-actions">
@@ -443,7 +465,55 @@ Three-state toggle grid for teacher availability (day × hour):
 />
 ```
 
-### 3.6 HourNames / DayIndices (`src/components/HourNames.jsx`, `DayIndices.jsx`)
+### 3.6 Select (`src/components/Select.jsx`)
+
+Custom dropdown select. Click-outside detection, keyboard navigation (arrows, enter, escape). Highlights selected option.
+
+```jsx
+<Select
+  value={form.field}
+  options={[{ value: 'a', label: 'Option A' }, { value: 'b', label: 'Option B' }]}
+  onChange={e => setForm(f => ({ ...f, field: e.target.value }))}
+  placeholder="Select..."
+/>
+```
+
+Caveat: `onChange` returns `{ target: { value } }` to mimic native `<select>`, not the value directly.
+
+### 3.7 useEscapeToCancel (`src/components/useEscapeToCancel.js`)
+
+Custom hook that listens for Escape key and calls `onCancel`. Used in all form components.
+
+```jsx
+useEscapeToCancel(onCancel);
+```
+
+### 3.8 FixedSlotList / FixedSlotForm (`src/components/FixedSlotList.jsx`, `FixedSlotForm.jsx`)
+
+Lists fixed slots (recess, etc.) for courses and teachers. Embedded inside `ConfigForm` via `standalone` prop. Uses the same CRUD list pattern as other sections (FormModal + ConfirmDeleteModal).
+
+### 3.9 HelpSection (`src/components/HelpSection.jsx`)
+
+Renders markdown help docs fetched from the backend. Features:
+- TOC sidebar extracted from markdown headings
+- Deep-link support via URL hashes
+- Cross-language hash resolution (English ↔ Spanish headings)
+- 15-second polling for doc updates
+- Download and print actions
+- Image source rewriting
+
+### 3.10 MarkdownTimetable (`src/components/MarkdownTimetable.jsx`)
+
+The most complex component (~1050 lines). Renders the generated timetable with:
+- Dual sidebar: course/teacher selection with checkboxes and search
+- Cell color consolidation (same-color entries fill the whole cell)
+- Fixed slots visibility toggle
+- Download markdown and print
+- Diagnostic collapsible for solver errors
+- SessionStorage-persisted selection state
+- Async generation polling with elapsed time counter
+
+### 3.11 HourNames / DayIndices (`src/components/HourNames.jsx`, `DayIndices.jsx`)
 
 Sub-components used by `ConfigForm` for editing hour labels and day-to-index mappings:
 
@@ -465,6 +535,8 @@ Sub-components used by `ConfigForm` for editing hour labels and day-to-index map
 @import './components/Shared.css';   /* state blocks, form patterns, modals */
 /* component-local CSS imported in each .jsx file */
 ```
+
+> The layer order is **intentional**: `Shared.css` (layout patterns, state blocks) must come **after** `components.css` (atomic primitives) so it can compose them. Component-local CSS files import last. See `src/index.css`.
 
 ### 4.2 Token Usage Rules
 
@@ -489,12 +561,14 @@ Never hardcode values when a CSS variable exists:
 
 | Token category | Example variables |
 |----------------|------------------|
-| Colors | `--color-primary`, `--color-danger`, `--color-bg`, `--color-text`, `--color-surface`, `--color-border` |
+| Colors | `--color-primary`, `--color-danger`, `--color-bg`, `--color-text`, `--color-text-muted`, `--color-surface`, `--color-border`, `--color-accent` |
 | Spacing | `--space-xs` (0.25rem), `--space-sm` (0.5rem), `--space-md` (1rem), `--space-lg` (1.5rem), `--space-xl` (2rem), `--space-2xl` (3rem) |
 | Border radius | `--radius-sm`, `--radius-md`, `--radius-lg`, `--radius-xl`, `--radius-full` |
 | Shadows | `--shadow-sm`, `--shadow-md`, `--shadow-lg` |
 
-Full token reference: `src/styles/globals.css:18-71`.
+> **Note:** `--color-primary` is blue (`#2563eb`) but the `.btn--primary` background uses slate (`#1e293b`). This is intentional per design. Use `.btn--primary` for buttons; use `var(--color-primary)` for non-button accent elements.
+
+Full token reference: `src/styles/globals.css:18-78`.
 
 ### 4.3 BEM Naming Convention
 
@@ -515,33 +589,66 @@ Use BEM for shared component blocks:
 
 | Class | Purpose |
 |-------|---------|
-| `.btn`, `.btn--primary`, `.btn--secondary`, `.btn--danger`, `.btn--compact` | Buttons |
+| `.btn`, `.btn--primary`, `.btn--secondary`, `.btn--danger`, `.btn--warning`, `.btn--compact`, `.btn--large` | Buttons |
 | `.input`, `.select`, `.textarea` | Form controls |
-| `.form-group`, `.form-group__label`, `.form-group__error` | Form layout |
+| `.form-group`, `.form-group__label`, `.form-group__error`, `.form-group__help` | Form layout |
+| `.form-info`, `.form-error` | Inline info/error boxes |
 | `.modern-table`, `.modern-table th`, `.modern-table td` | Data tables |
+| `.modern-table .subject-table-th-sort` | Sortable table header |
 | `.chip`, `.chip__remove` | Tags / selections |
-| `.card`, `.card__header`, `.card__content` | Cards |
-| `.alert`, `.alert--success`, `.alert--error` | Messages |
+| `.card`, `.card__header`, `.card__content`, `.card__actions`, `.card__title` | Cards |
+| `.alert`, `.alert--success`, `.alert--error`, `.alert--warning`, `.alert--info` | Messages |
 | `.section__title`, `.section__description`, `.section__actions` | Section primitives |
 
-### 4.5 Shared State Blocks (from `Shared.css`)
+### 4.5 Shared State Blocks & Patterns (from `Shared.css`)
 
 | Class | Where used |
 |-------|------------|
 | `.state-loading` | SectionLayout `loading` state |
 | `.state-error` | SectionLayout `error` state |
 | `.state-empty` | SectionLayout `empty` state |
-| `.search-bar`, `.search-input` | List filter bars |
-| `.form-actions` | Form button rows |
-| `.subject-selection__list` | Chip list containers |
+| `.search-bar`, `.search-input`, `.search-select` | List filter bars |
+| `.form-actions`, `.form-actions--start`, `.form-actions--center` | Form button rows |
+| `.form-container` | Form card wrapper |
+| `.form-row`, `.form-row--responsive` | Multi-column form rows |
+| `.form-col-1`, `.form-col-2` | Column width in form rows |
+| `.form-section` | Form section separator |
+| `.chip-list`, `.chip-list--compact` | Chip/tag containers |
+| `.action-group`, `.action-group--compact` | Table row action buttons |
+| `.table-container`, `.table-actions` | Table wrapper + toolbar |
+| `.subject-selection`, `.subject-selection__input`, `.subject-selection__list`, `.subject-selection__empty` | Chip list containers in forms |
+| `.modal-overlay`, `.modal-content` | Modal overlay utilities |
+| `.loading-spinner` | Inline spinner |
+| `.empty-state`, `.empty-state__icon`, `.empty-state__title`, `.empty-state__description` | Empty state card |
 | `.edit-view` | Inline edit wrapper |
 
 ### 4.6 Utility Classes (from `utilities.css`)
 
-Layout: `.flex`, `.flex-col`, `.flex-wrap`, `.items-center`, `.justify-center`, `.justify-between`
-Spacing: `.p-sm`, `.p-md`, `.p-lg`, `.mb-md`, `.mb-lg`, `.mt-sm`, `.mt-md`, `.gap-sm`, `.gap-md`
-Typography: `.text-center`, `.font-bold`, `.text-muted`, `.text-success`, `.text-danger`
-Other: `.w-full`, `.rounded-md`, `.shadow-sm`, `.bg-surface`, `.border`
+**Layout:** `.flex`, `.flex-col`, `.flex-wrap`, `.flex-1`, `.items-center`, `.items-start`, `.justify-center`, `.justify-between`, `.justify-end`, `.shrink-0`, `.min-w-0`, `.overflow-x-auto`
+
+**Gap:** `.gap-xs`, `.gap-sm`, `.gap-md`, `.gap-lg`, `.gap-xl`
+
+**Spacing — padding:** `.p-xs`, `.p-sm`, `.p-md`, `.p-lg`, `.p-xl`
+
+**Spacing — margin (all):** `.m-xs`, `.m-sm`, `.m-md`, `.m-lg`, `.m-xl`
+
+**Spacing — margin-bottom:** `.mb-xs`, `.mb-sm`, `.mb-md`, `.mb-lg`, `.mb-xl`
+
+**Spacing — margin-top:** `.mt-xs`, `.mt-sm`, `.mt-md`, `.mt-lg`, `.mt-xl`
+
+**Typography:** `.text-center`, `.text-left`, `.text-right`, `.font-medium`, `.font-semibold`, `.font-bold`, `.text-muted`, `.text-success`, `.text-danger`, `.text-warning`
+
+**Width:** `.w-full`
+
+**Border radius:** `.rounded-sm`, `.rounded-md`, `.rounded-lg`, `.rounded-xl`, `.rounded-full`
+
+**Shadow:** `.shadow-sm`, `.shadow-md`, `.shadow-lg`
+
+**Background:** `.bg-surface`, `.bg-surface-variant`
+
+**Border:** `.border`, `.border-light`
+
+**Block composition:** `.section-block` — card-like container (padding + surface + shadow + radius + margin)
 
 ### 4.7 Dark Mode
 
@@ -778,14 +885,16 @@ Use this checklist when creating a new feature/section in the frontend:
 - [ ] Modals (`FormModal`, `ConfirmDeleteModal`) are **outside** `SectionLayout`
 - [ ] All text strings use `t('key')` and are added to both `en.json` and `es.json`
 - [ ] API calls use `api.js` (not raw `fetch`)
-- [ ] No hardcoded colors, spacing, or radius — use `var(--color-*)`, `var(--space-*)`, `var(--radius-*)`
+- [ ] No `/api/` prefix in API paths — `api.js` already prepends it
+- [ ] No hardcoded colors, spacing, or radius — use `var(--color-*)`, `var(--space-*)`, `var(--radius-*)`, `var(--shadow-*)`
 - [ ] CSS follows BEM naming, placed in a component-local CSS file
 - [ ] Dark mode works (verify with `data-theme="dark"`)
 - [ ] Responsive behavior validated at `768px` and `640px` breakpoints
 - [ ] Tests added in `src/components/__tests__/` for states and regression
 - [ ] New page registered in `App.jsx` with nav button + conditional render
 - [ ] Form uses `form-actions` with `btn--primary` (save), `btn--secondary` (cancel), optional `btn--danger` (delete)
-- [ ] Table rows are clickable → inline edit view, not modal-for-edit
+- [ ] Table rows are clickable → inline edit view, `tabIndex={0}`, `role="button"`, `onKeyDown` for Enter key
+- [ ] `import React` removed (React 19 JSX transform) — only needed when using `React.cloneElement` or `React.useEffect` directly
 
 ---
 
@@ -795,17 +904,24 @@ Use this checklist when creating a new feature/section in the frontend:
 |------|-------|
 | Page routing & nav | `src/App.jsx:14-16` |
 | SectionLayout component | `src/components/SectionLayout.jsx:16-61` |
-| FormModal | `src/components/FormModal.jsx:4-24` |
-| ConfirmDeleteModal | `src/components/ConfirmDeleteModal.jsx:5-30` |
-| AutocompleteSelect | `src/components/AutocompleteSelect.jsx:4-146` |
-| API client | `src/lib/api.js:1-76` |
-| i18n helper (`t()`) | `src/i18n/index.js:29-46` |
-| CSS tokens | `src/styles/globals.css:18-71` |
-| CSS shared components | `src/styles/components.css:1-389` |
-| CSS utilities | `src/styles/utilities.css:1-259` |
-| CSS shared state blocks | `src/components/Shared.css:1-288` |
+| FormModal | `src/components/FormModal.jsx` |
+| ConfirmDeleteModal | `src/components/ConfirmDeleteModal.jsx` |
+| AutocompleteSelect | `src/components/AutocompleteSelect.jsx` |
+| Select | `src/components/Select.jsx` |
+| LanguageSelector | `src/components/LanguageSelector.jsx` |
+| PreferencesGrid | `src/components/PreferencesGrid.jsx` |
+| useEscapeToCancel hook | `src/components/useEscapeToCancel.js` |
+| HelpSection | `src/components/HelpSection.jsx` |
+| MarkdownTimetable | `src/components/MarkdownTimetable.jsx` |
+| FixedSlotList / FixedSlotForm | `src/components/FixedSlotList.jsx`, `FixedSlotForm.jsx` |
+| API client | `src/lib/api.js` |
+| i18n helper (`t()`) | `src/i18n/index.js` |
+| CSS tokens | `src/styles/globals.css:18-78` |
+| CSS shared components | `src/styles/components.css` |
+| CSS utilities | `src/styles/utilities.css` |
+| CSS shared state blocks | `src/components/Shared.css` |
 | Test fixtures | `src/test/layoutFixtures.jsx` |
-| Styling guide (PR checklist) | `frontend/STYLING_GUIDE.md:95-101` |
+| Styling guide (PR checklist) | `frontend/STYLING_GUIDE.md` |
 
 ---
 
@@ -817,6 +933,13 @@ Use this checklist when creating a new feature/section in the frontend:
 | Adding a new nav link but not the conditional render | Both the button in `nav__links` AND the `{page === 'x' && <Component />}` are required |
 | Hardcoding colors in component CSS | Use `var(--color-*)` tokens from `globals.css` |
 | Using raw `fetch()` instead of `api.js` | Import `api` from `'../lib/api'` and use `api.get/post/put/del` |
+| **Double `/api` prefix in API paths** | `api.js` already prepends `/api` from `VITE_API_BASE`. Use `api.get('/timetable')` not `api.get('/api/timetable')` |
+| **Unused `import React`** | React 19's JSX transform doesn't need it. Only keep when using `React.cloneElement`, `React.useEffect` (via `React.X`), etc. |
+| **`window.location.reload()` loses React state** | After import/clear/export, consider alternative patterns. Language selector reloads the whole page. |
+| **`generateLineLetters` / `toggleLine` duplicated** | These functions are copied in `SubjectForm.jsx` and `SubjectGroupForm.jsx`. Extract to `src/lib/utils.js`. |
+| **Dual modal state (`showForm` + `selectedEntity`)** | Can cause both modals to render simultaneously. Prefer a single state: `{ mode: 'closed' \| 'add' \| 'edit', entity?: T }`. |
+| **Table rows without keyboard accessibility** | Add `tabIndex={0}`, `role="button"`, `onKeyDown={e => e.key === 'Enter' && handleEdit(item)}` to clickable `<tr>` elements. |
+| **Hardcoded `#fff` in modals** | FormModal.css and ConfirmDeleteModal.css use `background: #fff`. Use `var(--color-surface)` for dark mode support. |
 | Forgetting to add new i18n keys to both locale files | Add to both `en.json` and `es.json` — missing keys fall back to the key string |
 | Duplicating section title in `children` | `SectionLayout` already renders the `<h2>` — remove your duplicate |
 | Putting modals inside `SectionLayout` | Place them as siblings outside the layout wrapper |

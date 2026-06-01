@@ -44,5 +44,3 @@ export function t(key, vars) {
     }
     return v;
 }
-
-export default { t, setLocale, getLocale };

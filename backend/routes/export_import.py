@@ -25,7 +25,7 @@ export_import_bp = Blueprint("export_import", __name__)
 logger = logging.getLogger(__name__)
 
 
-@export_import_bp.route("/api/export", methods=["GET"])
+@export_import_bp.route("/export", methods=["GET"])
 def export_json():
     session = Session()
     logger.info("Export request started")
@@ -46,7 +46,7 @@ def export_json():
         session.close()
 
 
-@export_import_bp.route("/api/import", methods=["POST"])
+@export_import_bp.route("/import", methods=["POST"])
 def import_json():
     # Try JSON from request body first, then file upload
     logger.info("Import request started")
@@ -93,7 +93,7 @@ def import_json():
         abort(500, description=t("errors.import_failed", error=str(e)))
 
 
-@export_import_bp.route("/api/clear-all", methods=["DELETE"])
+@export_import_bp.route("/clear-all", methods=["DELETE"])
 def clear_all_data():
     """Clear all data from all tables"""
     session = Session()

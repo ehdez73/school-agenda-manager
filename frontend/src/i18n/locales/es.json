@@ -105,7 +105,8 @@
     },
     "hours": {
         "names_title": "Nombres de las horas",
-        "label": "Hora {n}"
+        "label": "Hora {n}",
+        "column_header": "Hora"
     },
     "days": {
         "names_title": "Nombres de los días",

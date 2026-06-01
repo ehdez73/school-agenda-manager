@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './ConfigForm.css';
 import HourNames from './HourNames';
 import DayIndices from './DayIndices';
@@ -106,7 +106,7 @@ export default function ConfigForm() {
     setExportLoading(true);
     setExportMessage('');
     try {
-      const text = await api.get('/api/export', { responseType: 'text', cacheBust: true });
+      const text = await api.get('/export', { responseType: 'text', cacheBust: true });
       const blob = new Blob([text], { type: 'application/json;charset=utf-8' });
       const downloadUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -133,7 +133,7 @@ export default function ConfigForm() {
     try {
       const text = await file.text();
       const jsonData = JSON.parse(text);
-      await api.post('/api/import', jsonData);
+      await api.post('/import', jsonData);
       setExportMessage(t('common.import_success'));
       // Reload config after successful import
       window.location.reload();
@@ -153,7 +153,7 @@ export default function ConfigForm() {
     setExportLoading(true);
     setExportMessage('');
     try {
-      await api.del('/api/clear-all');
+      await api.del('/clear-all');
       setExportMessage(t('common.clear_success'));
       // Reload page after successful clear
       setTimeout(() => {

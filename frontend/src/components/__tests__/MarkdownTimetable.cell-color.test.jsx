@@ -27,8 +27,8 @@ describe('MarkdownTimetable cell color behavior', () => {
 
   it('paints full cell when all subject entries share the same color', async () => {
     apiMock.get.mockImplementation((path) => {
-      if (path === '/api/timetable/status/current') return Promise.resolve({ status: 'idle' });
-      if (path === '/api/timetable') {
+      if (path === '/timetable/status/current') return Promise.resolve({ status: 'idle' });
+      if (path === '/timetable') {
         return Promise.resolve(
           [
             '## timetable.by_course',
@@ -57,8 +57,8 @@ describe('MarkdownTimetable cell color behavior', () => {
 
   it('does not paint full cell when subject entries have different colors', async () => {
     apiMock.get.mockImplementation((path) => {
-      if (path === '/api/timetable/status/current') return Promise.resolve({ status: 'idle' });
-      if (path === '/api/timetable') {
+      if (path === '/timetable/status/current') return Promise.resolve({ status: 'idle' });
+      if (path === '/timetable') {
         return Promise.resolve(
           [
             '## timetable.by_course',
@@ -84,8 +84,8 @@ describe('MarkdownTimetable cell color behavior', () => {
 
   it('renders independent multi-select controls for course and teacher timetables', async () => {
     apiMock.get.mockImplementation((path) => {
-      if (path === '/api/timetable/status/current') return Promise.resolve({ status: 'idle' });
-      if (path === '/api/timetable') {
+      if (path === '/timetable/status/current') return Promise.resolve({ status: 'idle' });
+      if (path === '/timetable') {
         return Promise.resolve(
           [
             '## By course',
@@ -166,8 +166,8 @@ describe('MarkdownTimetable cell color behavior', () => {
     }).join('\n');
 
     apiMock.get.mockImplementation((path) => {
-      if (path === '/api/timetable/status/current') return Promise.resolve({ status: 'idle' });
-      if (path === '/api/timetable') {
+      if (path === '/timetable/status/current') return Promise.resolve({ status: 'idle' });
+      if (path === '/timetable') {
         return Promise.resolve(
           [
             '## By course',
@@ -206,8 +206,8 @@ describe('MarkdownTimetable cell color behavior', () => {
 
   it('shows no timetable panel when all options are deselected from default all-selected state', async () => {
     apiMock.get.mockImplementation((path) => {
-      if (path === '/api/timetable/status/current') return Promise.resolve({ status: 'idle' });
-      if (path === '/api/timetable') {
+      if (path === '/timetable/status/current') return Promise.resolve({ status: 'idle' });
+      if (path === '/timetable') {
         return Promise.resolve(
           [
             '## By course',
@@ -249,8 +249,8 @@ describe('MarkdownTimetable cell color behavior', () => {
 
   it('keeps timetable filter selections across navigation within the same session', async () => {
     apiMock.get.mockImplementation((path) => {
-      if (path === '/api/timetable/status/current') return Promise.resolve({ status: 'idle' });
-      if (path === '/api/timetable') {
+      if (path === '/timetable/status/current') return Promise.resolve({ status: 'idle' });
+      if (path === '/timetable') {
         return Promise.resolve(
           [
             '## By course',
@@ -313,8 +313,8 @@ describe('MarkdownTimetable cell color behavior', () => {
 
   it('resets timetable filter selections when recreating the timetable', async () => {
     apiMock.get.mockImplementation((path) => {
-      if (path === '/api/timetable/status/current') return Promise.resolve({ status: 'idle' });
-      if (path === '/api/timetable') {
+      if (path === '/timetable/status/current') return Promise.resolve({ status: 'idle' });
+      if (path === '/timetable') {
         return Promise.resolve(
           [
             '## By course',

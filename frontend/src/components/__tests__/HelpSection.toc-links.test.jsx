@@ -207,8 +207,8 @@ describe('HelpSection TOC links', () => {
     ].join('\n');
 
     apiMock.get.mockImplementation(url => {
-      if (String(url).includes('/api/docs/es')) return Promise.resolve(spanishMarkdown);
-      if (String(url).includes('/api/docs/en')) return Promise.resolve(englishMarkdown);
+      if (String(url).includes('/docs/es')) return Promise.resolve(spanishMarkdown);
+      if (String(url).includes('/docs/en')) return Promise.resolve(englishMarkdown);
       return Promise.resolve('');
     });
 
@@ -244,8 +244,8 @@ describe('HelpSection TOC links', () => {
     ].join('\n');
 
     apiMock.get.mockImplementation(url => {
-      if (String(url).includes('/api/docs/es')) return Promise.resolve(spanishMarkdown);
-      if (String(url).includes('/api/docs/en')) return Promise.resolve(englishMarkdown);
+      if (String(url).includes('/docs/es')) return Promise.resolve(spanishMarkdown);
+      if (String(url).includes('/docs/en')) return Promise.resolve(englishMarkdown);
       return Promise.resolve('');
     });
 
@@ -286,6 +286,6 @@ describe('HelpSection TOC links', () => {
     render(<HelpSection locale="en" />);
 
     const image = await screen.findByRole('img', { name: 'Screenshot' });
-    expect(image.getAttribute('src')).toBe('/api/api/docs/assets/screenshots/help.png');
+    expect(image.getAttribute('src')).toBe('/api/docs/assets/screenshots/help.png');
   });
 });

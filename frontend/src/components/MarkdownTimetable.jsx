@@ -235,7 +235,7 @@ function MarkdownTimetable() {
       setDetails(null);
     }
     try {
-      const data = await api.get('/api/timetable', { responseType: 'text' });
+      const data = await api.get('/timetable', { responseType: 'text' });
       if (!data) {
         if (!silentNotFound) {
           setError(t('timetable.no_schedule'));
@@ -298,7 +298,7 @@ function MarkdownTimetable() {
 
   const pollTaskStatus = async () => {
     try {
-      const result = await api.get('/api/timetable/status/current');
+      const result = await api.get('/timetable/status/current');
       if (!result || !result.status) {
         pollingRef.current = setTimeout(() => pollTaskStatus(), POLL_INTERVAL_MS);
         return;
@@ -349,7 +349,7 @@ function MarkdownTimetable() {
       setError(null);
       setDetails(null);
       try {
-        const status = await api.get('/api/timetable/status/current');
+        const status = await api.get('/timetable/status/current');
         applyStatus(status);
         if (status?.status === 'running') {
           await fetchTimetable({ silentNotFound: true });
@@ -373,7 +373,7 @@ function MarkdownTimetable() {
     setMarkdown('');
     startElapsedTimer();
     try {
-      const result = await api.post('/api/timetable');
+      const result = await api.post('/timetable');
       applyStatus(result);
       pollTaskStatus();
     } catch (err) {
@@ -400,8 +400,8 @@ function MarkdownTimetable() {
     setMarkdown('');
     startElapsedTimer();
     try {
-      await api.del('/api/timetable');
-      const result = await api.post('/api/timetable');
+      await api.del('/timetable');
+      const result = await api.post('/timetable');
       applyStatus(result);
       pollTaskStatus();
     } catch (err) {
@@ -414,7 +414,7 @@ function MarkdownTimetable() {
   const handleCancel = async () => {
     if (!taskId) return;
     try {
-      await api.post(`/api/timetable/${taskId}/cancel`);
+      await api.post(`/timetable/${taskId}/cancel`);
     } catch { /* ignore */ }
     stopGeneration();
   };
@@ -512,7 +512,7 @@ function MarkdownTimetable() {
     for (const line of lines) {
       const trimmed = line.trim();
       const isPipeRow = trimmed.startsWith('|') && trimmed.endsWith('|');
-      const isSeparator = isPipeRow && /^[\s|:\-]+$/.test(trimmed);
+      const isSeparator = isPipeRow && /^[\s|:-]+$/.test(trimmed);
 
       if (isPipeRow && !isSeparator) {
         if (!inTable) {
