@@ -201,13 +201,33 @@
 @media print {
   @page {
     size: portrait;
-    margin: 1cm;
+    margin: 0;
+  }
+
+  .app {
+    overflow: visible !important;
+    height: auto !important;
+    background: #fff !important;
+  }
+
+  .app__content {
+    overflow: visible !important;
+    padding: 1cm !important;
+    max-width: none !important;
   }
 
   .app__nav,
+  .app__footer,
   .section-layout__header,
   .help-section__toc {
     display: none !important;
+  }
+
+  .section-layout {
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: none !important;
   }
 
   .help-section__layout {
@@ -220,6 +240,15 @@
     line-height: 1.4;
   }
 
+  .help-section__markdown h1,
+  .help-section__markdown h2,
+  .help-section__markdown h3,
+  .help-section__markdown h4,
+  .help-section__markdown p,
+  .help-section__markdown li {
+    color: #000 !important;
+  }
+
   .help-section__markdown h1 { font-size: 16px; }
   .help-section__markdown h2 { font-size: 14px; }
   .help-section__markdown h3 { font-size: 12px; }
@@ -227,7 +256,7 @@
   .help-section__markdown p,
   .help-section__markdown li { font-size: 10px; line-height: 1.4; }
   .help-section__markdown th,
-  .help-section__markdown td { font-size: 9px; padding: 3px 5px; }
-  .help-section__markdown code { font-size: 9px; }
-  .help-section__markdown pre { font-size: 9px; }
+  .help-section__markdown td { font-size: 9px; padding: 3px 5px; background: #fff !important; color: #000 !important; }
+  .help-section__markdown code { font-size: 9px; background: #f5f5f5 !important; color: #000 !important; }
+  .help-section__markdown pre { font-size: 9px; background: #f5f5f5 !important; color: #000 !important; border: none !important; }
 }
