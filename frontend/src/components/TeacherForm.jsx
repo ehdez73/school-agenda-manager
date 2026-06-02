@@ -19,6 +19,39 @@ export default function TeacherForm({ form, setForm, subjects, classesPerDay, on
         return group.tutor_ids.some(id => String(id) === String(form.id));
     });
 
+    function handleLineToggle(subjectId, lineIndex) {
+        setForm(f => {
+            const current = f.teacher_subject_lines?.[subjectId];
+            const subject = subjects.find(s => String(s.id) === String(subjectId));
+            const numLines = subject?.course?.num_lines || 1;
+            const allLines = Array.from({ length: numLines }, (_, i) => i);
+            // undefined or null means all lines checked
+            const checked = current === undefined || current === null
+                ? [...allLines]
+                : [...current];
+            const idx = checked.indexOf(lineIndex);
+            if (idx >= 0) {
+                checked.splice(idx, 1);
+            } else {
+                checked.push(lineIndex);
+                checked.sort((a, b) => a - b);
+            }
+            const updated = { ...(f.teacher_subject_lines || {}) };
+            if (checked.length === numLines || checked.length === 0) {
+                delete updated[subjectId];
+            } else {
+                updated[subjectId] = checked;
+            }
+            return { ...f, teacher_subject_lines: updated };
+        });
+    }
+
+    function isLineChecked(subjectId, lineIndex) {
+        const current = form.teacher_subject_lines?.[subjectId];
+        if (current === undefined || current === null) return true;
+        return current.includes(lineIndex);
+    }
+
     return (
         <form onSubmit={onSubmit} className="teacher-form">
             <div className="teacher-form-row">
@@ -56,11 +89,57 @@ export default function TeacherForm({ form, setForm, subjects, classesPerDay, on
                     <AutocompleteSelect
                         items={subjects}
                         selectedIds={form.subjects}
-                        onAdd={id => setForm(f => ({ ...f, subjects: [...f.subjects, id] }))}
-                        onRemove={id => setForm(f => ({ ...f, subjects: f.subjects.filter(sid => String(sid) !== String(id)) }))}
+                        onAdd={id => {
+                            setForm(f => {
+                                const subj = subjects.find(s => String(s.id) === String(id));
+                                const numLines = subj?.course?.num_lines || 1;
+                                // If the subject's course has only 1 line, no restriction needed
+                                if (numLines <= 1) return { ...f, subjects: [...f.subjects, id] };
+                                return { ...f, subjects: [...f.subjects, id] };
+                            });
+                        }}
+                        onRemove={id => setForm(f => {
+                            const updated = { ...(f.teacher_subject_lines || {}) };
+                            delete updated[id];
+                            return { ...f, subjects: f.subjects.filter(sid => String(sid) !== String(id)), teacher_subject_lines: updated };
+                        })}
                         placeholder={t('subjects.add_subject') + '...'}
                         noResultsText="No subjects found"
                     />
+
+                    {/* Line restrictions: show for subjects whose course has >1 line */}
+                    {form.subjects.filter(sid => {
+                        const subj = subjects.find(s => String(s.id) === String(sid));
+                        return subj && (subj.course?.num_lines || 1) > 1;
+                    }).length > 0 && (
+                        <div className="teacher-form-section">
+                            <label className="teacher-label teacher-label-margin">{t('teachers.line_restrictions')}:</label>
+                            {form.subjects.map(sid => {
+                                const subj = subjects.find(s => String(s.id) === String(sid));
+                                if (!subj) return null;
+                                const numLines = subj.course?.num_lines || 1;
+                                if (numLines <= 1) return null;
+                                return (
+                                    <div key={sid} className="teacher-line-row">
+                                        <span className="teacher-line-subject">{subj.name} ({subj.course?.name || subj.course_id})</span>
+                                        <div className="teacher-lines">
+                                            {Array.from({ length: numLines }, (_, i) => (
+                                                <label key={i} className="teacher-line-checkbox">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isLineChecked(sid, i)}
+                                                        onChange={() => handleLineToggle(sid, i)}
+                                                    />
+                                                    <span>{String.fromCharCode(65 + i)}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
                     <label className="teacher-label teacher-label-margin">{t('teachers.tutor_group')}:</label>
                     <AutocompleteSelect
                         items={availableGroups.sort((a, b) => (a.name || '').localeCompare(b.name || ''))}

@@ -93,11 +93,11 @@ function App() {
           <button className={'nav__link' + (page === 'teachers' ? ' nav__link--active' : '')} onClick={() => setPage('teachers')}>
             {t('nav.teachers')}
           </button>
-          <button className={'nav__link' + (page === 'timetable-markdown' ? ' nav__link--active' : '')} onClick={() => setPage('timetable-markdown')}>
-            {t('nav.timetable')}
-          </button>
           <button className={'nav__link' + (page === 'config' ? ' nav__link--active' : '')} onClick={() => setPage('config')}>
             {t('nav.config')}
+          </button>
+          <button className={'nav__link' + (page === 'timetable-markdown' ? ' nav__link--active' : '')} onClick={() => setPage('timetable-markdown')}>
+            {t('nav.timetable')}
           </button>
           <button className={'nav__link' + (page === 'help' ? ' nav__link--active' : '')} onClick={() => setPage('help')}>
             {t('nav.help')}

@@ -222,7 +222,10 @@ export default function SubjectForm({ form, setForm, courses, subjects = [], edi
                     {subject.teachers && subject.teachers.length > 0 ? (
                         <ul className="teacher-list">
                             {subject.teachers.map(t => (
-                                <li key={t.id}>{t.name}</li>
+                                <li key={t.id}>
+                                    {t.name}
+                                    {t.lines && t.lines.length > 0 && ` (${t.lines.join(', ')})`}
+                                </li>
                             ))}
                         </ul>
                     ) : (

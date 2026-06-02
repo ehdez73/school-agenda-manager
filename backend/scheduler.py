@@ -16,6 +16,8 @@ from .models import (
     JointClass,
 )
 from .logging_config import build_log_extra
+from .constants import DEFAULT_LOCALE
+from .translations import t_locale
 
 
 logger = logging.getLogger(__name__)
@@ -44,6 +46,28 @@ def _is_line_included(entity, line_index):
     if not isinstance(included, list):
         return True
     return line_index in included
+
+def _load_teacher_subject_lines(session):
+    """Load teacher_subject included_lines into a lookup dict.
+
+    Returns:
+        dict[(int, str)] -> list[int] | None: (teacher_id, subject_id) -> included_lines
+    """
+    from .models import teacher_subject
+    rows = session.execute(teacher_subject.select()).fetchall()
+    result = {}
+    for row in rows:
+        teacher_id, subject_id, included_lines = row
+        if included_lines is not None:
+            try:
+                lines = _json.loads(included_lines)
+            except (ValueError, TypeError):
+                lines = None
+        else:
+            lines = None
+        result[(teacher_id, subject_id)] = lines
+    return result
+
 
 from .restrictions import (
     SubjectWeeklyHours,
@@ -166,8 +190,15 @@ def save_solution_to_db(session, solver, assignments, groups, num_days, num_hour
         raise
 
 
-def _create_assignments(model, all_teachers, all_subjects, all_groups, num_days, num_hours):
-    """Create decision variables (group, subject_id, teacher_id, day, hour)."""
+def _create_assignments(model, all_teachers, all_subjects, all_groups, num_days, num_hours,
+                        teacher_subject_lines=None):
+    """Create decision variables (group, subject_id, teacher_id, day, hour).
+
+    Args:
+        teacher_subject_lines: Optional dict[(teacher_id, subject_id)] -> list[int] | None
+            Restricts which line indices the teacher can teach the subject to.
+            None = all lines allowed.
+    """
     assignments = {}
     for group in all_groups:
         course, line_letter = group.split("-")
@@ -176,6 +207,10 @@ def _create_assignments(model, all_teachers, all_subjects, all_groups, num_days,
             if subject.course_id == course and _is_line_included(subject, line_index):
                 for teacher in all_teachers:
                     if subject in teacher.subjects:
+                        ts_key = (teacher.id, subject.id)
+                        ts_lines = teacher_subject_lines.get(ts_key) if teacher_subject_lines else None
+                        if ts_lines is not None and line_index not in ts_lines:
+                            continue
                         for d in range(num_days):
                             for h in range(num_hours):
                                 key = (group, subject.id, teacher.id, d, h)
@@ -225,7 +260,7 @@ def _build_soft_restrictions(model, assignments, all_teachers,
 def solve_scheduling_model(
     all_teachers, all_subjects, all_groups, all_subjectgroups, num_days, num_hours,
     skip_restrictions=None, diagnostic_mode=False, task_id=None,
-    all_joint_classes=None,
+    all_joint_classes=None, teacher_subject_lines=None,
 ):
     """
     Builds and solves the scheduling model without requiring a database session.
@@ -263,7 +298,10 @@ def solve_scheduling_model(
     )
 
     # Create decision variables (group-subject-teacher-day-hour)
-    assignments = _create_assignments(model, all_teachers, all_subjects, all_groups, num_days, num_hours)
+    assignments = _create_assignments(
+        model, all_teachers, all_subjects, all_groups, num_days, num_hours,
+        teacher_subject_lines=teacher_subject_lines,
+    )
     logger.debug(
         "Created assignment decision variables count=%d",
         len(assignments),
@@ -362,7 +400,8 @@ def _get_line_index(group):
     return ord(line_letter) - ord("A")
 
 
-def _check_capacity_sanity(all_subjects, all_groups, num_days, num_hours, all_subjectgroups):
+def _check_capacity_sanity(all_subjects, all_groups, num_days, num_hours, all_subjectgroups,
+                           locale=DEFAULT_LOCALE):
     """Quick capacity sanity checks before running the solver.
 
     Subjects within a SubjectGroup share the same physical timeslots,
@@ -403,15 +442,15 @@ def _check_capacity_sanity(all_subjects, all_groups, num_days, num_hours, all_su
         available = num_days * num_hours
         if required > available:
             issues.append(
-                f"  - **Group {group}**: requires {required}h/week but only "
-                f"{available} slots available ({num_days} days × {num_hours} hours). "
-                f"Possible cause: **SubjectWeeklyHours**."
+                t_locale(locale, "diagnosis.capacity_issue",
+                         group=group, required=required, available=available,
+                         days=num_days, hours=num_hours)
             )
     return issues
 
 
 def _check_subjects_without_teachers(all_subjects, all_teachers, all_groups,
-                                     all_subjectgroups):
+                                     all_subjectgroups, locale=DEFAULT_LOCALE):
     """Check that every subject has at least one teacher who can teach it.
 
     Subjects within a SubjectGroup still need at least one teacher each.
@@ -432,13 +471,13 @@ def _check_subjects_without_teachers(all_subjects, all_teachers, all_groups,
                     and _is_line_included(subject, line_index)
                     and subject.id not in subjects_with_teachers):
                 issues.append(
-                    f"  - **Subject \"{subject.name}\" (id={subject.id})** "
-                    f"in **Group {group}** has no teacher assigned."
+                    t_locale(locale, "diagnosis.subject_no_teacher",
+                             name=subject.name, id=subject.id, group=group)
                 )
     return issues
 
 
-def _check_subjectgroup_weekly_hours_consistency(all_subjectgroups):
+def _check_subjectgroup_weekly_hours_consistency(all_subjectgroups, locale=DEFAULT_LOCALE):
     """Check SubjectGroup hours constraints.
 
     - If shared_hours is set: validate shared_hours <= min(weekly_hours).
@@ -456,8 +495,8 @@ def _check_subjectgroup_weekly_hours_consistency(all_subjectgroups):
                 names = [f"{s.name}({s.weekly_hours}h)" for s in subjects_list]
                 sg_name = getattr(sg, 'name', None) or getattr(sg, 'id', 'unknown')
                 issues.append(
-                    f"  - **SubjectGroup \"{sg_name}\"**: shared_hours={shared_hours} "
-                    f"exceeds min weekly_hours of members: {', '.join(names)}."
+                    t_locale(locale, "diagnosis.subjectgroup_shared_hours_exceed",
+                             name=sg_name, sh=shared_hours, subjects=", ".join(names))
                 )
         else:
             hours = {s.weekly_hours for s in subjects_list}
@@ -465,15 +504,15 @@ def _check_subjectgroup_weekly_hours_consistency(all_subjectgroups):
                 names = [f"{s.name}({s.weekly_hours}h)" for s in subjects_list]
                 sg_name = getattr(sg, 'name', None) or getattr(sg, 'id', 'unknown')
                 issues.append(
-                    f"  - **SubjectGroup \"{sg_name}\"**: members have different "
-                    f"weekly_hours: {', '.join(names)}. "
-                    f"All subjects in a SubjectGroup must have the same weekly hours."
+                    t_locale(locale, "diagnosis.subjectgroup_hours_mismatch",
+                             name=sg_name, subjects=", ".join(names))
                 )
     return issues
 
 
 def _check_teacher_capacity_vs_load(all_teachers, all_subjects, all_groups,
-                                    all_subjectgroups, all_joint_classes=None):
+                                    all_subjectgroups, all_joint_classes=None,
+                                    locale=DEFAULT_LOCALE):
     """Check teacher max_hours_week can cover their subjects.
 
     1. Per teacher: max_hours_week >= max(weekly_hours) of any single subject
@@ -497,10 +536,10 @@ def _check_teacher_capacity_vs_load(all_teachers, all_subjects, all_groups,
         if effective_max < max_subject_hours:
             subj = next(s for s in subjects if s.weekly_hours == max_subject_hours)
             issues.append(
-                f"  - **Teacher \"{teacher.name}\"** has max_hours_week="
-                f"{teacher.max_hours_week} (effective={effective_max} with "
-                f"{coord}h coordination) but teaches \"{subj.name}\" "
-                f"requiring {max_subject_hours}h/week."
+                t_locale(locale, "diagnosis.teacher_capacity_issue",
+                         name=teacher.name, max=teacher.max_hours_week,
+                         eff=effective_max, coord=coord,
+                         subj=subj.name, subj_hours=max_subject_hours)
             )
 
     # Global: total teacher capacity vs total required
@@ -546,15 +585,15 @@ def _check_teacher_capacity_vs_load(all_teachers, all_subjects, all_groups,
 
     if total_required > total_capacity:
         issues.append(
-            f"  - **Global capacity**: total required hours ({total_required}h) "
-            f"exceed total teacher capacity ({total_capacity}h). "
-            f"Need more teachers or reduce subject hours."
+            t_locale(locale, "diagnosis.global_capacity_issue",
+                     required=total_required, capacity=total_capacity)
         )
 
     return issues
 
 
-def _check_teach_every_day_viability(all_subjects, all_groups, num_days):
+def _check_teach_every_day_viability(all_subjects, all_groups, num_days,
+                                     locale=DEFAULT_LOCALE):
     """Check subjects with teach_every_day=True are feasible."""
     issues = []
     for subject in all_subjects:
@@ -564,18 +603,18 @@ def _check_teach_every_day_viability(all_subjects, all_groups, num_days):
         # Must have at least num_days total hours
         if subject.weekly_hours < num_days:
             issues.append(
-                f"  - **Subject \"{subject.name}\"** has teach_every_day=True "
-                f"but only {subject.weekly_hours}h/week (need at least {num_days}h "
-                f"for {num_days} days)."
+                t_locale(locale, "diagnosis.teach_every_day_hours",
+                         name=subject.name, hours=subject.weekly_hours,
+                         needed=num_days, days=num_days)
             )
         # Must fit within max_hours_per_day * num_days
         max_possible = subject.max_hours_per_day * num_days
         if subject.weekly_hours > max_possible:
             issues.append(
-                f"  - **Subject \"{subject.name}\"** has teach_every_day=True, "
-                f"weekly_hours={subject.weekly_hours}, but max possible with "
-                f"max_hours_per_day={subject.max_hours_per_day} over {num_days} days "
-                f"is {max_possible}h."
+                t_locale(locale, "diagnosis.teach_every_day_max",
+                         name=subject.name, wh=subject.weekly_hours,
+                         mhpd=subject.max_hours_per_day, days=num_days,
+                         max=max_possible)
             )
     return issues
 
@@ -585,7 +624,7 @@ def _check_teach_every_day_viability(all_subjects, all_groups, num_days):
 
 def _run_sanity_checks(all_teachers, all_subjects, all_groups,
                        all_subjectgroups, num_days, num_hours,
-                       all_joint_classes=None):
+                       all_joint_classes=None, locale=DEFAULT_LOCALE):
     """Run all pre-solve sanity checks and return a list of issues.
 
     Combines all Phase 1 checks into one call. Empty list = all clear.
@@ -593,19 +632,21 @@ def _run_sanity_checks(all_teachers, all_subjects, all_groups,
     issues = []
     issues += _check_capacity_sanity(
         all_subjects, all_groups, num_days, num_hours, all_subjectgroups,
+        locale=locale,
     )
     issues += _check_subjects_without_teachers(
         all_subjects, all_teachers, all_groups, all_subjectgroups,
+        locale=locale,
     )
     issues += _check_subjectgroup_weekly_hours_consistency(
-        all_subjectgroups,
+        all_subjectgroups, locale=locale,
     )
     issues += _check_teacher_capacity_vs_load(
         all_teachers, all_subjects, all_groups, all_subjectgroups,
-        all_joint_classes=all_joint_classes,
+        all_joint_classes=all_joint_classes, locale=locale,
     )
     issues += _check_teach_every_day_viability(
-        all_subjects, all_groups, num_days,
+        all_subjects, all_groups, num_days, locale=locale,
     )
     logger.info("Sanity checks completed issues=%d", len(issues), extra=build_log_extra())
     return issues
@@ -613,7 +654,7 @@ def _run_sanity_checks(all_teachers, all_subjects, all_groups,
 
 def _run_entity_diagnosis(suspects, all_teachers, all_subjects, all_groups,
                           all_subjectgroups, num_days, num_hours,
-                          all_joint_classes=None):
+                          all_joint_classes=None, teacher_subject_lines=None):
     """Phase 3: entity-level diagnosis using assumptions.
 
     Builds a model with suspect restrictions gated by per-entity assumption
@@ -634,6 +675,7 @@ def _run_entity_diagnosis(suspects, all_teachers, all_subjects, all_groups,
     model = cp_model.CpModel()
     assignments = _create_assignments(
         model, all_teachers, all_subjects, all_groups, num_days, num_hours,
+        teacher_subject_lines=teacher_subject_lines,
     )
 
     joint_lookup = build_joint_class_lookup(
@@ -699,7 +741,8 @@ def _run_entity_diagnosis(suspects, all_teachers, all_subjects, all_groups,
 
 def diagnose_infeasibility(
     all_teachers, all_subjects, all_groups, all_subjectgroups, num_days, num_hours,
-    progress_callback=None, all_joint_classes=None,
+    progress_callback=None, all_joint_classes=None, teacher_subject_lines=None,
+    locale=DEFAULT_LOCALE,
 ):
     """Diagnose which restrictions cause infeasibility.
 
@@ -734,11 +777,12 @@ def diagnose_infeasibility(
         all_teachers, all_subjects, all_groups,
         all_subjectgroups, num_days, num_hours,
         all_joint_classes=all_joint_classes,
+        locale=locale,
     )
     result["sanity_issues"] = sanity_issues
     if result["sanity_issues"]:
         if progress_callback:
-            msg = _build_diagnosis_message(result)
+            msg = _build_diagnosis_message(result, locale=locale)
             progress_callback("phase1", msg)
         logger.info("Diagnosis ended in phase 1 due to sanity issues=%d", len(sanity_issues), extra=build_log_extra())
         return result
@@ -766,6 +810,7 @@ def diagnose_infeasibility(
             num_days, num_hours,
             skip_restrictions={name}, diagnostic_mode=True,
             all_joint_classes=all_joint_classes,
+            teacher_subject_lines=teacher_subject_lines,
         )
         if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
             result["suspects"].append(name)
@@ -780,7 +825,7 @@ def diagnose_infeasibility(
     )
 
     if progress_callback:
-        msg = _build_diagnosis_message(result)
+        msg = _build_diagnosis_message(result, locale=locale)
         progress_callback("phase2", msg)
 
     # Phase 3: entity-level diagnosis for suspect restrictions
@@ -790,6 +835,7 @@ def diagnose_infeasibility(
             result["suspects"], all_teachers, all_subjects, all_groups,
             all_subjectgroups, num_days, num_hours,
             all_joint_classes=all_joint_classes,
+            teacher_subject_lines=teacher_subject_lines,
         )
         result["entity_conflicts"] = entity_conflicts
         result["phase3_timed_out"] = phase3_timed_out
@@ -801,34 +847,33 @@ def diagnose_infeasibility(
         )
 
     if progress_callback:
-        msg = _build_diagnosis_message(result)
+        msg = _build_diagnosis_message(result, locale=locale)
         progress_callback("phase3", msg)
 
     return result
 
 
-def _build_diagnosis_message(diagnosis):
+def _build_diagnosis_message(diagnosis, locale=DEFAULT_LOCALE):
     """Build markdown diagnosis message from a diagnosis result dict."""
-    msg = ["# ❌ No solution found — Diagnostic Results\n"]
+    msg = [t_locale(locale, "diagnosis.no_solution_title")]
     if diagnosis["sanity_issues"]:
-        msg.append("## Phase 1 — Capacity sanity checks")
+        msg.append(t_locale(locale, "diagnosis.phase1_title"))
         msg.extend(diagnosis["sanity_issues"])
         msg.append("")
     if diagnosis["suspects"]:
-        msg.append("## Phase 2 — Restriction isolation")
-        msg.append("Removing any of these restrictions individually makes the model feasible:")
+        msg.append(t_locale(locale, "diagnosis.phase2_title"))
+        msg.append(t_locale(locale, "diagnosis.phase2_desc"))
         for name in diagnosis["suspects"]:
             msg.append(f"  - **{name}**")
         msg.append("")
     if diagnosis.get("phase3_timed_out"):
-        msg.append("## Phase 3 — Entity diagnosis")
-        msg.append("  ⏱️ The diagnosis timed out. The constraints may be too complex")
-        msg.append("  for the allocated time. Try increasing timeout or simplifying.")
+        msg.append(t_locale(locale, "diagnosis.phase3_title"))
+        msg.append(t_locale(locale, "diagnosis.phase3_timed_out"))
         msg.append("")
     if diagnosis["entity_conflicts"]:
-        msg.append("## Phase 3 — Specific entities involved")
+        msg.append(t_locale(locale, "diagnosis.phase3_entities_title"))
         for restriction_name, entities in diagnosis["entity_conflicts"].items():
-            msg.append(f"- **{restriction_name}** — Conflicts involve:")
+            msg.append(t_locale(locale, "diagnosis.entity_conflict", name=restriction_name))
             for ent in entities:
                 name_str = f'{ent["entity_name"]} (id={ent["entity_id"]})'
                 extra = ent.get("extra", {})
@@ -836,17 +881,16 @@ def _build_diagnosis_message(diagnosis):
                     tutor_group = extra["tutor_group"]
                     if isinstance(tutor_group, (list, tuple, set)):
                         tutor_group = ", ".join(str(item) for item in tutor_group)
-                    name_str += f", tutor of group {tutor_group}"
+                    name_str += t_locale(locale, "diagnosis.tutor_of_group", group=tutor_group)
                 msg.append(f"    - {name_str}")
         msg.append("")
     if diagnosis["cleared"]:
-        msg.append("Restrictions that did NOT cause issues individually:")
+        msg.append(t_locale(locale, "diagnosis.cleared_title"))
         for name in diagnosis["cleared"]:
             msg.append(f"  - {name}")
         msg.append("")
     if not diagnosis["sanity_issues"] and not diagnosis["suspects"]:
-        msg.append("Could not isolate a single restriction. The infeasibility may arise from")
-        msg.append("the interaction of multiple restrictions, or from data configuration.")
+        msg.append(t_locale(locale, "diagnosis.no_conclusion"))
     return "\n".join(msg) + "\n"
 
 
@@ -908,7 +952,7 @@ def _persist_coordination_slots(session, all_teachers, num_days, num_hours, task
     )
 
 
-def create_timetable(session, progress_callback=None, task_id=None) -> str | None:
+def create_timetable(session, progress_callback=None, task_id=None, locale=DEFAULT_LOCALE) -> str | None:
     """
     Generates the school timetable using the OR-Tools CP-SAT solver.
 
@@ -921,6 +965,8 @@ def create_timetable(session, progress_callback=None, task_id=None) -> str | Non
         session: Database session
         progress_callback: Optional callable(phase: str, partial_markdown: str)
                            called after each diagnosis phase completes.
+        task_id: Optional task ID for logging.
+        locale: Language code for user-facing messages (default: DEFAULT_LOCALE).
     """
 
     logger.info("Timetable generation started", extra=build_log_extra(task_id=task_id))
@@ -973,11 +1019,20 @@ def create_timetable(session, progress_callback=None, task_id=None) -> str | Non
     skip_restrictions = set(_json.loads(disabled_raw)) if disabled_raw else set()
     logger.info("Loaded disabled restrictions count=%d", len(skip_restrictions), extra=build_log_extra(task_id=task_id))
 
+    # Load teacher-subject line restrictions
+    teacher_subject_lines = _load_teacher_subject_lines(session)
+    logger.debug(
+        "Loaded teacher-subject included_lines records=%d",
+        len(teacher_subject_lines),
+        extra=build_log_extra(task_id=task_id),
+    )
+
     # --- 2. Solve the scheduling model ---
     status, assignments, solver = solve_scheduling_model(
         all_teachers, all_subjects, all_groups, all_subjectgroups, num_days, num_hours,
         skip_restrictions=skip_restrictions, task_id=task_id,
         all_joint_classes=all_joint_classes,
+        teacher_subject_lines=teacher_subject_lines,
     )
 
     # --- 3. Solution Processing ---
@@ -1001,12 +1056,16 @@ def create_timetable(session, progress_callback=None, task_id=None) -> str | Non
         return None
     else:
         logger.warning("No feasible timetable found. Starting diagnosis", extra=build_log_extra(task_id=task_id))
+        if progress_callback:
+            progress_callback("infeasible", t_locale(locale, "diagnosis.infeasible_phase"))
         diagnosis = diagnose_infeasibility(
             all_teachers, all_subjects, all_groups,
             all_subjectgroups, num_days, num_hours,
             progress_callback=progress_callback,
             all_joint_classes=all_joint_classes,
+            teacher_subject_lines=teacher_subject_lines,
+            locale=locale,
         )
-        msg = _build_diagnosis_message(diagnosis)
+        msg = _build_diagnosis_message(diagnosis, locale=locale)
         logger.warning("Timetable generation finished without solution", extra=build_log_extra(task_id=task_id))
         return msg

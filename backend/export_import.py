@@ -1,4 +1,5 @@
 import json as _json
+from sqlalchemy import delete
 from .models import (
     Course,
     Subject,
@@ -11,6 +12,7 @@ from .models import (
     TeacherBusySlot,
     JointClass,
     normalize_tutor_groups,
+    teacher_subject,
 )
 
 
@@ -32,11 +34,24 @@ def dump_db(session):
 
     teachers = []
     for t in session.query(Teacher).all():
+        ts_rows = session.execute(
+            teacher_subject.select().where(teacher_subject.c.teacher_id == t.id)
+        ).fetchall()
+        teacher_subject_lines = {}
+        for _, subject_id, included_lines in ts_rows:
+            if included_lines is not None:
+                try:
+                    teacher_subject_lines[str(subject_id)] = _json.loads(included_lines)
+                except (ValueError, TypeError):
+                    teacher_subject_lines[str(subject_id)] = None
+            else:
+                teacher_subject_lines[str(subject_id)] = None
         teachers.append(
             {
                 "id": t.id,
                 "name": t.name,
                 "subjects": [s.id for s in t.subjects],
+                "teacher_subject_lines": teacher_subject_lines,
                 "preferences": t.preferences,
                 "coordination_hours": t.coordination_hours,
                 "max_hours_week": t.max_hours_week,
@@ -244,6 +259,21 @@ def import_payload(session, payload):
         session.flush()
         if subj_objs:
             teacher.subjects = subj_objs
+        ts_lines = teacher_data.get("teacher_subject_lines") or {}
+        if ts_lines or subj_objs:
+            session.execute(
+                delete(teacher_subject).where(teacher_subject.c.teacher_id == teacher.id)
+            )
+            for subject_id in teacher_data.get("subjects", []) or []:
+                included = ts_lines.get(str(subject_id))
+                included_json = _json.dumps(included) if included is not None else None
+                session.execute(
+                    teacher_subject.insert().values(
+                        teacher_id=teacher.id,
+                        subject_id=subject_id,
+                        included_lines=included_json,
+                    )
+                )
     session.flush()
 
     # Timeslots

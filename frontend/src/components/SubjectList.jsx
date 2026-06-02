@@ -141,6 +141,18 @@ function SubjectList() {
     } else if (sortBy === 'course') {
       aField = a.course ? a.course.name : '';
       bField = b.course ? b.course.name : '';
+    } else if (sortBy === 'teacher') {
+      const aTeachers = a.teachers && a.teachers.length > 0;
+      const bTeachers = b.teachers && b.teachers.length > 0;
+      if (!aTeachers && !bTeachers) return 0;
+      if (!aTeachers) return sortAsc ? -1 : 1;
+      if (!bTeachers) return sortAsc ? 1 : -1;
+      const aFull = a.teacher_lines_covered === true;
+      const bFull = b.teacher_lines_covered === true;
+      if (aFull && bFull) return 0;
+      if (aFull) return sortAsc ? -1 : 1;
+      if (bFull) return sortAsc ? 1 : -1;
+      return 0;
     }
     if (aField < bField) return sortAsc ? -1 : 1;
     if (aField > bField) return sortAsc ? 1 : -1;
@@ -260,7 +272,9 @@ function SubjectList() {
               {t('common.name') || 'Name'} {sortBy === 'name' ? (sortAsc ? '▲' : '▼') : ''}
             </th>
             <th>{t('subjects.linked') || 'Vinculada'}</th>
-            <th>{t('subjects.teacher')}</th>
+            <th className="subject-table-th-sort" onClick={() => handleSort('teacher')}>
+              {t('subjects.teacher')} {sortBy === 'teacher' ? (sortAsc ? '▲' : '▼') : ''}
+            </th>
             <th className="subject-table-th-sort" onClick={() => handleSort('weekly_hours')}>
               {t('subjects.weekly_hours')} {sortBy === 'weekly_hours' ? (sortAsc ? '▲' : '▼') : ''}
             </th>
@@ -291,7 +305,9 @@ function SubjectList() {
               </td>
               <td className="text-center">
                 {subject.teachers && subject.teachers.length > 0
-                  ? <span className="text-success font-bold">✓</span>
+                  ? (subject.teacher_lines_covered
+                      ? <span className="text-success font-bold">✓</span>
+                      : <span className="text-warning">{t('subjects.partial_coverage')}</span>)
                   : <span className="text-danger">✗</span>}
               </td>
               <td>{subject.weekly_hours}</td>

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, abort
 from flask_cors import CORS
 import logging
-from ..models import Subject, Course, Session, Timeslot, TimeSlotAssignment
+from ..models import Subject, Course, Session, Timeslot, TimeSlotAssignment, JointClass, SubjectGroup, subjectgroup_subject
 from ..schemas import CourseSchema, SubjectSchema
 from ..translations import t
 from sqlalchemy.orm import joinedload
@@ -95,6 +95,19 @@ def delete_course(course_id):
         session.close()
         logger.warning("Course not found for delete id=%s", course_id)
         abort(404, description=t('errors.not_found', entity='Course', id=course_id))
+    subjects = session.query(Subject).filter_by(course_id=course_id).all()
+    subject_ids = [s.id for s in subjects]
+    if subject_ids:
+        session.query(JointClass).filter(JointClass.subject_id.in_(subject_ids)).delete(synchronize_session=False)
+        for subject in subjects:
+            session.delete(subject)
+    session.query(JointClass).filter_by(course_id=course_id).delete(synchronize_session=False)
+    session.flush()
+    remaining = {r[0] for r in session.query(subjectgroup_subject.c.subjectgroup_id).distinct().all()}
+    if subject_ids:
+        for sg in session.query(SubjectGroup).all():
+            if sg.id not in remaining:
+                session.delete(sg)
     timeslots = session.query(Timeslot).filter_by(course_id=course_id).all()
     for timeslot in timeslots:
         session.query(TimeSlotAssignment).filter_by(timeslot_id=timeslot.id).delete()

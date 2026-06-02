@@ -14,10 +14,11 @@ Note: this index is intended for quick navigation in your Markdown viewer side p
 - [4. Configuration screen](#4-configuration-screen)
 - [5. Recommended workflow](#5-recommended-workflow)
 - [6. How to create each element](#6-how-to-create-each-element)
+  - [6.4.2 Restrict lines per teacher](#642-restrict-lines-per-teacher)
   - [6.5 Create Joint Classes](#65-create-joint-classes)
 - [7. Use cases](#7-use-cases)
   - [7.4 Music in courses with 3 lines](#74-music-in-courses-with-3-lines)
-  - [7.5 Religion + Educational Support with Joint Class](#75-religion--educational-support-with-joint-class)
+  - [7.5 Pack with Joint Class](#75-pack-with-joint-class)
 - [8. Timetable generation and review](#8-timetable-generation-and-review)
 - [9. How the generation process works](#9-how-the-generation-process-works)
 - [10. Constraints: HARD and SOFT](#10-constraints-hard-and-soft)
@@ -190,7 +191,7 @@ To avoid errors and rework, always follow this order:
 3. Assign the subjects they can teach.
 4. Set maximum weekly hours.
 5. Assign tutor group(s) when applicable.
-6. Configure the availability grid (below).
+6. Configure the availability grid (see [§6.4.1](#641-configure-availability-and-preferences)).
 7. If the teacher is a coordinator, assign the hours they will use for coordination.
 
 > **Recommendations:**
@@ -212,6 +213,36 @@ Each click advances to the next state: `No preference → Not available → Pref
 > - Use **Preferred** to guide the result without over-constraining it.
 > - Changes are saved together with the rest of the teacher form.
 
+#### 6.4.2 Restrict lines per teacher
+
+When a course has multiple lines (e.g. 6º with A, B, C) and a teacher does **not** teach all lines for a given subject, you can restrict which specific lines they cover.
+
+This is configured in the same teacher form, under the **Line restrictions** section that appears when the teacher has subjects from multi-line courses.
+
+Example — **Language (6º)** with 3 lines:
+
+| Teacher | Subject | Lines taught | How it looks in the form |
+|---------|---------|-------------|--------------------------|
+| **Docente 1** | Language (6º) | A ✅, B ✅, C ❌ | Lines A and B checked, C unchecked |
+| **Docente 2** | Language (6º) | A ❌, B ❌, C ✅ | Only line C checked |
+
+In this scenario:
+- **Docente 1** teaches Language to group **6ºA** and **6ºB**.
+- **Docente 2** (a split-group teacher) teaches Language only to **6ºC**.
+
+To configure:
+
+1. Open the teacher's edit form.
+2. Scroll to the **Line restrictions** section below the subject selector.
+3. For each subject, check the lines the teacher should teach and uncheck the ones they should not.
+4. If all lines are checked (default), the `teacher_subject_lines` field is not stored — meaning the teacher covers every line.
+5. Save the form.
+
+> **What happens in the scheduler:**
+> - When at least one line is unchecked, the scheduler only creates assignment variables for the checked lines.
+> - If the teacher is the only one qualified for that subject, make sure at least one other teacher covers the unchecked lines, otherwise the timetable will be infeasible.
+> - A teacher with `included_lines: [0, 1]` on a subject (like Docente 1) won't be assigned to line C, even if no other teacher is available — so ensure complete coverage.
+
 ### 6.5 Create Joint Classes
 
 Joint Classes allow multiple lines of the same course to receive the same subject simultaneously, sharing the same timeslot and teacher.
@@ -229,7 +260,7 @@ Joint Classes allow multiple lines of the same course to receive the same subjec
 > **Recommendations:**
 > - The selected lines must exist in the course.
 > - If the teacher is left empty, ensure at least one qualified teacher can teach the subject in all selected lines.
-> - Joint Classes can be combined with Packs (see [§7.5](#75-religion--educational-support-with-joint-class)).
+> - Joint Classes can be combined with Packs (see [§7.5](#75-pack-with-joint-class)).
 
 ## 7. Use cases
 
@@ -460,7 +491,7 @@ Check:
 - The Joint Class has at least 2 selected lines.
 - Shared hours do not exceed the subject's weekly hours.
 - The assigned teacher (if fixed) is qualified to teach the subject.
-- The Joint Class lines are consistent with Pack lines when combining both (see [§7.5](#75-religion--educational-support-with-joint-class)).
+- The Joint Class lines are consistent with Pack lines when combining both (see [§7.5](#75-pack-with-joint-class)).
 - No teacher is overloaded by being assigned to multiple Joint Classes.
 
 ## 12. Management best practices

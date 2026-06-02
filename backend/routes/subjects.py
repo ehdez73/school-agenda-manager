@@ -3,7 +3,7 @@ import logging
 import re
 from flask import Blueprint, jsonify, request, abort
 from flask_cors import CORS
-from ..models import Subject, Course, Session, TimeSlotAssignment
+from ..models import Subject, Course, Session, TimeSlotAssignment, teacher_subject
 from ..schemas import SubjectSchema
 from ..translations import t
 from sqlalchemy.orm import joinedload
@@ -29,7 +29,56 @@ def get_subjects():
     logger.info("Listing subjects")
     session = Session()
     subjects = session.query(Subject).options(joinedload(Subject.course)).all()
-    result = [SubjectSchema(**s.to_dict()).model_dump() for s in subjects]
+
+    # Load teacher_subject_lines for all teachers+subjects
+    ts_rows = session.execute(teacher_subject.select()).fetchall()
+    ts_map = {}
+    for tid, sid, raw in ts_rows:
+        if raw is not None:
+            try:
+                ts_map.setdefault(sid, {})[tid] = json.loads(raw)
+            except (ValueError, TypeError):
+                ts_map.setdefault(sid, {})[tid] = None
+        else:
+            ts_map.setdefault(sid, {})[tid] = None
+
+    result = []
+    for s in subjects:
+        d = s.to_dict()
+        subject_lines = ts_map.get(s.id, {})
+        num_lines = (s.course.num_lines if s.course else 1)
+
+        # Enrich teachers with their per-subject line restrictions
+        enriched_teachers = []
+        for t in d["teachers"]:
+            lines = subject_lines.get(t["id"])
+            if lines is not None:
+                t["lines"] = [chr(65 + i) for i in lines]
+            else:
+                t["lines"] = None
+            enriched_teachers.append(t)
+        d["teachers"] = enriched_teachers
+
+        # Determine the required line indices for this subject
+        if s.included_lines is not None:
+            try:
+                required = set(json.loads(s.included_lines))
+            except (ValueError, TypeError):
+                required = set(range(num_lines))
+        else:
+            required = set(range(num_lines))
+
+        # Compute union of lines covered by any teacher
+        covered = set()
+        for t_id, t_lines in subject_lines.items():
+            if t_lines is None:
+                covered = required.copy()
+                break
+            covered.update(t_lines)
+        d["teacher_lines_covered"] = covered == required
+
+        result.append(SubjectSchema(**d).model_dump())
+
     session.close()
     logger.info("Listed subjects count=%d", len(result))
     return jsonify(result)
@@ -95,11 +144,56 @@ def get_subject(subject_id):
     logger.info("Fetching subject id=%s", subject_id)
     session = Session()
     subject = session.get(Subject, subject_id)
-    session.close()
     if subject is None:
+        session.close()
         logger.warning("Subject not found id=%s", subject_id)
         abort(404, description=t("errors.not_found", id=subject_id))
-    return jsonify(SubjectSchema(**subject.to_dict()).model_dump())
+    d = subject.to_dict()
+
+    # Load teacher lines for this subject
+    ts_rows = session.execute(
+        teacher_subject.select().where(teacher_subject.c.subject_id == subject.id)
+    ).fetchall()
+    ts_map = {}
+    for tid, sid, raw in ts_rows:
+        if raw is not None:
+            try:
+                ts_map[tid] = json.loads(raw)
+            except (ValueError, TypeError):
+                ts_map[tid] = None
+        else:
+            ts_map[tid] = None
+
+    # Enrich teachers with their per-subject line restrictions
+    enriched_teachers = []
+    for t in d["teachers"]:
+        lines = ts_map.get(t["id"])
+        if lines is not None:
+            t["lines"] = [chr(65 + i) for i in lines]
+        else:
+            t["lines"] = None
+        enriched_teachers.append(t)
+    d["teachers"] = enriched_teachers
+
+    # Compute teacher_lines_covered
+    num_lines = (subject.course.num_lines if subject.course else 1)
+    if subject.included_lines is not None:
+        try:
+            required = set(json.loads(subject.included_lines))
+        except (ValueError, TypeError):
+            required = set(range(num_lines))
+    else:
+        required = set(range(num_lines))
+    covered = set()
+    for tid, raw in ts_map.items():
+        if raw is None:
+            covered = required.copy()
+            break
+        covered.update(raw)
+    d["teacher_lines_covered"] = covered == required
+
+    session.close()
+    return jsonify(SubjectSchema(**d).model_dump())
 
 
 @subjects_bp.route("/subjects/<int:subject_id>", methods=["PUT"])

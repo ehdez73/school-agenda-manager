@@ -29,6 +29,7 @@ class SubjectSchema(BaseModel):
     linked_subject_id: Optional[str] = None
     teachers: List[dict] = []
     included_lines: Optional[List[int]] = None
+    teacher_lines_covered: Optional[bool] = None
 
 
 class SubjectGroupSchema(BaseModel):
@@ -73,6 +74,7 @@ class TeacherSchema(BaseModel):
     # preferences is an optional mapping day->DayPreferences. We use PreferencesSchema
     # which accepts plain dicts and validates the inner shape.
     preferences: Optional[PreferencesSchema] = None
+    teacher_subject_lines: Optional[Dict[str, Optional[List[int]]]] = None
 
 
 class FixedSlotCreate(BaseModel):

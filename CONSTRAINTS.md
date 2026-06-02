@@ -28,6 +28,7 @@ The system follows these general rules:
 - Some **subjects** are grouped into **SubjectGroups** so they always share the same timeslot e.g.: Religion + Ethics values.
 - There are several **teachers**, each can teach several **subjects**.
 - Each **teacher** has a **maximum number of teaching hours** per week (between 1 and 40, default 20).
+- A teacher can be restricted to specific **course lines** per subject via `teacher_subject_lines`. For example, a teacher may teach Language only to lines A and B of 6th grade, while another teacher covers line C. This filtering happens at the assignment-variable creation level, **before** any constraint is applied — the solver never considers invalid (teacher, line) combinations.
 - Each day-period slot per teacher is one of: **None** (default), **Unavailable** (hard constraint — cannot teach that slot), or **Preferred** (soft constraint). A slot cannot be both unavailable and preferred — setting one clears the other.
 - Each **day** has a **limited number of teaching hours** (between 1 and 8), defined by configuration, e.g. 5 hours/day
 
@@ -49,7 +50,7 @@ The system follows these general rules:
 - Cover all weekly hours for each subject
 - Do not exceed maximum hours per day per subject (per group)
 - At most one teacher per (group, subject, day, hour) slot
-- Each (group, subject) pair must be taught by at most one teacher across all hours of the week — a subject in a group cannot be split among multiple teachers
+- Each (group, subject) pair must be taught by at most one teacher across all hours of the week — a subject in a group cannot be split among multiple teachers (except when line-level restrictions via `teacher_subject_lines` assign different teachers to different course lines, e.g. Teacher A covers 6ºA+6ºB, Teacher B covers 6ºC)
 - Subjects with "teach every day" flag must be taught at least once per day
 - Maximum one "logical unit" (Subject or SubjectGroup) per group per hour per day — avoid gaps or overassignment
 - If a subject requires consecutive hours, all its hours in a day must be consecutive

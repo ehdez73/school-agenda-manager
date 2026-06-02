@@ -55,6 +55,7 @@ docker compose up --build
 
 - **Decision variables**: `assignments[(group, subject_id, teacher_id, day, hour)]` = `BoolVar`
   - Only valid (group belongs to course, teacher can teach subject) combos are created in `_create_assignments()`
+  - **teacher_subject_lines**: optional `dict[(teacher_id, subject_id)] -> list[int] | None` filters which course lines a teacher can teach a subject to (stored in `teacher_subject.included_lines` column as JSON array of ints). Loaded by `_load_teacher_subject_lines()` in `create_timetable()` and threaded through to `_create_assignments()`. `None` = all lines.
 - **Group format**: `"{course.id}-{line_char}"` e.g. `"1º-A"`, `"2-B"`
   - Use `normalize_group_name()` from `tutor_mandatory_hours.py` to parse user input: `"1ºA"` → `"1º-A"`
 - **Hard restrictions**: listed in `_build_hard_restrictions()`, always enforced
@@ -97,6 +98,7 @@ See `.agents/skills/frontend/SKILL.md`.
 - Subject in multiple SubjectGroups is invalid (conflicting constraints)
 - Missing `__init__.py` import OR missing `scheduler.py` wiring → restriction silently not applied
 - Compose files mount the repo root as /app; the SQLite DB must be writable at runtime
+- `teacher_subject.included_lines` is a JSON array of ints (`null` = all lines). Filter is AND with `Subject.included_lines` — both must allow the line for assignment variables to be created.
 
 ## Documentation
 

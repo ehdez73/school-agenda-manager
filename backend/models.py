@@ -176,6 +176,7 @@ teacher_subject = Table(
     Base.metadata,
     Column("teacher_id", Integer, ForeignKey("teachers.id")),
     Column("subject_id", Integer, ForeignKey("subjects.id")),
+    Column("included_lines", Text, nullable=True),
 )
 
 

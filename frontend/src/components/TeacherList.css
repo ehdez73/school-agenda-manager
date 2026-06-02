@@ -247,6 +247,43 @@
   padding: var(--space-xs) var(--space-md);
 }
 
+/* Line restrictions per subject */
+.teacher-line-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+}
+.teacher-line-row:last-child {
+  border-bottom: none;
+}
+
+.teacher-line-subject {
+  min-width: 140px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text, #1e293b);
+}
+
+.teacher-lines {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.teacher-line-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--color-text-muted, #64748b);
+}
+.teacher-line-checkbox input[type="checkbox"] {
+  cursor: pointer;
+}
+
 @media (max-width: 720px) {
   .unavailable-grid {
     gap: 8px;

@@ -30,6 +30,14 @@ assignments[key] = model.NewBoolVar(f"g:{group} sub:{sid} t:{tname} d:{d} h:{h}"
 at this day+hour slot." Only valid combinations (group belongs to course,
 teacher can teach that subject) are created by `_create_assignments()`.
 
+Additionally, `teacher_subject.included_lines` (JSON array of ints, `null` = all
+lines) on the `teacher_subject` association table filters which course lines a
+given teacher can teach a subject to. This is loaded by
+`_load_teacher_subject_lines()` in `create_timetable()` and passed to
+`_create_assignments()` as `teacher_subject_lines`. The filter is AND with
+`Subject.included_lines` — both must allow the line for assignment variables
+to be created.
+
 ### 0.2 The Restriction Base Class
 
 `backend/restrictions/base.py`:

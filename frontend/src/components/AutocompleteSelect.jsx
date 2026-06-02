@@ -60,7 +60,6 @@ export default function AutocompleteSelect({
         }
         setSearchTerm('');
         setIsOpen(false);
-        inputRef.current?.focus();
     }
 
     function handleRemove(id) {

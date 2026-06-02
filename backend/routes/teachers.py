@@ -2,12 +2,55 @@ from flask import Blueprint, jsonify, request, abort
 import json as _json
 import logging
 from sqlalchemy.orm import joinedload
-from ..models import Teacher, Subject, Session, normalize_tutor_groups
+from ..models import Teacher, Subject, Session, teacher_subject, normalize_tutor_groups, TeacherBusySlot
 from ..schemas import TeacherSchema, PreferencesSchema, DayPreferences
 from ..translations import t
 
 teachers_bp = Blueprint('teachers', __name__)
 logger = logging.getLogger(__name__)
+
+
+def _load_teacher_lines(session, teacher_id):
+    """Load teacher_subject_lines for a given teacher.
+    
+    Returns dict mapping subject_id -> list[int] | None.
+    """
+    rows = session.execute(
+        teacher_subject.select().where(teacher_subject.c.teacher_id == teacher_id)
+    ).fetchall()
+    result = {}
+    for _, subject_id, included_lines in rows:
+        if included_lines is not None:
+            try:
+                result[subject_id] = _json.loads(included_lines)
+            except (ValueError, TypeError):
+                result[subject_id] = None
+        else:
+            result[subject_id] = None
+    return result
+
+
+def _save_teacher_lines(session, teacher_id, subject_ids, lines_map):
+    """Replace teacher_subject_lines for a teacher.
+
+    Args:
+        lines_map: dict[str, list[int] | None] — subject_id -> included_lines
+    """
+    from sqlalchemy import delete
+    session.execute(
+        delete(teacher_subject).where(teacher_subject.c.teacher_id == teacher_id)
+    )
+    for subject_id in subject_ids:
+        included = lines_map.get(subject_id) if lines_map else None
+        included_json = _json.dumps(included) if included is not None else None
+        session.execute(
+            teacher_subject.insert().values(
+                teacher_id=teacher_id,
+                subject_id=subject_id,
+                included_lines=included_json,
+            )
+        )
+
 
 @teachers_bp.route('/teachers', methods=['GET'])
 def get_teachers():
@@ -22,6 +65,7 @@ def get_teachers():
         except Exception:
             preferences = {}
         tutor_groups = normalize_tutor_groups(t.tutor_group)
+        teacher_lines = _load_teacher_lines(session, t.id)
         t_dict = {
             'id': t.id,
             'name': t.name,
@@ -31,6 +75,7 @@ def get_teachers():
             'preferences': preferences,
             'tutor_group': tutor_groups[0] if tutor_groups else None,
             'tutor_groups': tutor_groups,
+            'teacher_subject_lines': teacher_lines,
         }
         result.append(TeacherSchema(**t_dict).model_dump())
     session.close()
@@ -99,8 +144,15 @@ def add_teacher():
     new_teacher.set_tutor_groups(tutor_groups)
     new_teacher.preferences = _json.dumps(ut)
     session.add(new_teacher)
+    session.flush()  # get id before commit
+
+    # Save teacher_subject_lines
+    ts_lines = data.get('teacher_subject_lines') or {}
+    _save_teacher_lines(session, new_teacher.id, subject_ids, ts_lines)
+
     session.commit()
     logger.info("Created teacher id=%s name=%s", new_teacher.id, new_teacher.name)
+    teacher_lines = _load_teacher_lines(session, new_teacher.id)
     response_data = TeacherSchema(**{
         'id': new_teacher.id,
         'name': new_teacher.name,
@@ -110,6 +162,7 @@ def add_teacher():
         'preferences': ut,
         'tutor_group': tutor_groups[0] if tutor_groups else None,
         'tutor_groups': tutor_groups,
+        'teacher_subject_lines': teacher_lines,
     }).model_dump()
     session.close()
     return jsonify(response_data), 201
@@ -127,6 +180,7 @@ def get_teacher(teacher_id):
         ut = teacher.preferences and teacher.preferences.strip() and _json.loads(teacher.preferences) or {}
     except Exception:
         ut = {}
+    teacher_lines = _load_teacher_lines(session, teacher.id)
     t_dict = {
         'id': teacher.id,
         'name': teacher.name,
@@ -136,6 +190,7 @@ def get_teacher(teacher_id):
         'preferences': ut,
         'tutor_group': normalize_tutor_groups(teacher.tutor_group)[0] if normalize_tutor_groups(teacher.tutor_group) else None,
         'tutor_groups': normalize_tutor_groups(teacher.tutor_group),
+        'teacher_subject_lines': teacher_lines,
     }
     return jsonify(TeacherSchema(**t_dict).model_dump())
 
@@ -173,6 +228,7 @@ def update_teacher(teacher_id):
     subject_ids = data.get('subjects', None)
     if subject_ids is not None:
         teacher.subjects = session.query(Subject).filter(Subject.id.in_(subject_ids)).all()
+        session.flush()
     if 'tutor_groups' in data or 'tutor_group' in data:
         teacher.set_tutor_groups(data.get('tutor_groups', data.get('tutor_group')))
     if 'preferences' in data:
@@ -198,8 +254,16 @@ def update_teacher(teacher_id):
             session.close()
             logger.warning("Update teacher rejected due to invalid preferences id=%s", teacher_id)
             abort(400, description=t('errors.invalid_preferences'))
+
+    # Save teacher_subject_lines if present
+    if 'teacher_subject_lines' in data:
+        current_ids = [s.id for s in teacher.subjects]
+        ts_lines = data['teacher_subject_lines'] or {}
+        _save_teacher_lines(session, teacher.id, current_ids, ts_lines)
+
     session.commit()
     logger.info("Updated teacher id=%s", teacher.id)
+    teacher_lines = _load_teacher_lines(session, teacher.id)
     response_data = TeacherSchema(**{
         'id': teacher.id,
         'name': teacher.name,
@@ -209,6 +273,7 @@ def update_teacher(teacher_id):
     ,
         'tutor_group': normalize_tutor_groups(teacher.tutor_group)[0] if normalize_tutor_groups(teacher.tutor_group) else None,
         'tutor_groups': normalize_tutor_groups(teacher.tutor_group),
+        'teacher_subject_lines': teacher_lines,
     }).model_dump()
     session.close()
     return jsonify(response_data)
@@ -222,6 +287,7 @@ def delete_teacher(teacher_id):
         session.close()
         logger.warning("Teacher not found for delete id=%s", teacher_id)
         abort(404, description=t('errors.not_found', entity='Teacher', id=teacher_id))
+    session.query(TeacherBusySlot).filter_by(teacher_id=teacher_id).delete()
     session.delete(teacher)
     session.commit()
     session.close()

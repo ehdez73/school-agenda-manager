@@ -8,7 +8,7 @@ import TeacherForm from './TeacherForm';
 import SectionLayout from './SectionLayout';
 import './TeacherList.css';
 
-const emptyTeacherForm = () => ({ name: '', subjects: [], max_hours_week: 1, coordination_hours: 0, preferences: {}, tutor_groups: [] });
+const emptyTeacherForm = () => ({ name: '', subjects: [], teacher_subject_lines: {}, max_hours_week: 1, coordination_hours: 0, preferences: {}, tutor_groups: [] });
 
 export default function TeacherList() {
   const [teachers, setTeachers] = useState([]);
@@ -49,9 +49,21 @@ export default function TeacherList() {
   function handleSubmit(e) {
     e.preventDefault();
     const preferences_obj = form.preferences || {};
+    const tsLines = form.teacher_subject_lines || {};
+    const cleanedLines = {};
+    for (const sid of form.subjects) {
+      const val = tsLines[sid];
+      if (val === undefined) continue;
+      const subject = subjects.find(s => String(s.id) === String(sid));
+      if (!subject) continue;
+      const numLines = subject.course?.num_lines || 1;
+      if (val === null || val.length === numLines) continue; // all lines = no restriction
+      cleanedLines[sid] = val;
+    }
     const payload = {
       name: form.name,
       subjects: form.subjects,
+      teacher_subject_lines: Object.keys(cleanedLines).length > 0 ? cleanedLines : {},
       tutor_groups: form.tutor_groups || [],
       max_hours_week: Number(form.max_hours_week) > 0 ? Number(form.max_hours_week) : 1,
       coordination_hours: Number(form.coordination_hours) >= 0 ? Number(form.coordination_hours) : 0,
@@ -75,6 +87,7 @@ export default function TeacherList() {
       id: teacher.id,
       name: teacher.name,
       subjects: teacher.subjects ? teacher.subjects.map(s => String(s.id)) : [],
+      teacher_subject_lines: teacher.teacher_subject_lines || {},
       tutor_groups: teacher.tutor_groups ? teacher.tutor_groups.map(group => String(group)) : (teacher.tutor_group ? [String(teacher.tutor_group)] : []),
       max_hours_week: teacher.max_hours_week ?? 1,
       coordination_hours: teacher.coordination_hours ?? 0,

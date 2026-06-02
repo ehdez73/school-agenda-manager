@@ -10,6 +10,7 @@ from ..markdown_utils import align_tables_in_text
 from ..scheduler import create_timetable
 from ..task_manager import task_manager
 from ..logging_config import build_log_extra
+from ..translations import get_current_locale
 
 
 timetable_bp = Blueprint('timetable_bp', __name__)
@@ -56,7 +57,7 @@ def _clear_scheduler_error():
         session.close()
 
 
-def _run_solver_in_background(task_id):
+def _run_solver_in_background(task_id, locale):
     """Run the OR-Tools solver in a background thread.
     Checks cancellation before/after solve to avoid unnecessary DB writes.
     """
@@ -80,6 +81,7 @@ def _run_solver_in_background(task_id):
             session,
             progress_callback=progress_callback,
             task_id=task_id,
+            locale=locale,
         )
 
         if task_manager.is_cancelled(task_id):
@@ -167,10 +169,11 @@ def generate_timetable():
 
     _clear_scheduler_error()
     task_id = task_manager.create_task()
-    logger.info("Timetable generation task created", extra=build_log_extra(task_id=task_id))
+    locale = get_current_locale()
+    logger.info("Timetable generation task created locale=%s", locale, extra=build_log_extra(task_id=task_id))
     thread = threading.Thread(
         target=_run_solver_in_background,
-        args=(task_id,),
+        args=(task_id, locale),
         daemon=True,
     )
     thread.start()

@@ -14,10 +14,11 @@ Nota: este índice está pensado para usarse como navegación rápida en el pane
 - [4. Pantalla de configuración](#4-pantalla-de-configuracion)
 - [5. Orden recomendado de trabajo](#5-orden-recomendado-de-trabajo)
 - [6. Cómo crear cada elemento](#6-como-crear-cada-elemento)
+  - [6.4.2 Restringir líneas por docente](#642-restringir-lineas-por-docente)
   - [6.5 Crear Clases Conjuntas](#65-crear-clases-conjuntas)
 - [7. Casuísticas](#7-casuisticas)
   - [7.4 Música en cursos con 3 líneas](#74-musica-en-cursos-con-3-lineas)
-  - [7.5 Religión + Atención Educativa con Clase Conjunta](#75-religion--atencion-educativa-con-clase-conjunta)
+  - [7.5 Pack con Clase Conjunta](#75-pack-con-clase-conjunta)
 - [8. Generación del horario y revisión](#8-generacion-del-horario-y-revision)
 - [9. Cómo funciona el proceso de generación](#9-como-funciona-el-proceso-de-generacion)
 - [10. Restricciones: HARD y SOFT](#10-restricciones-hard-y-soft)
@@ -190,7 +191,7 @@ Para evitar errores y retrabajo, sigue siempre este orden:
 3. Asigna asignaturas que puede impartir.
 4. Define máximo de horas semanales.
 5. Asigna grupo tutor cuando corresponda.
-6. Configura la cuadrícula de disponibilidad (más abajo).
+6. Configura la cuadrícula de disponibilidad (ver [§6.4.1](#641-configurar-disponibilidad-y-preferencias)).
 7. Si el docente es coordinador, asígnale las horas que usará para coordinación.
 
 > **Recomendaciones:**
@@ -212,6 +213,36 @@ Cada clic avanza al siguiente estado: `Sin preferencia → No disponible → Pre
 > - Usa **Preferida** para orientar el resultado sin bloquear en exceso.
 > - Los cambios se guardan junto con el resto del formulario del docente.
 
+#### 6.4.2 Restringir líneas por docente
+
+Cuando un curso tiene varias líneas (ej. 6º con A, B, C) y un docente **no** imparte todas las líneas de una asignatura, puedes restringir qué líneas concretas cubre.
+
+Esto se configura en el mismo formulario del docente, en la sección **Restricciones de línea** que aparece cuando el docente tiene asignaturas de cursos con múltiples líneas.
+
+Ejemplo — **Lengua (6º)** con 3 líneas:
+
+| Docente | Asignatura | Líneas que imparte | Cómo se ve en el formulario |
+|---------|------------|-------------------|-----------------------------|
+| **Docente 1** | Lengua (6º) | A ✅, B ✅, C ❌ | Líneas A y B marcadas, C sin marcar |
+| **Docente 2** | Lengua (6º) | A ❌, B ❌, C ✅ | Solo línea C marcada |
+
+En este escenario:
+- **Docente 1** imparte Lengua a los grupos **6ºA** y **6ºB**.
+- **Docente 2** (docente de desdoble) imparte Lengua solo a **6ºC**.
+
+Para configurarlo:
+
+1. Abre el formulario de edición del docente.
+2. Desplázate a la sección **Restricciones de línea**, debajo del selector de asignaturas.
+3. Para cada asignatura, marca las líneas que el docente debe impartir y desmarca las que no.
+4. Si todas las líneas están marcadas (valor por defecto), el campo `teacher_subject_lines` no se almacena, lo que significa que el docente cubre todas las líneas.
+5. Guarda el formulario.
+
+> **Qué ocurre en el planificador:**
+> - Cuando al menos una línea está desmarcada, el planificador solo crea variables de asignación para las líneas marcadas.
+> - Si el docente es el único cualificado para esa asignatura, asegúrate de que otro docente cubra las líneas desmarcadas; de lo contrario, el horario será inviable.
+> - Un docente con `included_lines: [0, 1]` en una asignatura (como Docente 1) no se asignará a la línea C, incluso si no hay otro docente disponible; por tanto, garantiza una cobertura completa.
+
 ### 6.5 Crear Clases Conjuntas
 
 Las Clases Conjuntas permiten que varias líneas de un mismo curso reciban la misma asignatura a la vez, compartiendo franja horaria y docente.
@@ -229,7 +260,7 @@ Las Clases Conjuntas permiten que varias líneas de un mismo curso reciban la mi
 > **Recomendaciones:**
 > - Las líneas seleccionadas deben existir en el curso.
 > - Si el docente se deja vacío, asegúrate de que al menos un docente cualificado pueda impartir la asignatura en todas las líneas seleccionadas.
-> - Las Clases Conjuntas pueden combinarse con Packs (ver [§7.5](#75-religion--atencion-educativa-con-clase-conjunta)).
+> - Las Clases Conjuntas pueden combinarse con Packs (ver [§7.5](#75-pack-con-clase-conjunta)).
 
 ## 7. Casuísticas
 
@@ -460,7 +491,7 @@ Revisa:
 - Que la Clase Conjunta tenga al menos 2 líneas seleccionadas.
 - Que las horas compartidas no superen las horas semanales de la asignatura.
 - Que el docente asignado (si es fijo) esté cualificado para impartir la asignatura.
-- Que las líneas de la Clase Conjunta sean coherentes con las líneas del Pack si se combinan ambos (ver [§7.5](#75-religion--atencion-educativa-con-clase-conjunta)).
+- Que las líneas de la Clase Conjunta sean coherentes con las líneas del Pack si se combinan ambos (ver [§7.5](#75-pack-con-clase-conjunta)).
 - Que ningún docente tenga una sobrecarga horaria por estar asignado a múltiples Clases Conjuntas.
 
 ## 12. Buenas prácticas de gestión
