@@ -46,6 +46,7 @@
         "subjects": "Subjects",
         "subject_groups": "Packs",
         "teachers": "Teachers",
+        "joint_classes": "Joint Classes",
         "timetable": "Timetable",
         "config": "Configuration",
         "help": "Help"
@@ -155,7 +156,8 @@
         "no_teachers": "No teachers assigned",
         "lines": "Lines (uncheck to exclude)",
         "tab_subjects": "Subjects",
-        "tab_packs": "Packs"
+        "tab_packs": "Packs",
+        "tab_joint_classes": "Joint Classes"
     },
     "subject_groups": {
         "title": "Subject Packs",
@@ -184,6 +186,22 @@
     },
     "teachers_table": {
         "subjects": "Subjects"
+    },
+    "joint_classes": {
+        "title": "Joint Classes",
+        "add": "Add joint class",
+        "name": "Name",
+        "name_placeholder": "Joint class name (optional)",
+        "course": "Course",
+        "subject": "Subject",
+        "teacher": "Teacher",
+        "teacher_none": "Let solver choose",
+        "lines": "Lines",
+        "shared_hours": "Shared hours",
+        "all_hours": "All hours",
+        "search_lines_placeholder": "Select lines...",
+        "empty": "No joint classes defined",
+        "confirm_delete": "joint class"
     },
     "config": {
         "title": "Configuration",
@@ -239,7 +257,11 @@
             "TutorPreference": "Tutor preference",
             "TutorPreference_desc": "Rewards tutors teaching in their own tutor group.",
             "TeacherAvoidGaps": "Teacher avoid gaps",
-            "TeacherAvoidGaps_desc": "Penalizes gaps in teachers' daily schedules by encouraging all classes to be in a single contiguous block."
+            "TeacherAvoidGaps_desc": "Penalizes gaps in teachers' daily schedules by encouraging all classes to be in a single contiguous block.",
+            "JointClassAssignment": "Joint classes",
+            "JointClassAssignment_desc": "Forces multiple lines of a course to share the same subject, teacher, and time slot.",
+            "TeacherOneSubjectPerGroup": "One teacher per group subject",
+            "TeacherOneSubjectPerGroup_desc": "Ensures each subject in a group is taught by at most one teacher."
         }
     }
 }

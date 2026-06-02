@@ -9,6 +9,7 @@ from .models import (
     Config,
     FixedSlot,
     TeacherBusySlot,
+    JointClass,
     normalize_tutor_groups,
 )
 
@@ -81,6 +82,19 @@ def dump_db(session):
             "slot_type": bs.slot_type,
         }
         for bs in session.query(TeacherBusySlot).all()
+    ]
+
+    data["joint_classes"] = [
+        {
+            "id": jc.id,
+            "name": jc.name,
+            "course_id": jc.course_id,
+            "subject_id": jc.subject_id,
+            "teacher_id": jc.teacher_id,
+            "lines": _json.loads(jc.lines) if jc.lines else [],
+            "shared_hours": jc.shared_hours,
+        }
+        for jc in session.query(JointClass).all()
     ]
 
     return data
@@ -293,5 +307,18 @@ def import_payload(session, payload):
                 slot_type=bs.get("slot_type", "coordinacion"),
             )
             session.add(busy_slot)
+
+    # Joint classes
+    for jc in payload.get("joint_classes", []) or []:
+        lines = jc.get("lines", [])
+        joint = JointClass(
+            name=jc.get("name"),
+            course_id=jc.get("course_id"),
+            subject_id=jc.get("subject_id"),
+            teacher_id=jc.get("teacher_id"),
+            lines=_json.dumps(lines) if isinstance(lines, list) else lines,
+            shared_hours=jc.get("shared_hours"),
+        )
+        session.add(joint)
 
     session.flush()

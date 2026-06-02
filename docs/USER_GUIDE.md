@@ -14,11 +14,15 @@ Note: this index is intended for quick navigation in your Markdown viewer side p
 - [4. Configuration screen](#4-configuration-screen)
 - [5. Recommended workflow](#5-recommended-workflow)
 - [6. How to create each element](#6-how-to-create-each-element)
-- [7. Pack use cases](#7-pack-use-cases)
+  - [6.5 Create Joint Classes](#65-create-joint-classes)
+- [7. Use cases](#7-use-cases)
+  - [7.4 Music in courses with 3 lines](#74-music-in-courses-with-3-lines)
+  - [7.5 Religion + Educational Support with Joint Class](#75-religion--educational-support-with-joint-class)
 - [8. Timetable generation and review](#8-timetable-generation-and-review)
 - [9. How the generation process works](#9-how-the-generation-process-works)
 - [10. Constraints: HARD and SOFT](#10-constraints-hard-and-soft)
 - [11. Common issues and how to solve them](#11-common-issues-and-how-to-solve-them)
+  - [11.5 Joint Class conflict](#115-joint-class-conflict)
 - [12. Management best practices](#12-management-best-practices)
 - [13. Final checklist before generating](#13-final-checklist-before-generating)
 
@@ -36,7 +40,7 @@ The application allows you to build and maintain school timetables in a centrali
 In the top menu, day-to-day management is organized into:
 
 - **Courses**
-- **Subjects** (includes a **Packs** tab for grouping subjects)
+- **Subjects** (includes **Packs** tab for grouping subjects and **Joint Classes** tab for shared classes across lines)
 - **Teachers**
 - **Timetable**
 - **Configuration**
@@ -85,6 +89,15 @@ Grid where the teacher's unavailable and preferred timeslots are configured for 
 
 Preferred timeslots used to prioritize placement when generating the timetable.
 
+### Joint Class
+
+A mechanism for multiple lines (groups) of the same course to share the same subject in the same timeslot with the same teacher. Two modes are available:
+
+- **Fixed teacher**: a specific teacher is assigned to the Joint Class.
+- **Solver-chooses teacher**: the system picks any qualified teacher, but the same teacher is used for all lines in each slot.
+
+It can also be **fully-shared** (all weekly hours are taught together) or **partially-shared** (only a specific number of hours are taught together; the rest are independent per line).
+
 ## 4. Configuration screen
 
 The **Configuration** screen (top menu) is organized into three tabs.
@@ -128,10 +141,11 @@ To avoid errors and rework, always follow this order:
 2. Courses (and number of lines).
 3. Subjects.
 4. Packs.
-5. Teachers.
-6. Tutor assignment, availability, and preferences.
-7. Timetable generation.
-8. Review and adjustments.
+5. Joint Classes.
+6. Teachers.
+7. Tutor assignment, availability, and preferences.
+8. Timetable generation.
+9. Review and adjustments.
 
 ## 6. How to create each element
 
@@ -198,7 +212,26 @@ Each click advances to the next state: `No preference → Not available → Pref
 > - Use **Preferred** to guide the result without over-constraining it.
 > - Changes are saved together with the rest of the teacher form.
 
-## 7. Pack use cases
+### 6.5 Create Joint Classes
+
+Joint Classes allow multiple lines of the same course to receive the same subject simultaneously, sharing the same timeslot and teacher.
+
+1. Go to **Subjects** and open the **Joint Classes** tab.
+2. Click **Add joint class**.
+3. Select the **course** (e.g. 6th).
+4. Select the **subject** (e.g. Music).
+5. Optional: select a **teacher** (if left empty, the system will automatically choose from qualified teachers).
+6. Check the **lines** that will share the class (at least 2 required).
+7. Optional: enter a **name** to identify the Joint Class in the timetable.
+8. Optional: set **shared hours** (empty = all hours of the subject are taught together).
+9. Save.
+
+> **Recommendations:**
+> - The selected lines must exist in the course.
+> - If the teacher is left empty, ensure at least one qualified teacher can teach the subject in all selected lines.
+> - Joint Classes can be combined with Packs (see [§7.5](#75-religion--educational-support-with-joint-class)).
+
+## 7. Use cases
 
 ### 7.1 Religion / Educational Support case
 
@@ -239,6 +272,49 @@ Expected result:
 
 - Pack **without** shared hours (empty = "All hours"): **all hours** of the Pack subjects are taught together in the same timeslot.
 - Pack **with** shared hours (specific value): only that number of hours are taught together; the remaining hours are independent per subject.
+
+### 7.4 Music in courses with 3 lines
+
+Goal: two lines share the Music class while the third is independent. This is the most common case when a course has 3 lines (A, B, C) and the school can only accommodate 2 simultaneous Music groups.
+
+How to configure:
+
+1. Create the Music subject for the course (e.g. MUS6 for 6th).
+2. Create a Joint Class (**Joint Classes** tab under Subjects).
+3. Select the course (6th) and the subject (Music).
+4. Check lines **B and C**.
+5. Select a teacher (or leave empty for the solver to choose).
+6. Leave **shared hours** empty (= all hours).
+7. Save.
+
+Expected result:
+
+- **6thA** receives Music independently in its own slots.
+- **6thB and 6thC** receive Music together in the same slot, with the same teacher.
+- The timetable shows 6thB and 6thC sharing the class (displayed as "Music (Joint)" or the assigned name).
+- The weekly hours of Music (2h) are correctly assigned to each line.
+
+### 7.5 Pack with Joint Class
+
+Goal: combine a Pack (Religion / Educational Support) with a Joint Class for Religion, so that a course with 3 lines (A, B, C) offers Religion to all three lines but Educational Support only in A and B, while Religion is taught jointly for B and C.
+
+How to configure:
+
+1. Create **Religion (6th)** (REL6) and **Educational Support (6th)** (ATE6).
+2. In ATE6, mark that it only applies to lines **A and B** (uncheck line C).
+3. Create a Pack **RELAT6** that includes REL6 and ATE6.
+4. Create a **Joint Class** for REL6 with lines **B and C**, shared hours empty (all hours).
+5. Optionally assign a teacher to the Joint Class, or leave empty for the solver to choose.
+
+Expected result:
+
+- **6thA**: has both options (REL6 and ATE6) in the RELAT6 Pack. Not part of the Joint Class.
+- **6thB**: has both options (REL6 and ATE6) in the RELAT6 Pack. Additionally, REL6 is in the B/C Joint Class, so when taking Religion it does so together with 6thC.
+- **6thC**: takes Religion (no ATE6, only lines A and B). Does so together with 6thB thanks to the Joint Class.
+- The solver assigns the same timeslot to REL6 and ATE6 in lines A and B (via the Pack), and also synchronizes REL6 between B and C (via the Joint Class).
+- In the timetable, the REL6 slot appears as "Religion (Joint)" for 6thB and 6thC.
+
+> **Important note:** when a Pack and a Joint Class affect the same subject, the system resolves both constraints simultaneously. Make sure the Joint Class lines and the Pack lines are consistent to avoid conflicts.
 
 ## 8. Timetable generation and review
 
@@ -324,7 +400,7 @@ Quick example:
 ### Constraints table
 
 | Type | Constraint | What it is for | Example |
-| --- | --- | --- | --- |
+|:---|:---|:---|:---|
 | HARD | **SubjectWeeklyHours** | Ensures each subject meets its weekly hours per group. | Math 1st with 5h → appears exactly 5h. |
 | HARD | **TeacherOneClassAtATime** | A teacher cannot teach two classes in the same timeslot. | English teacher cannot be in 2ndA and 2ndB at 10:00. |
 | HARD | **TeacherUnavailableTimes** | Blocks timeslots marked as unavailable. | Tue 5th period unavailable → no class assigned there. |
@@ -336,6 +412,7 @@ Quick example:
 | HARD | **GroupSubjectHoursMustNotBeConsecutive** | Subjects WITHOUT "Consecutive hours": same-day hours cannot be adjacent. | Language 2ndB, 2h on Mon → cannot be 2nd-3rd. |
 | HARD | **LinkedSubjectsConsecutive** | Linked subjects: when on the same day, they must be in contiguous hours. | Lab linked to Science → placed just before or after. |
 | HARD | **SubjectGroupAssignment** | All Pack subjects are assigned to the same timeslot. | Religion and Educ. Support in RELAT1 → same slot. |
+| HARD | **JointClassAssignment** | Ensures that Joint Class lines share the same timeslot and, if a fixed teacher is set, the same teacher as well. | Music 6th B/C → 6thB and 6thC have Music at the same time. |
 | HARD | **SubjectMustEveryDay** | Subjects marked "Teach every day": at least one hour daily. | Reading daily → appears Mon-Fri. |
 | SOFT | **TutorMandatoryHours** | Rewards assigning the tutor to the first and last weekly periods of their group. | 1stA tutor preferred at start and end of week. |
 | SOFT | **TeacherPreferredTimes** | Rewards placing classes in each teacher's preferred slots. | Teacher prefers morning → system tries to place classes there. |
@@ -376,6 +453,16 @@ Check:
 - Tutor assignments in Teachers.
 - That the same teacher is not overloaded with incompatible tutor group responsibilities.
 
+### Error 11.5: Joint Class conflict
+
+Check:
+
+- The Joint Class has at least 2 selected lines.
+- Shared hours do not exceed the subject's weekly hours.
+- The assigned teacher (if fixed) is qualified to teach the subject.
+- The Joint Class lines are consistent with Pack lines when combining both (see [§7.5](#75-religion--educational-support-with-joint-class)).
+- No teacher is overloaded by being assigned to multiple Joint Classes.
+
 ## 12. Management best practices
 
 - Keep naming consistent for courses, subjects, and packs.
@@ -393,6 +480,7 @@ Check:
 - [ ] Special cases configured:
   - [ ] Religion / Educational Support.
   - [ ] Communication and Representation of Reality / Music with shared hours=1 when applicable.
+  - [ ] Joint Classes configured (Music, Religion, PE, etc.).
 - [ ] All teachers assigned to subjects.
 - [ ] Weekly maximums reviewed.
 - [ ] Availabilities loaded correctly.

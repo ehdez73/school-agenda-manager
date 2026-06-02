@@ -6,6 +6,7 @@ import FormModal from './FormModal';
 import Select from './Select';
 import SubjectForm from './SubjectForm';
 import SubjectGroupList from './SubjectGroupList';
+import JointClassList from './JointClassList';
 import './SubjectList.css';
 import SectionLayout from './SectionLayout';
 
@@ -203,6 +204,12 @@ function SubjectList() {
           >
             {t('subjects.tab_packs')}
           </button>
+          <button
+            className={`subject-tab${activeTab === 'joint-classes' ? ' active' : ''}`}
+            onClick={() => setActiveTab('joint-classes')}
+          >
+            {t('subjects.tab_joint_classes')}
+          </button>
         </div>
 
         {activeTab === 'subjects' && (
@@ -298,6 +305,10 @@ function SubjectList() {
 
         {activeTab === 'packs' && (
           <SubjectGroupList standalone={false} />
+        )}
+
+        {activeTab === 'joint-classes' && (
+          <JointClassList standalone={false} />
         )}
       </SectionLayout>
     </>

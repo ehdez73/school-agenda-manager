@@ -165,6 +165,7 @@
 
 .help-section__markdown th {
   background-color: var(--color-table-header);
+  color: var(--color-table-header-text);
 }
 
 .help-section__markdown code {

@@ -5,7 +5,25 @@ part of a fully-present SubjectGroup (one logical unit) or standalone, depending
 on which other group members are active at that slot.
 """
 
+import json as _json
+
 from .base import Restriction
+
+
+def _is_line_included(entity, line_index):
+    raw = getattr(entity, "included_lines", None)
+    if raw is None:
+        return True
+    if isinstance(raw, str):
+        try:
+            included = _json.loads(raw)
+        except (ValueError, TypeError):
+            return True
+    else:
+        included = raw
+    if not isinstance(included, list):
+        return True
+    return line_index in included
 
 
 def _get_subject_ids(sg):
@@ -18,23 +36,27 @@ def _get_subject_ids(sg):
 
 class GroupAtMostOneLogicalAssignment(Restriction):
     def apply(self, model, assignments, all_groups, num_days, num_hours, all_subjectgroups=None):
-        fully_shared_subjects = set()
-        fully_shared_map = {}
-        partial_sgs = []
-
-        if all_subjectgroups:
-            for sg in all_subjectgroups:
-                subject_ids = _get_subject_ids(sg)
-                if len(subject_ids) < 2:
-                    continue
-                if getattr(sg, 'shared_hours', None) is not None:
-                    partial_sgs.append((sg.id, subject_ids))
-                else:
-                    for subj_id in subject_ids:
-                        fully_shared_subjects.add(subj_id)
-                        fully_shared_map[subj_id] = sg.id
-
         for group in all_groups:
+            _, line_letter = group.split("-")
+            line_index = ord(line_letter) - ord("A")
+
+            fully_shared_subjects = set()
+            fully_shared_map = {}
+            partial_sgs = []
+
+            if all_subjectgroups:
+                for sg in all_subjectgroups:
+                    if not _is_line_included(sg, line_index):
+                        continue
+                    subject_ids = _get_subject_ids(sg)
+                    if len(subject_ids) < 2:
+                        continue
+                    if getattr(sg, 'shared_hours', None) is not None:
+                        partial_sgs.append((sg.id, subject_ids))
+                    else:
+                        for subj_id in subject_ids:
+                            fully_shared_subjects.add(subj_id)
+                            fully_shared_map[subj_id] = sg.id
             for d in range(num_days):
                 for h in range(num_hours):
                     slot_assignments = [

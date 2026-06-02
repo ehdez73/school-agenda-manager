@@ -375,4 +375,68 @@ class Config(Base):
         }
 
 
+class SchedulerError(Base):
+    """
+    Persists the last scheduler failure diagnosis so it survives server restarts.
+    Stores a single row (id=1) with the error message and full diagnosis markdown.
+    """
+
+    __tablename__ = "scheduler_errors"
+    id = Column(Integer, primary_key=True)
+    message = Column(Text, nullable=False)
+    details = Column(Text, nullable=True)
+    created_at = Column(String(50), nullable=False)
+
+    def to_dict(self):
+        return {
+            "message": self.message,
+            "details": self.details,
+            "created_at": self.created_at,
+        }
+
+
+class JointClass(Base):
+    """
+    Represents a joint class where multiple lines of a course share the same
+    subject, teacher, and timeslot. For example, 6ºB and 6ºC both take Lengua
+    together at the same time with the same teacher.
+
+    Attributes:
+        id (int): Primary key.
+        name (str): Optional display name.
+        course_id (str): Foreign key to Course.
+        subject_id (str): Foreign key to Subject.
+        teacher_id (int): Foreign key to Teacher (nullable — if None, the solver chooses).
+        lines (str): JSON array of line letters, e.g. '["B", "C"]'.
+        shared_hours (int): Number of shared hours. None = all hours are joint.
+    """
+
+    __tablename__ = "joint_classes"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(100), nullable=True)
+    course_id = Column(String(50), ForeignKey("courses.id"), nullable=False)
+    subject_id = Column(String(20), ForeignKey("subjects.id"), nullable=False)
+    teacher_id = Column(Integer, ForeignKey("teachers.id"), nullable=True)
+    lines = Column(Text, nullable=False)
+    shared_hours = Column(Integer, nullable=True)
+
+    course = relationship("Course", backref="joint_classes")
+    subject = relationship("Subject", backref="joint_classes")
+    teacher = relationship("Teacher", backref="joint_classes")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "course_id": self.course_id,
+            "subject_id": self.subject_id,
+            "teacher_id": self.teacher_id,
+            "lines": json.loads(self.lines) if self.lines else [],
+            "shared_hours": self.shared_hours,
+            "course": self.course.to_dict() if self.course else None,
+            "subject": self.subject.to_dict() if self.subject else None,
+            "teacher": self.teacher.to_dict() if self.teacher else None,
+        }
+
+
 Base.metadata.create_all(ENGINE)

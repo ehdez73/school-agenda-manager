@@ -1,0 +1,60 @@
+.joint-class-table .subject-table-th-sort::after {
+    display: none;
+}
+
+.joint-class-table .sort-arrow--inactive {
+    opacity: 0.35;
+}
+
+.joint-class-lines-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+.joint-class-lines-chip .chip {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+}
+.joint-class-teacher {
+    color: var(--color-text);
+    opacity: 0.8;
+}
+.joint-class-teacher--auto {
+    font-style: italic;
+    opacity: 0.6;
+}
+.joint-class-course {
+    font-weight: 500;
+}
+
+.lines-fieldset {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    margin: var(--space-md) 0;
+}
+.lines-fieldset legend {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--color-text);
+    padding: 0 var(--space-sm);
+}
+.lines-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-top: var(--space-xs);
+}
+.line-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+.lines-hint {
+    font-size: 0.8rem;
+    color: var(--color-text);
+    opacity: 0.5;
+    margin-left: var(--space-sm);
+}

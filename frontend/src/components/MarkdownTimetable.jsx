@@ -241,15 +241,19 @@ function MarkdownTimetable() {
           setError(t('timetable.no_schedule'));
         }
         setMarkdown('');
-        return;
+        return false;
       }
       setMarkdown(data);
+      return true;
     } catch (err) {
       if (silentNotFound && err?.status === 404) {
         setMarkdown('');
-        return;
+        return false;
       }
-      setError(err.message);
+      if (!silentNotFound) {
+        setError(err.message);
+      }
+      return false;
     } finally {
       setLoading(false);
     }
@@ -356,10 +360,25 @@ function MarkdownTimetable() {
           pollTaskStatus();
           return;
         }
+        if (status?.status === 'error') {
+          setLoading(false);
+          return;
+        }
       } catch {
         // No status available; continue with timetable fetch.
       }
-      await fetchTimetable();
+      const hasTimetable = await fetchTimetable();
+      if (!hasTimetable) {
+        try {
+          const errResult = await api.get('/timetable/error');
+          if (errResult?.message) {
+            setError(errResult.message);
+            setDetails(errResult.details || null);
+          }
+        } catch {
+          // No persisted error; keep the default "no schedule" message.
+        }
+      }
     };
 
     init();

@@ -46,6 +46,7 @@
         "subjects": "Asignaturas",
         "subject_groups": "Packs",
         "teachers": "Docentes",
+        "joint_classes": "Clases Conjuntas",
         "timetable": "Horarios",
         "config": "Configuración",
         "help": "Ayuda"
@@ -155,7 +156,8 @@
         "no_teachers": "Sin profesores asignados",
         "lines": "Líneas (desmarca para excluir)",
         "tab_subjects": "Asignaturas",
-        "tab_packs": "Packs"
+        "tab_packs": "Packs",
+        "tab_joint_classes": "Clases Conjuntas"
     },
     "subject_groups": {
         "title": "Packs de Asignaturas",
@@ -184,6 +186,22 @@
     },
     "teachers_table": {
         "subjects": "Asignaturas"
+    },
+    "joint_classes": {
+        "title": "Clases Conjuntas",
+        "add": "Añadir clase conjunta",
+        "name": "Nombre",
+        "name_placeholder": "Nombre de la clase conjunta (opcional)",
+        "course": "Curso",
+        "subject": "Asignatura",
+        "teacher": "Docente",
+        "teacher_none": "Dejar que el solver elija",
+        "lines": "Líneas",
+        "shared_hours": "Horas compartidas",
+        "all_hours": "Todas las horas",
+        "search_lines_placeholder": "Seleccionar líneas...",
+        "empty": "No hay clases conjuntas definidas",
+        "confirm_delete": "clase conjunta"
     },
     "config": {
         "title": "Configuración",
@@ -239,7 +257,11 @@
             "TutorPreference": "Preferencia del tutor",
             "TutorPreference_desc": "Premia que los tutores impartan clase en su grupo tutorizado.",
             "TeacherAvoidGaps": "Evitar huecos del profesorado",
-            "TeacherAvoidGaps_desc": "Penaliza los huecos en el horario diario del profesorado, favoreciendo que todas sus clases estén en un único bloque contiguo."
+            "TeacherAvoidGaps_desc": "Penaliza los huecos en el horario diario del profesorado, favoreciendo que todas sus clases estén en un único bloque contiguo.",
+            "JointClassAssignment": "Clases conjuntas",
+            "JointClassAssignment_desc": "Fuerza a que varias líneas de un curso compartan la misma asignatura, docente y franja horaria.",
+            "TeacherOneSubjectPerGroup": "Un docente por asignatura y grupo",
+            "TeacherOneSubjectPerGroup_desc": "Garantiza que cada asignatura en un grupo sea impartida por un único docente."
         }
     }
 }

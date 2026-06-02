@@ -30,6 +30,7 @@ from .subject_must_every_day import SubjectMustEveryDay
 from .subject_max_hours_per_day import SubjectMaxHoursPerDay
 from .teacher_one_subject_per_group import TeacherOneSubjectPerGroup
 from .teacher_avoid_gaps import TeacherAvoidGaps
+from .joint_class_assignment import JointClassAssignment
 
 __all__ = [
     "Restriction",
@@ -52,4 +53,5 @@ __all__ = [
     "TeacherOneSubjectPerGroup",
     "TeacherAvoidGaps",
     "LinkedSubjectsConsecutive",
+    "JointClassAssignment",
 ]

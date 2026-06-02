@@ -19,6 +19,8 @@ export default function SubjectGroupList({ standalone = true }) {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
     const [search, setSearch] = useState('');
+    const [sortBy, setSortBy] = useState('name');
+    const [sortAsc, setSortAsc] = useState(true);
 
     useEffect(() => {
         fetchGroups();
@@ -107,11 +109,35 @@ export default function SubjectGroupList({ standalone = true }) {
         setDeleteId(null);
     }
 
+    function handleSort(field) {
+        if (sortBy === field) {
+            setSortAsc(!sortAsc);
+        } else {
+            setSortBy(field);
+            setSortAsc(true);
+        }
+    }
+
     const filteredGroups = groups.filter(g => {
         const q = search.toLowerCase();
         if (g.name.toLowerCase().includes(q)) return true;
         if (g.subjects?.some(s => (s.full_name || s.name).toLowerCase().includes(q))) return true;
         return false;
+    });
+
+    const locale = navigator.language || 'es';
+    const sortedGroups = [...filteredGroups].sort((a, b) => {
+        let aField, bField;
+        if (sortBy === 'name') {
+            aField = a.name || '';
+            bField = b.name || '';
+        } else if (sortBy === 'subjects') {
+            aField = a.subjects ? a.subjects.map(s => s.full_name || s.name).join(', ') : '';
+            bField = b.subjects ? b.subjects.map(s => s.full_name || s.name).join(', ') : '';
+        }
+        return sortAsc
+            ? aField.localeCompare(bField, locale)
+            : bField.localeCompare(aField, locale);
     });
 
     const addButton = !showForm && !selectedEntity && (
@@ -138,16 +164,20 @@ export default function SubjectGroupList({ standalone = true }) {
             className="input search-input"
           />
         </div>
-        <table className="modern-table">
+        <table className="modern-table subject-group-table">
             <thead>
                 <tr>
-                    <th>{t('common.name') || 'Name'}</th>
-                    <th>{t('subject_groups.subjects') || 'Subjects'}</th>
+                    <th className={`subject-table-th-sort${sortBy === 'name' ? ' active' : ''}`} onClick={() => handleSort('name')}>
+                        {t('common.name') || 'Name'} <span className={sortBy === 'name' ? '' : 'sort-arrow--inactive'}>{sortBy === 'name' ? (sortAsc ? '▲' : '▼') : '▲'}</span>
+                    </th>
+                    <th className={`subject-table-th-sort${sortBy === 'subjects' ? ' active' : ''}`} onClick={() => handleSort('subjects')}>
+                        {t('subject_groups.subjects') || 'Subjects'} <span className={sortBy === 'subjects' ? '' : 'sort-arrow--inactive'}>{sortBy === 'subjects' ? (sortAsc ? '▲' : '▼') : '▲'}</span>
+                    </th>
                     <th>{t('subject_groups.shared_hours') || 'Shared h.'}</th>
                 </tr>
             </thead>
             <tbody>
-                {filteredGroups.map(g => (
+                {sortedGroups.map(g => (
                     <tr key={g.id} onClick={() => handleEdit(g)} style={{ cursor: 'pointer' }}>
                         <td>
                             <span className="group-color-chip" style={{ backgroundColor: g.color || '#fef3c7' }} aria-hidden="true" />

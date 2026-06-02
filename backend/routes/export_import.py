@@ -18,6 +18,7 @@ from ..models import (
     Course,
     Config,
     FixedSlot,
+    JointClass,
 )
 from .. import export_import as shared_export_import
 
@@ -108,6 +109,7 @@ def clear_all_data():
         session.execute(subjectgroup_subject.delete())
 
         # Delete main entities
+        session.query(JointClass).delete()
         session.query(Teacher).delete()
         session.query(SubjectGroup).delete()
         session.query(Subject).delete()

@@ -56,6 +56,7 @@ The system follows these general rules:
 - Linked subjects must be in adjacent hours
 - Subjects in a SubjectGroup are always taught together
 - Respect system configuration: periods per day
+- Joint classes: multiple lines sharing the same subject must be taught together at the same slot by the same teacher
 
 ### Soft (objective function to maximize)
 
@@ -87,6 +88,7 @@ feasible schedule.
 | Non-consecutive hours | `GroupSubjectHoursMustNotBeConsecutive` | Hard | `backend/restrictions/group_subject_hours_must_not_be_consecutive.py` |
 | Linked subjects adjacent | `LinkedSubjectsConsecutive` | Hard | `backend/restrictions/linked_subjects_consecutive.py` |
 | SubjectGroup co-assignment | `SubjectGroupAssignment` | Hard | `backend/restrictions/subjectgroup_assignment.py` |
+| Joint classes (multiple lines share slot + teacher) | `JointClassAssignment` | Hard | `backend/restrictions/joint_class_assignment.py` |
 | One subject per group per teacher | `TeacherOneSubjectPerGroup` | Hard | `backend/restrictions/teacher_one_subject_per_group.py` |
 | Teacher preferred times | `TeacherPreferredTimes` | Soft | `backend/restrictions/teacher_preferred_times.py` |
 | Tutor teaches own group | `TutorPreference` | Soft | `backend/restrictions/tutor_preference.py` |

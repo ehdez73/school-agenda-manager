@@ -10,8 +10,18 @@ Each table includes:
 from sqlalchemy.orm import Session
 from collections import defaultdict
 from html import escape
+import json
 import re
-from .models import TimeSlotAssignment, Timeslot, Config, Teacher, FixedSlot, TeacherBusySlot, normalize_tutor_groups
+from .models import (
+    TimeSlotAssignment,
+    Timeslot,
+    Config,
+    Teacher,
+    FixedSlot,
+    TeacherBusySlot,
+    JointClass,
+    normalize_tutor_groups,
+)
 
 from .translations import t
 from .markdown_utils import align_tables_in_text
@@ -248,20 +258,69 @@ def get_teacher_timetables_from_db(session):
     """
     teacher_timetable = defaultdict(lambda: defaultdict(list))
 
-    # Teaching assignments
+    # Build JointClass lookup: (course_id, subject_id, line_letter) -> [JointClass]
+    joint_classes = session.query(JointClass).all()
+    jc_lookup = {}
+    for jc in joint_classes:
+        lines = json.loads(jc.lines) if isinstance(jc.lines, str) else jc.lines
+        for line_letter in lines:
+            key = (jc.course_id, jc.subject_id, line_letter)
+            jc_lookup.setdefault(key, []).append(jc)
+
+    # First pass: collect raw items per (teacher, hour, day) cell
+    cell_items = defaultdict(list)
     assignments = session.query(TimeSlotAssignment).all()
     for assignment in assignments:
         timeslot = assignment.timeslot
         teacher_name = assignment.teacher.name
         subject_name = assignment.subject.name
         course_line = f"{timeslot.course_id}{chr(ord('A') + timeslot.line)}"
+
+        line_letter = chr(ord('A') + timeslot.line)
+        matched_jc = None
+        for jc in jc_lookup.get((timeslot.course_id, assignment.subject_id, line_letter), []):
+            if jc.teacher_id is None or jc.teacher_id == assignment.teacher_id:
+                matched_jc = jc
+                break
+
         group_color = None
         if timeslot.subject_group is not None:
             group_color = getattr(timeslot.subject_group, "color", None)
         subject_color = group_color or assignment.subject.color
-        teacher_timetable[teacher_name][(timeslot.hour, timeslot.day)].append(
-            _build_colored_label_html(f"{course_line}: {subject_name}", subject_color)
-        )
+
+        cell_items[(teacher_name, timeslot.hour, timeslot.day)].append({
+            "jc": matched_jc,
+            "subject_name": subject_name,
+            "course_line": course_line,
+            "subject_color": subject_color,
+        })
+
+    # Second pass: build labels, merging entries of the same JointClass
+    for (teacher_name, hour, day), items in cell_items.items():
+        jc_groups = defaultdict(list)
+        for item in items:
+            key = id(item["jc"]) if item["jc"] else None
+            jc_groups[key].append(item)
+
+        for group_key, group in jc_groups.items():
+            if group_key is not None and len(group) > 1:
+                jc = group[0]["jc"]
+                if jc.name:
+                    display_name = jc.name
+                else:
+                    display_name = f"{group[0]['subject_name']} ({t('timetable.joint_class_label')})"
+                teacher_timetable[teacher_name][(hour, day)].append(
+                    _build_colored_label_html(display_name, group[0]["subject_color"])
+                )
+            else:
+                for item in group:
+                    display_name = item["subject_name"]
+                    if item["jc"]:
+                        jc = item["jc"]
+                        display_name = jc.name or f"{item['subject_name']} ({t('timetable.joint_class_label')})"
+                    teacher_timetable[teacher_name][(hour, day)].append(
+                        _build_colored_label_html(f"{item['course_line']}: {display_name}", item["subject_color"])
+                    )
 
     # Non-teaching busy slots (coordination, etc.)
     busy_slots = session.query(TeacherBusySlot).all()

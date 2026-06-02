@@ -14,11 +14,15 @@ Nota: este índice está pensado para usarse como navegación rápida en el pane
 - [4. Pantalla de configuración](#4-pantalla-de-configuracion)
 - [5. Orden recomendado de trabajo](#5-orden-recomendado-de-trabajo)
 - [6. Cómo crear cada elemento](#6-como-crear-cada-elemento)
-- [7. Casuísticas de Packs](#7-casuisticas-de-packs)
+  - [6.5 Crear Clases Conjuntas](#65-crear-clases-conjuntas)
+- [7. Casuísticas](#7-casuisticas)
+  - [7.4 Música en cursos con 3 líneas](#74-musica-en-cursos-con-3-lineas)
+  - [7.5 Religión + Atención Educativa con Clase Conjunta](#75-religion--atencion-educativa-con-clase-conjunta)
 - [8. Generación del horario y revisión](#8-generacion-del-horario-y-revision)
 - [9. Cómo funciona el proceso de generación](#9-como-funciona-el-proceso-de-generacion)
 - [10. Restricciones: HARD y SOFT](#10-restricciones-hard-y-soft)
 - [11. Problemas frecuentes y cómo resolverlos](#11-problemas-frecuentes-y-como-resolverlos)
+  - [11.5 Conflicto con Clases Conjuntas](#115-conflicto-con-clases-conjuntas)
 - [12. Buenas prácticas de gestión](#12-buenas-practicas-de-gestion)
 - [13. Checklist final antes de generar](#13-checklist-final-antes-de-generar)
 
@@ -36,7 +40,7 @@ La aplicación permite construir y mantener los horarios del centro de forma cen
 En el menú superior, la gestión habitual se organiza en:
 
 - **Cursos**
-- **Asignaturas** (incluye una pestaña **Packs** para agrupar asignaturas)
+- **Asignaturas** (incluye pestañas **Packs** para agrupar asignaturas y **Clases Conjuntas** para clases compartidas entre líneas)
 - **Docentes**
 - **Horarios**
 - **Configuración**
@@ -85,6 +89,15 @@ Cuadrícula donde se configuran las franjas no disponibles y preferidas del doce
 
 Franjas deseadas para priorizar la ubicación de clases al generar horario.
 
+### Clase Conjunta
+
+Mecanismo para que varias líneas (grupos) de un mismo curso compartan la misma asignatura en la misma franja horaria con el mismo docente. Existen dos modalidades:
+
+- **Docente fijo**: se asigna un docente concreto a la Clase Conjunta.
+- **Docente elegido por el solver**: el sistema elige cualquier docente cualificado, pero será el mismo para todas las líneas en cada franja.
+
+Además, puede ser **totalmente compartida** (todas las horas semanales se imparten juntas) o **parcialmente compartida** (solo un número concreto de horas se imparten juntas; el resto son independientes por línea).
+
 ## 4. Pantalla de configuración
 
 La pantalla de **Configuración** (menú superior) se organiza en tres pestañas.
@@ -128,10 +141,11 @@ Para evitar errores y retrabajo, sigue siempre este orden:
 2. Cursos (y número de líneas).
 3. Asignaturas.
 4. Packs.
-5. Docentes.
-6. Asignación de tutoría, disponibilidad y preferencias.
-7. Generación de horarios.
-8. Revisión y ajustes.
+5. Clases Conjuntas.
+6. Docentes.
+7. Asignación de tutoría, disponibilidad y preferencias.
+8. Generación de horarios.
+9. Revisión y ajustes.
 
 ## 6. Cómo crear cada elemento
 
@@ -198,7 +212,26 @@ Cada clic avanza al siguiente estado: `Sin preferencia → No disponible → Pre
 > - Usa **Preferida** para orientar el resultado sin bloquear en exceso.
 > - Los cambios se guardan junto con el resto del formulario del docente.
 
-## 7. Casuísticas de Packs
+### 6.5 Crear Clases Conjuntas
+
+Las Clases Conjuntas permiten que varias líneas de un mismo curso reciban la misma asignatura a la vez, compartiendo franja horaria y docente.
+
+1. Entra en **Asignaturas** y abre la pestaña **Clases Conjuntas**.
+2. Pulsa **Añadir clase conjunta**.
+3. Selecciona el **curso** (ej. 6º).
+4. Selecciona la **asignatura** (ej. Música).
+5. Opcional: selecciona un **docente** (si se deja vacío, el sistema elegirá automáticamente entre los cualificados).
+6. Marca las **líneas** que compartirán la clase (mínimo 2).
+7. Opcional: introduce un **nombre** para identificar la Clase Conjunta en el horario.
+8. Opcional: define **horas compartidas** (vacío = todas las horas de la asignatura se imparten juntas).
+9. Guarda.
+
+> **Recomendaciones:**
+> - Las líneas seleccionadas deben existir en el curso.
+> - Si el docente se deja vacío, asegúrate de que al menos un docente cualificado pueda impartir la asignatura en todas las líneas seleccionadas.
+> - Las Clases Conjuntas pueden combinarse con Packs (ver [§7.5](#75-religion--atencion-educativa-con-clase-conjunta)).
+
+## 7. Casuísticas
 
 ### 7.1 Caso Religión / Atención Educativa
 
@@ -239,6 +272,49 @@ Resultado esperado:
 
 - Pack **sin** horas compartidas (vacío = "Todas las horas"): **todas las horas** de las asignaturas del Pack se imparten juntas en la misma franja.
 - Pack **con** horas compartidas (valor concreto): solo ese número de horas se imparte conjuntamente; el resto de horas son independientes por asignatura.
+
+### 7.4 Música en cursos con 3 líneas
+
+Objetivo: que dos líneas compartan la clase de Música mientras la tercera es independiente. Es el caso más habitual cuando un curso tiene 3 líneas (A, B, C) y el centro solo puede atender 2 grupos simultáneos de Música.
+
+Cómo configurarlo:
+
+1. Crea la asignatura Música para el curso (ej. MUS6 para 6º).
+2. Crea una Clase Conjunta (pestaña **Clases Conjuntas** en Asignaturas).
+3. Selecciona el curso (6º), la asignatura (Música).
+4. Marca las líneas **B y C**.
+5. Selecciona un docente (o déjalo vacío para que el solver elija).
+6. Deja **horas compartidas** vacío (= todas las horas).
+7. Guarda.
+
+Resultado esperado:
+
+- **6ºA** recibe Música de forma independiente en sus propias franjas.
+- **6ºB y 6ºC** reciben Música juntos en la misma franja, con el mismo docente.
+- El horario refleja que 6ºB y 6ºC comparten la clase (aparece como "Música (Conjunta)" o el nombre asignado).
+- Las horas semanales de Música (2h) se asignan correctamente a cada línea.
+
+### 7.5 Pack con Clase Conjunta
+
+Objetivo: combinar un Pack (Religión / Atención Educativa) con una Clase Conjunta para Religión, de modo que un curso de 3 líneas (A, B, C) ofrezca Religión a las tres líneas pero Atención Educativa solo en A y B, mientras que Religión se imparte conjuntamente para B y C.
+
+Cómo configurarlo:
+
+1. Crea la asignatura **Religión (6º)** (REL6) y la asignatura **Atención Educativa (6º)** (ATE6).
+2. Marca en ATE6 que solo aplica a las líneas **A y B** (desmarca línea C).
+3. Crea un Pack **RELAT6** que incluya REL6 y ATE6.
+4. Crea una **Clase Conjunta** para REL6 con las líneas **B y C**, horas compartidas vacío (todas las horas).
+5. Opcional: asigna un docente a la Clase Conjunta, o déjalo vacío para que el solver elija.
+
+Resultado esperado:
+
+- **6ºA**: tiene ambas opciones (REL6 y ATE6) en el Pack RELAT6. No participa en la Clase Conjunta.
+- **6ºB**: tiene ambas opciones (REL6 y ATE6) en el Pack RELAT6. Además, REL6 está en la Clase Conjunta B/C, por lo que cuando se cursa Religión lo hace junto con 6ºC.
+- **6ºC**: cursa Religión (no tiene ATE6, solo líneas A y B). Lo hace junto con 6ºB gracias a la Clase Conjunta.
+- El solver asigna la misma franja a REL6 y ATE6 en las líneas A y B (por el Pack), y además sincroniza REL6 entre B y C (por la Clase Conjunta).
+- En el horario, la franja de REL6 aparece como "Religión (Conjunta)" para 6ºB y 6ºC.
+
+> **Nota importante:** cuando un Pack y una Clase Conjunta afectan a la misma asignatura, el sistema resuelve ambas restricciones simultáneamente. Asegúrate de que las líneas de la Clase Conjunta y las del Pack sean coherentes para evitar conflictos.
 
 ## 8. Generación del horario y revisión
 
@@ -324,7 +400,7 @@ Ejemplo rápido:
 ### Tabla de restricciones
 
 | Tipo | Restricción | Para qué sirve | Ejemplo |
-| --- | --- | --- | --- |
+|:---|:---|:---|:---|
 | HARD | **SubjectWeeklyHours** | Garantiza que cada asignatura cumpla sus horas semanales por grupo. | Matemáticas 1º con 5h → aparece exactamente 5h. |
 | HARD | **TeacherOneClassAtATime** | Evita que un docente tenga dos clases en la misma franja. | El docente de Inglés no puede estar en 2ºA y 2ºB a las 10:00. |
 | HARD | **TeacherUnavailableTimes** | Bloquea horas marcadas como no disponibles. | Martes 5ª hora marcado → no se asigna clase ahí. |
@@ -336,6 +412,7 @@ Ejemplo rápido:
 | HARD | **GroupSubjectHoursMustNotBeConsecutive** | Asignaturas SIN "Horas consecutivas": las horas del mismo día no pueden ser adyacentes. | Lengua 2ºB con 2h el lunes → no pueden ser 2ª-3ª. |
 | HARD | **LinkedSubjectsConsecutive** | Asignaturas vinculadas: cuando coinciden el mismo día, van en horas contiguas. | Laboratorio vinculado a Ciencias → justo antes o después. |
 | HARD | **SubjectGroupAssignment** | Todas las asignaturas de un Pack se asignan a la misma franja. | Religión y A. Educativa en RELAT1 → misma franja. |
+| HARD | **JointClassAssignment** | Asegura que las líneas de una Clase Conjunta compartan la misma franja y, si hay docente fijo, también el mismo docente. | Música 6º B/C → 6ºB y 6ºC tienen Música a la vez. |
 | HARD | **SubjectMustEveryDay** | Asignaturas marcadas como "Impartir todos los días": al menos una hora diaria. | Lectura diaria → aparece lunes a viernes. |
 | SOFT | **TutorMandatoryHours** | Favorece que el tutor esté en primera y última hora de la semana con su grupo. | Tutor de 1ºA priorizado al inicio y cierre de semana. |
 | SOFT | **TeacherPreferredTimes** | Prioriza colocar clases en las franjas preferidas del docente. | Docente prefiere mañana → el sistema lo intenta. |
@@ -376,6 +453,16 @@ Revisa:
 - Asignación de tutorías en Docentes.
 - Que el mismo docente no acumule tutorías imposibles de cubrir.
 
+### Error 11.5: conflicto con Clases Conjuntas
+
+Revisa:
+
+- Que la Clase Conjunta tenga al menos 2 líneas seleccionadas.
+- Que las horas compartidas no superen las horas semanales de la asignatura.
+- Que el docente asignado (si es fijo) esté cualificado para impartir la asignatura.
+- Que las líneas de la Clase Conjunta sean coherentes con las líneas del Pack si se combinan ambos (ver [§7.5](#75-religion--atencion-educativa-con-clase-conjunta)).
+- Que ningún docente tenga una sobrecarga horaria por estar asignado a múltiples Clases Conjuntas.
+
 ## 12. Buenas prácticas de gestión
 
 - Mantener nomenclatura consistente para cursos, asignaturas y packs.
@@ -393,6 +480,7 @@ Revisa:
 - [ ] Casos especiales configurados:
   - [ ] Religión / Atención Educativa.
   - [ ] Comunicación y representación de la realidad / Música con horas compartidas=1 cuando aplique.
+  - [ ] Clases Conjuntas configuradas (Música, Religión, EF, etc.).
 - [ ] Todos los docentes con asignaturas.
 - [ ] Máximos semanales revisados.
 - [ ] Disponibilidades cargadas correctamente.

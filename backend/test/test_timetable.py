@@ -1,5 +1,15 @@
+import json
+
 from backend.populate_db import populate_db
-from backend.models import Session, TimeSlotAssignment, Timeslot, Subject, SubjectGroup, Teacher
+from backend.models import (
+    Session,
+    TimeSlotAssignment,
+    Timeslot,
+    Subject,
+    SubjectGroup,
+    Teacher,
+    JointClass,
+)
 from backend.timetable import (
     get_timetables_from_db,
     get_teacher_timetables_from_db,
@@ -94,5 +104,50 @@ def test_get_teacher_timetables_uses_subject_group_color_for_grouped_slots():
     assert any('background-color: #ffaa00' in entry for entry in val_entries)
     assert all('#111111' not in entry for entry in rel_entries)
     assert all('#222222' not in entry for entry in val_entries)
+
+    session.close()
+
+
+def test_get_teacher_timetables_shows_joint_class_name():
+    populate_db()
+    session = Session()
+
+    subject = session.query(Subject).filter_by(id="MAT1").one()
+    teacher = session.query(Teacher).filter(Teacher.subjects.any(id="MAT1")).first()
+
+    # Create a JointClass with a custom display name
+    jc = JointClass(
+        name="Matemáticas Avanzadas",
+        course_id="1º",
+        subject_id="MAT1",
+        teacher_id=teacher.id,
+        lines=json.dumps(["B"]),
+    )
+    session.add(jc)
+
+    # Create a Timeslot + Assignment that matches the JointClass
+    # line=1 → chr(ord('A') + 1) = 'B'
+    ts = Timeslot(day=0, hour=0, course_id="1º", line=1)
+    session.add(ts)
+    session.flush()
+
+    assignment = TimeSlotAssignment(
+        timeslot=ts,
+        subject=subject,
+        subject_id=subject.id,
+        teacher=teacher,
+        teacher_id=teacher.id,
+    )
+    session.add(assignment)
+    session.commit()
+
+    tables = get_teacher_timetables_from_db(session)
+    entries = tables[teacher.name][(0, 0)]
+
+    assert len(entries) == 1
+    assert "Matemáticas Avanzadas" in entries[0]
+    # The bare subject name should NOT appear for this cell
+    assert "1ºB: Matemáticas (" not in entries[0]
+    assert "1ºB: Matemáticas Avanzadas" in entries[0]
 
     session.close()

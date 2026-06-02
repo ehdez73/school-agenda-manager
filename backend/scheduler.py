@@ -13,6 +13,7 @@ from .models import (
     TimeSlotAssignment,
     SubjectGroup,
     TeacherBusySlot,
+    JointClass,
 )
 from .logging_config import build_log_extra
 
@@ -62,7 +63,9 @@ from .restrictions import (
     LinkedSubjectsConsecutive,
     TeacherOneSubjectPerGroup,
     TeacherAvoidGaps,
+    JointClassAssignment,
 )
+from .restrictions.joint_class_assignment import build_joint_class_lookup
 
 
 def save_solution_to_db(session, solver, assignments, groups, num_days, num_hours, task_id=None):
@@ -183,13 +186,14 @@ def _create_assignments(model, all_teachers, all_subjects, all_groups, num_days,
 
 
 def _build_hard_restrictions(model, assignments, all_teachers, all_subjects,
-                             all_groups, all_subjectgroups, num_days, num_hours):
+                             all_groups, all_subjectgroups, num_days, num_hours,
+                             all_joint_classes=None, joint_lookup=None):
     """Build the list of (name, restriction_instance, args) for all hard restrictions."""
     return [
         ("SubjectWeeklyHours", SubjectWeeklyHours(), [model, assignments, all_groups, all_subjects]),
-        ("TeacherOneClassAtATime", TeacherOneClassAtATime(), [model, assignments, all_teachers, num_days, num_hours]),
+        ("TeacherOneClassAtATime", TeacherOneClassAtATime(), [model, assignments, all_teachers, num_days, num_hours, joint_lookup]),
         ("TeacherUnavailableTimes", TeacherUnavailableTimes(), [model, assignments, all_teachers, num_days, num_hours]),
-        ("TeacherMaxWeeklyHours", TeacherMaxWeeklyHours(), [model, assignments, all_teachers]),
+        ("TeacherMaxWeeklyHours", TeacherMaxWeeklyHours(), [model, assignments, all_teachers, joint_lookup]),
         ("GroupSubjectMaxHoursPerDay", GroupSubjectMaxHoursPerDay(), [model, assignments, all_groups, all_subjects, all_teachers, num_days]),
         ("GroupAtMostOneLogicalAssignment", GroupAtMostOneLogicalAssignment(), [model, assignments, all_groups, num_days, num_hours, all_subjectgroups]),
         ("GroupSubjectAtMostOneTeacherPerTimeslot", GroupSubjectAtMostOneTeacherPerTimeslot(), [model, assignments, all_groups, num_days, num_hours]),
@@ -199,6 +203,7 @@ def _build_hard_restrictions(model, assignments, all_teachers, all_subjects,
         ("SubjectGroupAssignment", SubjectGroupAssignment(), [model, assignments, all_groups, all_subjects, all_subjectgroups]),
         ("SubjectMustEveryDay", SubjectMustEveryDay(), [model, assignments, all_groups, all_subjects, num_days]),
         ("TeacherOneSubjectPerGroup", TeacherOneSubjectPerGroup(), [model, assignments, all_teachers, all_groups, all_subjects]),
+        ("JointClassAssignment", JointClassAssignment(), [model, assignments, all_groups, num_days, num_hours, all_joint_classes, all_teachers]),
     ]
 
 
@@ -220,6 +225,7 @@ def _build_soft_restrictions(model, assignments, all_teachers,
 def solve_scheduling_model(
     all_teachers, all_subjects, all_groups, all_subjectgroups, num_days, num_hours,
     skip_restrictions=None, diagnostic_mode=False, task_id=None,
+    all_joint_classes=None,
 ):
     """
     Builds and solves the scheduling model without requiring a database session.
@@ -268,6 +274,7 @@ def solve_scheduling_model(
     sanity_issues = _run_sanity_checks(
         all_teachers, all_subjects, all_groups,
         all_subjectgroups, num_days, num_hours,
+        all_joint_classes=all_joint_classes,
     )
     if sanity_issues:
         for issue in sanity_issues:
@@ -279,10 +286,17 @@ def solve_scheduling_model(
         )
         return cp_model.INFEASIBLE, assignments, cp_model.CpSolver()
 
+    # Build joint class lookup for joint-aware restrictions
+    joint_lookup = build_joint_class_lookup(
+        all_joint_classes, all_teachers,
+        num_days=num_days, num_hours=num_hours,
+    )
+
     # Hard restrictions
     hard_restrictions = _build_hard_restrictions(
         model, assignments, all_teachers, all_subjects,
         all_groups, all_subjectgroups, num_days, num_hours,
+        all_joint_classes=all_joint_classes, joint_lookup=joint_lookup,
     )
     hard_applied = 0
     hard_skipped = 0
@@ -293,7 +307,7 @@ def solve_scheduling_model(
             hard_applied += 1
         else:
             hard_skipped += 1
-            logger.debug("Skipping hard restriction=%s", name, extra=build_log_extra(task_id=task_id))
+            logger.info("Skipping hard restriction=%s", name, extra=build_log_extra(task_id=task_id))
 
     # Soft constraints (preferences) — never cause infeasibility on their own
     soft_restrictions = _build_soft_restrictions(
@@ -459,11 +473,13 @@ def _check_subjectgroup_weekly_hours_consistency(all_subjectgroups):
 
 
 def _check_teacher_capacity_vs_load(all_teachers, all_subjects, all_groups,
-                                    all_subjectgroups):
+                                    all_subjectgroups, all_joint_classes=None):
     """Check teacher max_hours_week can cover their subjects.
 
     1. Per teacher: max_hours_week >= max(weekly_hours) of any single subject
     2. Global: total teacher capacity >= total required hours
+
+    Joint classes are accounted for: shared hours are counted once across lines.
     """
     subject_ids_in_groups = set()
     for sg in all_subjectgroups:
@@ -516,6 +532,18 @@ def _check_teacher_capacity_vs_load(all_teachers, all_subjects, all_groups,
                     grouped += max(wh)
         total_required += standalone + grouped
 
+    # Adjust for joint classes: shared hours are counted only once in teacher load
+    for jc in all_joint_classes or []:
+        lines = _json.loads(jc.lines) if isinstance(jc.lines, str) else (jc.lines or [])
+        if len(lines) < 2:
+            continue
+        subject = next((s for s in all_subjects if s.id == jc.subject_id), None)
+        if subject is None:
+            continue
+        num_lines = len(lines)
+        jc_hours = jc.shared_hours if jc.shared_hours is not None else subject.weekly_hours
+        total_required -= jc_hours * (num_lines - 1)
+
     if total_required > total_capacity:
         issues.append(
             f"  - **Global capacity**: total required hours ({total_required}h) "
@@ -556,7 +584,8 @@ def _check_teach_every_day_viability(all_subjects, all_groups, num_days):
 
 
 def _run_sanity_checks(all_teachers, all_subjects, all_groups,
-                       all_subjectgroups, num_days, num_hours):
+                       all_subjectgroups, num_days, num_hours,
+                       all_joint_classes=None):
     """Run all pre-solve sanity checks and return a list of issues.
 
     Combines all Phase 1 checks into one call. Empty list = all clear.
@@ -573,6 +602,7 @@ def _run_sanity_checks(all_teachers, all_subjects, all_groups,
     )
     issues += _check_teacher_capacity_vs_load(
         all_teachers, all_subjects, all_groups, all_subjectgroups,
+        all_joint_classes=all_joint_classes,
     )
     issues += _check_teach_every_day_viability(
         all_subjects, all_groups, num_days,
@@ -582,7 +612,8 @@ def _run_sanity_checks(all_teachers, all_subjects, all_groups,
 
 
 def _run_entity_diagnosis(suspects, all_teachers, all_subjects, all_groups,
-                          all_subjectgroups, num_days, num_hours):
+                          all_subjectgroups, num_days, num_hours,
+                          all_joint_classes=None):
     """Phase 3: entity-level diagnosis using assumptions.
 
     Builds a model with suspect restrictions gated by per-entity assumption
@@ -605,11 +636,17 @@ def _run_entity_diagnosis(suspects, all_teachers, all_subjects, all_groups,
         model, all_teachers, all_subjects, all_groups, num_days, num_hours,
     )
 
+    joint_lookup = build_joint_class_lookup(
+        all_joint_classes, all_teachers,
+        num_days=num_days, num_hours=num_hours,
+    )
+
     all_assumptions = []
 
     for name, restriction, args in _build_hard_restrictions(
         model, assignments, all_teachers, all_subjects,
         all_groups, all_subjectgroups, num_days, num_hours,
+        all_joint_classes=all_joint_classes, joint_lookup=joint_lookup,
     ):
         if name in suspects:
             all_assumptions.extend(restriction.apply_with_assumptions(*args))
@@ -662,7 +699,7 @@ def _run_entity_diagnosis(suspects, all_teachers, all_subjects, all_groups,
 
 def diagnose_infeasibility(
     all_teachers, all_subjects, all_groups, all_subjectgroups, num_days, num_hours,
-    progress_callback=None,
+    progress_callback=None, all_joint_classes=None,
 ):
     """Diagnose which restrictions cause infeasibility.
 
@@ -696,6 +733,7 @@ def diagnose_infeasibility(
     sanity_issues = _run_sanity_checks(
         all_teachers, all_subjects, all_groups,
         all_subjectgroups, num_days, num_hours,
+        all_joint_classes=all_joint_classes,
     )
     result["sanity_issues"] = sanity_issues
     if result["sanity_issues"]:
@@ -719,6 +757,7 @@ def diagnose_infeasibility(
         "LinkedSubjectsConsecutive",
         "SubjectGroupAssignment",
         "SubjectMustEveryDay",
+        "JointClassAssignment",
     ]
     logger.info("Diagnosis phase 2 started", extra=build_log_extra())
     for name in hard_names:
@@ -726,6 +765,7 @@ def diagnose_infeasibility(
             all_teachers, all_subjects, all_groups, all_subjectgroups,
             num_days, num_hours,
             skip_restrictions={name}, diagnostic_mode=True,
+            all_joint_classes=all_joint_classes,
         )
         if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
             result["suspects"].append(name)
@@ -749,6 +789,7 @@ def diagnose_infeasibility(
         entity_conflicts, phase3_timed_out = _run_entity_diagnosis(
             result["suspects"], all_teachers, all_subjects, all_groups,
             all_subjectgroups, num_days, num_hours,
+            all_joint_classes=all_joint_classes,
         )
         result["entity_conflicts"] = entity_conflicts
         result["phase3_timed_out"] = phase3_timed_out
@@ -889,6 +930,7 @@ def create_timetable(session, progress_callback=None, task_id=None) -> str | Non
     all_subjects = session.query(Subject).all()
     all_courses = session.query(Course).all()
     all_subjectgroups = session.query(SubjectGroup).all()
+    all_joint_classes = session.query(JointClass).all()
     config = session.query(Config).first()
     logger.info(
         "Loaded scheduling inputs teachers=%d subjects=%d courses=%d subject_groups=%d",
@@ -934,8 +976,8 @@ def create_timetable(session, progress_callback=None, task_id=None) -> str | Non
     # --- 2. Solve the scheduling model ---
     status, assignments, solver = solve_scheduling_model(
         all_teachers, all_subjects, all_groups, all_subjectgroups, num_days, num_hours,
-        skip_restrictions=skip_restrictions,
-        task_id=task_id,
+        skip_restrictions=skip_restrictions, task_id=task_id,
+        all_joint_classes=all_joint_classes,
     )
 
     # --- 3. Solution Processing ---
@@ -963,6 +1005,7 @@ def create_timetable(session, progress_callback=None, task_id=None) -> str | Non
             all_teachers, all_subjects, all_groups,
             all_subjectgroups, num_days, num_hours,
             progress_callback=progress_callback,
+            all_joint_classes=all_joint_classes,
         )
         msg = _build_diagnosis_message(diagnosis)
         logger.warning("Timetable generation finished without solution", extra=build_log_extra(task_id=task_id))

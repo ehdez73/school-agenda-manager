@@ -1,9 +1,10 @@
 import threading
 import logging
+from datetime import datetime
 
 from flask import Blueprint, jsonify
 from ..translations import t
-from ..models import Session as DbSession, TimeSlotAssignment
+from ..models import Session as DbSession, TimeSlotAssignment, SchedulerError
 from ..timetable import print_markdown_timetable_from_assignments, print_markdown_timetable_per_teacher
 from ..markdown_utils import align_tables_in_text
 from ..scheduler import create_timetable
@@ -13,6 +14,46 @@ from ..logging_config import build_log_extra
 
 timetable_bp = Blueprint('timetable_bp', __name__)
 logger = logging.getLogger(__name__)
+
+
+def _persist_scheduler_error(message, details):
+    """Save or update the single-row scheduler error in the database."""
+    session = DbSession()
+    try:
+        error = session.query(SchedulerError).filter_by(id=1).first()
+        if error:
+            error.message = message
+            error.details = details
+            error.created_at = datetime.now().isoformat()
+        else:
+            error = SchedulerError(
+                id=1,
+                message=message,
+                details=details,
+                created_at=datetime.now().isoformat(),
+            )
+            session.add(error)
+        session.commit()
+        logger.info("Persisted scheduler error: %s", message)
+    except Exception as e:
+        logger.exception("Failed to persist scheduler error: %s", e)
+        session.rollback()
+    finally:
+        session.close()
+
+
+def _clear_scheduler_error():
+    """Remove the persisted scheduler error from the database."""
+    session = DbSession()
+    try:
+        session.query(SchedulerError).filter_by(id=1).delete()
+        session.commit()
+        logger.info("Cleared persisted scheduler error")
+    except Exception as e:
+        logger.exception("Failed to clear scheduler error: %s", e)
+        session.rollback()
+    finally:
+        session.close()
 
 
 def _run_solver_in_background(task_id):
@@ -51,15 +92,24 @@ def _run_solver_in_background(task_id):
                 error=t('timetable.generate_failed'),
                 details=timetable_result,
             )
+            _persist_scheduler_error(
+                message=t('timetable.generate_failed'),
+                details=timetable_result,
+            )
             logger.warning("Task failed with diagnostic output", extra=build_log_extra(task_id=task_id))
         else:
             task_manager.complete_task(task_id)
+            _clear_scheduler_error()
             logger.info("Task completed successfully", extra=build_log_extra(task_id=task_id))
     except Exception as e:
         if not task_manager.is_cancelled(task_id):
             task_manager.fail_task(
                 task_id,
                 error=t('errors.timetable_generation_error', error=str(e)),
+            )
+            _persist_scheduler_error(
+                message=t('errors.timetable_generation_error', error=str(e)),
+                details=None,
             )
             logger.exception("Task failed with unexpected exception", extra=build_log_extra(task_id=task_id))
     finally:
@@ -86,6 +136,23 @@ def get_timetable_markdown():
     return markdown, 200, {'Content-Type': 'text/plain; charset=utf-8'}
 
 
+@timetable_bp.route('/timetable/error', methods=['GET'])
+def get_persisted_error():
+    """Return the persisted scheduler error (survives server restarts)."""
+    session = DbSession()
+    try:
+        error = session.query(SchedulerError).filter_by(id=1).first()
+        if not error:
+            session.close()
+            return jsonify({"error": "No persisted error"}), 404
+        result = error.to_dict()
+        session.close()
+        return jsonify(result), 200
+    except Exception:
+        session.close()
+        return jsonify({"error": "Failed to read persisted error"}), 500
+
+
 @timetable_bp.route('/timetable', methods=['POST'])
 def generate_timetable():
     """Start asynchronous timetable generation. Returns existing running task when present."""
@@ -98,6 +165,7 @@ def generate_timetable():
         )
         return jsonify(running_status), 202
 
+    _clear_scheduler_error()
     task_id = task_manager.create_task()
     logger.info("Timetable generation task created", extra=build_log_extra(task_id=task_id))
     thread = threading.Thread(
@@ -147,12 +215,12 @@ def cancel_generation(task_id):
 
 @timetable_bp.route('/timetable', methods=['DELETE'])
 def clear_assignments():
-    """Delete all timetable assignments (previously /api/assignments)."""
-    from ..models import Session
-    session = Session()
+    """Delete all timetable assignments and persisted error."""
+    session = DbSession()
     logger.info("Clearing timetable assignments", extra=build_log_extra())
     session.query(TimeSlotAssignment).delete()
     session.commit()
     session.close()
-    logger.info("Timetable assignments cleared", extra=build_log_extra())
+    _clear_scheduler_error()
+    logger.info("Timetable assignments and persisted error cleared", extra=build_log_extra())
     return jsonify({'status': 'ok', 'message': t('timetable.assignments_cleared')}), 200

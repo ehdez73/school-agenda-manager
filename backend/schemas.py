@@ -93,6 +93,19 @@ class FixedSlotResponse(FixedSlotCreate):
     id: int
 
 
+class JointClassSchema(BaseModel):
+    id: int
+    name: Optional[str] = None
+    course_id: str
+    subject_id: str
+    teacher_id: Optional[int] = None
+    lines: List[str] = []
+    shared_hours: Optional[int] = None
+    course: Optional[dict] = None
+    subject: Optional[dict] = None
+    teacher: Optional[dict] = None
+
+
 class ConfigSchema(BaseModel):
     id: int
     classes_per_day: int

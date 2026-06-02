@@ -220,3 +220,31 @@ def test_block_at_end_is_not_a_gap():
 
     total_penalty = sum(solver.Value(t) for t in restriction.preference_terms)
     assert total_penalty == 0
+
+
+def test_joint_class_same_slot_is_counted_as_busy_not_infeasible():
+    model = cp_model.CpModel()
+    teacher = MockTeacher("t1")
+    assignments = _make_assignments(
+        model, teacher, num_days=1, num_hours=2,
+        groups=["6-B", "6-C", "6-A"], subject_id="mus",
+    )
+    key = lambda g, d, h: (g, "mus", teacher.id, d, h)
+
+    # Joint class B+C at slot 0 (two vars active same teacher/day/hour),
+    # plus a separate class at slot 1.
+    model.Add(assignments[key("6-B", 0, 0)] == 1)
+    model.Add(assignments[key("6-C", 0, 0)] == 1)
+    model.Add(assignments[key("6-A", 0, 0)] == 0)
+
+    model.Add(assignments[key("6-B", 0, 1)] == 0)
+    model.Add(assignments[key("6-C", 0, 1)] == 0)
+    model.Add(assignments[key("6-A", 0, 1)] == 1)
+
+    restriction = TeacherAvoidGaps(weight=10)
+    restriction.apply(model, assignments, [teacher], num_days=1, num_hours=2)
+
+    model.Maximize(sum(restriction.preference_terms))
+    solver = cp_model.CpSolver()
+    status = solver.Solve(model)
+    assert status in (cp_model.OPTIMAL, cp_model.FEASIBLE)

@@ -1,4 +1,11 @@
 /* SubjectGroupList specific styles */
+.subject-group-table .subject-table-th-sort::after {
+    display: none;
+}
+
+.subject-group-table .sort-arrow--inactive {
+    opacity: 0.35;
+}
 .subjectgroup-container {
     display: flex;
     flex-direction: column;

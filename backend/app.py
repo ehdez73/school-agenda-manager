@@ -11,6 +11,7 @@ from .routes.subject_groups import subject_groups_bp
 from .routes.fixed_slots import fixed_slots_bp
 from .routes.export_import import export_import_bp
 from .routes.docs import docs_bp
+from .routes.joint_classes import joint_classes_bp
 
 from .populate_db import populate_db
 from .routes.timetable import timetable_bp
@@ -37,13 +38,6 @@ def set_request_locale():
     get_request_id()
     locale = request.headers.get("X-Locale") or DEFAULT_LOCALE
     set_locale(locale)
-    logger.info(
-        "Request started method=%s path=%s locale=%s",
-        request.method,
-        request.path,
-        locale,
-        extra=build_log_extra(),
-    )
 
 
 @app.after_request
@@ -52,14 +46,6 @@ def log_request_result(response):
     started_at = getattr(g, "request_started_at", None)
     if started_at is not None:
         duration_ms = (time.perf_counter() - started_at) * 1000
-    logger.info(
-        "Request completed method=%s path=%s status=%s duration_ms=%.2f",
-        request.method,
-        request.path,
-        response.status_code,
-        duration_ms,
-        extra=build_log_extra(),
-    )
     return response
 
 
@@ -72,3 +58,4 @@ app.register_blueprint(timetable_bp)
 app.register_blueprint(fixed_slots_bp)
 app.register_blueprint(config_bp)
 app.register_blueprint(docs_bp)
+app.register_blueprint(joint_classes_bp)
