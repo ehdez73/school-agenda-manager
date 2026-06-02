@@ -43,12 +43,13 @@ The system follows these general rules:
 
 ### Hard
 
-- A teacher cannot teach two groups at the same time
-- Do not exceed the teacher's maximum weekly hours
+- A teacher cannot teach two groups at the same time (joint classes count as a single logical unit — the teacher is considered to be teaching one class)
+- Do not exceed the teacher's maximum weekly hours (joint classes count once per slot; coordination hours are subtracted from the available limit)
 - Respect the teacher's mandatory availability schedules
 - Cover all weekly hours for each subject
 - Do not exceed maximum hours per day per subject (per group)
 - At most one teacher per (group, subject, day, hour) slot
+- Each (group, subject) pair must be taught by at most one teacher across all hours of the week — a subject in a group cannot be split among multiple teachers
 - Subjects with "teach every day" flag must be taught at least once per day
 - Maximum one "logical unit" (Subject or SubjectGroup) per group per hour per day — avoid gaps or overassignment
 - If a subject requires consecutive hours, all its hours in a day must be consecutive
@@ -56,7 +57,7 @@ The system follows these general rules:
 - Linked subjects must be in adjacent hours
 - Subjects in a SubjectGroup are always taught together
 - Respect system configuration: periods per day
-- Joint classes: multiple lines sharing the same subject must be taught together at the same slot by the same teacher
+- Joint classes: multiple lines from the same course share the same subject, teacher, and time slot (with optional partial sharing where only `shared_hours` hours per week are joint; the remaining hours are taught independently per line)
 
 ### Soft (objective function to maximize)
 
