@@ -56,7 +56,7 @@ def test_subjectgroup_weekly_hours_different():
         MockSubject("A1", "Math", "1", weekly_hours=4),
         MockSubject("A2", "Music", "1", weekly_hours=2),
     ], name="MATH-MUSIC")
-    issues = _check_subjectgroup_weekly_hours_consistency([sg])
+    issues = _check_subjectgroup_weekly_hours_consistency([sg], locale="en")
     assert len(issues) == 1
     assert "SubjectGroup" in issues[0]
     assert "different weekly_hours" in issues[0]
@@ -102,7 +102,7 @@ def test_teacher_capacity_global_insufficient():
         MockSubject("M1", "Math", "1", weekly_hours=5),
         MockSubject("L1", "Lang", "1", weekly_hours=8),
     ]
-    issues = _check_teacher_capacity_vs_load([t1, t2], subjects, ["1-A"], [])
+    issues = _check_teacher_capacity_vs_load([t1, t2], subjects, ["1-A"], [], locale="en")
     assert any("Global capacity" in i or "exceed total" in i for i in issues)
 
 
@@ -119,7 +119,7 @@ def test_teach_every_day_feasible():
 def test_teach_every_day_too_few_hours():
     s = MockSubject("M1", "Math", "1", weekly_hours=2,
                     max_hours_per_day=1, teach_every_day=True)
-    issues = _check_teach_every_day_viability([s], ["1-A"], 5)
+    issues = _check_teach_every_day_viability([s], ["1-A"], 5, locale="en")
     assert len(issues) == 1
     assert "teach_every_day" in issues[0]
     assert "2h/week" in issues[0]
@@ -141,7 +141,7 @@ def test_diagnose_infeasibility_no_issues():
     t = MockTeacher(1, "Ana", max_hours_week=10,
                     subjects=[MockSubject("M1", "Math", "1", weekly_hours=3)])
     subjects = [MockSubject("M1", "Math", "1", weekly_hours=3)]
-    result = diagnose_infeasibility([t], subjects, ["1-A"], [], 5, 5)
+    result = diagnose_infeasibility([t], subjects, ["1-A"], [], 5, 5, locale="en")
     assert result["sanity_issues"] == []
     assert "suspects" in result
     assert "entity_conflicts" in result
@@ -154,14 +154,14 @@ def test_diagnose_infeasibility_precheck_fails():
             MockSubject("A1", "Math", "1", weekly_hours=4),
             MockSubject("A2", "Music", "1", weekly_hours=2),
         ], name="MATH-MUSIC")],
-        5, 5,
+        5, 5, locale="en",
     )
     assert len(result["sanity_issues"]) >= 1
     assert any("SubjectGroup" in i for i in result["sanity_issues"])
 
 
 def test_diagnose_infeasibility_returns_all_keys():
-    result = diagnose_infeasibility([], [], [], [], 5, 5)
+    result = diagnose_infeasibility([], [], [], [], 5, 5, locale="en")
     assert "sanity_issues" in result
     assert "suspects" in result
     assert "entity_conflicts" in result

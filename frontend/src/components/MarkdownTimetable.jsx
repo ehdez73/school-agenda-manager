@@ -8,7 +8,7 @@ import { t } from '../i18n';
 import SectionLayout from './SectionLayout';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 
-const POLL_INTERVAL_MS = 2000;
+const POLL_INTERVAL_MS = 4000;
 const POLL_RETRY_MS = 3000;
 const COURSE_SELECTION_STORAGE_KEY = 'timetable.selectedCourseIds';
 const TEACHER_SELECTION_STORAGE_KEY = 'timetable.selectedTeacherIds';
@@ -167,6 +167,8 @@ function MarkdownTimetable() {
   const [phase, setPhase] = useState(null);
   const [taskId, setTaskId] = useState(null);
   const [elapsed, setElapsed] = useState(0);
+  const [generatingMessage, setGeneratingMessage] = useState('');
+  const [infeasibleMessage, setInfeasibleMessage] = useState('');
   const [downloading, setDownloading] = useState(false);
   const [selectedCourseIdsState, setSelectedCourseIds] = useState(() => readSelectionFromSessionStorage(COURSE_SELECTION_STORAGE_KEY));
   const [selectedTeacherIdsState, setSelectedTeacherIds] = useState(() => readSelectionFromSessionStorage(TEACHER_SELECTION_STORAGE_KEY));
@@ -208,6 +210,22 @@ function MarkdownTimetable() {
     }, 1000);
   };
 
+  const pickRandomGeneratingMessage = () => {
+    const messages = t('timetable.generating_async');
+    if (Array.isArray(messages) && messages.length > 0) {
+      return messages[Math.floor(Math.random() * messages.length)];
+    }
+    return messages;
+  };
+
+  const pickRandomInfeasibleMessage = () => {
+    const messages = t('timetable.infeasible_detected');
+    if (Array.isArray(messages) && messages.length > 0) {
+      return messages[Math.floor(Math.random() * messages.length)];
+    }
+    return messages;
+  };
+
   const stopGeneration = () => {
     clearTimers();
     startTimeRef.current = null;
@@ -215,6 +233,8 @@ function MarkdownTimetable() {
     setPhase(null);
     setElapsed(0);
     setTaskId(null);
+    setGeneratingMessage('');
+    setInfeasibleMessage('');
   };
 
   const resetPersistedSelections = () => {
@@ -268,6 +288,9 @@ function MarkdownTimetable() {
 
     if (result.phase) {
       setPhase(result.phase);
+      if (result.phase === 'infeasible') {
+        setInfeasibleMessage(pickRandomInfeasibleMessage());
+      }
     }
     if (result.phase && result.phase_details) {
       setDetails(result.phase_details);
@@ -275,6 +298,7 @@ function MarkdownTimetable() {
 
     if (result.status === 'running') {
       setGenerating(true);
+      setGeneratingMessage(pickRandomGeneratingMessage());
       startElapsedTimer(result.created_at || null);
       return result;
     }
@@ -387,6 +411,7 @@ function MarkdownTimetable() {
   const handleGenerate = async () => {
     resetPersistedSelections();
     setGenerating(true);
+    setGeneratingMessage(pickRandomGeneratingMessage());
     setError(null);
     setDetails(null);
     setMarkdown('');
@@ -414,6 +439,7 @@ function MarkdownTimetable() {
     setShowRecreateModal(false);
     resetPersistedSelections();
     setGenerating(true);
+    setGeneratingMessage(pickRandomGeneratingMessage());
     setError(null);
     setDetails(null);
     setMarkdown('');
@@ -747,7 +773,7 @@ function MarkdownTimetable() {
       >
         {generating && (
           <div className="state-loading" role="status" aria-live="polite">
-            <span>{phase === 'phase2' ? t('timetable.diagnosing_causes') : t('timetable.generating_async')}{elapsed > 0 ? ` (${elapsed}s)` : ''}</span>
+            <span>{phase === 'infeasible' ? infeasibleMessage : phase === 'phase2' || phase === 'phase3' ? t('timetable.diagnosing_causes') : generatingMessage}{elapsed > 0 ? ` (${elapsed}s)` : ''}</span>
           </div>
         )}
         {!loading && !error && markdown.trim() && (

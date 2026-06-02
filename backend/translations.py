@@ -10,6 +10,27 @@ from .constants import DEFAULT_LOCALE
 
 _LOCALES = {
     "en": {
+        # --- Diagnosis / Solver messages ---
+        "diagnosis.no_solution_title": "# ❌ No solution found — Diagnostic Results\n",
+        "diagnosis.phase1_title": "## Phase 1 — Capacity sanity checks",
+        "diagnosis.phase2_title": "## Phase 2 — Restriction isolation",
+        "diagnosis.phase2_desc": "Removing any of these restrictions individually makes the model feasible:",
+        "diagnosis.phase3_title": "## Phase 3 — Entity diagnosis",
+        "diagnosis.phase3_timed_out": "  ⏱️ The diagnosis timed out. The constraints may be too complex for the allocated time. Try increasing timeout or simplifying.",
+        "diagnosis.phase3_entities_title": "## Phase 3 — Specific entities involved",
+        "diagnosis.entity_conflict": "- **{name}** — Conflicts involve:",
+        "diagnosis.tutor_of_group": ", tutor of group {group}",
+        "diagnosis.cleared_title": "Restrictions that did NOT cause issues individually:",
+        "diagnosis.no_conclusion": "Could not isolate a single restriction. The infeasibility may arise from the interaction of multiple restrictions, or from data configuration.",
+        "diagnosis.capacity_issue": "  - **Group {group}**: requires {required}h/week but only {available} slots available ({days} days × {hours} hours). Possible cause: **SubjectWeeklyHours**.",
+        "diagnosis.subject_no_teacher": "  - **Subject \"{name}\" (id={id})** in **Group {group}** has no teacher assigned.",
+        "diagnosis.subjectgroup_shared_hours_exceed": "  - **SubjectGroup \"{name}\"**: shared_hours={sh} exceeds min weekly_hours of members: {subjects}.",
+        "diagnosis.subjectgroup_hours_mismatch": "  - **SubjectGroup \"{name}\"**: members have different weekly_hours: {subjects}. All subjects in a SubjectGroup must have the same weekly hours.",
+        "diagnosis.teacher_capacity_issue": "  - **Teacher \"{name}\"** has max_hours_week={max} (effective={eff} with {coord}h coordination) but teaches \"{subj}\" requiring {subj_hours}h/week.",
+        "diagnosis.global_capacity_issue": "  - **Global capacity**: total required hours ({required}h) exceed total teacher capacity ({capacity}h). Need more teachers or reduce subject hours.",
+        "diagnosis.teach_every_day_hours": "  - **Subject \"{name}\"** has teach_every_day=True but only {hours}h/week (need at least {needed}h for {days} days).",
+        "diagnosis.teach_every_day_max": "  - **Subject \"{name}\"** has teach_every_day=True, weekly_hours={wh}, but max possible with max_hours_per_day={mhpd} over {days} days is {max}h.",
+        "diagnosis.infeasible_phase": "# ❌ No feasible solution found\n\nThe solver determined the model is infeasible. Starting diagnosis to identify the causes...\n",
         "errors.missing_name": "Required data missing (name)",
         "errors.missing_required_data": "Required data missing (id, name)",
         "errors.hours_mismatch": "All selected subjects must have the same weekly hours",
@@ -53,6 +74,27 @@ _LOCALES = {
         "day.6": "Sunday",
     },
     "es": {
+        # --- Diagnosis / Solver messages ---
+        "diagnosis.no_solution_title": "# ❌ No se encontró solución — Resultados del diagnóstico\n",
+        "diagnosis.phase1_title": "## Fase 1 — Verificaciones de capacidad",
+        "diagnosis.phase2_title": "## Fase 2 — Aislamiento de restricciones",
+        "diagnosis.phase2_desc": "Eliminar cualquiera de estas restricciones individualmente hace factible el modelo:",
+        "diagnosis.phase3_title": "## Fase 3 — Diagnóstico de entidades",
+        "diagnosis.phase3_timed_out": "  ⏱️ El diagnóstico agotó el tiempo. Las restricciones pueden ser demasiado complejas para el tiempo asignado. Intenta aumentar el tiempo de espera o simplificar.",
+        "diagnosis.phase3_entities_title": "## Fase 3 — Entidades específicas involucradas",
+        "diagnosis.entity_conflict": "- **{name}** — Conflictos involucran:",
+        "diagnosis.tutor_of_group": ", tutor del grupo {group}",
+        "diagnosis.cleared_title": "Restricciones que NO causaron problemas individualmente:",
+        "diagnosis.no_conclusion": "No se pudo aislar una restricción única. La inviabilidad puede deberse a la interacción de múltiples restricciones o a la configuración de datos.",
+        "diagnosis.capacity_issue": "  - **Grupo {group}**: requiere {required}h/semana pero solo hay {available} espacios disponibles ({days} días × {hours} horas). Posible causa: **SubjectWeeklyHours**.",
+        "diagnosis.subject_no_teacher": "  - **Asignatura \"{name}\" (id={id})** en **Grupo {group}** no tiene profesor asignado.",
+        "diagnosis.subjectgroup_shared_hours_exceed": "  - **SubjectGroup \"{name}\"**: shared_hours={sh} excede el mínimo de horas semanales de los miembros: {subjects}.",
+        "diagnosis.subjectgroup_hours_mismatch": "  - **SubjectGroup \"{name}\"**: los miembros tienen diferentes horas semanales: {subjects}. Todas las asignaturas en un SubjectGroup deben tener las mismas horas semanales.",
+        "diagnosis.teacher_capacity_issue": "  - **Docente \"{name}\"** tiene max_hours_week={max} (efectivo={eff} con {coord}h de coordinación) pero enseña \"{subj}\" que requiere {subj_hours}h/semana.",
+        "diagnosis.global_capacity_issue": "  - **Capacidad global**: las horas totales requeridas ({required}h) exceden la capacidad total de docentes ({capacity}h). Se necesitan más docentes o reducir horas de asignaturas.",
+        "diagnosis.teach_every_day_hours": "  - **Asignatura \"{name}\"** tiene teach_every_day=True pero solo {hours}h/semana (necesita al menos {needed}h para {days} días).",
+        "diagnosis.teach_every_day_max": "  - **Asignatura \"{name}\"** tiene teach_every_day=True, weekly_hours={wh}, pero el máximo posible con max_hours_per_day={mhpd} en {days} días es {max}h.",
+        "diagnosis.infeasible_phase": "# ❌ No se encontró solución factible\n\nEl solver determinó que el modelo es inviable. Iniciando diagnóstico para identificar las causas...\n",
         "errors.missing_name": "Faltan datos requeridos (name)",
         "errors.missing_required_data": "Faltan datos requeridos (id, name)",
         "errors.hours_mismatch": "Todas las asignaturas del grupo deben tener el mismo número de horas semanales",
@@ -117,7 +159,19 @@ def set_locale(l):
 
 def t(key, **vars):
     current_locale = get_current_locale()
-    msg = _LOCALES.get(current_locale, _LOCALES["en"]).get(key)
+    return _translate(current_locale, key, **vars)
+
+
+def t_locale(locale, key, **vars):
+    """Translate using a specific locale (bypasses request context).
+
+    Use this in background threads where Flask ``g`` is not available.
+    """
+    return _translate(locale, key, **vars)
+
+
+def _translate(locale, key, **vars):
+    msg = _LOCALES.get(locale, _LOCALES["en"]).get(key)
     if msg is None:
         # fallback to english or key
         msg = _LOCALES["en"].get(key, key)
