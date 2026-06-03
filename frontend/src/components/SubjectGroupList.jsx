@@ -151,9 +151,6 @@ export default function SubjectGroupList({ standalone = true }) {
 
     const tableContent = (
         <>
-            {formError && (
-                <div role="alert" className="state-error mb-md">{formError}</div>
-            )}
 
         <div className="search-bar">
           <input
@@ -178,7 +175,7 @@ export default function SubjectGroupList({ standalone = true }) {
             </thead>
             <tbody>
                 {sortedGroups.map(g => (
-                    <tr key={g.id} onClick={() => handleEdit(g)} style={{ cursor: 'pointer' }}>
+                    <tr key={g.id} onClick={() => handleEdit(g)} className="table-row-clickable">
                         <td>
                             <span className="group-color-chip" style={{ backgroundColor: g.color || '#fef3c7' }} aria-hidden="true" />
                             {g.name}

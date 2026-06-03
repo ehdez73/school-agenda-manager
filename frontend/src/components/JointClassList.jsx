@@ -223,7 +223,7 @@ export default function JointClassList({ standalone = true }) {
                 </thead>
                 <tbody>
                     {sortedItems.map(item => (
-                        <tr key={item.id} onClick={() => handleEdit(item)} style={{ cursor: 'pointer' }}>
+                        <tr key={item.id} onClick={() => handleEdit(item)} className="table-row-clickable">
                             <td>{item.name || item.course_id + ' ' + (item.lines || []).join('+')}</td>
                             <td className="joint-class-course">{item.course?.name || item.course_id}</td>
                             <td>{item.subject?.full_name || item.subject?.name || item.subject_id}</td>

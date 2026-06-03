@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import AutocompleteSelect from './AutocompleteSelect';
+import Select from './Select';
 import { t } from '../i18n';
 import useEscapeToCancel from './useEscapeToCancel';
 
@@ -111,18 +112,25 @@ export default function SubjectForm({ form, setForm, courses, subjects = [], edi
             </label>
             <label className="subject-label">
                 {t('subjects.course')}
-                <select
-                    name="course_id"
+                <Select
                     value={form.course_id}
-                    onChange={handleChange}
-                    required
-                    className="subject-select"
-                >
-                    <option value="">{t('common.search_placeholder')}</option>
-                    {[...courses].sort((a, b) => (a.name || '').localeCompare(b.name || '')).map(c => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                </select>
+                    onChange={e => {
+                        const newCourseId = e.target.value;
+                        let newLinked = form.linked_subject_id;
+                        if (newLinked) {
+                            const linkedObj = subjects.find(s => s.id === newLinked);
+                            const linkedCourseId = linkedObj ? (linkedObj.course ? linkedObj.course.id : linkedObj.course_id) : null;
+                            if (!linkedCourseId || String(linkedCourseId) !== String(newCourseId)) {
+                                newLinked = '';
+                            }
+                        }
+                        setForm({ ...form, course_id: newCourseId, linked_subject_id: newLinked, included_lines: null });
+                    }}
+                    options={[
+                        { value: '', label: t('common.search_placeholder') },
+                        ...([...courses].sort((a, b) => (a.name || '').localeCompare(b.name || '')).map(c => ({ value: c.id, label: c.name })))
+                    ]}
+                />
             </label>
             {numLines > 1 && (
                 <fieldset className="lines-fieldset">
@@ -173,30 +181,28 @@ export default function SubjectForm({ form, setForm, courses, subjects = [], edi
             {form.max_hours_per_day > 1 && (
                 <label className="subject-label">
                     {t('subjects.consecutive_hours')}
-                    <select
-                        name="consecutive_hours"
+                    <Select
                         value={String(form.consecutive_hours ?? true)}
-                        onChange={handleChange}
-                        className="subject-select"
-                    >
-                        <option value="true">{t('common.yes') || 'Yes'}</option>
-                        <option value="false">{t('common.no') || 'No'}</option>
-                    </select>
+                        onChange={e => setForm({ ...form, consecutive_hours: e.target.value === 'true' })}
+                        options={[
+                            { value: 'true', label: t('common.yes') || 'Yes' },
+                            { value: 'false', label: t('common.no') || 'No' },
+                        ]}
+                    />
                 </label>
             )}
            
             {typeof daysPerWeek === 'number' && Number(form.weekly_hours) >= daysPerWeek && (
                 <label className="subject-label">
                     {t('subjects.teach_every_day') || 'Teach every day'}
-                    <select
-                        name="teach_every_day"
+                    <Select
                         value={String(form.teach_every_day ?? false)}
-                        onChange={handleChange}
-                        className="subject-select"
-                    >
-                        <option value="true">{t('common.yes') || 'Yes'}</option>
-                        <option value="false">{t('common.no') || 'No'}</option>
-                    </select>
+                        onChange={e => setForm({ ...form, teach_every_day: e.target.value === 'true' })}
+                        options={[
+                            { value: 'true', label: t('common.yes') || 'Yes' },
+                            { value: 'false', label: t('common.no') || 'No' },
+                        ]}
+                    />
                 </label>
             )}
              <label className="subject-label">

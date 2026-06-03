@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
+import api from '../lib/api';
 import { t } from '../i18n';
 import './CourseList.css';
 import FormModal from './FormModal';
@@ -18,47 +19,32 @@ export default function CourseList() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const API_BASE = import.meta.env.VITE_API_BASE || '/api';
-
-  const fetchCourses = useCallback(() => {
+  function fetchCourses() {
     setLoading(true);
     setError(null);
-    fetch(`${API_BASE}/courses`)
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
+    api.get('/courses')
       .then(data => setCourses(data))
       .catch(err => setError(err.message || 'Failed to load courses'))
       .finally(() => setLoading(false));
-  }, [API_BASE]);
+  }
 
   useEffect(() => {
     fetchCourses();
-  }, [fetchCourses]);
+  }, []);
 
 
 
   function handleSubmit(e) {
     e.preventDefault();
-    const method = editingId ? 'PUT' : 'POST';
-    const url = editingId
-      ? `${API_BASE}/courses/${form.name}`
-      : `${API_BASE}/courses`;
-
     const payload = {
       name: form.name,
       num_lines: form.num_lines
     };
-    fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Save failed');
-        return res.json();
-      })
+    const action = editingId
+      ? api.put(`/courses/${form.name}`, payload)
+      : api.post('/courses', payload);
+
+    action
       .then(() => {
         fetchCourses();
         setForm({ name: '', num_lines: 1 });
@@ -82,9 +68,8 @@ export default function CourseList() {
   }
 
   function confirmDelete() {
-    fetch(`${API_BASE}/courses/${deleteId}`, { method: 'DELETE' })
-      .then(res => {
-        if (!res.ok) throw new Error('Delete failed');
+    api.del(`/courses/${deleteId}`)
+      .then(() => {
         fetchCourses();
         setShowDeleteModal(false);
         setDeleteId(null);
@@ -130,20 +115,8 @@ export default function CourseList() {
           />
         </FormModal>
       )}
-      {selectedEntity && (
-        <FormModal open={!!selectedEntity} onClose={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', num_lines: 1 }); }}>
-          <CourseForm
-            form={form}
-            setForm={setForm}
-            editingId={editingId}
-            onSubmit={handleSubmit}
-            onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', num_lines: 1 }); }}
-            onDelete={() => handleDelete(selectedEntity.name)}
-          />
-        </FormModal>
-      )}
       <SectionLayout
-        title={t('courses.title')}
+        title={selectedEntity ? `${t('common.edit')}: ${selectedEntity.name}` : t('courses.title')}
         actions={
           !showForm && !selectedEntity && (
             <button
@@ -154,47 +127,55 @@ export default function CourseList() {
             </button>
           )
         }
+        state={loading ? 'loading' : error ? 'error' : courses.length === 0 && !selectedEntity ? 'empty' : 'ready'}
+        errorMsg={error}
+        emptyMsg={t('courses.empty')}
       >
-        {error && (
-          <div role="alert" className="state-error mb-md">
-            {error}
+        {selectedEntity ? (
+          <div className="edit-view">
+            <CourseForm
+              form={form}
+              setForm={setForm}
+              editingId={editingId}
+              onSubmit={handleSubmit}
+              onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', num_lines: 1 }); }}
+              onDelete={() => handleDelete(selectedEntity.name)}
+            />
           </div>
-        )}
-        {loading && (
-          <div className="state-loading" role="status" aria-live="polite">
-            <span className="visually-hidden">{t('courses.loading')}</span>
-          </div>
-        )}
-        <div className="search-bar">
-          <input
-            type="text"
-            className="input search-input"
-            placeholder={t('common.search_placeholder')}
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-        </div>
-        <table className="modern-table">
-          <thead>
-            <tr>
-              <th>{t('courses.name')}</th>
-              <th>{t('courses.num_lines')}</th>
-              <th>{t('courses.groups')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedCourses.map(course => {
-              const grupos = Array.from({ length: course.num_lines }, (_, i) => `${course.name}${String.fromCharCode(65 + i)}`);
-              return (
-                <tr key={course.name} onClick={() => handleEdit(course)} style={{ cursor: 'pointer' }}>
-                  <td>{course.name}</td>
-                  <td>{course.num_lines}</td>
-                  <td>{grupos.join(', ')}</td>
+        ) : (
+          <>
+            <div className="search-bar">
+              <input
+                type="text"
+                className="input search-input"
+                placeholder={t('common.search_placeholder')}
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+            <table className="modern-table">
+              <thead>
+                <tr>
+                  <th>{t('courses.name')}</th>
+                  <th>{t('courses.num_lines')}</th>
+                  <th>{t('courses.groups')}</th>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {sortedCourses.map(course => {
+                  const grupos = Array.from({ length: course.num_lines }, (_, i) => `${course.name}${String.fromCharCode(65 + i)}`);
+                  return (
+                    <tr key={course.name} onClick={() => handleEdit(course)} className="table-row-clickable">
+                      <td>{course.name}</td>
+                      <td>{course.num_lines}</td>
+                      <td>{grupos.join(', ')}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </>
+        )}
       </SectionLayout>
     </>
   );

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import Select from './Select';
 import { t } from '../i18n';
 import useEscapeToCancel from './useEscapeToCancel';
 
@@ -58,54 +59,41 @@ export default function JointClassForm({
 
             <label className="subject-label">
                 {t('joint_classes.course')}
-                <select
-                    name="course_id"
+                <Select
                     value={form.course_id || ''}
-                    onChange={handleChange}
-                    className="subject-input"
-                    required
-                >
-                    <option value="">--</option>
-                    {courses.map(c => (
-                        <option key={c.id} value={c.id}>{c.id}</option>
-                    ))}
-                </select>
+                    onChange={e => setForm({ ...form, course_id: e.target.value, subject_id: '', teacher_id: null })}
+                    options={[
+                        { value: '', label: '--' },
+                        ...courses.map(c => ({ value: c.id, label: c.id })),
+                    ]}
+                />
             </label>
 
             <label className="subject-label">
                 {t('joint_classes.subject')}
-                <select
-                    name="subject_id"
+                <Select
                     value={form.subject_id || ''}
-                    onChange={handleChange}
-                    className="subject-input"
-                    required
-                    disabled={!form.course_id}
-                >
-                    <option value="">--</option>
-                    {filteredSubjects.map(s => (
-                        <option key={s.id} value={s.id}>{s.full_name || s.name}</option>
-                    ))}
-                </select>
+                    onChange={e => setForm({ ...form, subject_id: e.target.value, teacher_id: null })}
+                    options={[
+                        { value: '', label: '--' },
+                        ...filteredSubjects.map(s => ({ value: s.id, label: s.full_name || s.name })),
+                    ]}
+                />
             </label>
 
             <label className="subject-label">
                 {t('joint_classes.teacher')}
-                <select
-                    name="teacher_id"
+                <Select
                     value={form.teacher_id ?? ''}
                     onChange={e => setForm({
                         ...form,
                         teacher_id: e.target.value === '' ? null : (Number(e.target.value) || e.target.value),
                     })}
-                    className="subject-input"
-                    disabled={!form.subject_id}
-                >
-                    <option value="">{t('joint_classes.teacher_none')}</option>
-                    {filteredTeachers.map(tch => (
-                        <option key={tch.id} value={tch.id}>{tch.name}</option>
-                    ))}
-                </select>
+                    options={[
+                        { value: '', label: t('joint_classes.teacher_none') },
+                        ...filteredTeachers.map(tch => ({ value: tch.id, label: tch.name })),
+                    ]}
+                />
             </label>
 
             <label className="subject-label">
@@ -152,7 +140,7 @@ export default function JointClassForm({
                         ))}
                     </div>
                     {(form.lines || []).length < 2 && (
-                        <div className="form-error" style={{ marginTop: 'var(--space-sm)' }}>
+                        <div className="form-error mt-sm">
                             Select at least 2 lines
                         </div>
                     )}

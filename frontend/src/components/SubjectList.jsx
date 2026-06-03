@@ -236,11 +236,6 @@ function SubjectList() {
             </button>
           )}
         </div>
-        {formError && (
-          <div role="alert" className="state-error mb-md">
-            {formError}
-          </div>
-        )}
         <div className="search-bar">
           <input
             type="text"
@@ -285,7 +280,7 @@ function SubjectList() {
         </thead>
         <tbody>
           {sortedSubjects.map(subject => (
-            <tr key={subject.id} onClick={() => handleEdit(subject)} style={{ cursor: 'pointer' }}>
+            <tr key={subject.id} onClick={() => handleEdit(subject)} className="table-row-clickable">
               <td>{subject.id}</td>
               <td>{subject.course ? subject.course.name : t('subjects.no_course')}</td>
               <td>

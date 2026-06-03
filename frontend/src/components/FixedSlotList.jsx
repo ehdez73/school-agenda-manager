@@ -124,7 +124,7 @@ export default function FixedSlotList({ standalone = true }) {
                 </thead>
                 <tbody>
                     {slots.map(s => (
-                        <tr key={s.id} onClick={() => handleEdit(s)} style={{ cursor: 'pointer' }}>
+                        <tr key={s.id} onClick={() => handleEdit(s)} className="table-row-clickable">
                             <td>{s.position}</td>
                             <td>{s.time_range}</td>
                             <td>{s.label}</td>

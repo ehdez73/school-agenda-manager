@@ -8,6 +8,7 @@ import { t } from '../i18n';
 import SectionLayout from './SectionLayout';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import FormModal from './FormModal';
+import Select from './Select';
 
 const POLL_INTERVAL_MS = 4000;
 const POLL_RETRY_MS = 3000;
@@ -1216,17 +1217,14 @@ function MarkdownTimetable() {
         {availableSubjects.length > 0 ? (
           <div className="form-group">
             <label className="form-group__label">{t('timetable.support_modal_select')}</label>
-            <select
-              className="select"
-              value={selectedSubjectIndex}
+            <Select
+              value={String(selectedSubjectIndex)}
               onChange={(e) => setSelectedSubjectIndex(parseInt(e.target.value, 10))}
-            >
-              {availableSubjects.map((s, i) => (
-                <option key={`${s.subject_id}-${s.course_id}-${s.line}`} value={i}>
-                  {s.subject_name} — {s.course_line}
-                </option>
-              ))}
-            </select>
+              options={availableSubjects.map((s, i) => ({
+                value: String(i),
+                label: `${s.subject_name} — ${s.course_line}`
+              }))}
+            />
           </div>
         ) : (
           <p>{t('timetable.support_modal_no_subjects')}</p>

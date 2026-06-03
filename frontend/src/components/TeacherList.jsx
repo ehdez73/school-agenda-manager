@@ -262,7 +262,7 @@ export default function TeacherList() {
         </thead>
         <tbody>
           {sortedTeachers.map(teacher => (
-            <tr key={teacher.id} onClick={() => handleEdit(teacher)} style={{ cursor: 'pointer' }}>
+            <tr key={teacher.id} onClick={() => handleEdit(teacher)} className="table-row-clickable">
               <td>{teacher.name}</td>
               <td>{teacher.subjects ? teacher.subjects.map(s => `${s.full_name}`).join(', ') : ''}</td>
               <td>{teacher.tutor_groups ? teacher.tutor_groups.join(', ') : (teacher.tutor_group ?? '')}</td>
@@ -278,10 +278,12 @@ export default function TeacherList() {
                   if (lective > 0) parts.push(`${lective}h`);
                   if (coord > 0) parts.push(`${coord}h ${t('timetable.coordination_label_short')}`);
                   if (support > 0) parts.push(`${support}h ${t('timetable.support_label_short')}`);
-                  const frac = totalMatch
-                    ? `${total}h/${max}h`
-                    : `<span style="color:red">${total}h/${max}h</span>`;
-                  return <span dangerouslySetInnerHTML={{ __html: `${frac} ${parts.length ? ' (' + parts.join(', ') + ')' : ''}` }} />;
+                  return (
+                    <span>
+                      <span className={totalMatch ? '' : 'text-danger'}>{total}h/{max}h</span>
+                      {parts.length > 0 && <span> ({parts.join(', ')})</span>}
+                    </span>
+                  );
                 })()}
               </td>
             </tr>

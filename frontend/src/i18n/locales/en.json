@@ -102,7 +102,8 @@
         "name": "Name",
         "name_placeholder": "Course name",
         "num_lines": "# lines",
-        "groups": "Groups"
+        "groups": "Groups",
+        "empty": "No courses yet"
     },
     "hours": {
         "names_title": "Hour names",
