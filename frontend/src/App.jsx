@@ -17,6 +17,9 @@ function App() {
   const [locale, setLocaleState] = useState(() => {
     try { return localStorage.getItem('locale') || (navigator.language && navigator.language.startsWith('es') ? 'es' : 'en'); } catch { return 'en'; }
   });
+  const [timetablePreselectTeacher, setTimetablePreselectTeacher] = useState(null);
+  const [timetablePreselectCourseGroups, setTimetablePreselectCourseGroups] = useState(null);
+  const [editTeacherName, setEditTeacherName] = useState(null);
 
   useEffect(() => {
     // keep i18n module in sync so its t() uses the same current locale
@@ -113,10 +116,24 @@ function App() {
             <p className="home__description">{t('home.description')}</p>
           </div>
         )}
-        {page === 'courses' && <CourseList />}
+        {page === 'courses' && <CourseList onViewTimetable={(groups) => { setTimetablePreselectCourseGroups(groups); setPage('timetable-markdown'); }} />}
         {page === 'subjects' && <SubjectList />}
-        {page === 'teachers' && <TeacherList />}
-        {page === 'timetable-markdown' && <MarkdownTimetable />}
+        {page === 'teachers' && (
+          <TeacherList
+            onViewTimetable={(name) => { setTimetablePreselectTeacher(name); setPage('timetable-markdown'); }}
+            editTeacherName={editTeacherName}
+            onConsumeEditTeacher={() => setEditTeacherName(null)}
+          />
+        )}
+        {page === 'timetable-markdown' && (
+          <MarkdownTimetable
+            preselectTeacher={timetablePreselectTeacher}
+            preselectCourseGroups={timetablePreselectCourseGroups}
+            onConsumePreselect={() => setTimetablePreselectTeacher(null)}
+            onConsumeCoursePreselect={() => setTimetablePreselectCourseGroups(null)}
+            onViewTeacher={(name) => { setEditTeacherName(name); setPage('teachers'); }}
+          />
+        )}
         {page === 'config' && <ConfigForm />}
         {page === 'help' && <HelpSection locale={locale} />}
       </main>

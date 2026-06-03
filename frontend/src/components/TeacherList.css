@@ -1,5 +1,16 @@
 /* TeacherList specific styles */
 
+.teacher-hours-link {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.teacher-hours-link:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
 .teacher-table-th-sort {
   cursor: pointer;
 }

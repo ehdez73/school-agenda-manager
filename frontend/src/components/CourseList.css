@@ -71,6 +71,17 @@
   cursor: not-allowed;
 }
 
+.course-group-link {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.course-group-link:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
 @media (max-width: 768px) {
   .course-form-row--split {
     flex-direction: column;

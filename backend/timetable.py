@@ -76,6 +76,25 @@ def _build_fixed_slot_html(label):
     )
 
 
+def _build_conflict_label_html(label, subject_color):
+    safe_label = escape(label)
+    safe_color = _safe_hex_color(subject_color)
+    if safe_color:
+        return (
+            f'<span class="tt-subject-entry tt-subject-conflict"'
+            f' style="background-color: {safe_color};">'
+            f'{safe_label}'
+            f'<span class="tt-conflict-warning">⚠️</span>'
+            f'</span>'
+        )
+    return (
+        f'<span class="tt-subject-entry tt-subject-conflict">'
+        f'{safe_label}'
+        f'<span class="tt-conflict-warning">⚠️</span>'
+        f'</span>'
+    )
+
+
 def _build_colored_assignment_html(subject_name, teacher_name, subject_color):
     label = f"{subject_name} ({teacher_name})"
     return _build_colored_label_html(label, subject_color)
@@ -323,33 +342,6 @@ def get_teacher_timetables_from_db(session):
             "subject_color": subject_color,
         })
 
-    # Second pass: build labels, merging entries of the same JointClass
-    for (teacher_name, hour, day), items in cell_items.items():
-        jc_groups = defaultdict(list)
-        for item in items:
-            key = id(item["jc"]) if item["jc"] else None
-            jc_groups[key].append(item)
-
-        for group_key, group in jc_groups.items():
-            if group_key is not None and len(group) > 1:
-                jc = group[0]["jc"]
-                if jc.name:
-                    display_name = jc.name
-                else:
-                    display_name = f"{group[0]['subject_name']} ({t('timetable.joint_class_label')})"
-                teacher_timetable[teacher_name][(hour, day)].append(
-                    _build_colored_label_html(display_name, group[0]["subject_color"])
-                )
-            else:
-                for item in group:
-                    display_name = item["subject_name"]
-                    if item["jc"]:
-                        jc = item["jc"]
-                        display_name = jc.name or f"{item['subject_name']} ({t('timetable.joint_class_label')})"
-                    teacher_timetable[teacher_name][(hour, day)].append(
-                        _build_colored_label_html(f"{item['course_line']}: {display_name}", item["subject_color"])
-                    )
-
     # Build teacher preferences lookup for unavailable slots
     all_teachers = session.query(Teacher).all()
     teacher_unavailable = {}
@@ -366,6 +358,45 @@ def get_teacher_timetables_from_db(session):
                 for h in day_prefs["unavailable"]:
                     unavailable_set.add((int(day_str), h))
         teacher_unavailable[teacher.name] = unavailable_set
+
+    # Second pass: build labels, merging entries of the same JointClass
+    for (teacher_name, hour, day), items in cell_items.items():
+        jc_groups = defaultdict(list)
+        for item in items:
+            key = id(item["jc"]) if item["jc"] else None
+            jc_groups[key].append(item)
+
+        is_conflict = (day, hour) in teacher_unavailable.get(teacher_name, set())
+
+        for group_key, group in jc_groups.items():
+            if group_key is not None and len(group) > 1:
+                jc = group[0]["jc"]
+                if jc.name:
+                    display_name = jc.name
+                else:
+                    display_name = f"{group[0]['subject_name']} ({t('timetable.joint_class_label')})"
+                if is_conflict:
+                    teacher_timetable[teacher_name][(hour, day)].append(
+                        _build_conflict_label_html(display_name, group[0]["subject_color"])
+                    )
+                else:
+                    teacher_timetable[teacher_name][(hour, day)].append(
+                        _build_colored_label_html(display_name, group[0]["subject_color"])
+                    )
+            else:
+                for item in group:
+                    display_name = item["subject_name"]
+                    if item["jc"]:
+                        jc = item["jc"]
+                        display_name = jc.name or f"{item['subject_name']} ({t('timetable.joint_class_label')})"
+                    if is_conflict:
+                        teacher_timetable[teacher_name][(hour, day)].append(
+                            _build_conflict_label_html(f"{item['course_line']}: {display_name}", item["subject_color"])
+                        )
+                    else:
+                        teacher_timetable[teacher_name][(hour, day)].append(
+                            _build_colored_label_html(f"{item['course_line']}: {display_name}", item["subject_color"])
+                        )
 
     # Support assignments
     support_assignments = session.query(SupportAssignment).all()

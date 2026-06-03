@@ -202,6 +202,45 @@
   font-weight: 700;
 }
 
+.timetable-panel-title__link {
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.15s ease;
+}
+
+.timetable-panel-title__link:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.timetable-selector__edit-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin-left: auto;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  opacity: 0.4;
+  transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+}
+
+.timetable-selector__option:hover .timetable-selector__edit-btn {
+  opacity: 1;
+}
+
+.timetable-selector__edit-btn:hover {
+  color: var(--color-accent);
+  background-color: var(--color-hover-bg);
+}
+
 /* School Schedule Table Styles */
 .markdown-timetable table {
   width: 100%;
@@ -451,6 +490,38 @@
   text-decoration: underline;
 }
 
+.timetable-sidebar__teacher-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.timetable-sidebar__edit-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+}
+
+.timetable-sidebar__teacher-item:hover .timetable-sidebar__edit-btn {
+  opacity: 1;
+}
+
+.timetable-sidebar__edit-btn:hover {
+  color: var(--color-accent);
+  background-color: var(--color-hover-bg);
+}
+
 @media (max-width: 768px) {
   .timetable-with-sidebar {
     flex-direction: column;
@@ -515,6 +586,10 @@
 }
 .tt-support-conflict:hover {
   filter: brightness(0.95);
+}
+
+.tt-subject-conflict {
+  position: relative;
 }
 
 .tt-conflict-warning {

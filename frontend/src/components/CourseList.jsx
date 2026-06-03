@@ -7,7 +7,7 @@ import ConfirmDeleteModal from './ConfirmDeleteModal';
 import CourseForm from './CourseForm';
 import SectionLayout from './SectionLayout';
 
-export default function CourseList() {
+export default function CourseList({ onViewTimetable }) {
   const [courses, setCourses] = useState([]);
   const [search, setSearch] = useState('');
   const [form, setForm] = useState({ name: '', num_lines: 1 });
@@ -18,6 +18,7 @@ export default function CourseList() {
   const [deleteId, setDeleteId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [timetableExists, setTimetableExists] = useState(false);
 
   function fetchCourses() {
     setLoading(true);
@@ -30,6 +31,7 @@ export default function CourseList() {
 
   useEffect(() => {
     fetchCourses();
+    api.get('/timetable/exists').then(data => setTimetableExists(data?.exists ?? false)).catch(() => setTimetableExists(false));
   }, []);
 
 
@@ -168,7 +170,7 @@ export default function CourseList() {
                     <tr key={course.name} onClick={() => handleEdit(course)} className="table-row-clickable">
                       <td>{course.name}</td>
                       <td>{course.num_lines}</td>
-                      <td>{grupos.join(', ')}</td>
+                      <td className={timetableExists ? 'course-group-link' : ''} onClick={(e) => { if (timetableExists) { e.stopPropagation(); onViewTimetable(grupos); } }}>{grupos.join(', ')}</td>
                     </tr>
                   );
                 })}

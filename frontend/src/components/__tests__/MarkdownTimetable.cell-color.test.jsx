@@ -82,6 +82,43 @@ describe('MarkdownTimetable cell color behavior', () => {
     });
   });
 
+  it('paints cell red when a subject entry conflicts with teacher unavailable hours', async () => {
+    apiMock.get.mockImplementation((path) => {
+      if (path === '/timetable/status/current') return Promise.resolve({ status: 'idle' });
+      if (path === '/timetable') {
+        return Promise.resolve(
+          [
+            '## timetable.by_course',
+            '| Hour | Monday |',
+            '|---|---|',
+            '| 9:00 | MATH |',
+            '',
+            '## timetable.by_teacher',
+            '### Ana',
+            'Assigned: 1/10',
+            '| Hour | Monday |',
+            '|---|---|',
+            '| 9:00 | <span class="tt-subject-entry tt-subject-conflict" style="background-color: #dbeafe;">1A: MATH<span class="tt-conflict-warning">⚠️</span></span> |',
+          ].join('\n')
+        );
+      }
+      return Promise.resolve({});
+    });
+
+    render(<MarkdownTimetable />);
+
+    const cellText = await screen.findByText('1A: MATH');
+    const td = cellText.closest('td');
+    expect(td).toBeTruthy();
+
+    await waitFor(() => {
+      expect(td.style.backgroundColor).toBe('rgb(235, 82, 82)');
+    });
+
+    const warning = document.querySelector('.tt-conflict-warning');
+    expect(warning).toBeInTheDocument();
+  });
+
   it('renders independent multi-select controls for course and teacher timetables', async () => {
     apiMock.get.mockImplementation((path) => {
       if (path === '/timetable/status/current') return Promise.resolve({ status: 'idle' });

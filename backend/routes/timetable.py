@@ -138,6 +138,15 @@ def get_timetable_markdown():
     return markdown, 200, {'Content-Type': 'text/plain; charset=utf-8'}
 
 
+@timetable_bp.route('/timetable/exists', methods=['GET'])
+def timetable_exists():
+    """Lightweight check if any timetable assignments exist."""
+    session = DbSession()
+    exists = session.query(TimeSlotAssignment).first() is not None
+    session.close()
+    return jsonify({"exists": exists}), 200
+
+
 @timetable_bp.route('/timetable/error', methods=['GET'])
 def get_persisted_error():
     """Return the persisted scheduler error (survives server restarts)."""

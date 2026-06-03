@@ -681,6 +681,7 @@ Use BEM for shared component blocks:
 | `.form-info`, `.form-error` | Inline info/error boxes |
 | `.modern-table`, `.modern-table th`, `.modern-table td` | Data tables |
 | `.modern-table .subject-table-th-sort` | Sortable table header |
+| `.__cell-link` (convention) | Interactive table cell links: `cursor: pointer; color: inherit; text-decoration: none; transition: color 0.15s ease;` → on hover: `color: var(--color-accent); text-decoration: underline;` (see examples: `.teacher-hours-link`, `.timetable-panel-title__link`) |
 | `.chip`, `.chip__remove` | Tags / selections |
 | `.card`, `.card__header`, `.card__content`, `.card__actions`, `.card__title` | Cards |
 | `.alert`, `.alert--success`, `.alert--error`, `.alert--warning`, `.alert--info` | Messages |

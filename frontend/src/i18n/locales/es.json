@@ -232,7 +232,8 @@
         "support_saved": "Apoyo asignado correctamente",
         "support_removed": "Apoyo eliminado correctamente",
         "coordination_label_short": "coord.",
-        "support_label_short": "apoyo"
+        "support_label_short": "apoyo",
+        "edit_teacher": "Editar docente"
     },
     "subjects": {
         "title": "Asignaturas",
@@ -281,7 +282,8 @@
         "coordination_hours": "Horas coordinación",
         "tutor_group": "Grupo tutoría",
         "no_tutor": "--",
-        "line_restrictions": "Restricciones de línea"
+        "line_restrictions": "Restricciones de línea",
+        "view_timetable": "Ver horario del docente"
     },
     "teachers_table": {
         "subjects": "Asignaturas"

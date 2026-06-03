@@ -160,7 +160,7 @@ function stripSubjectEntryInlineBg(node) {
 }
 
 
-function MarkdownTimetable() {
+function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, onConsumePreselect, onConsumeCoursePreselect, onViewTeacher }) {
   const [markdown, setMarkdown] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -663,12 +663,45 @@ function MarkdownTimetable() {
     syncSelectionWithSection(teacherSection?.entries || [], selectedTeacherIdsState, setSelectedTeacherIds);
   }, [teacherSection]);
 
+  useEffect(() => {
+    if (!preselectTeacher || !teacherSection || teacherSection.entries.length === 0) return;
+    const match = teacherSection.entries.find(entry =>
+      entry.title.toLowerCase().startsWith(preselectTeacher.toLowerCase()) ||
+      entry.title.toLowerCase().replace(/ — .*/, '').trim() === preselectTeacher.toLowerCase()
+    );
+    if (match) {
+      setSelectedTeacherIds([match.id]);
+      setTimeout(() => {
+        const el = document.getElementById(`teacher-panel-${match.id}`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+    onConsumePreselect();
+  }, [preselectTeacher, teacherSection, onConsumePreselect]);
+
+  useEffect(() => {
+    if (!preselectCourseGroups || !courseSection || courseSection.entries.length === 0 || preselectCourseGroups.length === 0) return;
+    const matchedIds = courseSection.entries
+      .filter(entry => {
+        const courseLine = entry.title.replace(/^.*?:\s*/, '').replace(/ —.*/, '').trim();
+        return preselectCourseGroups.some(group => courseLine === group);
+      })
+      .map(entry => entry.id);
+    if (matchedIds.length > 0) {
+      setSelectedCourseIds(matchedIds);
+    }
+    if (onConsumeCoursePreselect) onConsumeCoursePreselect();
+  }, [preselectCourseGroups, courseSection, onConsumeCoursePreselect]);
+
 function hasConflictChild(node) {
   if (node === null || node === undefined || typeof node === 'boolean') return false;
   if (Array.isArray(node)) return node.some(child => hasConflictChild(child));
   if (typeof node !== 'object') return false;
   const className = node?.props?.className || '';
-  if (typeof className === 'string' && className.split(' ').includes('tt-support-conflict')) return true;
+  if (typeof className === 'string') {
+    const classes = className.split(' ');
+    if (classes.includes('tt-support-conflict') || classes.includes('tt-subject-conflict')) return true;
+  }
   return hasConflictChild(node?.props?.children);
 }
 
@@ -931,10 +964,10 @@ function hasConflictChild(node) {
                   >
                     {teacherSection.title}
                   </a>
-                  {selectedTeacherEntries.length > 0 && (
+                    {selectedTeacherEntries.length > 0 && (
                     <ul className="timetable-sidebar__list">
                       {selectedTeacherEntries.map(entry => (
-                        <li key={entry.id}>
+                        <li key={entry.id} className="timetable-sidebar__teacher-item">
                           <a
                             href={`#teacher-panel-${entry.id}`}
                             className="timetable-sidebar__link"
@@ -942,6 +975,19 @@ function hasConflictChild(node) {
                           >
                             {entry.title.replace(/ — .*/, '')}
                           </a>
+                          {onViewTeacher && (
+                            <button
+                              className="timetable-sidebar__edit-btn"
+                              onClick={(e) => { e.stopPropagation(); onViewTeacher(entry.title.replace(/ — .*/, '')); }}
+                              title={t('timetable.edit_teacher')}
+                              aria-label={t('timetable.edit_teacher')}
+                            >
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                              </svg>
+                            </button>
+                          )}
                         </li>
                       ))}
                     </ul>
@@ -1144,6 +1190,18 @@ function hasConflictChild(node) {
                                   aria-label={entry.title}
                                 />
                                 <span>{entry.title}</span>
+                                {onViewTeacher && (
+                                  <button
+                                    className="timetable-selector__edit-btn"
+                                    onClick={(e) => { e.stopPropagation(); e.preventDefault(); onViewTeacher(entry.title.replace(/ — .*/, '')); }}
+                                    title={t('timetable.edit_teacher')}
+                                  >
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                  </button>
+                                )}
                               </label>
                             );
                           })
@@ -1162,7 +1220,19 @@ function hasConflictChild(node) {
                         aria-label={entry.title}
                         className="timetable-tab-panel"
                       >
-                        <h4 className="timetable-panel-title">{entry.title}</h4>
+                        <h4 className="timetable-panel-title">
+                        {onViewTeacher ? (
+                          <span
+                            className="timetable-panel-title__link"
+                            onClick={(e) => { e.stopPropagation(); onViewTeacher(entry.title.replace(/ — .*/, '')); }}
+                            title={t('timetable.edit_teacher')}
+                          >
+                            {entry.title}
+                          </span>
+                        ) : (
+                          entry.title
+                        )}
+                      </h4>
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           rehypePlugins={[rehypeRaw]}

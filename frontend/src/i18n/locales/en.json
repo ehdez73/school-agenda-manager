@@ -232,7 +232,8 @@
         "support_saved": "Support assigned successfully",
         "support_removed": "Support removed successfully",
         "coordination_label_short": "coord.",
-        "support_label_short": "support"
+        "support_label_short": "support",
+        "edit_teacher": "Edit teacher"
     },
     "subjects": {
         "title": "Subjects",
@@ -281,7 +282,8 @@
         "coordination_hours": "Coord. hours",
         "tutor_group": "Tutor group",
         "no_tutor": "--",
-        "line_restrictions": "Line restrictions"
+        "line_restrictions": "Line restrictions",
+        "view_timetable": "View teacher's timetable"
     },
     "teachers_table": {
         "subjects": "Subjects"

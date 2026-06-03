@@ -10,7 +10,7 @@ import './TeacherList.css';
 
 const emptyTeacherForm = () => ({ name: '', subjects: [], teacher_subject_lines: {}, max_hours_week: 1, coordination_hours: 0, preferences: {}, tutor_groups: [] });
 
-export default function TeacherList() {
+export default function TeacherList({ onViewTimetable, editTeacherName, onConsumeEditTeacher }) {
   const [teachers, setTeachers] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [sortBy, setSortBy] = useState('name');
@@ -26,13 +26,24 @@ export default function TeacherList() {
   const [courseFilter, setCourseFilter] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [timetableExists, setTimetableExists] = useState(false);
 
   useEffect(() => {
     fetchTeachers();
     fetchSubjects();
     fetchCourses();
     api.get('/config').then(cfg => setClassesPerDay(cfg?.classes_per_day || 5)).catch(() => setClassesPerDay(5));
+    api.get('/timetable/exists').then(data => setTimetableExists(data?.exists ?? false)).catch(() => setTimetableExists(false));
   }, []);
+
+  useEffect(() => {
+    if (!editTeacherName || teachers.length === 0) return;
+    const teacher = teachers.find(t => t.name.toLowerCase() === editTeacherName.toLowerCase());
+    if (teacher) {
+      handleEdit(teacher);
+      onConsumeEditTeacher && onConsumeEditTeacher();
+    }
+  }, [editTeacherName, teachers]);
 
   function fetchSubjects() {
     api.get('/subjects').then(setSubjects).catch(() => setSubjects([]));
@@ -266,7 +277,7 @@ export default function TeacherList() {
               <td>{teacher.name}</td>
               <td>{teacher.subjects ? teacher.subjects.map(s => `${s.full_name}`).join(', ') : ''}</td>
               <td>{teacher.tutor_groups ? teacher.tutor_groups.join(', ') : (teacher.tutor_group ?? '')}</td>
-              <td>
+              <td className={timetableExists ? 'teacher-hours-link' : ''} onClick={(e) => { if (timetableExists) { e.stopPropagation(); onViewTimetable(teacher.name); } }} title={timetableExists ? t('teachers.view_timetable') : ''}>
                 {(() => {
                   const max = teacher.max_hours_week ?? 0;
                   const lective = teacher.assigned_hours ?? 0;
