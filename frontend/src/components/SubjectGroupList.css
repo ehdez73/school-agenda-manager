@@ -21,8 +21,8 @@
 .subject-color-row {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-top: 2px;
+  gap: var(--space-sm);
+  margin-top: 2px;
 }
 
 .subject-color-picker {
@@ -45,8 +45,8 @@
     display: inline-block;
     width: 0.8rem;
     height: 0.8rem;
-    border-radius: 999px;
-    margin-right: 0.45rem;
-    border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-full);
+  margin-right: var(--space-xs);
+  border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
     vertical-align: middle;
 }

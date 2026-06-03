@@ -7,7 +7,7 @@
 .tabs-header {
     display: flex;
     gap: 2px;
-    background: var(--color-bg-secondary, #f0f0f0);
+    background: var(--color-surface-variant);
     border-radius: var(--radius-md);
     padding: 2px;
 }
@@ -24,11 +24,11 @@
 }
 
 .tab-btn:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: var(--color-hover-bg);
 }
 
 .tab-btn--active {
-    background: white;
+    background: var(--color-surface);
     color: var(--color-text);
     font-weight: 600;
     box-shadow: var(--shadow-sm);

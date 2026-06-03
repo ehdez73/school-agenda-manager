@@ -140,8 +140,8 @@
 .state-error {
     padding: var(--space-md);
     border-radius: var(--radius-md);
-    background-color: #fef2f2;
-    border: 1px solid #fecaca;
+    background-color: color-mix(in srgb, var(--color-danger) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-danger) 25%, transparent);
     color: var(--color-danger);
     font-size: 0.925rem;
 }
@@ -209,7 +209,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: color-mix(in srgb, var(--color-text) 50%, transparent);
     display: flex;
     align-items: center;
     justify-content: center;

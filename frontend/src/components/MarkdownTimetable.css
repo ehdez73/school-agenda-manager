@@ -82,10 +82,10 @@
 }
 
 .timetable-tab.active {
-  background: linear-gradient(135deg, var(--color-table-header) 0%, #1e293b 100%);
-  color: #ffffff;
-  border-color: #1e293b;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 4px 10px rgba(15, 23, 42, 0.2);
+  background: linear-gradient(135deg, var(--color-table-header) 0%, var(--color-nav-bg) 100%);
+  color: var(--color-table-header-text);
+  border-color: var(--color-nav-bg);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--color-table-header-text) 20%, transparent) inset, 0 4px 10px color-mix(in srgb, var(--color-nav-bg) 30%, transparent);
 }
 
 .timetable-tab:focus-visible {
@@ -166,8 +166,8 @@
 }
 
 .timetable-selector__option.selected {
-  background: linear-gradient(135deg, var(--color-table-header) 0%, #1e293b 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, var(--color-table-header) 0%, var(--color-nav-bg) 100%);
+  color: var(--color-table-header-text);
 }
 
 .timetable-selector__option--all {
@@ -256,7 +256,7 @@
 }
 
 .markdown-timetable th {
-  background: linear-gradient(135deg, var(--color-table-header) 0%, #1e293b 100%);
+  background: linear-gradient(135deg, var(--color-table-header) 0%, var(--color-nav-bg) 100%);
   color: var(--color-table-header-text);
   font-weight: 700;
   font-size: 0.8rem;
@@ -264,14 +264,14 @@
   letter-spacing: 0.3px;
   padding: var(--space-sm);
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid color-mix(in srgb, var(--color-table-header-text) 15%, transparent);
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
 .markdown-timetable th:first-child {
-  background: linear-gradient(135deg, #475569 0%, #334155 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-table-header) 100%);
   min-width: 150px;
   font-weight: 600;
   white-space: nowrap;
@@ -332,7 +332,7 @@
 
 /* Empty cells */
 .markdown-timetable td:empty {
-  background-color: rgba(239, 68, 68, 0.05);
+  background-color: color-mix(in srgb, var(--color-danger) 5%, transparent);
   border: 1px dashed var(--color-border-light);
 }
 
@@ -539,7 +539,7 @@
   width: 100%;
   padding: 0.2rem 0.1rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text);
 }
 
 .tt-gap {
@@ -553,8 +553,8 @@
 }
 .tt-gap:hover {
   opacity: 1;
-  background-color: rgba(0,0,0,0.04);
-  border-radius: 4px;
+  background-color: color-mix(in srgb, var(--color-text) 4%, transparent);
+  border-radius: var(--radius-sm);
 }
 
 .tt-gap::after {
@@ -565,13 +565,13 @@
   display: block;
   width: 100%;
   min-height: 1.5em;
-  color: #dc2626;
-  background-color: #fef2f2;
+  color: var(--color-danger);
+  background-color: color-mix(in srgb, var(--color-danger) 8%, transparent);
   text-align: center;
   font-weight: 700;
   font-size: 1.15em;
   cursor: default;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 .tt-support-entry {
@@ -646,7 +646,7 @@
   left: 3px;
   width: 14px;
   height: 14px;
-  background: white;
+  background: var(--color-surface);
   border-radius: var(--radius-full);
   transition: transform 0.2s ease;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
@@ -685,7 +685,7 @@
 @media print {
   .markdown-timetable {
     box-shadow: none;
-    border: 1px solid #000;
+    border: 1px solid var(--color-text);
   }
 
   .markdown-timetable table {
@@ -717,7 +717,8 @@
 }
 
 .diagnostic-details summary:hover {
-  color: var(--color-warning-dark, #d97706);
+  color: var(--color-warning);
+  filter: brightness(1.2);
 }
 
 .diagnostic-details[open] {

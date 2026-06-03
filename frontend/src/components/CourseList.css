@@ -1,15 +1,15 @@
 .course-form {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 1em;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-md);
 }
 
 .course-form-row {
   display: flex;
   flex-direction: column;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-sm);
 }
 
 .course-form-row--split {

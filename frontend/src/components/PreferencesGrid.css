@@ -17,14 +17,14 @@
 .preferences-table td {
     text-align: center;
     padding: 0.25rem;
-    border-bottom: 1px solid #f2f2f2;
+    border-bottom: 1px solid var(--color-border);
     vertical-align: middle;
 }
 
 .preferences-table .hour-label {
     padding: 0.25rem 0.5rem;
     vertical-align: middle;
-    border-bottom: 1px solid #f2f2f2;
+    border-bottom: 1px solid var(--color-border);
     text-align: left;
     font-size: 0.875rem;
     color: var(--color-text-muted);

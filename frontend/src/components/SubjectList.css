@@ -1,10 +1,10 @@
 .subject-form {
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-md);
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
-  padding: 1em;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  gap: var(--space-lg);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-md);
   align-items: flex-start;
 }
 
@@ -52,7 +52,7 @@
 .subject-color-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-sm);
   margin-top: 2px;
 }
 
@@ -76,9 +76,9 @@
   display: inline-block;
   width: 0.8rem;
   height: 0.8rem;
-  border-radius: 999px;
-  margin-right: 0.45rem;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-full);
+  margin-right: var(--space-xs);
+  border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
   vertical-align: middle;
 }
 
@@ -88,7 +88,7 @@
 
 .subject-teachers {
   width: 100%;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-sm);
 }
 
 .subject-teachers h4 {
@@ -103,19 +103,19 @@
   margin: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: var(--space-xs);
 }
 
 .teacher-list li {
-  background: var(--color-surface-variant, #f0f0f0);
+  background: var(--color-surface-variant);
   padding: 0.2rem 0.6rem;
-  border-radius: var(--radius-sm, 4px);
+  border-radius: var(--radius-sm);
   font-size: 0.85rem;
 }
 
 .lines-fieldset {
-  border: 1px solid var(--color-border, #ccc);
-  border-radius: var(--radius-md, 6px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   padding: 0.6rem 0.8rem;
   margin: 0;
   width: fit-content;
@@ -129,7 +129,7 @@
 
 .lines-checkboxes {
   display: flex;
-  gap: 0.8rem;
+  gap: var(--space-md);
   align-items: center;
   flex-wrap: wrap;
 }
@@ -137,14 +137,14 @@
 .line-checkbox-label {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--space-xs);
   font-weight: 500;
   cursor: pointer;
 }
 
 .lines-hint {
   font-size: 0.8rem;
-  color: var(--color-text-muted, #888);
+  color: var(--color-text-muted);
   font-style: italic;
 }
 

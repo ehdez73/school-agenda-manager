@@ -104,7 +104,7 @@
 .restriction-desc {
   display: block;
   font-size: 0.8rem;
-  color: var(--color-text-secondary, #888);
+  color: var(--color-text-muted);
   margin-top: 0.1rem;
 }
 
