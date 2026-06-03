@@ -19,6 +19,7 @@ export default function CourseList({ onViewTimetable }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [timetableExists, setTimetableExists] = useState(false);
+  const [loadingTeachers, setLoadingTeachers] = useState(false);
 
   function fetchCourses() {
     setLoading(true);
@@ -85,6 +86,20 @@ export default function CourseList({ onViewTimetable }) {
   function cancelDelete() {
     setShowDeleteModal(false);
     setDeleteId(null);
+  }
+
+  async function handleGroupClick(e, grupos) {
+    if (!timetableExists) return;
+    e.stopPropagation();
+    setLoadingTeachers(true);
+    try {
+      const data = await api.post('/courses/teachers-for-groups', { groups: grupos });
+      onViewTimetable(grupos, data.teachers);
+    } catch {
+      onViewTimetable(grupos, []);
+    } finally {
+      setLoadingTeachers(false);
+    }
   }
 
   const filteredCourses = courses.filter(course =>
@@ -170,7 +185,7 @@ export default function CourseList({ onViewTimetable }) {
                     <tr key={course.name} onClick={() => handleEdit(course)} className="table-row-clickable">
                       <td>{course.name}</td>
                       <td>{course.num_lines}</td>
-                      <td className={timetableExists ? 'course-group-link' : ''} onClick={(e) => { if (timetableExists) { e.stopPropagation(); onViewTimetable(grupos); } }}>{grupos.join(', ')}</td>
+                      <td className={timetableExists ? 'course-group-link' : ''} onClick={(e) => handleGroupClick(e, grupos)}>{loadingTeachers ? `${grupos.join(', ')}...` : grupos.join(', ')}</td>
                     </tr>
                   );
                 })}

@@ -19,6 +19,7 @@ function App() {
   });
   const [timetablePreselectTeacher, setTimetablePreselectTeacher] = useState(null);
   const [timetablePreselectCourseGroups, setTimetablePreselectCourseGroups] = useState(null);
+  const [timetablePreselectTeachers, setTimetablePreselectTeachers] = useState(null);
   const [editTeacherName, setEditTeacherName] = useState(null);
 
   useEffect(() => {
@@ -116,7 +117,7 @@ function App() {
             <p className="home__description">{t('home.description')}</p>
           </div>
         )}
-        {page === 'courses' && <CourseList onViewTimetable={(groups) => { setTimetablePreselectCourseGroups(groups); setPage('timetable-markdown'); }} />}
+        {page === 'courses' && <CourseList onViewTimetable={(groups, teachers) => { setTimetablePreselectCourseGroups(groups); setTimetablePreselectTeachers(teachers || null); setPage('timetable-markdown'); }} />}
         {page === 'subjects' && <SubjectList />}
         {page === 'teachers' && (
           <TeacherList
@@ -129,8 +130,10 @@ function App() {
           <MarkdownTimetable
             preselectTeacher={timetablePreselectTeacher}
             preselectCourseGroups={timetablePreselectCourseGroups}
+            preselectTeachers={timetablePreselectTeachers}
             onConsumePreselect={() => setTimetablePreselectTeacher(null)}
             onConsumeCoursePreselect={() => setTimetablePreselectCourseGroups(null)}
+            onConsumeTeacherPreselect={() => setTimetablePreselectTeachers(null)}
             onViewTeacher={(name) => { setEditTeacherName(name); setPage('teachers'); }}
           />
         )}

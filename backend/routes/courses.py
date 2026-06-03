@@ -9,6 +9,38 @@ from sqlalchemy.orm import joinedload
 courses_bp = Blueprint('courses', __name__)
 logger = logging.getLogger(__name__)
 
+
+@courses_bp.route('/courses/teachers-for-groups', methods=['POST'])
+def get_teachers_for_groups():
+    data = request.get_json()
+    if not data or 'groups' not in data:
+        abort(400, description="groups field required")
+    group_names = data['groups']
+    if not isinstance(group_names, list):
+        abort(400, description="groups must be an array")
+
+    session = Session()
+    try:
+        teacher_names = set()
+        for group_name in group_names:
+            if not group_name or len(group_name) < 2:
+                continue
+            line_letter = group_name[-1]
+            line_index = ord(line_letter.upper()) - ord('A')
+            course_id = group_name[:-1]
+
+            assignments = session.query(TimeSlotAssignment).join(Timeslot).filter(
+                Timeslot.course_id == course_id,
+                Timeslot.line == line_index,
+            ).options(joinedload(TimeSlotAssignment.teacher)).all()
+
+            for a in assignments:
+                teacher_names.add(a.teacher.name)
+
+        return jsonify({"teachers": sorted(teacher_names)})
+    finally:
+        session.close()
+
 @courses_bp.route('/courses', methods=['GET'])
 def get_courses():
     logger.info("Listing courses")

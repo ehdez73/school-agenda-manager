@@ -160,7 +160,7 @@ function stripSubjectEntryInlineBg(node) {
 }
 
 
-function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, onConsumePreselect, onConsumeCoursePreselect, onViewTeacher }) {
+function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectTeachers, onConsumePreselect, onConsumeCoursePreselect, onConsumeTeacherPreselect, onViewTeacher }) {
   const [markdown, setMarkdown] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -692,6 +692,20 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, onConsumeP
     }
     if (onConsumeCoursePreselect) onConsumeCoursePreselect();
   }, [preselectCourseGroups, courseSection, onConsumeCoursePreselect]);
+
+  useEffect(() => {
+    if (!preselectTeachers || !teacherSection || teacherSection.entries.length === 0 || preselectTeachers.length === 0) return;
+    const matchedIds = teacherSection.entries
+      .filter(entry => {
+        const teacherName = entry.title.replace(/ — .*/, '').trim();
+        return preselectTeachers.some(name => teacherName.toLowerCase() === name.toLowerCase());
+      })
+      .map(entry => entry.id);
+    if (matchedIds.length > 0) {
+      setSelectedTeacherIds(matchedIds);
+    }
+    if (onConsumeTeacherPreselect) onConsumeTeacherPreselect();
+  }, [preselectTeachers, teacherSection, onConsumeTeacherPreselect]);
 
 function hasConflictChild(node) {
   if (node === null || node === undefined || typeof node === 'boolean') return false;
