@@ -67,7 +67,7 @@ function App() {
   }, [page]);
 
   return (
-    <div className="app">
+    <div className={`app${page === 'timetable-markdown' ? ' app--timetable-print' : ''}`}>
       <a
         href="https://github.com/ehdez73/school-agenda-manager"
         className="github-ribbon"

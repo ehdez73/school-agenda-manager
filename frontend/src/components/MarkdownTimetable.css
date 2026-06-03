@@ -659,17 +659,122 @@
 
 /* Print styles for school schedules */
 @media print {
-  .markdown-timetable {
+  @page {
+    size: landscape;
+    margin: 1cm;
+    max-width: 90%;
+  }
+
+  .app.app--timetable-print {
+    height: auto;
+    overflow: visible;
+    background: #fff;
+  }
+
+  .app.app--timetable-print .github-ribbon,
+  .app.app--timetable-print .app__nav,
+  .app.app--timetable-print .app__footer,
+  .app.app--timetable-print .diagnostic-details,
+  .app.app--timetable-print .section-layout__header,
+  .app.app--timetable-print .timetable-sidebar,
+  .app.app--timetable-print .timetable-selector,
+  .app.app--timetable-print .timetable-fixed-toggle,
+  .app.app--timetable-print .form-modal-overlay,
+  .app.app--timetable-print .form-modal {
+    display: none !important;
+  }
+
+  .app.app--timetable-print .app__content,
+  .app.app--timetable-print .section-layout,
+  .app.app--timetable-print .section-layout__content,
+  .app.app--timetable-print .timetable-with-sidebar,
+  .app.app--timetable-print .timetable-content,
+  .app.app--timetable-print .timetable-container,
+  .app.app--timetable-print .timetable-tabs-block,
+  .app.app--timetable-print .timetable-panels-group,
+  .app.app--timetable-print .timetable-tab-panel {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+  }
+
+  .app.app--timetable-print .app__content {
+    box-sizing: border-box;
+    padding: 0.7cm 1.8cm 0.7cm 0.7cm !important;
+  }
+
+  .app.app--timetable-print .markdown-timetable {
     box-shadow: none;
-    border: 1px solid var(--color-text);
+    border: 0;
+    overflow: visible;
   }
 
-  .markdown-timetable table {
-    page-break-inside: avoid;
+  .app.app--timetable-print .timetable-container {
+    padding-right: 0.9cm !important;
   }
 
-  .markdown-timetable h3 {
+  .app.app--timetable-print .markdown-timetable h3,
+  .app.app--timetable-print .timetable-panel-title {
     page-break-after: avoid;
+  }
+
+  .app.app--timetable-print .markdown-timetable table {
+    width: calc(100% - 0.6cm);
+    max-width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin: 0 0.6cm 0.7rem 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .app.app--timetable-print .markdown-timetable th,
+  .app.app--timetable-print .markdown-timetable td {
+    border: 1px solid #999;
+    font-size: 9px;
+    padding: 4px 6px;
+    min-width: 0 !important;
+    max-width: none !important;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .app.app--timetable-print .markdown-timetable th,
+  .app.app--timetable-print .markdown-timetable td:first-child {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    z-index: auto !important;
+  }
+
+  .app.app--timetable-print .timetable-tab-panel {
+    page-break-inside: avoid;
+    break-inside: avoid-page;
+    margin-bottom: 0.8cm !important;
+  }
+
+  .app.app--timetable-print .timetable-tab-panel:nth-child(2n) {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .app.app--timetable-print .timetable-tab-panel:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  .app.app--timetable-print .timetable-panel-title,
+  .app.app--timetable-print .timetable-panel-title + p {
+    page-break-after: avoid;
+    break-after: avoid;
   }
 }
 

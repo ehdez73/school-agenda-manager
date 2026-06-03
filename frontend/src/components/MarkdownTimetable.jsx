@@ -554,77 +554,6 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectT
     }
   };
 
-  function consolidateCellBg(cellHtml) {
-    const colorRe = /background-color:\s*(#[0-9a-fA-F]{6})/g;
-    const colors = [];
-    let m;
-    while ((m = colorRe.exec(cellHtml)) !== null) {
-      colors.push(m[1].toLowerCase());
-    }
-    if (colors.length === 0) return { html: cellHtml, bgColor: null };
-    const unique = [...new Set(colors)];
-    if (unique.length === 1) {
-      let cleaned = cellHtml.replace(/background-color:\s*#[0-9a-fA-F]{6};?\s*/gi, '');
-      cleaned = cleaned.replace(/\s*style="\s*"/g, '');
-      return { html: cleaned, bgColor: unique[0] };
-    }
-    return { html: cellHtml, bgColor: null };
-  }
-
-  const pipeTableToHtml = (md) => {
-    const lines = md.split('\n');
-    const result = [];
-    let inTable = false;
-    let tableRows = [];
-
-    const flushTable = () => {
-      if (!inTable) return;
-      if (tableRows.length > 1) {
-        result.push('<table>');
-        tableRows.forEach((row, i) => {
-          const cells = row.split('|').slice(1, -1).map(c => c.trim());
-          const tag = i === 1 ? 'th' : 'td';
-          if (i === 1) return;
-          const processedCells = cells.map(c => {
-            const { html, bgColor } = consolidateCellBg(c);
-            const styleAttr = bgColor ? ` style="background-color: ${bgColor};"` : '';
-            return `<${tag}${styleAttr}>${html}</${tag}>`;
-          });
-          result.push(`<tr>${processedCells.join('')}</tr>`);
-        });
-        result.push('</table>');
-      }
-      inTable = false;
-      tableRows = [];
-    };
-
-    for (const line of lines) {
-      const trimmed = line.trim();
-      const isPipeRow = trimmed.startsWith('|') && trimmed.endsWith('|');
-      const isSeparator = isPipeRow && /^[\s|:-]+$/.test(trimmed);
-
-      if (isPipeRow && !isSeparator) {
-        if (!inTable) {
-          inTable = true;
-          tableRows = [];
-        }
-        tableRows.push(line);
-        continue;
-      }
-      flushTable();
-      if (isSeparator) continue;
-      const h2 = line.match(/^## (.+)/);
-      if (h2) { result.push(`<h2>${h2[1]}</h2>`); continue; }
-      const h3 = line.match(/^### (.+)/);
-      if (h3) { result.push(`<h3>${h3[1]}</h3>`); continue; }
-      if (trimmed) {
-        result.push(`<p>${trimmed}</p>`);
-      }
-    }
-    flushTable();
-    return result.join('\n');
-  };
-
   const handlePrint = () => {
     const content = buildFilteredMarkdown();
     if (!content.trim()) {
@@ -632,31 +561,7 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectT
       return;
     }
 
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      setError(t('timetable.no_content_print'));
-      return;
-    }
-    printWindow.document.write(`<!DOCTYPE html><html><head><title>${t('timetable.print_md')}</title>
-<style>
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; line-height: 1.5; }
-  table { border-collapse: collapse; margin: 12px 0; width: 100%; table-layout: fixed; }
-  th, td { border: 1px solid #999; padding: 4px 6px; text-align: left; vertical-align: top; word-wrap: break-word; font-size: 9px; }
-  th { background: #f5f5f5; font-weight: 600; }
-  .tt-subject-entry { display: inline-block; padding: 1px 3px; border-radius: 2px; margin: 1px 0; font-size: 9px; }
-  .tt-fixed-slot { display: inline-block; padding: 2px 4px; font-weight: 700; font-style: italic; color: #666; border-radius: 3px; font-size: 9px; }
-  h2 { font-size: 16px; margin-top: 18px; }
-  h3 { font-size: 14px; margin-top: 14px; }
-  @page { size: landscape; margin: 1cm; }
-  @media print { body { padding: 0; } }
-</style></head><body>
-`);
-    const html = pipeTableToHtml(content);
-    printWindow.document.write(html);
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => printWindow.print(), 300);
+    window.print();
   };
 
   const layoutState = loading ? 'loading' : error ? 'error' : 'ready';
@@ -936,6 +841,7 @@ function hasConflictChild(node) {
         title={t('nav.timetable')}
         state={layoutState}
         errorMsg={error}
+        className="timetable-print-scope"
         actions={
           <>
             {generating ? (
