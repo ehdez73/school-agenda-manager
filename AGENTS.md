@@ -35,61 +35,12 @@ Docker (from repo root):
 docker compose up --build
 ```
 
-## Key files & entrypoints
-
-- `backend/app.py` — Flask init, blueprint registration, runs `populate_db` on startup
-- `backend/models.py` — SQLAlchemy models: Course, Subject, Teacher, Timeslot, SubjectGroup, FixedSlot, TeacherBusySlot, Config
-- `backend/scheduler.py` — builds CP-SAT model, applies restrictions, saves solution to DB
-- `backend/scheduler.py:create_timetable()` — main entry point for timetable generation
-- `backend/restrictions/base.py` — Restriction ABC (implement `apply(model, assignments, ...)`)
-- `backend/restrictions/__init__.py` — **must** import new restrictions here AND wire in `scheduler.py`
-- `backend/schemas.py` — Pydantic v2 response schemas
-- `backend/translations.py` — custom i18n helper, default locale `"es"`
-- `backend/constants.py` — `DEFAULT_LOCALE = "es"`
-- `frontend/src/App.jsx` — root component, `useState`-based page routing (no React Router)
-- `frontend/src/index.css` — CSS entry, imports layers in order: `globals.css > utilities.css > components.css` then component CSS
-- `frontend/src/lib/api.js` — native `fetch` wrapper
-- `frontend/src/i18n/index.js` — custom i18n helper
-
-## Architecture notes
-
-- **Decision variables**: `assignments[(group, subject_id, teacher_id, day, hour)]` = `BoolVar`
-  - Only valid (group belongs to course, teacher can teach subject) combos are created in `_create_assignments()`
-  - **teacher_subject_lines**: optional `dict[(teacher_id, subject_id)] -> list[int] | None` filters which course lines a teacher can teach a subject to (stored in `teacher_subject.included_lines` column as JSON array of ints). Loaded by `_load_teacher_subject_lines()` in `create_timetable()` and threaded through to `_create_assignments()`. `None` = all lines.
-- **Group format**: `"{course.id}-{line_char}"` e.g. `"1º-A"`, `"2-B"`
-  - Use `normalize_group_name()` from `tutor_mandatory_hours.py` to parse user input: `"1ºA"` → `"1º-A"`
-- **Hard restrictions**: listed in `_build_hard_restrictions()`, always enforced
-- **Soft restrictions**: listed in `_build_soft_restrictions()`, use `preference_terms` list; `model.Maximize(sum(preference_terms))`
-- **Infeasibility diagnosis**: 3-phase (sanity checks → isolation → entity-level), results as markdown string
-- **Vite proxy**: `/api/*` in dev rewrites to `http://localhost:5000/*` (no `/api` prefix on backend)
-  - Production uses `VITE_API_BASE` env var (default: `/api`)
-- **SQLite DB**: `agenda.db` at repo root. Delete and re-run backend to regenerate seed data.
-
 ## Conventions
 
-### Restrictions (backend)
-1. Create file in `backend/restrictions/`
-2. Subclass `Restriction`, implement `apply(self, model, assignments, ...)`
-3. Import in `restrictions/__init__.py` and add to `__all__`
-4. Wire in `scheduler.py` (`_build_hard_restrictions()` or `_build_soft_restrictions()`)
-5. Write test in `backend/test/restrictions/test_<name>.py` with local Mock classes
-6. For diagnostic support: override `apply_with_assumptions()` returning `[(BoolVar, entity_info_dict)]`
-7. Soft constraints: store `self.preference_terms`, accept `weight` param in `__init__`
 
-### Restrictions — dict filtering
-See `.agents/skills/ortools/SKILL.md` §3.
+### Restrictions
+For diagnostics, soft and hard constraints, dict filtering, CP-SAT patterns see `.agents/skills/ortools/SKILL.md`.
 
-### Frontend
-See `.agents/skills/frontend/SKILL.md`.
-
-## Testing gotchas
-
-- Backend tests: `conftest.py` adds `backend/` to sys.path so imports work
-- Restriction tests use local MockTeacher, MockSubject, MockSubjectGroup classes (no DB needed)
-- Feasibility test: assert `status in (cp_model.OPTIMAL, cp_model.FEASIBLE)`
-- Infeasibility test: force conflicting assignments with `model.Add(var == 1)` then assert `status == cp_model.INFEASIBLE`
-- Solution verification: read with `solver.Value(assignments[key])` and check invariants
-- Frontend tests: in `frontend/src/components/__tests__/`, Vitest with jsdom environment
 
 ## Known gotchas
 
@@ -104,9 +55,11 @@ See `.agents/skills/frontend/SKILL.md`.
 
 - `docs/GUIA_USUARIO.md` (Spanish) and `docs/USER_GUIDE.md` (English) — user-facing guides
 - Keep them in sync with the actual UI: update when routes, forms, labels, or UI copy change
+- For any change in documentation see `.agents/skills/tech-writer/SKILL.md`
 
 ## Detailed references
 
-- `.agents/skills/backend/SKILL.md` — Flask app structure, route blueprints, SQLAlchemy models, Pydantic schemas, i18n, logging, task manager, seeding
-- `.agents/skills/ortools/SKILL.md` — CP-SAT variable structure, filtering, diagnostics, testing
-- `.agents/skills/frontend/SKILL.md` — component tree, CSS design system, i18n, API patterns
+- `.agents/skills/backend/SKILL.md` — Backend development: Flask app structure, route blueprints, SQLAlchemy models, Pydantic schemas, i18n, logging, task manager, seeding
+- `.agents/skills/ortools/SKILL.md` — Restriction development: CP-SAT variable structure, filtering, diagnostics, hard/soft restrictions
+- `.agents/skills/frontend/SKILL.md` — Frontend component: tree, CSS design system, i18n, API patterns
+- `.agents/skills/tech-writer/SKILL.md` - Documentation and user guides.

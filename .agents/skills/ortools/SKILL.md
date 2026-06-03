@@ -94,6 +94,16 @@ if preference_terms:
     model.Maximize(sum(preference_terms))
 ```
 
+### 0.4 Architecture notes (scheduler)
+
+- Decision variable shape is `assignments[(group, subject_id, teacher_id, day, hour)] = BoolVar`.
+- Variables are only created for valid combinations in `_create_assignments()`.
+- `teacher_subject_lines` is loaded by `_load_teacher_subject_lines()` and applied as an AND-filter with `Subject.included_lines`.
+- Group names use `"{course.id}-{line_char}"` format (for example `"1º-A"`). Use `normalize_group_name()` for user inputs like `"1ºA"`.
+- Hard restrictions are wired via `_build_hard_restrictions()`.
+- Soft restrictions contribute weighted `preference_terms` and objective uses `model.Maximize(sum(preference_terms))`.
+- Infeasibility diagnosis uses three phases: sanity checks, isolation, and entity-level diagnosis, producing markdown details.
+
 ---
 
 ## 1. Quick Start — Add a New Restriction in 6 Steps
@@ -641,6 +651,14 @@ def test_my_rule_solution_correct():
         )
         assert assigned <= teacher.max_hours_week
 ```
+
+### Testing gotchas (CP-SAT restrictions)
+
+- Restriction tests should use local mock entities (`MockTeacher`, `MockSubject`, `MockSubjectGroup`) and avoid DB dependency.
+- For feasibility checks, assert `status in (cp_model.OPTIMAL, cp_model.FEASIBLE)`.
+- For infeasibility checks, force a conflicting assignment (for example `model.Add(var == 1)`) and assert `status == cp_model.INFEASIBLE`.
+- When validating solved schedules, read assignments with `solver.Value(assignments[key])` and assert invariants.
+- Never read `solver.Value(...)` before checking that the solve status is feasible/optimal.
 
 ---
 

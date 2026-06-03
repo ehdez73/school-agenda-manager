@@ -123,6 +123,19 @@ The value maps to conditional rendering. Each page section mounts/unmounts on na
 3. Add a `nav__link` button calling `setPage('your-key')`
 4. Add the conditional render: `{page === 'your-key' && <YourComponent />}`
 
+### 0.4 Key Files & Entrypoints (Frontend)
+
+- `src/App.jsx` — root component, top navigation, and `useState`-based page routing.
+- `src/index.css` — CSS entrypoint; imports style layers in order (`globals.css` -> `utilities.css` -> `components.css`) plus component styles.
+- `src/lib/api.js` — centralized `fetch` wrapper used by UI components.
+- `src/i18n/index.js` — i18n helper (`t`, locale get/set) used across the app.
+
+### 0.5 API proxy behavior
+
+- In development, Vite rewrites `/api/*` to `http://localhost:5000/*`.
+- In production, API base comes from `VITE_API_BASE` (default `/api`).
+- Backend routes should not include an extra `/api` prefix when called through `src/lib/api.js`.
+
 ---
 
 ## 1. SectionLayout — The Architectural Backbone
@@ -420,7 +433,9 @@ Escape-to-close built in. Shows "Confirm {entity} {id}" by default.
 
 ### 3.3 AutocompleteSelect (`src/components/AutocompleteSelect.jsx`)
 
-Multi-select (default) or single-select with search, keyboard navigation, and chip display:
+**Use this component whenever you need to select one or more items from a dynamic list with search. Never use a native `<input type="text">` + `<datalist>`, a bare `<select multiple>`, or a third-party combobox library.**
+
+Multi-select (default) or single-select with fuzzy search, keyboard navigation, and chip display. Selected items are shown as removable chips below the input.
 
 ```jsx
 <AutocompleteSelect
@@ -430,10 +445,36 @@ Multi-select (default) or single-select with search, keyboard navigation, and ch
   onRemove={id => setForm(f => ({ ...f, selectedIds: f.selectedIds.filter(s => String(s) !== String(id)) }))}
   getDisplayLabel={item => item.full_name || item.name}
   placeholder={t('your.search') + '...'}
-  noResultsText="No results"
-  singleSelect={false}
+  noResultsText={t('common.no_results')}
+  singleSelect={false}   // true → only one selection allowed at a time
 />
 ```
+
+**Props:**
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `items` | object[] | Yes | Full list of available items (each must have an `id`) |
+| `selectedIds` | string[] | Yes | IDs of currently selected items |
+| `onAdd` | fn(id: string) | Yes | Called when the user selects an item |
+| `onRemove` | fn(id: string) | Yes | Called when the user removes a chip |
+| `getDisplayLabel` | fn(item) → string | No | Label resolver; defaults to `item.full_name \|\| item.name` |
+| `placeholder` | string | No | Input placeholder |
+| `noResultsText` | string | No | Message when no items match the query |
+| `singleSelect` | bool | No | If `true`, replacing existing selection on each add |
+
+**CSS classes (AutocompleteSelect.css):**
+
+| Class | Role |
+|-------|------|
+| `.autocomplete` | Root wrapper; `position: relative` |
+| `.autocomplete__input` | Search text input; design-system tokens (`--color-input-bg`, `--color-input-border`, `--radius-md`) |
+| `.autocomplete__dropdown` | Floating results list; `position: absolute`, `z-index: 10`, `--shadow-lg` |
+| `.autocomplete__option` | Single result row |
+| `.autocomplete__option--highlighted` | Keyboard-focus row; uses `--color-hover-bg` / `--color-hover-text` |
+| `.autocomplete__no-results` | Empty-state message; muted italic text |
+| `.chip` | Selected-item tag rendered below the input |
+| `.chip__remove` | Remove (×) button inside each chip |
 
 Keyboard: ArrowUp/Down to navigate, Enter to select, Escape to close. Click-outside to close.
 
@@ -449,25 +490,47 @@ Switching language triggers `window.location.reload()` to ensure all strings upd
 
 ### 3.5 PreferencesGrid (`src/components/PreferencesGrid.jsx`)
 
-Three-state toggle grid for teacher availability (day × hour):
+**Use this component for any teacher availability / time-preference grid. Never use native `<input type="checkbox">` or radio buttons to represent per-slot availability state — they cannot express three states cleanly and break the design system.**
 
-| State | Visual | Toggle sequence |
-|-------|--------|-----------------|
-| Available | Default | Next click → Unavailable |
-| Unavailable | Red/blocked cell | Next click → Preferred |
-| Preferred | Green cell | Next click → Available |
+Three-state toggle grid for teacher availability (day × hour). Each cell is a `<button aria-pressed>` that cycles through three states:
+
+| State | `data-state` | Visual | aria-pressed | Toggle sequence |
+|-------|-------------|--------|--------------|-----------------|
+| Available | `available` | Default cell | `false` | Next click → Unavailable |
+| Unavailable | `unavailable` | Red/blocked cell | `true` | Next click → Preferred |
+| Preferred | `preferred` | Green cell | `mixed` | Next click → Available |
 
 ```jsx
 <PreferencesGrid
-  value={form.preferences}
+  value={form.preferences}   // { [dayIndex]: { unavailable: number[], preferred: number[] } }
   onChange={v => setForm(f => ({ ...f, preferences: v }))}
-  classesPerDay={numHours}
+  classesPerDay={numHours}   // number of hour rows
+  days={['Lun', 'Mar', ...]} // optional; falls back to API /config day_names
 />
 ```
 
+**Props:**
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | object | No | Current state: keys are day indices, values are `{ unavailable, preferred }` arrays |
+| `onChange` | fn(value) | No | Called with updated value on each toggle |
+| `classesPerDay` | number | No | Number of hour rows (default 5) |
+| `days` | string[] | No | Day name headers; fetched from `/config` if not provided |
+
+**Data format emitted by `onChange`:**
+```json
+{ "0": { "unavailable": [2, 3], "preferred": [0] }, "2": { "unavailable": [], "preferred": [1] } }
+```
+Day indices with no constraints are omitted from the object.
+
+**Note:** This is a domain-specific component for teacher schedules. Do not use it as a generic checkbox grid.
+
 ### 3.6 Select (`src/components/Select.jsx`)
 
-Custom dropdown select. Click-outside detection, keyboard navigation (arrows, enter, escape). Highlights selected option.
+**This is the only component to use for single-option dropdowns in this project. Never use a native `<select>` element — it cannot be themed consistently across browsers and breaks the design system.**
+
+Custom dropdown with click-outside detection, keyboard navigation (ArrowUp/Down, Enter, Escape) and per-option highlight. Fully themed via CSS custom properties.
 
 ```jsx
 <Select
@@ -475,10 +538,33 @@ Custom dropdown select. Click-outside detection, keyboard navigation (arrows, en
   options={[{ value: 'a', label: 'Option A' }, { value: 'b', label: 'Option B' }]}
   onChange={e => setForm(f => ({ ...f, field: e.target.value }))}
   placeholder="Select..."
+  className="search-select"   {/* optional extra class */}
 />
 ```
 
-Caveat: `onChange` returns `{ target: { value } }` to mimic native `<select>`, not the value directly.
+**Props:**
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | string | Yes | Currently selected value |
+| `options` | `{ value, label }[]` | Yes | List of options to render |
+| `onChange` | fn | Yes | Called with `{ target: { value } }` to mimic native `<select>` |
+| `placeholder` | string | No | Shown when no option is selected |
+| `className` | string | No | Extra CSS class on the root element |
+
+**CSS classes (Select.css):**
+
+| Class | Role |
+|-------|------|
+| `.custom-select` | Root wrapper; `position: relative` |
+| `.custom-select__trigger` | Toggle button; uses design-system tokens (`--color-input-bg`, `--color-input-border`, `--color-input-text`, `--radius-md`) |
+| `.custom-select__trigger--placeholder` | Applied when no option is selected; uses `--color-text-muted` |
+| `.custom-select--open` | Added to root when dropdown is visible; rotates arrow icon 180° |
+| `.custom-select__arrow` | SVG chevron icon inline via `background-image` |
+| `.custom-select__dropdown` | Floating options list; `position: absolute`, `z-index: 50`, `--shadow-lg` |
+| `.custom-select__option` | Individual option row |
+| `.custom-select__option--highlighted` | Keyboard-focus row; uses `--color-hover-bg` / `--color-hover-text` |
+| `.custom-select__option--selected` | Currently selected option; `font-weight: 600` |
 
 ### 3.7 useEscapeToCancel (`src/components/useEscapeToCancel.js`)
 
@@ -874,6 +960,11 @@ export function renderSection(overrides = {}) {
 - Delete confirmation flow works
 - Regression tests: guard against accidental changes to form/list structure
 
+### 8.5 Testing Gotchas (Frontend)
+
+- Keep component tests in `src/components/__tests__/` (this repo convention).
+- Use Vitest with jsdom (configured in `vitest.config.js`) so DOM/UI assertions behave correctly.
+
 ---
 
 ## 9. Adding a New Section — Checklist
@@ -929,6 +1020,9 @@ Use this checklist when creating a new feature/section in the frontend:
 
 | Pitfall | Fix |
 |---------|-----|
+| **Using native `<select>` for dropdowns** | Use `<Select>` from `src/components/Select.jsx` — native selects can't be themed consistently across browsers. ⚠️ Pre-existing violations in `JointClassForm.jsx`, `SubjectForm.jsx`, `MarkdownTimetable.jsx` |
+| **Using `<input>` + `<datalist>` or `<select multiple>` for search-select** | Use `<AutocompleteSelect>` from `src/components/AutocompleteSelect.jsx` |
+| **Using `<input type="checkbox">` for tri-state availability per timeslot** | Use `<PreferencesGrid>` for teacher availability grids. ⚠️ Pre-existing native checkbox usage in `ConfigForm.jsx`, `JointClassForm.jsx`, `SubjectGroupForm.jsx`, `TeacherForm.jsx`, `SubjectForm.jsx`, `MarkdownTimetable.jsx` — fix if touching those areas |
 | Using `<a>` tags for nav | Use `<button>` with `onClick` — there's no URL routing |
 | Adding a new nav link but not the conditional render | Both the button in `nav__links` AND the `{page === 'x' && <Component />}` are required |
 | Hardcoding colors in component CSS | Use `var(--color-*)` tokens from `globals.css` |

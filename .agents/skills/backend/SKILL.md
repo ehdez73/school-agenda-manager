@@ -14,6 +14,24 @@ patterns, module structure, and wiring used in this codebase.
 
 ---
 
+## 0. Key Files & Entrypoints (Backend)
+
+- `backend/app.py` — Flask initialization, blueprint registration, startup seeding via `populate_db`.
+- `backend/models.py` — SQLAlchemy engine/session setup and core models (`Course`, `Subject`, `Teacher`, `Timeslot`, `SubjectGroup`, `FixedSlot`, `TeacherBusySlot`, `Config`).
+- `backend/scheduler.py` — CP-SAT model builder, restriction wiring, solution persistence.
+- `backend/scheduler.py:create_timetable()` — main timetable generation entrypoint.
+- `backend/restrictions/base.py` — `Restriction` abstract base class.
+- `backend/restrictions/__init__.py` — restriction export registry (`__all__`); new restrictions must be imported here.
+- `backend/schemas.py` — Pydantic v2 response/input schemas.
+- `backend/translations.py` — i18n dictionaries and translation helper.
+- `backend/constants.py` — shared constants (including default locale).
+
+### Backend runtime note
+
+- SQLite DB file is `agenda.db` at repo root. If schema/seed is out of sync, delete it and restart backend to regenerate.
+
+---
+
 ## 1. Flask App Structure
 
 ### 1.1 Entrypoint
@@ -471,3 +489,10 @@ cd backend
 uv run python -m pytest -q                                          # all tests
 uv run python -m pytest --cov=backend --cov-report=term-missing -q  # with coverage
 ```
+
+---
+
+## 10. Testing Gotchas (Backend)
+
+- `backend/test/conftest.py` adds `backend/` to `sys.path`, so backend imports work in tests.
+- For CP-SAT/restriction-specific test patterns and gotchas, see `.agents/skills/ortools/SKILL.md`.
