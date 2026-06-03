@@ -218,7 +218,20 @@
         "assignments_cleared": "Assignments eliminadas",
         "show_course_fixed": "Mostrar filas fijas de cursos",
         "show_teacher_fixed": "Mostrar filas fijas de docentes",
-        "confirm_recreate": "Se eliminarán los horarios actuales y se generarán unos nuevos. ¿Deseas continuar?"
+        "confirm_recreate": "Se eliminarán los horarios actuales y se generarán unos nuevos. ¿Deseas continuar?",
+        "support_label": "APOYO",
+        "support_modal_title": "Asignar Apoyo",
+        "support_modal_assign": "Asignar Apoyo",
+        "support_modal_remove": "Eliminar Apoyo",
+        "support_modal_cancel": "Cancelar",
+        "support_modal_select": "Selecciona la asignatura a apoyar:",
+        "support_modal_current": "Apoyo actual:",
+        "support_modal_no_subjects": "No hay asignaturas disponibles en este horario",
+        "support_modal_saving": "Guardando...",
+        "support_saved": "Apoyo asignado correctamente",
+        "support_removed": "Apoyo eliminado correctamente",
+        "coordination_label_short": "coord.",
+        "support_label_short": "apoyo"
     },
     "subjects": {
         "title": "Asignaturas",

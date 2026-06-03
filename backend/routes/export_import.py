@@ -19,6 +19,7 @@ from ..models import (
     Config,
     FixedSlot,
     JointClass,
+    SupportAssignment,
 )
 from .. import export_import as shared_export_import
 
@@ -101,6 +102,7 @@ def clear_all_data():
     logger.info("Clear-all request started")
     try:
         # Delete all records from all tables in the correct order (to avoid foreign key constraints)
+        session.query(SupportAssignment).delete()
         session.query(TimeSlotAssignment).delete()
         session.query(Timeslot).delete()
 

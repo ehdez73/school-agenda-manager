@@ -4,7 +4,7 @@ from datetime import datetime
 
 from flask import Blueprint, jsonify
 from ..translations import t
-from ..models import Session as DbSession, TimeSlotAssignment, SchedulerError
+from ..models import Session as DbSession, TimeSlotAssignment, SchedulerError, SupportAssignment
 from ..timetable import print_markdown_timetable_from_assignments, print_markdown_timetable_per_teacher
 from ..markdown_utils import align_tables_in_text
 from ..scheduler import create_timetable
@@ -222,8 +222,9 @@ def clear_assignments():
     session = DbSession()
     logger.info("Clearing timetable assignments", extra=build_log_extra())
     session.query(TimeSlotAssignment).delete()
+    session.query(SupportAssignment).delete()
     session.commit()
     session.close()
     _clear_scheduler_error()
-    logger.info("Timetable assignments and persisted error cleared", extra=build_log_extra())
+    logger.info("Timetable assignments, support assignments, and persisted error cleared", extra=build_log_extra())
     return jsonify({'status': 'ok', 'message': t('timetable.assignments_cleared')}), 200

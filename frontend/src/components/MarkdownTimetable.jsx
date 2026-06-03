@@ -7,6 +7,7 @@ import api from '../lib/api';
 import { t } from '../i18n';
 import SectionLayout from './SectionLayout';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
+import FormModal from './FormModal';
 
 const POLL_INTERVAL_MS = 4000;
 const POLL_RETRY_MS = 3000;
@@ -179,6 +180,19 @@ function MarkdownTimetable() {
   const [teacherQuery, setTeacherQuery] = useState('');
   const [showCourseSuggestions, setShowCourseSuggestions] = useState(false);
   const [showTeacherSuggestions, setShowTeacherSuggestions] = useState(false);
+  const [supportModal, setSupportModal] = useState({
+    open: false,
+    teacherName: null,
+    teacherId: null,
+    day: null,
+    hour: null,
+    supportId: null,
+  });
+  const [availableSubjects, setAvailableSubjects] = useState([]);
+  const [existingSupport, setExistingSupport] = useState(null);
+  const [selectedSubjectIndex, setSelectedSubjectIndex] = useState(0);
+  const [hourLabel, setHourLabel] = useState(null);
+  const [savingSupport, setSavingSupport] = useState(false);
   const timetableRef = useRef();
   const courseSelectorRef = useRef(null);
   const teacherSelectorRef = useRef(null);
@@ -246,6 +260,15 @@ function MarkdownTimetable() {
     setTeacherQuery('');
     setShowCourseSuggestions(false);
     setShowTeacherSuggestions(false);
+  };
+
+  const refreshTimetableSilent = async () => {
+    try {
+      const data = await api.get('/timetable', { responseType: 'text', cacheBust: true });
+      if (data) setMarkdown(data);
+    } catch {
+      // silent — don't disrupt the current view
+    }
   };
 
   const fetchTimetable = async ({ silentNotFound = false } = {}) => {
@@ -721,6 +744,90 @@ function MarkdownTimetable() {
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  const openSupportModal = async (teacherName, day, hour, supportId) => {
+    setSavingSupport(false);
+    setSelectedSubjectIndex(0);
+    try {
+      const data = await api.get(`/timetable/gaps?teacher_name=${encodeURIComponent(teacherName)}&day=${day}&hour=${hour}`);
+      setAvailableSubjects(data.available_subjects || []);
+      setExistingSupport(data.existing_support || null);
+      setHourLabel(data.hour_label || null);
+      setSupportModal({
+        open: true,
+        teacherName,
+        teacherId: data.teacher_id,
+        day,
+        hour,
+        supportId,
+      });
+    } catch {
+      setAvailableSubjects([]);
+      setExistingSupport(null);
+      setHourLabel(null);
+      setSupportModal({ open: true, teacherName, teacherId: null, day, hour, supportId });
+    }
+  };
+
+  const handleTimetableClick = (e) => {
+    const gap = e.target.closest('.tt-gap');
+    if (gap) {
+      const teacherName = gap.dataset.teacher;
+      const day = parseInt(gap.dataset.day, 10);
+      const hour = parseInt(gap.dataset.hour, 10);
+      openSupportModal(teacherName, day, hour, null);
+      return;
+    }
+    const supportEntry = e.target.closest('.tt-support-entry');
+    if (supportEntry) {
+      const supportId = parseInt(supportEntry.dataset.supportId, 10);
+      const teacherName = supportEntry.dataset.teacher;
+      const day = parseInt(supportEntry.dataset.day, 10);
+      const hour = parseInt(supportEntry.dataset.hour, 10);
+      openSupportModal(teacherName, day, hour, supportId);
+      return;
+    }
+  };
+
+  const handleAssignSupport = async () => {
+    if (availableSubjects.length === 0) return;
+    const subj = availableSubjects[selectedSubjectIndex];
+    if (!subj || !supportModal.teacherId) return;
+    setSavingSupport(true);
+    try {
+      if (supportModal.supportId) {
+        await api.del(`/support/${supportModal.supportId}`);
+      }
+      await api.post('/support', {
+        teacher_id: supportModal.teacherId,
+        day: supportModal.day,
+        hour: supportModal.hour,
+        subject_id: subj.subject_id,
+        course_id: subj.course_id,
+        line: subj.line,
+      });
+      setSupportModal(prev => ({ ...prev, open: false }));
+      await refreshTimetableSilent();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSavingSupport(false);
+    }
+  };
+
+  const handleRemoveSupport = async () => {
+    if (!existingSupport?.id) return;
+    setSavingSupport(true);
+    try {
+      await api.del(`/support/${existingSupport.id}`);
+      setSupportModal(prev => ({ ...prev, open: false }));
+      await refreshTimetableSilent();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSavingSupport(false);
+    }
+  };
+
   return (
     <>
       <SectionLayout
@@ -830,7 +937,7 @@ function MarkdownTimetable() {
                 </div>
               </aside>
             )}
-            <div className="timetable-container markdown-timetable" ref={timetableRef}>
+            <div className="timetable-container markdown-timetable" ref={timetableRef} onClick={handleTimetableClick}>
               {canRenderSections ? (
                 <div className="timetable-content">
                 <section className="timetable-tabs-block">
@@ -1088,6 +1195,69 @@ function MarkdownTimetable() {
         onConfirm={confirmRecreate}
         onCancel={cancelRecreate}
       />
+      <FormModal
+        open={supportModal.open}
+        onClose={() => setSupportModal(prev => ({ ...prev, open: false }))}
+      >
+        <h3>{t('timetable.support_modal_title')}</h3>
+        <p>
+          <strong>{supportModal.teacherName}</strong>
+          {' — '}
+          {supportModal.day != null && t(`day.${supportModal.day}`)}
+          {' - '}
+          {hourLabel || t('hours.label', { n: (supportModal.hour != null ? supportModal.hour + 1 : '') })}
+        </p>
+        {existingSupport ? (
+          <p className="form-group">
+            <span className="form-group__label">{t('timetable.support_modal_current')}</span>
+            <strong>{existingSupport.course_line}: {existingSupport.subject_name}</strong>
+          </p>
+        ) : null}
+        {availableSubjects.length > 0 ? (
+          <div className="form-group">
+            <label className="form-group__label">{t('timetable.support_modal_select')}</label>
+            <select
+              className="select"
+              value={selectedSubjectIndex}
+              onChange={(e) => setSelectedSubjectIndex(parseInt(e.target.value, 10))}
+            >
+              {availableSubjects.map((s, i) => (
+                <option key={`${s.subject_id}-${s.course_id}-${s.line}`} value={i}>
+                  {s.subject_name} — {s.course_line}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : (
+          <p>{t('timetable.support_modal_no_subjects')}</p>
+        )}
+        <div className="form-actions">
+          <button
+            className="btn btn--secondary"
+            onClick={() => setSupportModal(prev => ({ ...prev, open: false }))}
+          >
+            {t('timetable.support_modal_cancel')}
+          </button>
+          {existingSupport ? (
+            <button
+              className="btn btn--danger"
+              onClick={handleRemoveSupport}
+              disabled={savingSupport}
+            >
+              {savingSupport ? t('timetable.support_modal_saving') : t('timetable.support_modal_remove')}
+            </button>
+          ) : null}
+          {availableSubjects.length > 0 ? (
+            <button
+              className="btn btn--primary"
+              onClick={handleAssignSupport}
+              disabled={savingSupport}
+            >
+              {savingSupport ? t('timetable.support_modal_saving') : t('timetable.support_modal_assign')}
+            </button>
+          ) : null}
+        </div>
+      </FormModal>
     </>
   );
 }

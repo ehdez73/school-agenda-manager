@@ -14,6 +14,7 @@ from .models import (
     SubjectGroup,
     TeacherBusySlot,
     JointClass,
+    SupportAssignment,
 )
 from .logging_config import build_log_extra
 from .constants import DEFAULT_LOCALE
@@ -970,6 +971,11 @@ def create_timetable(session, progress_callback=None, task_id=None, locale=DEFAU
     """
 
     logger.info("Timetable generation started", extra=build_log_extra(task_id=task_id))
+
+    # Clear support assignments — they are invalid after regeneration
+    session.query(SupportAssignment).delete()
+    session.commit()
+    logger.info("Cleared support assignments for regeneration", extra=build_log_extra(task_id=task_id))
 
     # --- 1. Data Loading ---
     all_teachers = session.query(Teacher).all()

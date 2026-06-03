@@ -91,7 +91,7 @@ class Subject(Base):
     # If True, when a subject has more than one hour per day those hours must be consecutive.
     # If False, they must NOT be consecutive.
     consecutive_hours = Column(Boolean, nullable=False, default=True)
-    # If True, the subject must be taught at least once every day of the configured week
+    # If True, they must NOT be consecutive.
     teach_every_day = Column(Boolean, nullable=False, default=False)
     # Optional link to another subject that should be scheduled consecutively when on same day
     linked_subject_id = Column(String(20), ForeignKey("subjects.id"), nullable=True)
@@ -438,6 +438,42 @@ class JointClass(Base):
             "subject": self.subject.to_dict() if self.subject else None,
             "teacher": self.teacher.to_dict() if self.teacher else None,
         }
+
+
+class SupportAssignment(Base):
+    """
+    Represents a manual support assignment: a teacher assigned to support
+    an existing subject in a course during one of their free slots.
+    Created by the user after timetable generation.
+
+    Attributes:
+        id (int): Primary key.
+        teacher_id (int): Foreign key to Teacher.
+        day (int): Day index (0 = first weekday).
+        hour (int): Hour index.
+        subject_id (str): Foreign key to Subject being supported.
+        course_id (str): Foreign key to Course where support is given.
+        line (int): Line index of the course (0 = A, 1 = B, etc.).
+    """
+
+    __tablename__ = "support_assignments"
+    __table_args__ = (
+        UniqueConstraint(
+            "course_id", "line", "day", "hour", "subject_id",
+            name="uq_support_per_class",
+        ),
+    )
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    teacher_id = Column(Integer, ForeignKey("teachers.id"), nullable=False)
+    day = Column(Integer, nullable=False)
+    hour = Column(Integer, nullable=False)
+    subject_id = Column(String(20), ForeignKey("subjects.id"), nullable=False)
+    course_id = Column(String(50), ForeignKey("courses.id"), nullable=False)
+    line = Column(Integer, nullable=False)
+
+    teacher = relationship("Teacher", backref="support_assignments")
+    subject = relationship("Subject")
+    course = relationship("Course")
 
 
 Base.metadata.create_all(ENGINE)

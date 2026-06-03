@@ -218,7 +218,20 @@
         "assignments_cleared": "Assignments cleared",
         "show_course_fixed": "Show course fixed slots",
         "show_teacher_fixed": "Show teacher fixed slots",
-        "confirm_recreate": "The current timetables will be deleted and new ones will be generated. Do you wish to continue?"
+        "confirm_recreate": "The current timetables will be deleted and new ones will be generated. Do you wish to continue?",
+        "support_label": "SUPPORT",
+        "support_modal_title": "Support Assignment",
+        "support_modal_assign": "Assign Support",
+        "support_modal_remove": "Remove Support",
+        "support_modal_cancel": "Cancel",
+        "support_modal_select": "Select subject to support:",
+        "support_modal_current": "Current support:",
+        "support_modal_no_subjects": "No subjects available in this slot",
+        "support_modal_saving": "Saving...",
+        "support_saved": "Support assigned successfully",
+        "support_removed": "Support removed successfully",
+        "coordination_label_short": "coord.",
+        "support_label_short": "support"
     },
     "subjects": {
         "title": "Subjects",

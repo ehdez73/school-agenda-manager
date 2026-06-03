@@ -266,7 +266,24 @@ export default function TeacherList() {
               <td>{teacher.name}</td>
               <td>{teacher.subjects ? teacher.subjects.map(s => `${s.full_name}`).join(', ') : ''}</td>
               <td>{teacher.tutor_groups ? teacher.tutor_groups.join(', ') : (teacher.tutor_group ?? '')}</td>
-              <td>{teacher.max_hours_week ?? ''}</td>
+              <td>
+                {(() => {
+                  const max = teacher.max_hours_week ?? 0;
+                  const lective = teacher.assigned_hours ?? 0;
+                  const coord = teacher.coordination_hours ?? 0;
+                  const support = teacher.support_hours ?? 0;
+                  const total = lective + coord + support;
+                  const totalMatch = total === max;
+                  const parts = [];
+                  if (lective > 0) parts.push(`${lective}h`);
+                  if (coord > 0) parts.push(`${coord}h ${t('timetable.coordination_label_short')}`);
+                  if (support > 0) parts.push(`${support}h ${t('timetable.support_label_short')}`);
+                  const frac = totalMatch
+                    ? `${total}h/${max}h`
+                    : `<span style="color:red">${total}h/${max}h</span>`;
+                  return <span dangerouslySetInnerHTML={{ __html: `${frac} ${parts.length ? ' (' + parts.join(', ') + ')' : ''}` }} />;
+                })()}
+              </td>
             </tr>
           ))}
         </tbody>

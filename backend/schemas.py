@@ -75,6 +75,8 @@ class TeacherSchema(BaseModel):
     # which accepts plain dicts and validates the inner shape.
     preferences: Optional[PreferencesSchema] = None
     teacher_subject_lines: Optional[Dict[str, Optional[List[int]]]] = None
+    assigned_hours: int = 0
+    support_hours: int = 0
 
 
 class FixedSlotCreate(BaseModel):

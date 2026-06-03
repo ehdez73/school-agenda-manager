@@ -471,6 +471,32 @@
   color: #111827;
 }
 
+.tt-gap {
+  display: block;
+  width: 100%;
+  min-height: 1.5em;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  opacity: 0.4;
+  transition: opacity 0.15s;
+}
+.tt-gap:hover {
+  opacity: 1;
+  background-color: rgba(0,0,0,0.04);
+  border-radius: 4px;
+}
+
+.tt-gap::after {
+  content: "\2014";
+}
+
+.tt-support-entry {
+  cursor: pointer;
+}
+.tt-support-entry:hover {
+  filter: brightness(0.92);
+}
+
 .tt-fixed-slot {
   display: block;
   width: 100%;

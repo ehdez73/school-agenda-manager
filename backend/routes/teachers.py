@@ -2,7 +2,8 @@ from flask import Blueprint, jsonify, request, abort
 import json as _json
 import logging
 from sqlalchemy.orm import joinedload
-from ..models import Teacher, Subject, Session, teacher_subject, normalize_tutor_groups, TeacherBusySlot
+from sqlalchemy import func
+from ..models import Teacher, Subject, Session, teacher_subject, normalize_tutor_groups, TeacherBusySlot, TimeSlotAssignment, SupportAssignment, Timeslot
 from ..schemas import TeacherSchema, PreferencesSchema, DayPreferences
 from ..translations import t
 
@@ -57,6 +58,23 @@ def get_teachers():
     logger.info("Listing teachers")
     session = Session()
     teachers = session.query(Teacher).options(joinedload(Teacher.subjects)).all()
+
+    # Count assigned (day, hour) per teacher (join through Timeslot to avoid
+    # double-counting joint classes where the same hour has multiple timeslots)
+    assigned_counts = {}
+    for teacher_id, day, hour in session.query(
+        TimeSlotAssignment.teacher_id, Timeslot.day, Timeslot.hour
+    ).join(TimeSlotAssignment.timeslot).distinct().all():
+        assigned_counts[teacher_id] = assigned_counts.get(teacher_id, 0) + 1
+
+    # Count support assignments per teacher
+    support_counts = dict(
+        session.query(
+            SupportAssignment.teacher_id,
+            func.count(SupportAssignment.id)
+        ).group_by(SupportAssignment.teacher_id).all()
+    )
+
     result = []
     for t in teachers:
     # prepare preferences as dict
@@ -76,6 +94,8 @@ def get_teachers():
             'tutor_group': tutor_groups[0] if tutor_groups else None,
             'tutor_groups': tutor_groups,
             'teacher_subject_lines': teacher_lines,
+            'assigned_hours': assigned_counts.get(t.id, 0),
+            'support_hours': support_counts.get(t.id, 0),
         }
         result.append(TeacherSchema(**t_dict).model_dump())
     session.close()

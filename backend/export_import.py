@@ -11,6 +11,7 @@ from .models import (
     FixedSlot,
     TeacherBusySlot,
     JointClass,
+    SupportAssignment,
     normalize_tutor_groups,
     teacher_subject,
 )
@@ -110,6 +111,19 @@ def dump_db(session):
             "shared_hours": jc.shared_hours,
         }
         for jc in session.query(JointClass).all()
+    ]
+
+    data["support_assignments"] = [
+        {
+            "id": sa.id,
+            "teacher_id": sa.teacher_id,
+            "day": sa.day,
+            "hour": sa.hour,
+            "subject_id": sa.subject_id,
+            "course_id": sa.course_id,
+            "line": sa.line,
+        }
+        for sa in session.query(SupportAssignment).all()
     ]
 
     return data
@@ -350,5 +364,17 @@ def import_payload(session, payload):
             shared_hours=jc.get("shared_hours"),
         )
         session.add(joint)
+
+    # Support assignments
+    for sa in payload.get("support_assignments", []) or []:
+        support = SupportAssignment(
+            teacher_id=sa.get("teacher_id"),
+            day=sa.get("day"),
+            hour=sa.get("hour"),
+            subject_id=sa.get("subject_id"),
+            course_id=sa.get("course_id"),
+            line=sa.get("line"),
+        )
+        session.add(support)
 
     session.flush()
