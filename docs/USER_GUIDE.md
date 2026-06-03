@@ -15,15 +15,19 @@ Note: this index is intended for quick navigation in your Markdown viewer side p
 - [5. Recommended workflow](#5-recommended-workflow)
 - [6. How to create each element](#6-how-to-create-each-element)
   - [6.4.2 Restrict lines per teacher](#642-restrict-lines-per-teacher)
+  - [6.4.3 Configure coordination hours](#643-configure-coordination-hours)
   - [6.5 Create Joint Classes](#65-create-joint-classes)
+  - [6.6 Assign support after timetable generation](#66-assign-support-after-timetable-generation)
 - [7. Use cases](#7-use-cases)
   - [7.4 Music in courses with 3 lines](#74-music-in-courses-with-3-lines)
   - [7.5 Pack with Joint Class](#75-pack-with-joint-class)
+  - [7.6 Support and coordination hours: conflicts with unavailable times](#76-support-and-coordination-hours-conflicts-with-unavailable-times)
 - [8. Timetable generation and review](#8-timetable-generation-and-review)
 - [9. How the generation process works](#9-how-the-generation-process-works)
 - [10. Constraints: HARD and SOFT](#10-constraints-hard-and-soft)
 - [11. Common issues and how to solve them](#11-common-issues-and-how-to-solve-them)
   - [11.5 Joint Class conflict](#115-joint-class-conflict)
+  - [11.6 Support assignment conflict](#116-support-assignment-conflict)
 - [12. Management best practices](#12-management-best-practices)
 - [13. Final checklist before generating](#13-final-checklist-before-generating)
 
@@ -89,6 +93,14 @@ Grid where the teacher's unavailable and preferred timeslots are configured for 
 ### Preferences
 
 Preferred timeslots used to prioritize placement when generating the timetable.
+
+### Coordination hours
+
+Non-teaching time for a teacher dedicated to coordination tasks, department meetings, or other organizational activities. Configured in the teacher form and reduces their effective teaching capacity: if a teacher has a max of 20h per week and 2h of coordination, the system will only assign 18h of teaching. The solver automatically places these coordination hours in the teacher's free slots after generation.
+
+### Support
+
+A manual assignment made after timetable generation. It allows a teacher to fill a free slot by supporting a specific subject in a particular course and line. Created by clicking on a free slot in the teacher's timetable. It does not participate in the solver.
 
 ### Joint Class
 
@@ -243,6 +255,19 @@ To configure:
 > - If the teacher is the only one qualified for that subject, make sure at least one other teacher covers the unchecked lines, otherwise the timetable will be infeasible.
 > - A teacher with `included_lines: [0, 1]` on a subject (like Docente 1) won't be assigned to line C, even if no other teacher is available — so ensure complete coverage.
 
+#### 6.4.3 Configure coordination hours
+
+The **Coord. hours** field in the teacher form indicates the weekly non-teaching time dedicated to organizational tasks (meetings, department coordination, etc.).
+
+1. In the teacher form, locate the **Coord. hours** field.
+2. Enter the number of weekly coordination hours.
+3. Save the form.
+
+> **What happens in the scheduler:**
+> - The teacher's effective teaching capacity is calculated as `max_weekly_hours - coordination_hours`.
+> - After timetable generation, the system automatically fills the teacher's free slots with "Coordination" labels up to the configured number.
+> - Coordination hours are shown in green in the teacher's timetable and count toward the total occupied hours.
+
 ### 6.5 Create Joint Classes
 
 Joint Classes allow multiple lines of the same course to receive the same subject simultaneously, sharing the same timeslot and teacher.
@@ -261,6 +286,25 @@ Joint Classes allow multiple lines of the same course to receive the same subjec
 > - The selected lines must exist in the course.
 > - If the teacher is left empty, ensure at least one qualified teacher can teach the subject in all selected lines.
 > - Joint Classes can be combined with Packs (see [§7.5](#75-pack-with-joint-class)).
+
+### 6.6 Assign support after timetable generation
+
+Support assignments allow a teacher to fill a free slot in their timetable by supporting a specific subject in another course or line. They are assigned manually after timetable generation.
+
+1. Go to **Timetable** and make sure the timetable has been generated.
+2. In the **by teacher** view, find a free slot (empty cell).
+3. Click on the empty slot. The **Support Assignment** modal opens.
+4. Select the subject you wish to support from the list of subjects being taught in that timeslot.
+5. Click **Assign Support**.
+
+To remove an existing support, click on the support label (shown with the subject's color and "SUPPORT" label) and click **Remove Support**.
+
+> **What happens in the scheduler:**
+> - The solver does not participate in support assignments. They are always assigned post-generation.
+> - Support hours count toward the teacher's total occupied hours.
+> - A support cannot be assigned in a slot the teacher has marked as **Not available** (red). If attempted, the system shows an error.
+> - If a teacher had a support in a slot that was later marked as Not available, the existing support shows a ⚠️ conflict warning in the timetable.
+> - A support cannot be assigned in a slot where the teacher already has a class or coordination.
 
 ## 7. Use cases
 
@@ -346,6 +390,27 @@ Expected result:
 - In the timetable, the REL6 slot appears as "Religion (Joint)" for 6thB and 6thC.
 
 > **Important note:** when a Pack and a Joint Class affect the same subject, the system resolves both constraints simultaneously. Make sure the Joint Class lines and the Pack lines are consistent to avoid conflicts.
+
+### 7.6 Support and coordination hours: conflicts with unavailable times
+
+This case shows what happens when a teacher's unavailable times conflict with different types of support hours.
+
+**Scenario 1 — Solver-assigned class + unavailable slot**
+
+The teacher marks Monday 3rd period as **Not available** (red). The solver will never assign a class in that slot thanks to the HARD constraint `TeacherUnavailableTimes`. If all the teacher's available slots are marked as Not available, the solver will not find a solution and the infeasibility diagnosis will be triggered.
+
+**Scenario 2 — Manual support + unavailable slot**
+
+A teacher has a manually assigned support in a slot that is later marked as **Not available**. In this case:
+- The existing support is **not** automatically removed.
+- In the teacher's timetable, the cell shows a ⚠️ warning icon next to the support label.
+- The system still displays the support but visually signals the conflict.
+- To resolve it, the user must manually remove the support (click the label → **Remove Support**) or unmark the slot as Not available.
+- If attempting to create a new support in a Not available slot, the system rejects it with an error.
+
+**Scenario 3 — Coordination + unavailable slot**
+
+Coordination hours are automatically assigned by the system after generation **only** in free slots that are not marked as Not available. Therefore, there is never a conflict between coordination and unavailable slots.
 
 ## 8. Timetable generation and review
 
@@ -493,6 +558,15 @@ Check:
 - The assigned teacher (if fixed) is qualified to teach the subject.
 - The Joint Class lines are consistent with Pack lines when combining both (see [§7.5](#75-pack-with-joint-class)).
 - No teacher is overloaded by being assigned to multiple Joint Classes.
+
+### Error 11.6: support assignment conflict
+
+Check:
+
+- That the teacher does not have the slot marked as **Not available** (red) when assigning a support.
+- If you see a ⚠️ warning in the teacher's timetable, remove the existing support or unmark the slot as Not available.
+- That the configured coordination hours do not exceed the teacher's weekly max (effective capacity is reduced automatically).
+- That assigned supports do not cause the teacher to exceed their total hour count.
 
 ## 12. Management best practices
 

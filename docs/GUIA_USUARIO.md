@@ -15,15 +15,19 @@ Nota: este índice está pensado para usarse como navegación rápida en el pane
 - [5. Orden recomendado de trabajo](#5-orden-recomendado-de-trabajo)
 - [6. Cómo crear cada elemento](#6-como-crear-cada-elemento)
   - [6.4.2 Restringir líneas por docente](#642-restringir-lineas-por-docente)
+  - [6.4.3 Configurar horas de coordinación](#643-configurar-horas-de-coordinacion)
   - [6.5 Crear Clases Conjuntas](#65-crear-clases-conjuntas)
+  - [6.6 Asignar apoyos después de generar el horario](#66-asignar-apoyos-despues-de-generar-el-horario)
 - [7. Casuísticas](#7-casuisticas)
   - [7.4 Música en cursos con 3 líneas](#74-musica-en-cursos-con-3-lineas)
   - [7.5 Pack con Clase Conjunta](#75-pack-con-clase-conjunta)
+  - [7.6 Horas de apoyo y coordinación: conflictos con horas no disponibles](#76-horas-de-apoyo-y-coordinacion-conflictos-con-horas-no-disponibles)
 - [8. Generación del horario y revisión](#8-generacion-del-horario-y-revision)
 - [9. Cómo funciona el proceso de generación](#9-como-funciona-el-proceso-de-generacion)
 - [10. Restricciones: HARD y SOFT](#10-restricciones-hard-y-soft)
 - [11. Problemas frecuentes y cómo resolverlos](#11-problemas-frecuentes-y-como-resolverlos)
   - [11.5 Conflicto con Clases Conjuntas](#115-conflicto-con-clases-conjuntas)
+  - [11.6 Conflicto con horas de apoyo](#116-conflicto-con-horas-de-apoyo)
 - [12. Buenas prácticas de gestión](#12-buenas-practicas-de-gestion)
 - [13. Checklist final antes de generar](#13-checklist-final-antes-de-generar)
 
@@ -89,6 +93,14 @@ Cuadrícula donde se configuran las franjas no disponibles y preferidas del doce
 ### Preferencias
 
 Franjas deseadas para priorizar la ubicación de clases al generar horario.
+
+### Horas de coordinación
+
+Tiempo no lectivo del docente dedicado a tareas de coordinación, reuniones de departamento u otras actividades organizativas. Se configuran en el formulario del docente y reducen su capacidad lectiva efectiva: si un docente tiene un máximo de 20h semanales y 2h de coordinación, el sistema solo le asignará 18h de clase. El solver coloca automáticamente estas horas de coordinación en los huecos libres del horario del docente tras la generación.
+
+### Apoyo
+
+Asignación manual que se realiza después de generar el horario. Permite que un docente ocupe un hueco libre apoyando a una asignatura concreta en un curso y línea determinados. Se crea haciendo clic sobre un hueco libre en el horario del docente. No interviene en el solver.
 
 ### Clase Conjunta
 
@@ -243,6 +255,19 @@ Para configurarlo:
 > - Si el docente es el único cualificado para esa asignatura, asegúrate de que otro docente cubra las líneas desmarcadas; de lo contrario, el horario será inviable.
 > - Un docente con `included_lines: [0, 1]` en una asignatura (como Docente 1) no se asignará a la línea C, incluso si no hay otro docente disponible; por tanto, garantiza una cobertura completa.
 
+#### 6.4.3 Configurar horas de coordinación
+
+El campo **Horas de coordinación** en el formulario del docente indica el tiempo semanal no lectivo dedicado a tareas organizativas (reuniones, coordinación de departamento, etc.).
+
+1. En el formulario del docente, localiza el campo **Horas de coordinación**.
+2. Introduce el número de horas semanales dedicadas a coordinación.
+3. Guarda el formulario.
+
+> **Qué ocurre en el planificador:**
+> - La capacidad lectiva efectiva del docente se calcula como `max_horas_semanales - horas_coordinacion`.
+> - Tras generar el horario, el sistema rellena automáticamente los huecos libres del docente con etiquetas de "Coordinación" hasta alcanzar el número configurado.
+> - Las horas de coordinación se muestran en verde en el horario del docente y cuentan para el total de horas ocupadas.
+
 ### 6.5 Crear Clases Conjuntas
 
 Las Clases Conjuntas permiten que varias líneas de un mismo curso reciban la misma asignatura a la vez, compartiendo franja horaria y docente.
@@ -261,6 +286,25 @@ Las Clases Conjuntas permiten que varias líneas de un mismo curso reciban la mi
 > - Las líneas seleccionadas deben existir en el curso.
 > - Si el docente se deja vacío, asegúrate de que al menos un docente cualificado pueda impartir la asignatura en todas las líneas seleccionadas.
 > - Las Clases Conjuntas pueden combinarse con Packs (ver [§7.5](#75-pack-con-clase-conjunta)).
+
+### 6.6 Asignar apoyos después de generar el horario
+
+Los apoyos permiten que un docente ocupe un hueco libre en su horario para apoyar una asignatura concreta en otro curso o línea. Se asignan manualmente después de generar el horario.
+
+1. Ve a **Horarios** y asegúrate de que el horario esté generado.
+2. En la vista **por docente**, localiza un hueco libre (celda vacía y sin contenido).
+3. Haz clic en el hueco. Se abrirá el modal **Asignar Apoyo**.
+4. Selecciona la asignatura que deseas apoyar de la lista de asignaturas que se imparten en esa franja horaria.
+5. Pulsa **Asignar Apoyo**.
+
+Para eliminar un apoyo existente, haz clic sobre la etiqueta de apoyo (aparece con el color de la asignatura y la etiqueta "APOYO") y pulsa **Eliminar Apoyo**.
+
+> **Qué ocurre en el planificador:**
+> - El solver no interviene en los apoyos. Se asignan siempre después de la generación.
+> - Las horas de apoyo cuentan para el total de horas ocupadas del docente.
+> - No se puede asignar un apoyo en una franja que el docente haya marcado como **No disponible** (rojo). Si se intenta, el sistema muestra un error.
+> - Si un docente tenía un apoyo en una franja que posteriormente se marca como No disponible, el apoyo existente se muestra con un icono de advertencia ⚠️ en el horario.
+> - Tampoco se puede asignar un apoyo en una franja donde el docente ya tenga clase o coordinación.
 
 ## 7. Casuísticas
 
@@ -346,6 +390,27 @@ Resultado esperado:
 - En el horario, la franja de REL6 aparece como "Religión (Conjunta)" para 6ºB y 6ºC.
 
 > **Nota importante:** cuando un Pack y una Clase Conjunta afectan a la misma asignatura, el sistema resuelve ambas restricciones simultáneamente. Asegúrate de que las líneas de la Clase Conjunta y las del Pack sean coherentes para evitar conflictos.
+
+### 7.6 Horas de apoyo y coordinación: conflictos con horas no disponibles
+
+Este caso muestra qué ocurre cuando las horas no disponibles de un docente entran en conflicto con los distintos tipos de horas de apoyo.
+
+**Escenario 1 — Clase asignada por el solver + hora no disponible**
+
+El docente marca el lunes 3ª hora como **No disponible** (rojo). El solver nunca asignará una clase en esa franja gracias a la restricción HARD `TeacherUnavailableTimes`. Si todas las franjas disponibles del docente están marcadas como No disponible, el solver no encontrará una solución y se activará el diagnóstico de infactibilidad.
+
+**Escenario 2 — Apoyo manual + hora no disponible**
+
+El docente tiene un apoyo asignado manualmente en una franja que posteriormente marca como **No disponible**. En este caso:
+- El apoyo existente **no** se elimina automáticamente.
+- En el horario del docente, la celda muestra un icono de advertencia ⚠️ junto a la etiqueta de apoyo.
+- El sistema sigue mostrando el apoyo pero señaliza visualmente el conflicto.
+- Para resolverlo, el usuario debe eliminar manualmente el apoyo (clic en la etiqueta → **Eliminar Apoyo**) o desmarcar la franja como No disponible.
+- Si se intenta crear un apoyo nuevo en una franja No disponible, el sistema lo rechaza con un error.
+
+**Escenario 3 — Coordinación + hora no disponible**
+
+Las horas de coordinación se asignan automáticamente por el sistema después de la generación **únicamente** en huecos libres que no sean No disponible. Por tanto, nunca hay conflicto entre coordinación y horas no disponibles.
 
 ## 8. Generación del horario y revisión
 
@@ -494,6 +559,15 @@ Revisa:
 - Que las líneas de la Clase Conjunta sean coherentes con las líneas del Pack si se combinan ambos (ver [§7.5](#75-pack-con-clase-conjunta)).
 - Que ningún docente tenga una sobrecarga horaria por estar asignado a múltiples Clases Conjuntas.
 
+### Error 11.6: conflicto con horas de apoyo
+
+Revisa:
+
+- Que el docente no tenga la franja marcada como **No disponible** (rojo) al asignar un apoyo.
+- Si ves una advertencia ⚠️ en el horario del docente, elimina el apoyo existente o desmarca la franja como No disponible.
+- Que las horas de coordinación configuradas no superen el máximo semanal del docente (la capacidad efectiva se reduce automáticamente).
+- Que los apoyos asignados no hagan que el docente supere su cómputo total de horas.
+
 ## 12. Buenas prácticas de gestión
 
 - Mantener nomenclatura consistente para cursos, asignaturas y packs.
@@ -515,6 +589,7 @@ Revisa:
 - [ ] Todos los docentes con asignaturas.
 - [ ] Máximos semanales revisados.
 - [ ] Disponibilidades cargadas correctamente.
+- [ ] Horas de coordinación configuradas donde corresponda.
 - [ ] Tutorías asignadas.
 
 Si todo el checklist está completo, genera el horario.
