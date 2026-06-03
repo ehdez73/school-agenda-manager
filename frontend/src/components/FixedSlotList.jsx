@@ -43,7 +43,7 @@ export default function FixedSlotList({ standalone = true }) {
             time_range: form.time_range,
         };
         if (isNaN(payload.position) || payload.position < 1) {
-            setFormError('Position must be a positive number');
+            setFormError(t('fixed_slots.position_error'));
             return;
         }
         const action = editingId
@@ -124,7 +124,7 @@ export default function FixedSlotList({ standalone = true }) {
                 </thead>
                 <tbody>
                     {slots.map(s => (
-                        <tr key={s.id} onClick={() => handleEdit(s)} className="table-row-clickable">
+                        <tr key={s.id} onClick={() => handleEdit(s)} className="table-row-clickable" tabIndex={0} role="button" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleEdit(s); } }}>
                             <td>{s.position}</td>
                             <td>{s.time_range}</td>
                             <td>{s.label}</td>

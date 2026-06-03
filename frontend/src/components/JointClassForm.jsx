@@ -141,7 +141,7 @@ export default function JointClassForm({
                     </div>
                     {(form.lines || []).length < 2 && (
                         <div className="form-error mt-sm">
-                            Select at least 2 lines
+                            {t('joint_classes.lines_helper')}
                         </div>
                     )}
                 </fieldset>

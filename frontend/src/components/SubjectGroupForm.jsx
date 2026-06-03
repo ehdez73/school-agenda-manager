@@ -114,7 +114,7 @@ export default function SubjectGroupForm({ form, setForm, subjects = [], formErr
                 onAdd={id => setForm(f => ({ ...f, subjects: [...f.subjects, id] }))}
                 onRemove={id => setForm(f => ({ ...f, subjects: f.subjects.filter(sid => String(sid) !== String(id)) }))}
                 placeholder={t('subjects.add_subject') + '...'}
-                noResultsText="No subjects found"
+                noResultsText={t('common.no_results')}
             />
             {numLines > 1 && courseIds.length === 1 && (
                 <fieldset className="lines-fieldset">

@@ -417,26 +417,34 @@
   max-height: calc(100vh - 2rem);
   overflow-y: auto;
   background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-lg);
 }
 
 .timetable-sidebar__group {
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-lg);
 }
 
 .timetable-sidebar__group:last-child {
   margin-bottom: 0;
 }
 
-.timetable-sidebar__group-title {
+.timetable-sidebar__heading {
   font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--color-accent);
-  margin: 0 0 var(--space-xs) 0;
+  font-weight: 700;
+  color: var(--color-table-header);
+  margin: 0 0 var(--space-sm) 0;
+  cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 0.4px;
+  transition: color 0.15s ease;
+  user-select: none;
+}
+
+.timetable-sidebar__heading:hover {
+  color: var(--color-hover-text);
 }
 
 .timetable-sidebar__list {
@@ -445,17 +453,18 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
+  border-left: 2px solid var(--color-border-light);
+  margin-left: var(--space-xs);
 }
 
-.timetable-sidebar__link {
+.timetable-sidebar__item {
   display: block;
-  padding: 0.35rem 0.5rem;
-  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.6rem;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   font-size: 0.82rem;
   font-weight: 500;
   color: var(--color-text);
-  text-decoration: none;
   transition: background-color 0.15s ease, color 0.15s ease;
   cursor: pointer;
   overflow: hidden;
@@ -463,31 +472,14 @@
   white-space: nowrap;
 }
 
-.timetable-sidebar__link:hover {
+.timetable-sidebar__item:hover {
   background-color: var(--color-hover-bg);
   color: var(--color-hover-text);
 }
 
-.timetable-sidebar__link:focus-visible {
+.timetable-sidebar__item:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
-}
-
-.timetable-sidebar__link--section {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--color-table-header);
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  border-bottom: 1px solid var(--color-border-light);
-  margin-bottom: var(--space-xs);
-  padding: 0.35rem 0.5rem;
-}
-
-.timetable-sidebar__link--section:hover {
-  color: var(--color-hover-text);
-  background-color: transparent;
-  text-decoration: underline;
 }
 
 .timetable-sidebar__teacher-item {
@@ -497,29 +489,7 @@
 }
 
 .timetable-sidebar__edit-btn {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease;
-}
-
-.timetable-sidebar__teacher-item:hover .timetable-sidebar__edit-btn {
-  opacity: 1;
-}
-
-.timetable-sidebar__edit-btn:hover {
-  color: var(--color-accent);
-  background-color: var(--color-hover-bg);
+  display: none;
 }
 
 @media (max-width: 768px) {

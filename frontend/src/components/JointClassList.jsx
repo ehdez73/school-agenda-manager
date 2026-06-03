@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import api from '../lib/api';
 import { t } from '../i18n';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
@@ -64,7 +64,7 @@ export default function JointClassList({ standalone = true }) {
         setFormError('');
 
         if (!form.lines || form.lines.length < 2) {
-            setFormError('At least 2 lines must be selected.');
+            setFormError(t('joint_classes.min_lines_error'));
             return;
         }
 
@@ -144,36 +144,38 @@ export default function JointClassList({ standalone = true }) {
 
     const courseOptions = Array.from(new Set(items.map(i => i.course ? i.course.name : ''))).filter(Boolean).sort((a, b) => a.localeCompare(b));
 
-    const filteredItems = items.filter(item => {
-        const q = search.toLowerCase();
-        const matchesCourse = courseFilter === '' || (item.course ? item.course.name : '') === courseFilter;
-        if (!matchesCourse) return false;
-        if ((item.name || '').toLowerCase().includes(q)) return true;
-        if ((item.course_id || '').toLowerCase().includes(q)) return true;
-        if (item.subject?.name?.toLowerCase().includes(q)) return true;
-        if (item.subject?.full_name?.toLowerCase().includes(q)) return true;
-        if (item.teacher?.name?.toLowerCase().includes(q)) return true;
-        if ((item.lines || []).join(' ').toLowerCase().includes(q)) return true;
-        return false;
-    });
+    const sortedItems = useMemo(() => {
+        const locale = navigator.language || 'es';
+        const filtered = items.filter(item => {
+            const q = search.toLowerCase();
+            const matchesCourse = courseFilter === '' || (item.course ? item.course.name : '') === courseFilter;
+            if (!matchesCourse) return false;
+            if ((item.name || '').toLowerCase().includes(q)) return true;
+            if ((item.course_id || '').toLowerCase().includes(q)) return true;
+            if (item.subject?.name?.toLowerCase().includes(q)) return true;
+            if (item.subject?.full_name?.toLowerCase().includes(q)) return true;
+            if (item.teacher?.name?.toLowerCase().includes(q)) return true;
+            if ((item.lines || []).join(' ').toLowerCase().includes(q)) return true;
+            return false;
+        });
 
-    const locale = navigator.language || 'es';
-    const sortedItems = [...filteredItems].sort((a, b) => {
-        let aField, bField;
-        if (sortBy === 'name') {
-            aField = (a.name || String(a.course_id) + ' ' + (a.lines || []).join('+')) || '';
-            bField = (b.name || String(b.course_id) + ' ' + (b.lines || []).join('+')) || '';
-        } else if (sortBy === 'course') {
-            aField = a.course ? a.course.name : '';
-            bField = b.course ? b.course.name : '';
-        } else if (sortBy === 'subject') {
-            aField = a.subject?.full_name || a.subject?.name || '';
-            bField = b.subject?.full_name || b.subject?.name || '';
-        }
-        return sortAsc
-            ? aField.localeCompare(bField, locale)
-            : bField.localeCompare(aField, locale);
-    });
+        return [...filtered].sort((a, b) => {
+            let aField, bField;
+            if (sortBy === 'name') {
+                aField = (a.name || String(a.course_id) + ' ' + (a.lines || []).join('+')) || '';
+                bField = (b.name || String(b.course_id) + ' ' + (b.lines || []).join('+')) || '';
+            } else if (sortBy === 'course') {
+                aField = a.course ? a.course.name : '';
+                bField = b.course ? b.course.name : '';
+            } else if (sortBy === 'subject') {
+                aField = a.subject?.full_name || a.subject?.name || '';
+                bField = b.subject?.full_name || b.subject?.name || '';
+            }
+            return sortAsc
+                ? aField.localeCompare(bField, locale)
+                : bField.localeCompare(aField, locale);
+        });
+    }, [items, search, courseFilter, sortBy, sortAsc]);
 
     const addButton = !selectedEntity && (
         <button
@@ -223,7 +225,7 @@ export default function JointClassList({ standalone = true }) {
                 </thead>
                 <tbody>
                     {sortedItems.map(item => (
-                        <tr key={item.id} onClick={() => handleEdit(item)} className="table-row-clickable">
+                        <tr key={item.id} onClick={() => handleEdit(item)} className="table-row-clickable" tabIndex={0} role="button" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleEdit(item); } }}>
                             <td>{item.name || item.course_id + ' ' + (item.lines || []).join('+')}</td>
                             <td className="joint-class-course">{item.course?.name || item.course_id}</td>
                             <td>{item.subject?.full_name || item.subject?.name || item.subject_id}</td>

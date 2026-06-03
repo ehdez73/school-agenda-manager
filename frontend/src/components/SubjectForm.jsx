@@ -218,7 +218,7 @@ export default function SubjectForm({ form, setForm, courses, subjects = [], edi
                 onAdd={id => setForm({ ...form, linked_subject_id: id })}
                 onRemove={() => setForm({ ...form, linked_subject_id: '' })}
                 placeholder={`${t('subjects.add_subject')}...`}
-                noResultsText="No subjects available"
+                noResultsText={t('common.no_results')}
                 singleSelect={true}
             />
             {formError && <div className="form-error">{formError}</div>}

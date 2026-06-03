@@ -43,11 +43,10 @@ function App() {
   }, [page]);
 
   useEffect(() => {
-    // Deep links with hashes are intended for Help guide headings.
     if (window.location.hash && page !== 'help') {
       setPage('help');
     }
-  }, []);
+  }, [page]);
 
   useEffect(() => {
     if (page === 'help' || !window.location.hash) return;

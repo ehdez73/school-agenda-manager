@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import api from '../lib/api';
 import { t } from '../i18n';
 import './CourseList.css';
@@ -102,15 +102,16 @@ export default function CourseList({ onViewTimetable }) {
     }
   }
 
-  const filteredCourses = courses.filter(course =>
-    course.name.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const sortedCourses = [...filteredCourses].sort((a, b) => {
-    if (a.name < b.name) return -1;
-    if (a.name > b.name) return 1;
-    return 0;
-  });
+  const sortedCourses = useMemo(() => {
+    const filtered = courses.filter(course =>
+      course.name.toLowerCase().includes(search.toLowerCase())
+    );
+    return [...filtered].sort((a, b) => {
+      if (a.name < b.name) return -1;
+      if (a.name > b.name) return 1;
+      return 0;
+    });
+  }, [courses, search]);
 
   return (
     <>
@@ -132,8 +133,20 @@ export default function CourseList({ onViewTimetable }) {
           />
         </FormModal>
       )}
+      {selectedEntity && (
+        <FormModal open={!!selectedEntity} onClose={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', num_lines: 1 }); }}>
+          <CourseForm
+            form={form}
+            setForm={setForm}
+            editingId={editingId}
+            onSubmit={handleSubmit}
+            onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', num_lines: 1 }); }}
+            onDelete={() => handleDelete(selectedEntity.name)}
+          />
+        </FormModal>
+      )}
       <SectionLayout
-        title={selectedEntity ? `${t('common.edit')}: ${selectedEntity.name}` : t('courses.title')}
+        title={t('courses.title')}
         actions={
           !showForm && !selectedEntity && (
             <button
@@ -144,55 +157,42 @@ export default function CourseList({ onViewTimetable }) {
             </button>
           )
         }
-        state={loading ? 'loading' : error ? 'error' : courses.length === 0 && !selectedEntity ? 'empty' : 'ready'}
+        state={loading ? 'loading' : error ? 'error' : courses.length === 0 ? 'empty' : 'ready'}
         errorMsg={error}
         emptyMsg={t('courses.empty')}
       >
-        {selectedEntity ? (
-          <div className="edit-view">
-            <CourseForm
-              form={form}
-              setForm={setForm}
-              editingId={editingId}
-              onSubmit={handleSubmit}
-              onCancel={() => { setSelectedEntity(null); setEditingId(null); setForm({ name: '', num_lines: 1 }); }}
-              onDelete={() => handleDelete(selectedEntity.name)}
+        <>
+          <div className="search-bar">
+            <input
+              type="text"
+              className="input search-input"
+              placeholder={t('common.search_placeholder')}
+              value={search}
+              onChange={e => setSearch(e.target.value)}
             />
           </div>
-        ) : (
-          <>
-            <div className="search-bar">
-              <input
-                type="text"
-                className="input search-input"
-                placeholder={t('common.search_placeholder')}
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
-            </div>
-            <table className="modern-table">
-              <thead>
-                <tr>
-                  <th>{t('courses.name')}</th>
-                  <th>{t('courses.num_lines')}</th>
-                  <th>{t('courses.groups')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedCourses.map(course => {
-                  const grupos = Array.from({ length: course.num_lines }, (_, i) => `${course.name}${String.fromCharCode(65 + i)}`);
-                  return (
-                    <tr key={course.name} onClick={() => handleEdit(course)} className="table-row-clickable">
-                      <td>{course.name}</td>
-                      <td>{course.num_lines}</td>
-                      <td className={timetableExists ? 'course-group-link' : ''} onClick={(e) => handleGroupClick(e, grupos)}>{loadingTeachers ? `${grupos.join(', ')}...` : grupos.join(', ')}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </>
-        )}
+          <table className="modern-table">
+            <thead>
+              <tr>
+                <th>{t('courses.name')}</th>
+                <th>{t('courses.num_lines')}</th>
+                <th>{t('courses.groups')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedCourses.map(course => {
+                const grupos = Array.from({ length: course.num_lines }, (_, i) => `${course.name}${String.fromCharCode(65 + i)}`);
+                return (
+                  <tr key={course.name} onClick={() => handleEdit(course)} className="table-row-clickable" tabIndex={0} role="button" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleEdit(course); } }}>
+                    <td>{course.name}</td>
+                    <td>{course.num_lines}</td>
+                    <td className={timetableExists ? 'course-group-link' : ''} onClick={(e) => handleGroupClick(e, grupos)}>{loadingTeachers ? `${grupos.join(', ')}...` : grupos.join(', ')}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </>
       </SectionLayout>
     </>
   );

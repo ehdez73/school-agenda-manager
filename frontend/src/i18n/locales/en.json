@@ -19,6 +19,8 @@
         "yes": "Yes",
         "no": "No",
         "all": "All",
+        "no_results": "No results",
+        "close": "Close",
         "dashes": "--"
     },
     "id": "ID",
@@ -35,7 +37,8 @@
         "position_placeholder": "e.g. 2",
         "label_placeholder": "e.g. Recess",
         "time_range_placeholder": "e.g. 10:00-11:00",
-        "no_slots": "No fixed slots defined"
+        "no_slots": "No fixed slots defined",
+        "position_error": "Position must be a positive number"
     },
     "nav": {
         "brand": "Agenda Manager",
@@ -115,6 +118,7 @@
         "label": "Day {n}:"
     },
     "timetable": {
+        "no_timetables_selected": "No timetables selected",
         "no_schedule": "No timetables generated",
         "recreating": "Recreating...",
         "recreate": "Recreate Timetables",
@@ -302,6 +306,8 @@
         "all_hours": "All hours",
         "search_lines_placeholder": "Select lines...",
         "empty": "No joint classes defined",
+        "lines_helper": "Select at least 2 lines",
+        "min_lines_error": "At least 2 lines must be selected.",
         "confirm_delete": "joint class"
     },
     "config": {

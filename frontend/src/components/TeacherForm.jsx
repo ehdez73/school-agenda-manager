@@ -104,7 +104,7 @@ export default function TeacherForm({ form, setForm, subjects, classesPerDay, on
                             return { ...f, subjects: f.subjects.filter(sid => String(sid) !== String(id)), teacher_subject_lines: updated };
                         })}
                         placeholder={t('subjects.add_subject') + '...'}
-                        noResultsText="No subjects found"
+                        noResultsText={t('common.no_results')}
                     />
 
                     {/* Line restrictions: show for subjects whose course has >1 line */}
@@ -147,7 +147,7 @@ export default function TeacherForm({ form, setForm, subjects, classesPerDay, on
                         onAdd={id => setForm(f => ({ ...f, tutor_groups: [...(f.tutor_groups || []), id] }))}
                         onRemove={id => setForm(f => ({ ...f, tutor_groups: (f.tutor_groups || []).filter(groupId => String(groupId) !== String(id)) }))}
                         placeholder={t('teachers.tutor_group') + '...'}
-                        noResultsText="No tutor groups found"
+                        noResultsText={t('common.no_results')}
                     />
                 </div>
 

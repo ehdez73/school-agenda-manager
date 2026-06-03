@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
@@ -119,6 +119,26 @@ function parseTimetableSections(markdownText) {
 }
 
 
+function areSameSelection(currentIds, nextIds) {
+  return currentIds.length === nextIds.length && currentIds.every((id, index) => id === nextIds[index]);
+}
+
+
+function syncSelectionWithSection(entries, currentSelectedIds, setSelectedIds) {
+  if (!entries || entries.length === 0) return;
+  const nextIdsWhenEmpty = entries.map(entry => entry.id);
+  if (currentSelectedIds === null) {
+    setSelectedIds(nextIdsWhenEmpty);
+    return;
+  }
+  const validIds = new Set(nextIdsWhenEmpty);
+  const nextSelectedIds = currentSelectedIds.filter(id => validIds.has(id));
+  if (!areSameSelection(currentSelectedIds, nextSelectedIds)) {
+    setSelectedIds(nextSelectedIds);
+  }
+}
+
+
 function collectSubjectEntryColors(node, colors) {
   if (node === null || node === undefined || typeof node === 'boolean') return;
   if (Array.isArray(node)) {
@@ -203,7 +223,7 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectT
   const elapsedRef = useRef(null);
   const startTimeRef = useRef(null);
 
-  const clearTimers = () => {
+  const clearTimers = useCallback(() => {
     if (pollingRef.current) {
       clearTimeout(pollingRef.current);
       pollingRef.current = null;
@@ -212,9 +232,9 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectT
       clearInterval(elapsedRef.current);
       elapsedRef.current = null;
     }
-  };
+  }, []);
 
-  const startElapsedTimer = (createdAtSeconds = null) => {
+  const startElapsedTimer = useCallback((createdAtSeconds = null) => {
     if (elapsedRef.current) clearInterval(elapsedRef.current);
     const startedAtMs = createdAtSeconds ? createdAtSeconds * 1000 : Date.now();
     startTimeRef.current = startedAtMs;
@@ -223,25 +243,25 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectT
       if (!startTimeRef.current) return;
       setElapsed(Math.max(0, Math.floor((Date.now() - startTimeRef.current) / 1000)));
     }, 1000);
-  };
+  }, []);
 
-  const pickRandomGeneratingMessage = () => {
+  const pickRandomGeneratingMessage = useCallback(() => {
     const messages = t('timetable.generating_async');
     if (Array.isArray(messages) && messages.length > 0) {
       return messages[Math.floor(Math.random() * messages.length)];
     }
     return messages;
-  };
+  }, []);
 
-  const pickRandomInfeasibleMessage = () => {
+  const pickRandomInfeasibleMessage = useCallback(() => {
     const messages = t('timetable.infeasible_detected');
     if (Array.isArray(messages) && messages.length > 0) {
       return messages[Math.floor(Math.random() * messages.length)];
     }
     return messages;
-  };
+  }, []);
 
-  const stopGeneration = () => {
+  const stopGeneration = useCallback(() => {
     clearTimers();
     startTimeRef.current = null;
     setGenerating(false);
@@ -250,7 +270,7 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectT
     setTaskId(null);
     setGeneratingMessage('');
     setInfeasibleMessage('');
-  };
+  }, [clearTimers]);
 
   const resetPersistedSelections = () => {
     clearSelectionFromSessionStorage(COURSE_SELECTION_STORAGE_KEY);
@@ -272,7 +292,7 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectT
     }
   };
 
-  const fetchTimetable = async ({ silentNotFound = false } = {}) => {
+  const fetchTimetable = useCallback(async ({ silentNotFound = false } = {}) => {
     setLoading(true);
     if (!silentNotFound) {
       setError(null);
@@ -301,9 +321,9 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectT
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const applyStatus = (result) => {
+  const applyStatus = useCallback((result) => {
     if (!result || !result.status) return result;
 
     if (result.task_id) {
@@ -346,9 +366,9 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectT
     }
 
     return result;
-  };
+  }, [fetchTimetable, pickRandomInfeasibleMessage, pickRandomGeneratingMessage, startElapsedTimer, stopGeneration]);
 
-  const pollTaskStatus = async () => {
+  const pollTaskStatus = useCallback(async () => {
     try {
       const result = await api.get('/timetable/status/current');
       if (!result || !result.status) {
@@ -363,13 +383,13 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectT
     } catch {
       pollingRef.current = setTimeout(() => pollTaskStatus(), POLL_RETRY_MS);
     }
-  };
+  }, [applyStatus]);
 
   useEffect(() => {
     return () => {
       clearTimers();
     };
-  }, []);
+  }, [clearTimers]);
 
   useEffect(() => {
     writeSelectionToSessionStorage(COURSE_SELECTION_STORAGE_KEY, selectedCourseIdsState);
@@ -430,7 +450,7 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectT
     };
 
     init();
-  }, []);
+  }, [applyStatus, pollTaskStatus, fetchTimetable]);
 
   const handleGenerate = async () => {
     resetPersistedSelections();
@@ -645,23 +665,13 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectT
   const teacherSection = parsedSections[1] || null;
   const canRenderSections = Boolean(courseSection && teacherSection);
 
-  const syncSelectionWithSection = (entries, currentSelectedIds, setSelectedIds) => {
-    if (!entries || entries.length === 0) return;
-    const validIds = new Set(entries.map(entry => entry.id));
-    if (currentSelectedIds === null) {
-      setSelectedIds(entries.map(entry => entry.id));
-      return;
-    }
-    setSelectedIds(currentSelectedIds.filter(id => validIds.has(id)));
-  };
-
   useEffect(() => {
     syncSelectionWithSection(courseSection?.entries || [], selectedCourseIdsState, setSelectedCourseIds);
-  }, [courseSection]);
+  }, [courseSection, selectedCourseIdsState]);
 
   useEffect(() => {
     syncSelectionWithSection(teacherSection?.entries || [], selectedTeacherIdsState, setSelectedTeacherIds);
-  }, [teacherSection]);
+  }, [teacherSection, selectedTeacherIdsState]);
 
   useEffect(() => {
     if (!preselectTeacher || !teacherSection || teacherSection.entries.length === 0) return;
@@ -947,48 +957,50 @@ function hasConflictChild(node) {
             {canRenderSections && (
               <aside className="timetable-sidebar">
                 <div className="timetable-sidebar__group">
-                  <a
-                    href="#course-section-title"
-                    className="timetable-sidebar__link timetable-sidebar__link--section"
-                    onClick={(e) => { e.preventDefault(); document.getElementById('course-section-title')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+                  <h4
+                    className="timetable-sidebar__heading"
+                    onClick={() => document.getElementById('course-section-title')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                   >
                     {courseSection.title}
-                  </a>
+                  </h4>
                   {selectedCourseEntries.length > 0 && (
                     <ul className="timetable-sidebar__list">
                       {selectedCourseEntries.map(entry => (
                         <li key={entry.id}>
-                          <a
-                            href={`#course-panel-${entry.id}`}
-                            className="timetable-sidebar__link"
-                            onClick={(e) => { e.preventDefault(); handleSidebarScroll(entry.id, 'course'); }}
+                          <span
+                            className="timetable-sidebar__item"
+                            onClick={() => handleSidebarScroll(entry.id, 'course')}
+                            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSidebarScroll(entry.id, 'course'); } }}
+                            tabIndex={0}
+                            role="button"
                           >
                             {entry.title.replace(/ — .*/, '')}
-                          </a>
+                          </span>
                         </li>
                       ))}
                     </ul>
                   )}
                 </div>
                 <div className="timetable-sidebar__group">
-                  <a
-                    href="#teacher-section-title"
-                    className="timetable-sidebar__link timetable-sidebar__link--section"
-                    onClick={(e) => { e.preventDefault(); document.getElementById('teacher-section-title')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+                  <h4
+                    className="timetable-sidebar__heading"
+                    onClick={() => document.getElementById('teacher-section-title')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                   >
                     {teacherSection.title}
-                  </a>
+                  </h4>
                     {selectedTeacherEntries.length > 0 && (
                     <ul className="timetable-sidebar__list">
                       {selectedTeacherEntries.map(entry => (
                         <li key={entry.id} className="timetable-sidebar__teacher-item">
-                          <a
-                            href={`#teacher-panel-${entry.id}`}
-                            className="timetable-sidebar__link"
-                            onClick={(e) => { e.preventDefault(); handleSidebarScroll(entry.id, 'teacher'); }}
+                          <span
+                            className="timetable-sidebar__item"
+                            onClick={() => handleSidebarScroll(entry.id, 'teacher')}
+                            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSidebarScroll(entry.id, 'teacher'); } }}
+                            tabIndex={0}
+                            role="button"
                           >
                             {entry.title.replace(/ — .*/, '')}
-                          </a>
+                          </span>
                           {onViewTeacher && (
                             <button
                               className="timetable-sidebar__edit-btn"
@@ -1054,7 +1066,6 @@ function hasConflictChild(node) {
                         className="timetable-selector__dropdown"
                         role="listbox"
                         aria-label={courseSection.title}
-                        onMouseDown={(event) => event.preventDefault()}
                       >
                         <label
                           className={`timetable-selector__option timetable-selector__option--all ${areAllCoursesSelected ? 'selected' : ''}`}
@@ -1095,7 +1106,7 @@ function hasConflictChild(node) {
                             );
                           })
                         ) : (
-                          <div className="timetable-selector__empty">No results</div>
+                          <div className="timetable-selector__empty">{t('common.no_results')}</div>
                         )}
                       </div>
                     )}
@@ -1120,7 +1131,7 @@ function hasConflictChild(node) {
                       </div>
                     ))}
                     {selectedCourseEntries.length === 0 && (
-                      <div className="timetable-selector__empty">No timetables selected</div>
+                          <div className="timetable-selector__empty">{t('timetable.no_timetables_selected')}</div>
                     )}
                   </div>
                 </section>
@@ -1167,7 +1178,6 @@ function hasConflictChild(node) {
                         className="timetable-selector__dropdown"
                         role="listbox"
                         aria-label={teacherSection.title}
-                        onMouseDown={(event) => event.preventDefault()}
                       >
                         <label
                           className={`timetable-selector__option timetable-selector__option--all ${areAllTeachersSelected ? 'selected' : ''}`}
@@ -1209,6 +1219,7 @@ function hasConflictChild(node) {
                                     className="timetable-selector__edit-btn"
                                     onClick={(e) => { e.stopPropagation(); e.preventDefault(); onViewTeacher(entry.title.replace(/ — .*/, '')); }}
                                     title={t('timetable.edit_teacher')}
+                                    aria-label={t('timetable.edit_teacher')}
                                   >
                                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -1220,7 +1231,7 @@ function hasConflictChild(node) {
                             );
                           })
                         ) : (
-                          <div className="timetable-selector__empty">No results</div>
+                          <div className="timetable-selector__empty">{t('common.no_results')}</div>
                         )}
                       </div>
                     )}
@@ -1257,7 +1268,7 @@ function hasConflictChild(node) {
                       </div>
                     ))}
                     {selectedTeacherEntries.length === 0 && (
-                      <div className="timetable-selector__empty">No timetables selected</div>
+                          <div className="timetable-selector__empty">{t('timetable.no_timetables_selected')}</div>
                     )}
                   </div>
                 </section>

@@ -19,6 +19,8 @@
         "yes": "Sí",
         "no": "No",
         "all": "Todas",
+        "no_results": "Sin resultados",
+        "close": "Cerrar",
         "dashes": "--"
     },
     "id": "ID",
@@ -35,7 +37,8 @@
         "position_placeholder": "Ej: 2",
         "label_placeholder": "Ej: Recreo",
         "time_range_placeholder": "Ej: 10:00-11:00",
-        "no_slots": "No hay filas fijas definidas"
+        "no_slots": "No hay filas fijas definidas",
+        "position_error": "La posición debe ser un número positivo"
     },
     "nav": {
         "brand": "Gestión Agenda",
@@ -115,6 +118,7 @@
         "label": "Día {n}:"
     },
     "timetable": {
+        "no_timetables_selected": "No hay horarios seleccionados",
         "no_schedule": "No hay horarios generados",
         "recreating": "Recreando...",
         "recreate": "Recrear Horarios",
@@ -302,6 +306,8 @@
         "all_hours": "Todas las horas",
         "search_lines_placeholder": "Seleccionar líneas...",
         "empty": "No hay clases conjuntas definidas",
+        "lines_helper": "Selecciona al menos 2 líneas",
+        "min_lines_error": "Deben seleccionarse al menos 2 líneas.",
         "confirm_delete": "clase conjunta"
     },
     "config": {

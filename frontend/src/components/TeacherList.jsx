@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import api from '../lib/api';
 import { t } from '../i18n';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
@@ -43,7 +43,7 @@ export default function TeacherList({ onViewTimetable, editTeacherName, onConsum
       handleEdit(teacher);
       onConsumeEditTeacher && onConsumeEditTeacher();
     }
-  }, [editTeacherName, teachers]);
+    }, [editTeacherName, teachers, onConsumeEditTeacher]);
 
   function fetchSubjects() {
     api.get('/subjects').then(setSubjects).catch(() => setSubjects([]));
@@ -161,26 +161,28 @@ export default function TeacherList({ onViewTimetable, editTeacherName, onConsum
     return { ...g, tutor_ids: tutorIds };
   });
 
-  const filteredTeachers = teachers.filter(teacher => {
-    const matchesName = (teacher.name || '').toLowerCase().includes(search.toLowerCase());
-    const matchesSubject = subjectFilter === '' || (teacher.subjects && teacher.subjects.map(s => s.name).includes(subjectFilter));
-    const matchesCourse = courseFilter === '' || (teacher.subjects && teacher.subjects.some(s => s.course_id === courseFilter));
-    return matchesName && matchesSubject && matchesCourse;
-  });
+  const sortedTeachers = useMemo(() => {
+    const filtered = teachers.filter(teacher => {
+      const matchesName = (teacher.name || '').toLowerCase().includes(search.toLowerCase());
+      const matchesSubject = subjectFilter === '' || (teacher.subjects && teacher.subjects.map(s => s.name).includes(subjectFilter));
+      const matchesCourse = courseFilter === '' || (teacher.subjects && teacher.subjects.some(s => s.course_id === courseFilter));
+      return matchesName && matchesSubject && matchesCourse;
+    });
 
-  const sortedTeachers = [...filteredTeachers].sort((a, b) => {
-    let aField, bField;
-    if (sortBy === 'name') {
-      aField = a.name || '';
-      bField = b.name || '';
-    } else if (sortBy === 'subjects') {
-      aField = a.subjects ? a.subjects.map(s => s.name).join(', ') : '';
-      bField = b.subjects ? b.subjects.map(s => s.name).join(', ') : '';
-    }
-    if (aField < bField) return sortAsc ? -1 : 1;
-    if (aField > bField) return sortAsc ? 1 : -1;
-    return 0;
-  });
+    return [...filtered].sort((a, b) => {
+      let aField, bField;
+      if (sortBy === 'name') {
+        aField = a.name || '';
+        bField = b.name || '';
+      } else if (sortBy === 'subjects') {
+        aField = a.subjects ? a.subjects.map(s => s.name).join(', ') : '';
+        bField = b.subjects ? b.subjects.map(s => s.name).join(', ') : '';
+      }
+      if (aField < bField) return sortAsc ? -1 : 1;
+      if (aField > bField) return sortAsc ? 1 : -1;
+      return 0;
+    });
+  }, [teachers, search, subjectFilter, courseFilter, sortBy, sortAsc]);
 
   return (
     <>
@@ -273,7 +275,7 @@ export default function TeacherList({ onViewTimetable, editTeacherName, onConsum
         </thead>
         <tbody>
           {sortedTeachers.map(teacher => (
-            <tr key={teacher.id} onClick={() => handleEdit(teacher)} className="table-row-clickable">
+            <tr key={teacher.id} onClick={() => handleEdit(teacher)} className="table-row-clickable" tabIndex={0} role="button" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleEdit(teacher); } }}>
               <td>{teacher.name}</td>
               <td>{teacher.subjects ? teacher.subjects.map(s => `${s.full_name}`).join(', ') : ''}</td>
               <td>{teacher.tutor_groups ? teacher.tutor_groups.join(', ') : (teacher.tutor_group ?? '')}</td>

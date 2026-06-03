@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import api from '../lib/api';
 import { t } from '../i18n';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
@@ -124,40 +124,42 @@ function SubjectList() {
 
   const courseOptions = Array.from(new Set(subjects.map(s => s.course ? s.course.name : t('subjects.no_course')))).sort((a, b) => a.localeCompare(b));
 
-  const filteredSubjects = subjects.filter(subject => {
-    const matchesName = subject.name.toLowerCase().includes(search.toLowerCase());
-    const matchesCourse = courseFilter === '' || (subject.course ? subject.course.name : t('subjects.no_course')) === courseFilter;
-    return matchesName && matchesCourse;
-  });
+  const sortedSubjects = useMemo(() => {
+    const filtered = subjects.filter(subject => {
+      const matchesName = subject.name.toLowerCase().includes(search.toLowerCase());
+      const matchesCourse = courseFilter === '' || (subject.course ? subject.course.name : t('subjects.no_course')) === courseFilter;
+      return matchesName && matchesCourse;
+    });
 
-  const sortedSubjects = [...filteredSubjects].sort((a, b) => {
-    let aField, bField;
-    if (sortBy === 'id') {
-      aField = a.id || '';
-      bField = b.id || '';
-    } else if (sortBy === 'name') {
-      aField = a.name || '';
-      bField = b.name || '';
-    } else if (sortBy === 'course') {
-      aField = a.course ? a.course.name : '';
-      bField = b.course ? b.course.name : '';
-    } else if (sortBy === 'teacher') {
-      const aTeachers = a.teachers && a.teachers.length > 0;
-      const bTeachers = b.teachers && b.teachers.length > 0;
-      if (!aTeachers && !bTeachers) return 0;
-      if (!aTeachers) return sortAsc ? -1 : 1;
-      if (!bTeachers) return sortAsc ? 1 : -1;
-      const aFull = a.teacher_lines_covered === true;
-      const bFull = b.teacher_lines_covered === true;
-      if (aFull && bFull) return 0;
-      if (aFull) return sortAsc ? -1 : 1;
-      if (bFull) return sortAsc ? 1 : -1;
+    return [...filtered].sort((a, b) => {
+      let aField, bField;
+      if (sortBy === 'id') {
+        aField = a.id || '';
+        bField = b.id || '';
+      } else if (sortBy === 'name') {
+        aField = a.name || '';
+        bField = b.name || '';
+      } else if (sortBy === 'course') {
+        aField = a.course ? a.course.name : '';
+        bField = b.course ? b.course.name : '';
+      } else if (sortBy === 'teacher') {
+        const aTeachers = a.teachers && a.teachers.length > 0;
+        const bTeachers = b.teachers && b.teachers.length > 0;
+        if (!aTeachers && !bTeachers) return 0;
+        if (!aTeachers) return sortAsc ? -1 : 1;
+        if (!bTeachers) return sortAsc ? 1 : -1;
+        const aFull = a.teacher_lines_covered === true;
+        const bFull = b.teacher_lines_covered === true;
+        if (aFull && bFull) return 0;
+        if (aFull) return sortAsc ? -1 : 1;
+        if (bFull) return sortAsc ? 1 : -1;
+        return 0;
+      }
+      if (aField < bField) return sortAsc ? -1 : 1;
+      if (aField > bField) return sortAsc ? 1 : -1;
       return 0;
-    }
-    if (aField < bField) return sortAsc ? -1 : 1;
-    if (aField > bField) return sortAsc ? 1 : -1;
-    return 0;
-  });
+    });
+  }, [subjects, search, courseFilter, sortBy, sortAsc]);
 
   return (
     <>
@@ -280,11 +282,11 @@ function SubjectList() {
         </thead>
         <tbody>
           {sortedSubjects.map(subject => (
-            <tr key={subject.id} onClick={() => handleEdit(subject)} className="table-row-clickable">
+            <tr key={subject.id} onClick={() => handleEdit(subject)} className="table-row-clickable" tabIndex={0} role="button" onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleEdit(subject); } }}>
               <td>{subject.id}</td>
               <td>{subject.course ? subject.course.name : t('subjects.no_course')}</td>
               <td>
-                <span className="subject-color-chip" style={{ backgroundColor: subject.color || '#f1f5f9' }} aria-hidden="true" />
+                <span className="subject-color-chip" aria-hidden="true" style={{ backgroundColor: subject.color || '#f1f5f9' }} />
                 <span className="subject-name">{subject.name}</span>
                 {subject.subject_groups?.map(g => (
                   <span key={g.id} className="group-badge">{g.name}</span>

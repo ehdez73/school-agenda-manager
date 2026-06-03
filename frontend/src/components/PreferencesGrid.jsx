@@ -27,8 +27,9 @@ export default function PreferencesGrid({ value = {}, onChange = () => { }, days
         return out;
     }, [daysList]);
 
-    const [localValue, setLocalValue] = useState(() => normalizeIncoming(value));
     const [hourNames, setHourNames] = useState(() => Array.from({ length: classesPerDay }, (_, i) => `Hora ${i}`));
+
+    const localValue = useMemo(() => normalizeIncoming(value), [value, normalizeIncoming]);
 
     useEffect(() => {
         api.get('/config').then(cfg => {
@@ -48,10 +49,6 @@ export default function PreferencesGrid({ value = {}, onChange = () => { }, days
             setHourNames(Array.from({ length: classesPerDay }, (_, i) => `Hora ${i}`));
         });
     }, [classesPerDay]);
-
-    useEffect(() => {
-        setLocalValue(normalizeIncoming(value));
-    }, [value, normalizeIncoming]);
 
     const getStatus = (dayIndex, hour) => {
         const dayVal = localValue && localValue[dayIndex];
@@ -108,7 +105,6 @@ export default function PreferencesGrid({ value = {}, onChange = () => { }, days
             newNext[dayIndex] = { unavailable: dayObj.unavailable.slice().sort((a, b) => a - b), preferred: dayObj.preferred.slice().sort((a, b) => a - b) };
         }
 
-        setLocalValue(newNext);
         emitNormalized(newNext);
     };
 
