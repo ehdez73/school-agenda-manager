@@ -663,12 +663,23 @@ function MarkdownTimetable() {
     syncSelectionWithSection(teacherSection?.entries || [], selectedTeacherIdsState, setSelectedTeacherIds);
   }, [teacherSection]);
 
+function hasConflictChild(node) {
+  if (node === null || node === undefined || typeof node === 'boolean') return false;
+  if (Array.isArray(node)) return node.some(child => hasConflictChild(child));
+  if (typeof node !== 'object') return false;
+  const className = node?.props?.className || '';
+  if (typeof className === 'string' && className.split(' ').includes('tt-support-conflict')) return true;
+  return hasConflictChild(node?.props?.children);
+}
+
   const markdownComponents = {
     td: ({ children, ...props }) => {
       const colors = new Set();
       collectSubjectEntryColors(children, colors);
       const cellStyle = { ...(props.style || {}) };
-      if (colors.size === 1) {
+      if (hasConflictChild(children)) {
+        cellStyle.backgroundColor = '#eb5252';
+      } else if (colors.size === 1) {
         const [onlyColor] = Array.from(colors);
         cellStyle.backgroundColor = onlyColor;
       }

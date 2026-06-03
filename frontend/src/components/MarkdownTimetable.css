@@ -490,11 +490,40 @@
   content: "\2014";
 }
 
+.tt-unavailable {
+  display: block;
+  width: 100%;
+  min-height: 1.5em;
+  color: #dc2626;
+  background-color: #fef2f2;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.15em;
+  cursor: default;
+  border-radius: 4px;
+}
+
 .tt-support-entry {
   cursor: pointer;
 }
 .tt-support-entry:hover {
   filter: brightness(0.92);
+}
+
+.tt-support-conflict {
+  position: relative;
+}
+.tt-support-conflict:hover {
+  filter: brightness(0.95);
+}
+
+.tt-conflict-warning {
+  position: absolute;
+  top: -8px;
+  right: -6px;
+  font-size: 1.5em;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .tt-fixed-slot {

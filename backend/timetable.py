@@ -52,14 +52,17 @@ def _build_colored_label_html(label, subject_color):
     )
 
 
-def _build_colored_label_html_with_data(label, subject_color, data_attrs):
+def _build_colored_label_html_with_data(label, subject_color, data_attrs, extra_classes=""):
     safe_label = escape(label)
     safe_color = _safe_hex_color(subject_color)
     attrs = " ".join(f'data-{k}="{escape(str(v))}"' for k, v in data_attrs.items())
+    base_class = "tt-support-entry"
+    if extra_classes:
+        base_class += f" {extra_classes}"
     if not safe_color:
-        return f"<span class=\"tt-support-entry\" {attrs}>{safe_label}</span>"
+        return f"<span class=\"{base_class}\" {attrs}>{safe_label}</span>"
     return (
-        f"<span class=\"tt-support-entry tt-subject-entry\" "
+        f"<span class=\"{base_class} tt-subject-entry\" "
         f"style=\"background-color: {safe_color};\" {attrs}>"
         f"{safe_label}"
         "</span>"
@@ -347,20 +350,61 @@ def get_teacher_timetables_from_db(session):
                         _build_colored_label_html(f"{item['course_line']}: {display_name}", item["subject_color"])
                     )
 
+    # Build teacher preferences lookup for unavailable slots
+    all_teachers = session.query(Teacher).all()
+    teacher_unavailable = {}
+    for teacher in all_teachers:
+        prefs = {}
+        if teacher.preferences:
+            try:
+                prefs = json.loads(teacher.preferences)
+            except (ValueError, TypeError):
+                prefs = {}
+        unavailable_set = set()
+        for day_str, day_prefs in prefs.items():
+            if isinstance(day_prefs, dict) and "unavailable" in day_prefs:
+                for h in day_prefs["unavailable"]:
+                    unavailable_set.add((int(day_str), h))
+        teacher_unavailable[teacher.name] = unavailable_set
+
     # Support assignments
     support_assignments = session.query(SupportAssignment).all()
     for sa in support_assignments:
         teacher_name = sa.teacher.name
         course_line = f"{sa.course_id}{chr(ord('A') + sa.line)}"
         label = f"{course_line}: {sa.subject.name} ({t('timetable.support_label')})"
-        teacher_timetable[teacher_name][(sa.hour, sa.day)].append(
-            _build_colored_label_html_with_data(label, sa.subject.color, {
-                "support-id": sa.id,
-                "teacher": sa.teacher.name,
-                "day": sa.day,
-                "hour": sa.hour,
-            })
-        )
+        data = {
+            "support-id": sa.id,
+            "teacher": sa.teacher.name,
+            "day": sa.day,
+            "hour": sa.hour,
+        }
+        unavailable = teacher_unavailable.get(teacher_name, set())
+        if (sa.day, sa.hour) in unavailable:
+            data["conflict"] = "1"
+            safe_label = escape(label)
+            safe_color = _safe_hex_color(sa.subject.color)
+            base_class = "tt-support-entry tt-support-conflict tt-subject-entry"
+            attrs = " ".join(f'data-{k}="{escape(str(v))}"' for k, v in data.items())
+            if safe_color:
+                html = (
+                    f'<span class="{base_class}" style="background-color: {safe_color};" {attrs}>'
+                    f'{safe_label}'
+                    f'<span class="tt-conflict-warning">⚠️</span>'
+                    f'</span>'
+                )
+            else:
+                html = (
+                    f'<span class="{base_class}" {attrs}>'
+                    f'{safe_label}'
+                    f'<span class="tt-conflict-warning">⚠️</span>'
+                    f'</span>'
+                )
+            teacher_timetable[teacher_name][(sa.hour, sa.day)].append(html)
+        else:
+            teacher_timetable[teacher_name][(sa.hour, sa.day)].append(
+                _build_colored_label_html_with_data(label, sa.subject.color, data)
+            )
 
     # Non-teaching busy slots (coordination, etc.)
     busy_slots = session.query(TeacherBusySlot).all()
@@ -370,19 +414,25 @@ def get_teacher_timetables_from_db(session):
         )
         teacher_timetable[slot.teacher.name][(slot.hour, slot.day)].append(coord_label)
 
-    # Fill remaining gaps with clickable gap markers
+    # Fill remaining gaps
     cfg = session.query(Config).first()
     num_days = cfg.days_per_week if cfg else 5
     num_hours = cfg.classes_per_day if cfg else 5
 
     for teacher_name, slots in list(teacher_timetable.items()):
+        unavailable = teacher_unavailable.get(teacher_name, set())
         for d in range(num_days):
             for h in range(num_hours):
                 key = (h, d)
                 if key not in slots:
-                    slots[key].append(
-                        f'<span class="tt-gap" data-teacher="{escape(teacher_name)}" data-day="{d}" data-hour="{h}"></span>'
-                    )
+                    if (d, h) in unavailable:
+                        slots[key].append(
+                            f'<span class="tt-unavailable" data-teacher="{escape(teacher_name)}" data-day="{d}" data-hour="{h}">✕</span>'
+                        )
+                    else:
+                        slots[key].append(
+                            f'<span class="tt-gap" data-teacher="{escape(teacher_name)}" data-day="{d}" data-hour="{h}"></span>'
+                        )
 
     return teacher_timetable
 
@@ -391,6 +441,7 @@ def generate_markdown_timetable_by_teacher(
     teacher_timetable,
     teachers_info,
     teachers_tutors=None,
+    teachers_assigned=None,
     teachers_coordination=None,
     teachers_support=None,
     cfg_dict=None,
@@ -427,27 +478,15 @@ def generate_markdown_timetable_by_teacher(
         teacher_fixed_slots = []
     fixed_slots_sorted = sorted(teacher_fixed_slots, key=lambda fs: fs.position)
 
-    # Calculate assigned hours for each teacher (excluding coordination and gap markers)
-    teacher_assigned_hours = {}
-    coord_label_html = _build_colored_label_html(t("timetable.coordination_label"), COORDINATION_COLOR)
-    for teacher_name, slots in teacher_timetable.items():
-        total_hours = 0
-        for assignments in slots.values():
-            real = [a for a in assignments if a != coord_label_html and 'tt-gap' not in a]
-            if real:
-                total_hours += len(real)
-        teacher_assigned_hours[teacher_name] = total_hours
-
     markdown = []
     markdown.append("## " + t("timetable.by_teacher") + "\n")
     for teacher_name in sorted(teacher_timetable.keys()):
         slots = teacher_timetable[teacher_name]
-        raw_assigned = teacher_assigned_hours[teacher_name]
         max_hours = teachers_info.get(teacher_name, 0)
+        assigned_hours = (teachers_assigned or {}).get(teacher_name, 0)
         coord_hours = (teachers_coordination or {}).get(teacher_name, 0)
         support_hours = (teachers_support or {}).get(teacher_name, 0)
-        # Support entries are already in teacher_timetable, so subtract them
-        lective_hours = raw_assigned - support_hours
+        lective_hours = assigned_hours
         total_occupied = lective_hours + coord_hours + support_hours
         parts = []
         if lective_hours > 0:
@@ -524,16 +563,22 @@ def print_markdown_timetable_per_teacher(session) -> str:
     """
     teacher_timetable = get_teacher_timetables_from_db(session)
 
-    # Get teacher information for hours calculation
+    from .teacher_utils import compute_teacher_hours
+    hours_data = compute_teacher_hours(session)
+
     teachers_info = {}
+    teachers_assigned = {}
     teachers_coordination = {}
-    teachers = session.query(Teacher).all()
-    for teacher in teachers:
-        teachers_info[teacher.name] = teacher.max_hours_week
-        teachers_coordination[teacher.name] = getattr(teacher, 'coordination_hours', 0) or 0
+    teachers_support = {}
+    for tid, data in hours_data.items():
+        teachers_info[data['name']] = data['max_hours_week']
+        teachers_assigned[data['name']] = data['assigned_hours']
+        teachers_coordination[data['name']] = data['coordination_hours']
+        teachers_support[data['name']] = data['support_hours']
 
     # Build a mapping of teacher name -> tutor_group (if any)
     teachers_tutors = {}
+    teachers = session.query(Teacher).all()
     for teacher in teachers:
         tutor_groups = normalize_tutor_groups(teacher.tutor_group)
         if tutor_groups:
@@ -544,15 +589,9 @@ def print_markdown_timetable_per_teacher(session) -> str:
 
     teacher_fixed_slots = session.query(FixedSlot).filter_by(slot_type="teacher").all()
 
-    # Count support assignments per teacher
-    teachers_support = {}
-    support_assignments = session.query(SupportAssignment).all()
-    for sa in support_assignments:
-        teacher_name = sa.teacher.name
-        teachers_support[teacher_name] = teachers_support.get(teacher_name, 0) + 1
-
     return generate_markdown_timetable_by_teacher(
         teacher_timetable, teachers_info, teachers_tutors,
+        teachers_assigned=teachers_assigned,
         teachers_coordination=teachers_coordination,
         teachers_support=teachers_support,
         cfg_dict=cfg_dict,

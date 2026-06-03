@@ -47,7 +47,8 @@ def get_gap_subjects():
             except (ValueError, TypeError):
                 pass
 
-        # Find existing support for this slot
+        # Find existing support for this slot (needed even for unavailable slots
+        # so the frontend can show the Remove button)
         existing = (
             session.query(SupportAssignment)
             .filter_by(teacher_id=teacher.id, day=day, hour=hour)
@@ -63,6 +64,26 @@ def get_gap_subjects():
                 "line": existing.line,
                 "course_line": f"{existing.course_id}{chr(ord('A') + existing.line)}",
             }
+
+        # Check if this slot is marked as unavailable in teacher preferences
+        prefs = {}
+        if teacher.preferences:
+            try:
+                prefs = _json.loads(teacher.preferences)
+            except (ValueError, TypeError):
+                pass
+        day_prefs = prefs.get(str(day), {})
+        if isinstance(day_prefs, dict) and hour in day_prefs.get("unavailable", []):
+            return jsonify({
+                "teacher_name": teacher.name,
+                "teacher_id": teacher.id,
+                "day": day,
+                "hour": hour,
+                "hour_label": hour_label,
+                "existing_support": existing_support,
+                "available_subjects": [],
+                "unavailable": True,
+            })
 
         # Find all subjects being taught at this (day, hour) across all courses
         timeslots = (
@@ -160,6 +181,18 @@ def create_support_assignment():
         teacher = session.get(Teacher, teacher_id)
         if not teacher:
             abort(404, description=t("errors.not_found", entity="Teacher", id=teacher_id))
+
+        # Check if this slot is marked as unavailable in teacher preferences
+        prefs = {}
+        if teacher.preferences:
+            try:
+                prefs = _json.loads(teacher.preferences)
+            except (ValueError, TypeError):
+                pass
+        day_prefs = prefs.get(str(day), {})
+        if isinstance(day_prefs, dict) and hour in day_prefs.get("unavailable", []):
+            abort(400, description="Teacher is not available at this slot")
+
         subject = session.get(Subject, subject_id)
         if not subject:
             abort(404, description=t("errors.not_found", entity="Subject", id=subject_id))
