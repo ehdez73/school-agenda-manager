@@ -1,6 +1,6 @@
 # Frontend Styling Guide
 
-> La referencia completa de tokens CSS, BEM, responsive, dark mode y utilidades
+> La referencia completa de tokens CSS, BEM, responsive y utilidades
 > está en el **Skill frontend §4** (`.agents/skills/frontend/SKILL.md`).
 > Este documento es solo el **PR checklist** para humanos.
 
@@ -14,7 +14,6 @@
 - [ ] No `/api/` prefix in API paths — `api.js` already prepends it.
 - [ ] No hardcoded colors/spacing/radius — use `var(--color-*)`, `var(--space-*)`, `var(--radius-*)`, `var(--shadow-*)`.
 - [ ] CSS follows BEM naming, placed in a component-local CSS file.
-- [ ] Dark mode verified with `data-theme="dark"`.
 - [ ] Mobile responsive validated at `768px` and `640px` breakpoints.
 - [ ] Tests added for states and regression.
 - [ ] Form uses `form-actions` with `btn--primary` (save), `btn--secondary` (cancel), optional `btn--danger` (delete).

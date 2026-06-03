@@ -737,24 +737,7 @@ Use BEM for shared component blocks:
 
 **Block composition:** `.section-block` — card-like container (padding + surface + shadow + radius + margin)
 
-### 4.7 Dark Mode
-
-The app supports light/dark themes via `data-theme` attribute on `<html>`:
-
-```css
-[data-theme="dark"] {
-  --color-bg: #18181b;
-  --color-surface: #23272f;
-  --color-text: #f4f7f6;
-  /* ... redefines all relevant tokens */
-}
-```
-
-Toggle in `App.jsx` via a `<select>` that sets `document.documentElement.setAttribute('data-theme', theme)`.
-
-If you add a new component CSS file, test it under both themes. Use `[data-theme="dark"]` overrides only when the default tokens don't suffice.
-
-### 4.8 Responsive Breakpoints
+### 4.7 Responsive Breakpoints
 
 | Breakpoint | Behavior |
 |------------|----------|
@@ -980,7 +963,6 @@ Use this checklist when creating a new feature/section in the frontend:
 - [ ] No `/api/` prefix in API paths — `api.js` already prepends it
 - [ ] No hardcoded colors, spacing, or radius — use `var(--color-*)`, `var(--space-*)`, `var(--radius-*)`, `var(--shadow-*)`
 - [ ] CSS follows BEM naming, placed in a component-local CSS file
-- [ ] Dark mode works (verify with `data-theme="dark"`)
 - [ ] Responsive behavior validated at `768px` and `640px` breakpoints
 - [ ] Tests added in `src/components/__tests__/` for states and regression
 - [ ] New page registered in `App.jsx` with nav button + conditional render
@@ -1034,10 +1016,9 @@ Use this checklist when creating a new feature/section in the frontend:
 | **`generateLineLetters` / `toggleLine` duplicated** | These functions are copied in `SubjectForm.jsx` and `SubjectGroupForm.jsx`. Extract to `src/lib/utils.js`. |
 | **Dual modal state (`showForm` + `selectedEntity`)** | Can cause both modals to render simultaneously. Prefer a single state: `{ mode: 'closed' \| 'add' \| 'edit', entity?: T }`. |
 | **Table rows without keyboard accessibility** | Add `tabIndex={0}`, `role="button"`, `onKeyDown={e => e.key === 'Enter' && handleEdit(item)}` to clickable `<tr>` elements. |
-| **Hardcoded `#fff` in modals** | FormModal.css and ConfirmDeleteModal.css use `background: #fff`. Use `var(--color-surface)` for dark mode support. |
+| **Hardcoded `#fff` in modals** | FormModal.css and ConfirmDeleteModal.css use `background: #fff`. |
 | Forgetting to add new i18n keys to both locale files | Add to both `en.json` and `es.json` — missing keys fall back to the key string |
 | Duplicating section title in `children` | `SectionLayout` already renders the `<h2>` — remove your duplicate |
 | Putting modals inside `SectionLayout` | Place them as siblings outside the layout wrapper |
 | Adding custom loading/error/empty banners | Use `SectionLayout`'s built-in `state`, `errorMsg`, `emptyMsg` props |
 | Using `!important` in CSS | Increase specificity with BEM instead |
-| Not testing dark mode | Always verify new components under `data-theme="dark"` |
