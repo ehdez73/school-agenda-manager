@@ -813,14 +813,46 @@ function hasConflictChild(node) {
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  const sortAvailableSubjects = (subjects) => {
+    return [...subjects].sort((left, right) => {
+      const subjectComparison = (left.subject_name || '').localeCompare(right.subject_name || '', undefined, {
+        numeric: true,
+        sensitivity: 'base',
+      });
+      if (subjectComparison !== 0) return subjectComparison;
+
+      return (left.course_line || '').localeCompare(right.course_line || '', undefined, {
+        numeric: true,
+        sensitivity: 'base',
+      });
+    });
+  };
+
+  const getSupportSubjectKey = (subject) => `${subject.subject_id}:${subject.course_id}:${subject.line}`;
+
   const openSupportModal = async (teacherName, day, hour, supportId) => {
     setSavingSupport(false);
-    setSelectedSubjectIndex(0);
     try {
       const data = await api.get(`/timetable/gaps?teacher_name=${encodeURIComponent(teacherName)}&day=${day}&hour=${hour}`);
-      setAvailableSubjects(data.available_subjects || []);
-      setExistingSupport(data.existing_support || null);
+      const existingSupportData = data.existing_support || null;
+      let subjects = sortAvailableSubjects(data.available_subjects || []);
+
+      if (existingSupportData) {
+        const currentKey = getSupportSubjectKey(existingSupportData);
+        if (!subjects.some(subject => getSupportSubjectKey(subject) === currentKey)) {
+          subjects = sortAvailableSubjects([...subjects, existingSupportData]);
+        }
+      }
+
+      setAvailableSubjects(subjects);
+      setExistingSupport(existingSupportData);
       setHourLabel(data.hour_label || null);
+      setSelectedSubjectIndex(() => {
+        if (!existingSupportData) return 0;
+        const currentKey = getSupportSubjectKey(existingSupportData);
+        const selectedIndex = subjects.findIndex(subject => getSupportSubjectKey(subject) === currentKey);
+        return selectedIndex >= 0 ? selectedIndex : 0;
+      });
       setSupportModal({
         open: true,
         teacherName,
@@ -833,6 +865,7 @@ function hasConflictChild(node) {
       setAvailableSubjects([]);
       setExistingSupport(null);
       setHourLabel(null);
+      setSelectedSubjectIndex(0);
       setSupportModal({ open: true, teacherName, teacherId: null, day, hour, supportId });
     }
   };
@@ -1305,6 +1338,7 @@ function hasConflictChild(node) {
       <FormModal
         open={supportModal.open}
         onClose={() => setSupportModal(prev => ({ ...prev, open: false }))}
+        className="form-modal--support"
       >
         <h3>{t('timetable.support_modal_title')}</h3>
         <p>

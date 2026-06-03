@@ -32,6 +32,12 @@
   overflow-x: auto;
 }
 
+.form-modal--support {
+  width: min(760px, 95vw);
+  min-height: 30vh;
+  max-height: 95vh;
+}
+
 .markdown-timetable h3 {
   color: var(--color-table-header);
   font-size: 1.5rem;
