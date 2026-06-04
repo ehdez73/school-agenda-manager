@@ -10,6 +10,30 @@ This repository contains a small web application that generates weekly timetable
 
 This README gives a quick orientation and the recommended developer workflow.
 
+
+## Screenshots
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ehdez73/school-agenda-manager/refs/heads/dev/docs/images/timetable.png" width="900" alt="Timetable">
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ehdez73/school-agenda-manager/refs/heads/dev/docs/images/teacher.png" width="900" alt="Teacher">
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ehdez73/school-agenda-manager/refs/heads/dev/docs/images/constraints.png" width="900" alt="Constraints">
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ehdez73/school-agenda-manager/refs/heads/dev/docs/images/config.png" width="900" alt="Config">
+</p>
+
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ehdez73/school-agenda-manager/refs/heads/dev/docs/images/help.png" width="900" alt="Help">
+</p>
+
 ## Repo layout
 
 - `backend/` — Flask app, scheduler, DB models, restrictions and tests. See `backend/README.md` for details.
