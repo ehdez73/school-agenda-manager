@@ -14,24 +14,24 @@ This README gives a quick orientation and the recommended developer workflow.
 ## Screenshots
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/ehdez73/school-agenda-manager/refs/heads/dev/docs/images/timetable.png" width="900" alt="Timetable">
+  <img src="https://raw.githubusercontent.com/ehdez73/school-agenda-manager/refs/heads/main/docs/images/timetable.png" width="900" alt="Timetable">
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/ehdez73/school-agenda-manager/refs/heads/dev/docs/images/teacher.png" width="900" alt="Teacher">
+  <img src="https://raw.githubusercontent.com/ehdez73/school-agenda-manager/refs/heads/main/docs/images/teacher.png" width="900" alt="Teacher">
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/ehdez73/school-agenda-manager/refs/heads/dev/docs/images/constraints.png" width="900" alt="Constraints">
+  <img src="https://raw.githubusercontent.com/ehdez73/school-agenda-manager/refs/heads/main/docs/images/constraints.png" width="900" alt="Constraints">
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/ehdez73/school-agenda-manager/refs/heads/dev/docs/images/config.png" width="900" alt="Config">
+  <img src="https://raw.githubusercontent.com/ehdez73/school-agenda-manager/refs/heads/main/docs/images/config.png" width="900" alt="Config">
 </p>
 
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/ehdez73/school-agenda-manager/refs/heads/dev/docs/images/help.png" width="900" alt="Help">
+  <img src="https://raw.githubusercontent.com/ehdez73/school-agenda-manager/refs/heads/main/docs/images/help.png" width="900" alt="Help">
 </p>
 
 ## Repo layout
