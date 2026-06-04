@@ -661,7 +661,7 @@
 @media print {
   @page {
     size: landscape;
-    margin: 1cm;
+    margin: 1.5cm;
     max-width: 90%;
   }
 
@@ -759,6 +759,7 @@
     page-break-inside: avoid;
     break-inside: avoid-page;
     margin-bottom: 0.8cm !important;
+    padding-top: 0.7cm !important;
   }
 
   .app.app--timetable-print .timetable-tab-panel:nth-child(2n) {
@@ -775,6 +776,11 @@
   .app.app--timetable-print .timetable-panel-title + p {
     page-break-after: avoid;
     break-after: avoid;
+  }
+
+  .app.app--timetable-print .timetable-tabs-block:has(.timetable-selector__empty) h3,
+  .app.app--timetable-print .timetable-selector__empty {
+    display: none !important;
   }
 }
 
