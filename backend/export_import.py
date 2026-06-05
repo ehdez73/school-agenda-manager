@@ -303,11 +303,6 @@ def import_payload(session, payload):
 
     # Teachers
     for teacher_data in payload.get("teachers", []) or []:
-        subj_objs = []
-        for sid in teacher_data.get("subjects", []) or []:
-            s_obj = session.get(Subject, sid)
-            if s_obj:
-                subj_objs.append(s_obj)
         teacher = Teacher(
             id=teacher_data.get("id"),
             name=teacher_data.get("name"),
@@ -318,10 +313,8 @@ def import_payload(session, payload):
         teacher.set_tutor_groups(teacher_data.get("tutor_groups", teacher_data.get("tutor_group")))
         session.add(teacher)
         session.flush()
-        if subj_objs:
-            teacher.subjects = subj_objs
         ts_lines = teacher_data.get("teacher_subject_lines") or {}
-        if ts_lines or subj_objs:
+        if ts_lines or teacher_data.get("subjects"):
             session.execute(
                 delete(teacher_subject).where(teacher_subject.c.teacher_id == teacher.id)
             )

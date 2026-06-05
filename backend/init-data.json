@@ -1376,12 +1376,12 @@
       "linked_subject_id": "SOC6",
       "teachers": [
         {
-          "id": 23,
-          "name": "Desdoble 6º"
-        },
-        {
           "id": 16,
           "name": "Tutor 6ºB"
+        },
+        {
+          "id": 23,
+          "name": "Desdoble 6º"
         }
       ],
       "included_lines": null
@@ -1484,12 +1484,12 @@
       "linked_subject_id": "NAT6",
       "teachers": [
         {
-          "id": 23,
-          "name": "Desdoble 6º"
-        },
-        {
           "id": 16,
           "name": "Tutor 6ºB"
+        },
+        {
+          "id": 23,
+          "name": "Desdoble 6º"
         }
       ],
       "included_lines": null
@@ -2752,11 +2752,11 @@
           0,
           1
         ],
-        "LEN6": [
+        "MAT6": [
           0,
           1
         ],
-        "MAT6": [
+        "LEN6": [
           0,
           1
         ]
@@ -2947,10 +2947,10 @@
       ],
       "teacher_subject_lines": {
         "EF6": null,
-        "LEN6": [
+        "MAT6": [
           2
         ],
-        "MAT6": [
+        "LEN6": [
           2
         ],
         "NAT6": [
@@ -3059,7 +3059,7 @@
       "hour": 0,
       "course_id": "2º",
       "line": 0,
-      "subject_group_id": 2
+      "subject_group_id": null
     },
     {
       "id": 10,
@@ -3179,7 +3179,7 @@
       "hour": 1,
       "course_id": "I4A",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 11
     },
     {
       "id": 25,
@@ -3331,7 +3331,7 @@
       "hour": 2,
       "course_id": "I4A",
       "line": 0,
-      "subject_group_id": 11
+      "subject_group_id": null
     },
     {
       "id": 44,
@@ -3387,7 +3387,7 @@
       "hour": 2,
       "course_id": "3º",
       "line": 1,
-      "subject_group_id": 3
+      "subject_group_id": null
     },
     {
       "id": 51,
@@ -3395,7 +3395,7 @@
       "hour": 2,
       "course_id": "4º",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 4
     },
     {
       "id": 52,
@@ -3451,7 +3451,7 @@
       "hour": 3,
       "course_id": "1º",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 1
     },
     {
       "id": 59,
@@ -3531,7 +3531,7 @@
       "hour": 3,
       "course_id": "3º",
       "line": 0,
-      "subject_group_id": 3
+      "subject_group_id": null
     },
     {
       "id": 69,
@@ -3755,7 +3755,7 @@
       "hour": 5,
       "course_id": "1º",
       "line": 0,
-      "subject_group_id": 1
+      "subject_group_id": null
     },
     {
       "id": 97,
@@ -3923,7 +3923,7 @@
       "hour": 0,
       "course_id": "I3A",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 7
     },
     {
       "id": 118,
@@ -3939,7 +3939,7 @@
       "hour": 0,
       "course_id": "I4A",
       "line": 0,
-      "subject_group_id": 8
+      "subject_group_id": null
     },
     {
       "id": 120,
@@ -3955,7 +3955,7 @@
       "hour": 0,
       "course_id": "I5A",
       "line": 0,
-      "subject_group_id": 9
+      "subject_group_id": null
     },
     {
       "id": 122,
@@ -3979,7 +3979,7 @@
       "hour": 0,
       "course_id": "2º",
       "line": 1,
-      "subject_group_id": null
+      "subject_group_id": 2
     },
     {
       "id": 125,
@@ -4067,7 +4067,7 @@
       "hour": 1,
       "course_id": "1º",
       "line": 1,
-      "subject_group_id": 1
+      "subject_group_id": null
     },
     {
       "id": 136,
@@ -4083,7 +4083,7 @@
       "hour": 1,
       "course_id": "I3A",
       "line": 1,
-      "subject_group_id": 10
+      "subject_group_id": null
     },
     {
       "id": 138,
@@ -4115,7 +4115,7 @@
       "hour": 1,
       "course_id": "I5A",
       "line": 1,
-      "subject_group_id": null
+      "subject_group_id": 12
     },
     {
       "id": 142,
@@ -4179,7 +4179,7 @@
       "hour": 1,
       "course_id": "5º",
       "line": 1,
-      "subject_group_id": null
+      "subject_group_id": 5
     },
     {
       "id": 150,
@@ -4219,7 +4219,7 @@
       "hour": 2,
       "course_id": "1º",
       "line": 1,
-      "subject_group_id": null
+      "subject_group_id": 1
     },
     {
       "id": 155,
@@ -4227,7 +4227,7 @@
       "hour": 2,
       "course_id": "I3A",
       "line": 0,
-      "subject_group_id": 7
+      "subject_group_id": null
     },
     {
       "id": 156,
@@ -4235,7 +4235,7 @@
       "hour": 2,
       "course_id": "I3A",
       "line": 1,
-      "subject_group_id": null
+      "subject_group_id": 7
     },
     {
       "id": 157,
@@ -4331,7 +4331,7 @@
       "hour": 2,
       "course_id": "5º",
       "line": 1,
-      "subject_group_id": 5
+      "subject_group_id": null
     },
     {
       "id": 169,
@@ -4387,7 +4387,7 @@
       "hour": 3,
       "course_id": "I3A",
       "line": 1,
-      "subject_group_id": 7
+      "subject_group_id": null
     },
     {
       "id": 176,
@@ -4411,7 +4411,7 @@
       "hour": 3,
       "course_id": "I5A",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 9
     },
     {
       "id": 179,
@@ -4427,7 +4427,7 @@
       "hour": 3,
       "course_id": "2º",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 2
     },
     {
       "id": 181,
@@ -4475,7 +4475,7 @@
       "hour": 3,
       "course_id": "5º",
       "line": 0,
-      "subject_group_id": 5
+      "subject_group_id": null
     },
     {
       "id": 187,
@@ -4531,7 +4531,7 @@
       "hour": 4,
       "course_id": "I3A",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 10
     },
     {
       "id": 194,
@@ -4547,7 +4547,7 @@
       "hour": 4,
       "course_id": "I4A",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 8
     },
     {
       "id": 196,
@@ -4563,7 +4563,7 @@
       "hour": 4,
       "course_id": "I5A",
       "line": 0,
-      "subject_group_id": 12
+      "subject_group_id": null
     },
     {
       "id": 198,
@@ -4571,7 +4571,7 @@
       "hour": 4,
       "course_id": "I5A",
       "line": 1,
-      "subject_group_id": null
+      "subject_group_id": 9
     },
     {
       "id": 199,
@@ -4611,7 +4611,7 @@
       "hour": 4,
       "course_id": "4º",
       "line": 0,
-      "subject_group_id": 4
+      "subject_group_id": null
     },
     {
       "id": 204,
@@ -4891,7 +4891,7 @@
       "hour": 0,
       "course_id": "2º",
       "line": 1,
-      "subject_group_id": null
+      "subject_group_id": 2
     },
     {
       "id": 239,
@@ -4923,7 +4923,7 @@
       "hour": 0,
       "course_id": "4º",
       "line": 1,
-      "subject_group_id": 4
+      "subject_group_id": null
     },
     {
       "id": 243,
@@ -4971,7 +4971,7 @@
       "hour": 1,
       "course_id": "1º",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 1
     },
     {
       "id": 249,
@@ -4987,7 +4987,7 @@
       "hour": 1,
       "course_id": "I3A",
       "line": 0,
-      "subject_group_id": 10
+      "subject_group_id": null
     },
     {
       "id": 251,
@@ -4995,7 +4995,7 @@
       "hour": 1,
       "course_id": "I3A",
       "line": 1,
-      "subject_group_id": null
+      "subject_group_id": 7
     },
     {
       "id": 252,
@@ -5011,7 +5011,7 @@
       "hour": 1,
       "course_id": "I4A",
       "line": 1,
-      "subject_group_id": 8
+      "subject_group_id": null
     },
     {
       "id": 254,
@@ -5083,7 +5083,7 @@
       "hour": 1,
       "course_id": "5º",
       "line": 0,
-      "subject_group_id": 5
+      "subject_group_id": null
     },
     {
       "id": 263,
@@ -5147,7 +5147,7 @@
       "hour": 2,
       "course_id": "I3A",
       "line": 1,
-      "subject_group_id": 7
+      "subject_group_id": null
     },
     {
       "id": 271,
@@ -5163,7 +5163,7 @@
       "hour": 2,
       "course_id": "I4A",
       "line": 1,
-      "subject_group_id": null
+      "subject_group_id": 8
     },
     {
       "id": 273,
@@ -5179,7 +5179,7 @@
       "hour": 2,
       "course_id": "I5A",
       "line": 1,
-      "subject_group_id": 12
+      "subject_group_id": null
     },
     {
       "id": 275,
@@ -5203,7 +5203,7 @@
       "hour": 2,
       "course_id": "3º",
       "line": 0,
-      "subject_group_id": 3
+      "subject_group_id": null
     },
     {
       "id": 278,
@@ -5235,7 +5235,7 @@
       "hour": 2,
       "course_id": "5º",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 5
     },
     {
       "id": 282,
@@ -5283,7 +5283,7 @@
       "hour": 3,
       "course_id": "1º",
       "line": 1,
-      "subject_group_id": 1
+      "subject_group_id": null
     },
     {
       "id": 288,
@@ -5323,7 +5323,7 @@
       "hour": 3,
       "course_id": "I5A",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 12
     },
     {
       "id": 293,
@@ -5339,7 +5339,7 @@
       "hour": 3,
       "course_id": "2º",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 2
     },
     {
       "id": 295,
@@ -5459,7 +5459,7 @@
       "hour": 4,
       "course_id": "I4A",
       "line": 0,
-      "subject_group_id": 8
+      "subject_group_id": null
     },
     {
       "id": 310,
@@ -5555,7 +5555,7 @@
       "hour": 4,
       "course_id": "6º",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 6
     },
     {
       "id": 322,
@@ -5611,7 +5611,7 @@
       "hour": 5,
       "course_id": "I4A",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 8
     },
     {
       "id": 329,
@@ -5811,7 +5811,7 @@
       "hour": 0,
       "course_id": "3º",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 3
     },
     {
       "id": 354,
@@ -5827,7 +5827,7 @@
       "hour": 0,
       "course_id": "4º",
       "line": 0,
-      "subject_group_id": 4
+      "subject_group_id": null
     },
     {
       "id": 356,
@@ -5955,7 +5955,7 @@
       "hour": 1,
       "course_id": "2º",
       "line": 1,
-      "subject_group_id": 2
+      "subject_group_id": null
     },
     {
       "id": 372,
@@ -5987,7 +5987,7 @@
       "hour": 1,
       "course_id": "4º",
       "line": 1,
-      "subject_group_id": null
+      "subject_group_id": 4
     },
     {
       "id": 376,
@@ -6043,7 +6043,7 @@
       "hour": 2,
       "course_id": "1º",
       "line": 1,
-      "subject_group_id": null
+      "subject_group_id": 1
     },
     {
       "id": 383,
@@ -6075,7 +6075,7 @@
       "hour": 2,
       "course_id": "I4A",
       "line": 1,
-      "subject_group_id": 11
+      "subject_group_id": null
     },
     {
       "id": 387,
@@ -6171,7 +6171,7 @@
       "hour": 2,
       "course_id": "6º",
       "line": 1,
-      "subject_group_id": 6
+      "subject_group_id": null
     },
     {
       "id": 399,
@@ -6275,7 +6275,7 @@
       "hour": 3,
       "course_id": "3º",
       "line": 1,
-      "subject_group_id": null
+      "subject_group_id": 3
     },
     {
       "id": 412,
@@ -6315,7 +6315,7 @@
       "hour": 3,
       "course_id": "6º",
       "line": 0,
-      "subject_group_id": 6
+      "subject_group_id": null
     },
     {
       "id": 417,
@@ -6403,7 +6403,7 @@
       "hour": 4,
       "course_id": "2º",
       "line": 0,
-      "subject_group_id": 2
+      "subject_group_id": null
     },
     {
       "id": 428,
@@ -6467,7 +6467,7 @@
       "hour": 4,
       "course_id": "6º",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 6
     },
     {
       "id": 436,
@@ -6611,7 +6611,7 @@
       "hour": 5,
       "course_id": "5º",
       "line": 1,
-      "subject_group_id": 5
+      "subject_group_id": null
     },
     {
       "id": 454,
@@ -6627,7 +6627,7 @@
       "hour": 5,
       "course_id": "6º",
       "line": 1,
-      "subject_group_id": null
+      "subject_group_id": 6
     },
     {
       "id": 456,
@@ -6699,7 +6699,7 @@
       "hour": 0,
       "course_id": "I5A",
       "line": 1,
-      "subject_group_id": 9
+      "subject_group_id": null
     },
     {
       "id": 465,
@@ -6723,7 +6723,7 @@
       "hour": 0,
       "course_id": "3º",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 3
     },
     {
       "id": 468,
@@ -6907,7 +6907,7 @@
       "hour": 1,
       "course_id": "5º",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 5
     },
     {
       "id": 491,
@@ -6923,7 +6923,7 @@
       "hour": 1,
       "course_id": "6º",
       "line": 0,
-      "subject_group_id": 6
+      "subject_group_id": null
     },
     {
       "id": 493,
@@ -6987,7 +6987,7 @@
       "hour": 2,
       "course_id": "I4A",
       "line": 1,
-      "subject_group_id": null
+      "subject_group_id": 11
     },
     {
       "id": 501,
@@ -7019,7 +7019,7 @@
       "hour": 2,
       "course_id": "2º",
       "line": 1,
-      "subject_group_id": 2
+      "subject_group_id": null
     },
     {
       "id": 505,
@@ -7043,7 +7043,7 @@
       "hour": 2,
       "course_id": "4º",
       "line": 0,
-      "subject_group_id": null
+      "subject_group_id": 4
     },
     {
       "id": 508,
@@ -7099,7 +7099,7 @@
       "hour": 3,
       "course_id": "1º",
       "line": 0,
-      "subject_group_id": 1
+      "subject_group_id": null
     },
     {
       "id": 515,
@@ -7123,7 +7123,7 @@
       "hour": 3,
       "course_id": "I3A",
       "line": 1,
-      "subject_group_id": null
+      "subject_group_id": 10
     },
     {
       "id": 518,
@@ -7187,7 +7187,7 @@
       "hour": 3,
       "course_id": "3º",
       "line": 1,
-      "subject_group_id": null
+      "subject_group_id": 3
     },
     {
       "id": 526,
@@ -7339,7 +7339,7 @@
       "hour": 4,
       "course_id": "3º",
       "line": 1,
-      "subject_group_id": 3
+      "subject_group_id": null
     },
     {
       "id": 545,
@@ -7371,7 +7371,7 @@
       "hour": 4,
       "course_id": "5º",
       "line": 1,
-      "subject_group_id": null
+      "subject_group_id": 5
     },
     {
       "id": 549,
@@ -7554,25 +7554,25 @@
     {
       "id": 1,
       "timeslot_id": 1,
-      "subject_id": "MAT1",
-      "teacher_id": 1
+      "subject_id": "ING1",
+      "teacher_id": 2
     },
     {
       "id": 2,
       "timeslot_id": 2,
-      "subject_id": "SOC1",
-      "teacher_id": 2
+      "subject_id": "LEN1",
+      "teacher_id": 1
     },
     {
       "id": 3,
       "timeslot_id": 3,
-      "subject_id": "CA3",
+      "subject_id": "DE3",
       "teacher_id": 17
     },
     {
       "id": 4,
       "timeslot_id": 4,
-      "subject_id": "DE3",
+      "subject_id": "CA3",
       "teacher_id": 18
     },
     {
@@ -7602,104 +7602,104 @@
     {
       "id": 9,
       "timeslot_id": 9,
-      "subject_id": "REL2",
-      "teacher_id": 5
-    },
-    {
-      "id": 10,
-      "timeslot_id": 9,
-      "subject_id": "ATE2",
+      "subject_id": "LEN2",
       "teacher_id": 6
     },
     {
-      "id": 11,
+      "id": 10,
       "timeslot_id": 10,
       "subject_id": "EF2",
       "teacher_id": 4
     },
     {
-      "id": 12,
+      "id": 11,
       "timeslot_id": 11,
       "subject_id": "LEN3",
       "teacher_id": 8
     },
     {
-      "id": 13,
+      "id": 12,
       "timeslot_id": 12,
-      "subject_id": "SOC3",
+      "subject_id": "ING3",
       "teacher_id": 9
     },
     {
-      "id": 14,
+      "id": 13,
       "timeslot_id": 13,
       "subject_id": "MAT4",
       "teacher_id": 10
     },
     {
-      "id": 15,
+      "id": 14,
       "timeslot_id": 14,
       "subject_id": "NAT4",
       "teacher_id": 11
     },
     {
-      "id": 16,
+      "id": 15,
       "timeslot_id": 15,
       "subject_id": "SOC5",
       "teacher_id": 13
     },
     {
-      "id": 17,
+      "id": 16,
       "timeslot_id": 16,
-      "subject_id": "ING5",
+      "subject_id": "NAT5",
       "teacher_id": 14
     },
     {
-      "id": 18,
+      "id": 17,
       "timeslot_id": 17,
-      "subject_id": "MAT6",
-      "teacher_id": 15
+      "subject_id": "MUS6",
+      "teacher_id": 3
     },
     {
-      "id": 19,
+      "id": 18,
       "timeslot_id": 18,
-      "subject_id": "NAT6",
-      "teacher_id": 23
-    },
-    {
-      "id": 20,
-      "timeslot_id": 19,
       "subject_id": "ING6",
       "teacher_id": 16
     },
     {
-      "id": 21,
+      "id": 19,
+      "timeslot_id": 19,
+      "subject_id": "SOC6",
+      "teacher_id": 23
+    },
+    {
+      "id": 20,
       "timeslot_id": 20,
-      "subject_id": "LEN1",
+      "subject_id": "SOC1",
+      "teacher_id": 2
+    },
+    {
+      "id": 21,
+      "timeslot_id": 21,
+      "subject_id": "MAT1",
       "teacher_id": 1
     },
     {
       "id": 22,
-      "timeslot_id": 21,
-      "subject_id": "ART1",
-      "teacher_id": 2
-    },
-    {
-      "id": 23,
       "timeslot_id": 22,
-      "subject_id": "CRR3",
+      "subject_id": "DE3",
       "teacher_id": 17
     },
     {
-      "id": 24,
+      "id": 23,
       "timeslot_id": 23,
-      "subject_id": "DE3",
+      "subject_id": "CRR3",
       "teacher_id": 18
+    },
+    {
+      "id": 24,
+      "timeslot_id": 24,
+      "subject_id": "CRR4",
+      "teacher_id": 20
     },
     {
       "id": 25,
       "timeslot_id": 24,
-      "subject_id": "CRR4",
-      "teacher_id": 20
+      "subject_id": "MUSI4",
+      "teacher_id": 3
     },
     {
       "id": 26,
@@ -7728,13 +7728,13 @@
     {
       "id": 30,
       "timeslot_id": 28,
-      "subject_id": "LEN2",
+      "subject_id": "MAT2",
       "teacher_id": 6
     },
     {
       "id": 31,
       "timeslot_id": 29,
-      "subject_id": "SOC2",
+      "subject_id": "ING2",
       "teacher_id": 7
     },
     {
@@ -7746,7 +7746,7 @@
     {
       "id": 33,
       "timeslot_id": 31,
-      "subject_id": "ING3",
+      "subject_id": "SOC3",
       "teacher_id": 9
     },
     {
@@ -7758,14 +7758,14 @@
     {
       "id": 35,
       "timeslot_id": 33,
-      "subject_id": "EF4",
-      "teacher_id": 4
+      "subject_id": "ART4",
+      "teacher_id": 11
     },
     {
       "id": 36,
       "timeslot_id": 34,
-      "subject_id": "ING5",
-      "teacher_id": 14
+      "subject_id": "EF5",
+      "teacher_id": 4
     },
     {
       "id": 37,
@@ -7776,43 +7776,43 @@
     {
       "id": 38,
       "timeslot_id": 36,
-      "subject_id": "LEN6",
-      "teacher_id": 15
+      "subject_id": "NAT6",
+      "teacher_id": 16
     },
     {
       "id": 39,
       "timeslot_id": 37,
-      "subject_id": "MUS6",
-      "teacher_id": 3
+      "subject_id": "LEN6",
+      "teacher_id": 15
     },
     {
       "id": 40,
       "timeslot_id": 38,
-      "subject_id": "MUS6",
-      "teacher_id": 3
+      "subject_id": "LEN6",
+      "teacher_id": 23
     },
     {
       "id": 41,
       "timeslot_id": 39,
-      "subject_id": "ART1",
-      "teacher_id": 2
+      "subject_id": "EF1",
+      "teacher_id": 4
     },
     {
       "id": 42,
       "timeslot_id": 40,
-      "subject_id": "MAT1",
+      "subject_id": "LEN1",
       "teacher_id": 1
     },
     {
       "id": 43,
       "timeslot_id": 41,
-      "subject_id": "CRR3",
-      "teacher_id": 17
+      "subject_id": "INGI3",
+      "teacher_id": 2
     },
     {
       "id": 44,
       "timeslot_id": 42,
-      "subject_id": "DE3",
+      "subject_id": "CRR3",
       "teacher_id": 18
     },
     {
@@ -7823,1035 +7823,1035 @@
     },
     {
       "id": 46,
-      "timeslot_id": 43,
-      "subject_id": "MUSI4",
-      "teacher_id": 3
-    },
-    {
-      "id": 47,
       "timeslot_id": 44,
       "subject_id": "DE4",
       "teacher_id": 19
     },
     {
-      "id": 48,
+      "id": 47,
       "timeslot_id": 45,
       "subject_id": "DE5",
       "teacher_id": 21
     },
     {
-      "id": 49,
+      "id": 48,
       "timeslot_id": 46,
-      "subject_id": "CRR5",
+      "subject_id": "DE5",
       "teacher_id": 22
     },
     {
-      "id": 50,
+      "id": 49,
       "timeslot_id": 47,
-      "subject_id": "MAT2",
+      "subject_id": "LEN2",
       "teacher_id": 6
     },
     {
-      "id": 51,
+      "id": 50,
       "timeslot_id": 48,
-      "subject_id": "ING2",
+      "subject_id": "SOC2",
       "teacher_id": 7
     },
     {
-      "id": 52,
+      "id": 51,
       "timeslot_id": 49,
       "subject_id": "LEN3",
       "teacher_id": 8
     },
     {
-      "id": 53,
+      "id": 52,
       "timeslot_id": 50,
-      "subject_id": "ATE3",
+      "subject_id": "NAT3",
       "teacher_id": 9
     },
     {
+      "id": 53,
+      "timeslot_id": 51,
+      "subject_id": "ATE4",
+      "teacher_id": 10
+    },
+    {
       "id": 54,
-      "timeslot_id": 50,
-      "subject_id": "REL3",
+      "timeslot_id": 51,
+      "subject_id": "REL4",
       "teacher_id": 5
     },
     {
       "id": 55,
-      "timeslot_id": 51,
-      "subject_id": "MAT4",
-      "teacher_id": 10
-    },
-    {
-      "id": 56,
       "timeslot_id": 52,
       "subject_id": "ING4",
       "teacher_id": 11
     },
     {
-      "id": 57,
+      "id": 56,
       "timeslot_id": 53,
-      "subject_id": "EF5",
-      "teacher_id": 4
+      "subject_id": "MUS5",
+      "teacher_id": 3
     },
     {
-      "id": 58,
+      "id": 57,
       "timeslot_id": 54,
       "subject_id": "MAT5",
       "teacher_id": 13
     },
     {
-      "id": 59,
+      "id": 58,
       "timeslot_id": 55,
+      "subject_id": "ING6",
+      "teacher_id": 16
+    },
+    {
+      "id": 59,
+      "timeslot_id": 56,
       "subject_id": "MAT6",
       "teacher_id": 15
     },
     {
       "id": 60,
-      "timeslot_id": 56,
-      "subject_id": "EF6",
+      "timeslot_id": 57,
+      "subject_id": "MAT6",
       "teacher_id": 23
     },
     {
       "id": 61,
-      "timeslot_id": 57,
-      "subject_id": "EF6",
-      "teacher_id": 23
+      "timeslot_id": 58,
+      "subject_id": "REL1",
+      "teacher_id": 5
     },
     {
       "id": 62,
       "timeslot_id": 58,
-      "subject_id": "ING1",
-      "teacher_id": 2
+      "subject_id": "ATE1",
+      "teacher_id": 1
     },
     {
       "id": 63,
       "timeslot_id": 59,
-      "subject_id": "LEN1",
-      "teacher_id": 1
+      "subject_id": "ING1",
+      "teacher_id": 2
     },
     {
       "id": 64,
       "timeslot_id": 60,
-      "subject_id": "DE3",
+      "subject_id": "CRR3",
       "teacher_id": 17
     },
     {
       "id": 65,
       "timeslot_id": 61,
-      "subject_id": "CRR3",
+      "subject_id": "DE3",
       "teacher_id": 18
     },
     {
       "id": 66,
       "timeslot_id": 62,
-      "subject_id": "DE4",
-      "teacher_id": 19
+      "subject_id": "CA4",
+      "teacher_id": 20
     },
     {
       "id": 67,
       "timeslot_id": 63,
-      "subject_id": "CRR4",
-      "teacher_id": 20
+      "subject_id": "DE4",
+      "teacher_id": 19
     },
     {
       "id": 68,
       "timeslot_id": 64,
-      "subject_id": "CA5",
+      "subject_id": "CRR5",
       "teacher_id": 21
     },
     {
       "id": 69,
       "timeslot_id": 65,
-      "subject_id": "CRR5",
+      "subject_id": "DE5",
       "teacher_id": 22
     },
     {
       "id": 70,
       "timeslot_id": 66,
-      "subject_id": "SOC2",
-      "teacher_id": 7
+      "subject_id": "MAT2",
+      "teacher_id": 6
     },
     {
       "id": 71,
       "timeslot_id": 67,
-      "subject_id": "LEN2",
-      "teacher_id": 6
+      "subject_id": "NAT2",
+      "teacher_id": 7
     },
     {
       "id": 72,
       "timeslot_id": 68,
-      "subject_id": "ATE3",
-      "teacher_id": 8
+      "subject_id": "MUS3",
+      "teacher_id": 3
     },
     {
       "id": 73,
-      "timeslot_id": 68,
-      "subject_id": "REL3",
-      "teacher_id": 5
+      "timeslot_id": 69,
+      "subject_id": "LEN3",
+      "teacher_id": 8
     },
     {
       "id": 74,
-      "timeslot_id": 69,
-      "subject_id": "EF3",
-      "teacher_id": 4
-    },
-    {
-      "id": 75,
       "timeslot_id": 70,
       "subject_id": "ING4",
       "teacher_id": 11
     },
     {
-      "id": 76,
+      "id": 75,
       "timeslot_id": 71,
       "subject_id": "LEN4",
       "teacher_id": 10
     },
     {
-      "id": 77,
+      "id": 76,
       "timeslot_id": 72,
-      "subject_id": "MUS5",
-      "teacher_id": 3
-    },
-    {
-      "id": 78,
-      "timeslot_id": 73,
       "subject_id": "LEN5",
       "teacher_id": 13
     },
     {
-      "id": 79,
+      "id": 77,
+      "timeslot_id": 73,
+      "subject_id": "EF5",
+      "teacher_id": 4
+    },
+    {
+      "id": 78,
       "timeslot_id": 74,
+      "subject_id": "EF6",
+      "teacher_id": 23
+    },
+    {
+      "id": 79,
+      "timeslot_id": 75,
       "subject_id": "LEN6",
       "teacher_id": 15
     },
     {
       "id": 80,
-      "timeslot_id": 75,
+      "timeslot_id": 76,
       "subject_id": "ING6",
       "teacher_id": 16
     },
     {
       "id": 81,
-      "timeslot_id": 76,
-      "subject_id": "LEN6",
-      "teacher_id": 23
+      "timeslot_id": 77,
+      "subject_id": "MAT1",
+      "teacher_id": 1
     },
     {
       "id": 82,
-      "timeslot_id": 77,
+      "timeslot_id": 78,
       "subject_id": "SOC1",
       "teacher_id": 2
     },
     {
       "id": 83,
-      "timeslot_id": 78,
-      "subject_id": "MAT1",
-      "teacher_id": 1
-    },
-    {
-      "id": 84,
       "timeslot_id": 79,
-      "subject_id": "DE3",
+      "subject_id": "CRR3",
       "teacher_id": 17
     },
     {
-      "id": 85,
+      "id": 84,
       "timeslot_id": 80,
-      "subject_id": "CRR3",
+      "subject_id": "DE3",
       "teacher_id": 18
     },
     {
-      "id": 86,
+      "id": 85,
       "timeslot_id": 81,
       "subject_id": "DE4",
       "teacher_id": 19
     },
     {
-      "id": 87,
+      "id": 86,
       "timeslot_id": 82,
       "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
-      "id": 88,
+      "id": 87,
       "timeslot_id": 83,
       "subject_id": "CRR5",
       "teacher_id": 21
     },
     {
-      "id": 89,
+      "id": 88,
       "timeslot_id": 84,
-      "subject_id": "DE5",
+      "subject_id": "CRR5",
       "teacher_id": 22
     },
     {
-      "id": 90,
+      "id": 89,
       "timeslot_id": 85,
-      "subject_id": "ING2",
+      "subject_id": "NAT2",
       "teacher_id": 7
     },
     {
-      "id": 91,
+      "id": 90,
       "timeslot_id": 86,
-      "subject_id": "MAT2",
+      "subject_id": "LEN2",
       "teacher_id": 6
     },
     {
-      "id": 92,
+      "id": 91,
       "timeslot_id": 87,
-      "subject_id": "SOC3",
-      "teacher_id": 9
-    },
-    {
-      "id": 93,
-      "timeslot_id": 88,
-      "subject_id": "LEN3",
-      "teacher_id": 8
-    },
-    {
-      "id": 94,
-      "timeslot_id": 89,
-      "subject_id": "EF4",
+      "subject_id": "EF3",
       "teacher_id": 4
     },
     {
-      "id": 95,
+      "id": 92,
+      "timeslot_id": 88,
+      "subject_id": "MAT3",
+      "teacher_id": 8
+    },
+    {
+      "id": 93,
+      "timeslot_id": 89,
+      "subject_id": "MUS4",
+      "teacher_id": 3
+    },
+    {
+      "id": 94,
       "timeslot_id": 90,
       "subject_id": "MAT4",
       "teacher_id": 10
     },
     {
-      "id": 96,
+      "id": 95,
       "timeslot_id": 91,
-      "subject_id": "LEN5",
+      "subject_id": "MAT5",
       "teacher_id": 13
     },
     {
-      "id": 97,
+      "id": 96,
       "timeslot_id": 92,
-      "subject_id": "MUS5",
-      "teacher_id": 3
+      "subject_id": "ING5",
+      "teacher_id": 14
     },
     {
-      "id": 98,
+      "id": 97,
       "timeslot_id": 93,
-      "subject_id": "SOC6",
-      "teacher_id": 16
-    },
-    {
-      "id": 99,
-      "timeslot_id": 94,
       "subject_id": "LEN6",
       "teacher_id": 15
     },
     {
-      "id": 100,
-      "timeslot_id": 95,
-      "subject_id": "MAT6",
+      "id": 98,
+      "timeslot_id": 94,
+      "subject_id": "SOC6",
       "teacher_id": 23
     },
     {
-      "id": 101,
-      "timeslot_id": 96,
-      "subject_id": "REL1",
-      "teacher_id": 5
+      "id": 99,
+      "timeslot_id": 95,
+      "subject_id": "ART6",
+      "teacher_id": 16
     },
     {
-      "id": 102,
+      "id": 100,
       "timeslot_id": 96,
-      "subject_id": "ATE1",
+      "subject_id": "LEN1",
       "teacher_id": 1
     },
     {
-      "id": 103,
+      "id": 101,
       "timeslot_id": 97,
-      "subject_id": "ING1",
+      "subject_id": "EF1",
+      "teacher_id": 4
+    },
+    {
+      "id": 102,
+      "timeslot_id": 98,
+      "subject_id": "CA3",
+      "teacher_id": 17
+    },
+    {
+      "id": 103,
+      "timeslot_id": 99,
+      "subject_id": "INGI3",
       "teacher_id": 2
     },
     {
       "id": 104,
-      "timeslot_id": 98,
-      "subject_id": "DE3",
-      "teacher_id": 17
+      "timeslot_id": 100,
+      "subject_id": "DE4",
+      "teacher_id": 19
     },
     {
       "id": 105,
-      "timeslot_id": 99,
-      "subject_id": "CA3",
-      "teacher_id": 18
-    },
-    {
-      "id": 106,
-      "timeslot_id": 100,
-      "subject_id": "CA4",
+      "timeslot_id": 101,
+      "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
-      "id": 107,
-      "timeslot_id": 101,
-      "subject_id": "INGI4",
-      "teacher_id": 7
-    },
-    {
-      "id": 108,
+      "id": 106,
       "timeslot_id": 102,
-      "subject_id": "CRR5",
+      "subject_id": "CA5",
       "teacher_id": 21
     },
     {
-      "id": 109,
+      "id": 107,
       "timeslot_id": 103,
-      "subject_id": "DE5",
+      "subject_id": "CRR5",
       "teacher_id": 22
     },
     {
-      "id": 110,
+      "id": 108,
       "timeslot_id": 104,
-      "subject_id": "MUS2",
-      "teacher_id": 3
+      "subject_id": "ING2",
+      "teacher_id": 7
     },
     {
-      "id": 111,
+      "id": 109,
       "timeslot_id": 105,
-      "subject_id": "LEN2",
+      "subject_id": "MAT2",
       "teacher_id": 6
     },
     {
-      "id": 112,
+      "id": 110,
       "timeslot_id": 106,
       "subject_id": "ING3",
       "teacher_id": 9
     },
     {
-      "id": 113,
+      "id": 111,
       "timeslot_id": 107,
-      "subject_id": "MAT3",
+      "subject_id": "LEN3",
       "teacher_id": 8
     },
     {
-      "id": 114,
+      "id": 112,
       "timeslot_id": 108,
       "subject_id": "SOC4",
       "teacher_id": 12
     },
     {
-      "id": 115,
+      "id": 113,
       "timeslot_id": 109,
       "subject_id": "LEN4",
       "teacher_id": 10
     },
     {
-      "id": 116,
+      "id": 114,
       "timeslot_id": 110,
-      "subject_id": "MAT5",
-      "teacher_id": 13
+      "subject_id": "ING5",
+      "teacher_id": 14
     },
     {
-      "id": 117,
+      "id": 115,
       "timeslot_id": 111,
-      "subject_id": "EF5",
-      "teacher_id": 4
+      "subject_id": "MUS5",
+      "teacher_id": 3
     },
     {
-      "id": 118,
+      "id": 116,
       "timeslot_id": 112,
-      "subject_id": "ING6",
-      "teacher_id": 16
-    },
-    {
-      "id": 119,
-      "timeslot_id": 113,
       "subject_id": "MAT6",
       "teacher_id": 15
     },
     {
-      "id": 120,
-      "timeslot_id": 114,
-      "subject_id": "LEN6",
+      "id": 117,
+      "timeslot_id": 113,
+      "subject_id": "EF6",
       "teacher_id": 23
     },
     {
-      "id": 121,
+      "id": 118,
+      "timeslot_id": 114,
+      "subject_id": "EF6",
+      "teacher_id": 23
+    },
+    {
+      "id": 119,
       "timeslot_id": 115,
+      "subject_id": "ING1",
+      "teacher_id": 2
+    },
+    {
+      "id": 120,
+      "timeslot_id": 116,
       "subject_id": "MAT1",
       "teacher_id": 1
     },
     {
-      "id": 122,
-      "timeslot_id": 116,
-      "subject_id": "EF1",
-      "teacher_id": 4
-    },
-    {
-      "id": 123,
+      "id": 121,
       "timeslot_id": 117,
-      "subject_id": "DE3",
-      "teacher_id": 17
-    },
-    {
-      "id": 124,
-      "timeslot_id": 118,
-      "subject_id": "INGI3",
-      "teacher_id": 2
-    },
-    {
-      "id": 125,
-      "timeslot_id": 119,
-      "subject_id": "RELI4",
+      "subject_id": "RELI3",
       "teacher_id": 24
     },
     {
-      "id": 126,
-      "timeslot_id": 119,
-      "subject_id": "ATEI4",
-      "teacher_id": 19
+      "id": 122,
+      "timeslot_id": 117,
+      "subject_id": "ATEI3",
+      "teacher_id": 17
     },
     {
-      "id": 127,
-      "timeslot_id": 120,
-      "subject_id": "CA4",
+      "id": 123,
+      "timeslot_id": 118,
+      "subject_id": "DE3",
+      "teacher_id": 18
+    },
+    {
+      "id": 124,
+      "timeslot_id": 119,
+      "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
-      "id": 128,
-      "timeslot_id": 121,
-      "subject_id": "RELI5",
-      "teacher_id": 5
+      "id": 125,
+      "timeslot_id": 120,
+      "subject_id": "INGI4",
+      "teacher_id": 7
     },
     {
-      "id": 129,
+      "id": 126,
       "timeslot_id": 121,
-      "subject_id": "ATEI5",
+      "subject_id": "CA5",
       "teacher_id": 21
     },
     {
-      "id": 130,
+      "id": 127,
       "timeslot_id": 122,
       "subject_id": "CRR5",
       "teacher_id": 22
     },
     {
-      "id": 131,
+      "id": 128,
       "timeslot_id": 123,
-      "subject_id": "NAT2",
-      "teacher_id": 7
+      "subject_id": "EF2",
+      "teacher_id": 4
     },
     {
-      "id": 132,
+      "id": 129,
       "timeslot_id": 124,
-      "subject_id": "LEN2",
+      "subject_id": "REL2",
+      "teacher_id": 5
+    },
+    {
+      "id": 130,
+      "timeslot_id": 124,
+      "subject_id": "ATE2",
       "teacher_id": 6
     },
     {
-      "id": 133,
+      "id": 131,
       "timeslot_id": 125,
       "subject_id": "LEN3",
       "teacher_id": 8
     },
     {
-      "id": 134,
+      "id": 132,
       "timeslot_id": 126,
       "subject_id": "ING3",
       "teacher_id": 9
     },
     {
-      "id": 135,
+      "id": 133,
       "timeslot_id": 127,
+      "subject_id": "ART4",
+      "teacher_id": 11
+    },
+    {
+      "id": 134,
+      "timeslot_id": 128,
       "subject_id": "LEN4",
       "teacher_id": 10
     },
     {
-      "id": 136,
-      "timeslot_id": 128,
-      "subject_id": "ING4",
-      "teacher_id": 11
-    },
-    {
-      "id": 137,
+      "id": 135,
       "timeslot_id": 129,
-      "subject_id": "CIV5",
+      "subject_id": "LEN5",
       "teacher_id": 13
     },
     {
-      "id": 138,
+      "id": 136,
       "timeslot_id": 130,
       "subject_id": "CIV5",
       "teacher_id": 14
     },
     {
-      "id": 139,
+      "id": 137,
       "timeslot_id": 131,
-      "subject_id": "MAT6",
+      "subject_id": "MUS6",
+      "teacher_id": 3
+    },
+    {
+      "id": 138,
+      "timeslot_id": 132,
+      "subject_id": "LEN6",
       "teacher_id": 15
     },
     {
+      "id": 139,
+      "timeslot_id": 133,
+      "subject_id": "LEN6",
+      "teacher_id": 23
+    },
+    {
       "id": 140,
-      "timeslot_id": 132,
-      "subject_id": "MUS6",
-      "teacher_id": 3
+      "timeslot_id": 134,
+      "subject_id": "SOC1",
+      "teacher_id": 2
     },
     {
       "id": 141,
-      "timeslot_id": 133,
-      "subject_id": "MUS6",
-      "teacher_id": 3
-    },
-    {
-      "id": 142,
-      "timeslot_id": 134,
+      "timeslot_id": 135,
       "subject_id": "LEN1",
       "teacher_id": 1
     },
     {
-      "id": 143,
-      "timeslot_id": 135,
-      "subject_id": "REL1",
-      "teacher_id": 5
-    },
-    {
-      "id": 144,
-      "timeslot_id": 135,
-      "subject_id": "ATE1",
-      "teacher_id": 2
-    },
-    {
-      "id": 145,
+      "id": 142,
       "timeslot_id": 136,
       "subject_id": "DE3",
       "teacher_id": 17
     },
     {
-      "id": 146,
+      "id": 143,
       "timeslot_id": 137,
-      "subject_id": "CRR3",
+      "subject_id": "DE3",
       "teacher_id": 18
     },
     {
-      "id": 147,
-      "timeslot_id": 137,
-      "subject_id": "MUSI3",
-      "teacher_id": 3
-    },
-    {
-      "id": 148,
+      "id": 144,
       "timeslot_id": 138,
-      "subject_id": "CA4",
+      "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
-      "id": 149,
+      "id": 145,
       "timeslot_id": 139,
       "subject_id": "RELI4",
       "teacher_id": 24
     },
     {
-      "id": 150,
+      "id": 146,
       "timeslot_id": 139,
       "subject_id": "ATEI4",
       "teacher_id": 19
     },
     {
-      "id": 151,
+      "id": 147,
       "timeslot_id": 140,
-      "subject_id": "INGI5",
-      "teacher_id": 11
+      "subject_id": "CRR5",
+      "teacher_id": 21
     },
     {
-      "id": 152,
+      "id": 148,
       "timeslot_id": 141,
       "subject_id": "CRR5",
       "teacher_id": 22
     },
     {
-      "id": 153,
-      "timeslot_id": 142,
-      "subject_id": "ING2",
-      "teacher_id": 7
+      "id": 149,
+      "timeslot_id": 141,
+      "subject_id": "MUSI5",
+      "teacher_id": 3
     },
     {
-      "id": 154,
-      "timeslot_id": 143,
-      "subject_id": "MAT2",
+      "id": 150,
+      "timeslot_id": 142,
+      "subject_id": "LEN2",
       "teacher_id": 6
     },
     {
-      "id": 155,
+      "id": 151,
+      "timeslot_id": 143,
+      "subject_id": "SOC2",
+      "teacher_id": 7
+    },
+    {
+      "id": 152,
       "timeslot_id": 144,
       "subject_id": "MAT3",
       "teacher_id": 8
     },
     {
-      "id": 156,
+      "id": 153,
       "timeslot_id": 145,
-      "subject_id": "NAT3",
-      "teacher_id": 9
+      "subject_id": "EF3",
+      "teacher_id": 4
     },
     {
-      "id": 157,
+      "id": 154,
       "timeslot_id": 146,
+      "subject_id": "ING4",
+      "teacher_id": 11
+    },
+    {
+      "id": 155,
+      "timeslot_id": 147,
       "subject_id": "MAT4",
       "teacher_id": 10
     },
     {
-      "id": 158,
-      "timeslot_id": 147,
-      "subject_id": "EF4",
-      "teacher_id": 4
-    },
-    {
-      "id": 159,
+      "id": 156,
       "timeslot_id": 148,
-      "subject_id": "LEN5",
+      "subject_id": "MAT5",
       "teacher_id": 13
     },
     {
-      "id": 160,
+      "id": 157,
       "timeslot_id": 149,
-      "subject_id": "SOC5",
+      "subject_id": "ATE5",
       "teacher_id": 14
     },
     {
-      "id": 161,
-      "timeslot_id": 150,
-      "subject_id": "LEN6",
-      "teacher_id": 15
+      "id": 158,
+      "timeslot_id": 149,
+      "subject_id": "REL5",
+      "teacher_id": 5
     },
     {
-      "id": 162,
-      "timeslot_id": 151,
+      "id": 159,
+      "timeslot_id": 150,
       "subject_id": "ING6",
       "teacher_id": 16
     },
     {
-      "id": 163,
+      "id": 160,
+      "timeslot_id": 151,
+      "subject_id": "MAT6",
+      "teacher_id": 15
+    },
+    {
+      "id": 161,
       "timeslot_id": 152,
-      "subject_id": "SOC6",
+      "subject_id": "MAT6",
       "teacher_id": 23
     },
     {
-      "id": 164,
+      "id": 162,
       "timeslot_id": 153,
       "subject_id": "MUS1",
       "teacher_id": 3
     },
     {
-      "id": 165,
+      "id": 163,
       "timeslot_id": 154,
-      "subject_id": "SOC1",
+      "subject_id": "REL1",
+      "teacher_id": 5
+    },
+    {
+      "id": 164,
+      "timeslot_id": 154,
+      "subject_id": "ATE1",
       "teacher_id": 2
     },
     {
-      "id": 166,
+      "id": 165,
       "timeslot_id": 155,
+      "subject_id": "DE3",
+      "teacher_id": 17
+    },
+    {
+      "id": 166,
+      "timeslot_id": 156,
       "subject_id": "RELI3",
       "teacher_id": 24
     },
     {
       "id": 167,
-      "timeslot_id": 155,
-      "subject_id": "ATEI3",
-      "teacher_id": 17
-    },
-    {
-      "id": 168,
       "timeslot_id": 156,
-      "subject_id": "CRR3",
+      "subject_id": "ATEI3",
       "teacher_id": 18
     },
     {
-      "id": 169,
+      "id": 168,
       "timeslot_id": 157,
       "subject_id": "DE4",
       "teacher_id": 19
     },
     {
-      "id": 170,
+      "id": 169,
       "timeslot_id": 158,
       "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
-      "id": 171,
+      "id": 170,
       "timeslot_id": 159,
-      "subject_id": "CA5",
+      "subject_id": "CRR5",
       "teacher_id": 21
     },
     {
-      "id": 172,
+      "id": 171,
       "timeslot_id": 160,
-      "subject_id": "CA5",
+      "subject_id": "DE5",
       "teacher_id": 22
     },
     {
-      "id": 173,
+      "id": 172,
       "timeslot_id": 161,
-      "subject_id": "EF2",
-      "teacher_id": 4
+      "subject_id": "MAT2",
+      "teacher_id": 6
     },
     {
-      "id": 174,
+      "id": 173,
       "timeslot_id": 162,
-      "subject_id": "SOC2",
+      "subject_id": "ING2",
       "teacher_id": 7
     },
     {
-      "id": 175,
+      "id": 174,
       "timeslot_id": 163,
-      "subject_id": "NAT3",
-      "teacher_id": 9
+      "subject_id": "EF3",
+      "teacher_id": 4
     },
     {
-      "id": 176,
+      "id": 175,
       "timeslot_id": 164,
       "subject_id": "LEN3",
       "teacher_id": 8
     },
     {
-      "id": 177,
+      "id": 176,
       "timeslot_id": 165,
+      "subject_id": "LEN4",
+      "teacher_id": 10
+    },
+    {
+      "id": 177,
+      "timeslot_id": 166,
       "subject_id": "ING4",
       "teacher_id": 11
     },
     {
       "id": 178,
-      "timeslot_id": 166,
-      "subject_id": "LEN4",
-      "teacher_id": 10
-    },
-    {
-      "id": 179,
       "timeslot_id": 167,
-      "subject_id": "MAT5",
+      "subject_id": "LEN5",
       "teacher_id": 13
     },
     {
-      "id": 180,
+      "id": 179,
       "timeslot_id": 168,
-      "subject_id": "ATE5",
+      "subject_id": "ING5",
       "teacher_id": 14
     },
     {
-      "id": 181,
-      "timeslot_id": 168,
-      "subject_id": "REL5",
-      "teacher_id": 5
-    },
-    {
-      "id": 182,
+      "id": 180,
       "timeslot_id": 169,
-      "subject_id": "EF6",
-      "teacher_id": 23
-    },
-    {
-      "id": 183,
-      "timeslot_id": 170,
-      "subject_id": "MAT6",
+      "subject_id": "LEN6",
       "teacher_id": 15
     },
     {
-      "id": 184,
+      "id": 181,
+      "timeslot_id": 170,
+      "subject_id": "SOC6",
+      "teacher_id": 23
+    },
+    {
+      "id": 182,
       "timeslot_id": 171,
       "subject_id": "ING6",
       "teacher_id": 16
     },
     {
-      "id": 185,
+      "id": 183,
       "timeslot_id": 172,
-      "subject_id": "EF1",
-      "teacher_id": 4
+      "subject_id": "LEN1",
+      "teacher_id": 1
     },
     {
-      "id": 186,
+      "id": 184,
       "timeslot_id": 173,
       "subject_id": "ING1",
       "teacher_id": 2
     },
     {
-      "id": 187,
+      "id": 185,
       "timeslot_id": 174,
       "subject_id": "CRR3",
       "teacher_id": 17
     },
     {
-      "id": 188,
+      "id": 186,
       "timeslot_id": 175,
-      "subject_id": "RELI3",
-      "teacher_id": 24
-    },
-    {
-      "id": 189,
-      "timeslot_id": 175,
-      "subject_id": "ATEI3",
+      "subject_id": "CRR3",
       "teacher_id": 18
     },
     {
-      "id": 190,
+      "id": 187,
       "timeslot_id": 176,
       "subject_id": "DE4",
       "teacher_id": 19
     },
     {
-      "id": 191,
+      "id": 188,
       "timeslot_id": 177,
       "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
-      "id": 192,
+      "id": 189,
       "timeslot_id": 178,
-      "subject_id": "DE5",
+      "subject_id": "RELI5",
+      "teacher_id": 24
+    },
+    {
+      "id": 190,
+      "timeslot_id": 178,
+      "subject_id": "ATEI5",
       "teacher_id": 21
     },
     {
-      "id": 193,
+      "id": 191,
       "timeslot_id": 179,
       "subject_id": "DE5",
       "teacher_id": 22
     },
     {
-      "id": 194,
+      "id": 192,
       "timeslot_id": 180,
+      "subject_id": "REL2",
+      "teacher_id": 5
+    },
+    {
+      "id": 193,
+      "timeslot_id": 180,
+      "subject_id": "ATE2",
+      "teacher_id": 7
+    },
+    {
+      "id": 194,
+      "timeslot_id": 181,
       "subject_id": "LEN2",
       "teacher_id": 6
     },
     {
       "id": 195,
-      "timeslot_id": 181,
-      "subject_id": "NAT2",
-      "teacher_id": 7
+      "timeslot_id": 182,
+      "subject_id": "MUS3",
+      "teacher_id": 3
     },
     {
       "id": 196,
-      "timeslot_id": 182,
-      "subject_id": "ING3",
-      "teacher_id": 9
-    },
-    {
-      "id": 197,
       "timeslot_id": 183,
       "subject_id": "MAT3",
       "teacher_id": 8
     },
     {
-      "id": 198,
+      "id": 197,
       "timeslot_id": 184,
-      "subject_id": "ART4",
-      "teacher_id": 11
-    },
-    {
-      "id": 199,
-      "timeslot_id": 185,
       "subject_id": "MAT4",
       "teacher_id": 10
     },
     {
-      "id": 200,
+      "id": 198,
+      "timeslot_id": 185,
+      "subject_id": "EF4",
+      "teacher_id": 4
+    },
+    {
+      "id": 199,
       "timeslot_id": 186,
-      "subject_id": "ATE5",
+      "subject_id": "ING5",
       "teacher_id": 14
     },
     {
-      "id": 201,
-      "timeslot_id": 186,
-      "subject_id": "REL5",
-      "teacher_id": 5
-    },
-    {
-      "id": 202,
+      "id": 200,
       "timeslot_id": 187,
       "subject_id": "LEN5",
       "teacher_id": 13
     },
     {
-      "id": 203,
+      "id": 201,
       "timeslot_id": 188,
-      "subject_id": "MUS6",
-      "teacher_id": 3
-    },
-    {
-      "id": 204,
-      "timeslot_id": 189,
-      "subject_id": "LEN6",
+      "subject_id": "MAT6",
       "teacher_id": 15
     },
     {
-      "id": 205,
+      "id": 202,
+      "timeslot_id": 189,
+      "subject_id": "ING6",
+      "teacher_id": 16
+    },
+    {
+      "id": 203,
       "timeslot_id": 190,
-      "subject_id": "LEN6",
+      "subject_id": "NAT6",
       "teacher_id": 23
     },
     {
-      "id": 206,
+      "id": 204,
       "timeslot_id": 191,
-      "subject_id": "ING1",
-      "teacher_id": 2
-    },
-    {
-      "id": 207,
-      "timeslot_id": 192,
       "subject_id": "MAT1",
       "teacher_id": 1
     },
     {
-      "id": 208,
+      "id": 205,
+      "timeslot_id": 192,
+      "subject_id": "SOC1",
+      "teacher_id": 2
+    },
+    {
+      "id": 206,
       "timeslot_id": 193,
       "subject_id": "CRR3",
       "teacher_id": 17
     },
     {
-      "id": 209,
+      "id": 207,
+      "timeslot_id": 193,
+      "subject_id": "MUSI3",
+      "teacher_id": 3
+    },
+    {
+      "id": 208,
       "timeslot_id": 194,
-      "subject_id": "DE3",
+      "subject_id": "CRR3",
       "teacher_id": 18
+    },
+    {
+      "id": 209,
+      "timeslot_id": 195,
+      "subject_id": "RELI4",
+      "teacher_id": 24
     },
     {
       "id": 210,
       "timeslot_id": 195,
-      "subject_id": "CRR4",
-      "teacher_id": 20
+      "subject_id": "ATEI4",
+      "teacher_id": 19
     },
     {
       "id": 211,
       "timeslot_id": 196,
-      "subject_id": "DE4",
-      "teacher_id": 19
+      "subject_id": "CA4",
+      "teacher_id": 20
     },
     {
       "id": 212,
       "timeslot_id": 197,
-      "subject_id": "CRR5",
+      "subject_id": "DE5",
       "teacher_id": 21
     },
     {
       "id": 213,
-      "timeslot_id": 197,
-      "subject_id": "MUSI5",
-      "teacher_id": 3
+      "timeslot_id": 198,
+      "subject_id": "RELI5",
+      "teacher_id": 5
     },
     {
       "id": 214,
       "timeslot_id": 198,
-      "subject_id": "DE5",
+      "subject_id": "ATEI5",
       "teacher_id": 22
     },
     {
       "id": 215,
       "timeslot_id": 199,
-      "subject_id": "MAT2",
-      "teacher_id": 6
-    },
-    {
-      "id": 216,
-      "timeslot_id": 200,
       "subject_id": "ING2",
       "teacher_id": 7
     },
     {
+      "id": 216,
+      "timeslot_id": 200,
+      "subject_id": "MAT2",
+      "teacher_id": 6
+    },
+    {
       "id": 217,
       "timeslot_id": 201,
-      "subject_id": "EF3",
-      "teacher_id": 4
+      "subject_id": "SOC3",
+      "teacher_id": 9
     },
     {
       "id": 218,
@@ -8862,302 +8862,302 @@
     {
       "id": 219,
       "timeslot_id": 203,
-      "subject_id": "ATE4",
+      "subject_id": "LEN4",
       "teacher_id": 10
     },
     {
       "id": 220,
-      "timeslot_id": 203,
-      "subject_id": "REL4",
-      "teacher_id": 5
-    },
-    {
-      "id": 221,
       "timeslot_id": 204,
       "subject_id": "SOC4",
       "teacher_id": 12
     },
     {
-      "id": 222,
+      "id": 221,
       "timeslot_id": 205,
-      "subject_id": "ING5",
-      "teacher_id": 14
+      "subject_id": "EF5",
+      "teacher_id": 4
     },
     {
-      "id": 223,
+      "id": 222,
       "timeslot_id": 206,
       "subject_id": "MAT5",
       "teacher_id": 13
     },
     {
-      "id": 224,
+      "id": 223,
       "timeslot_id": 207,
-      "subject_id": "ING6",
-      "teacher_id": 16
-    },
-    {
-      "id": 225,
-      "timeslot_id": 208,
-      "subject_id": "MAT6",
+      "subject_id": "LEN6",
       "teacher_id": 15
     },
     {
-      "id": 226,
-      "timeslot_id": 209,
-      "subject_id": "MAT6",
+      "id": 224,
+      "timeslot_id": 208,
+      "subject_id": "EF6",
       "teacher_id": 23
     },
     {
-      "id": 227,
-      "timeslot_id": 210,
-      "subject_id": "SOC1",
-      "teacher_id": 2
+      "id": 225,
+      "timeslot_id": 209,
+      "subject_id": "EF6",
+      "teacher_id": 23
     },
     {
-      "id": 228,
-      "timeslot_id": 211,
+      "id": 226,
+      "timeslot_id": 210,
       "subject_id": "LEN1",
       "teacher_id": 1
     },
     {
-      "id": 229,
+      "id": 227,
+      "timeslot_id": 211,
+      "subject_id": "NAT1",
+      "teacher_id": 2
+    },
+    {
+      "id": 228,
       "timeslot_id": 212,
       "subject_id": "CA3",
       "teacher_id": 17
     },
     {
-      "id": 230,
+      "id": 229,
       "timeslot_id": 213,
       "subject_id": "CA3",
       "teacher_id": 18
     },
     {
-      "id": 231,
+      "id": 230,
       "timeslot_id": 214,
-      "subject_id": "CRR4",
+      "subject_id": "CA4",
       "teacher_id": 20
     },
     {
-      "id": 232,
+      "id": 231,
       "timeslot_id": 215,
       "subject_id": "DE4",
       "teacher_id": 19
     },
     {
-      "id": 233,
+      "id": 232,
       "timeslot_id": 216,
-      "subject_id": "CRR5",
+      "subject_id": "DE5",
       "teacher_id": 21
     },
     {
-      "id": 234,
+      "id": 233,
       "timeslot_id": 217,
-      "subject_id": "DE5",
+      "subject_id": "CA5",
       "teacher_id": 22
     },
     {
-      "id": 235,
+      "id": 234,
       "timeslot_id": 218,
+      "subject_id": "SOC2",
+      "teacher_id": 7
+    },
+    {
+      "id": 235,
+      "timeslot_id": 219,
       "subject_id": "LEN2",
       "teacher_id": 6
     },
     {
       "id": 236,
-      "timeslot_id": 219,
-      "subject_id": "ART2",
-      "teacher_id": 7
+      "timeslot_id": 220,
+      "subject_id": "ING3",
+      "teacher_id": 9
     },
     {
       "id": 237,
-      "timeslot_id": 220,
-      "subject_id": "MUS3",
-      "teacher_id": 3
-    },
-    {
-      "id": 238,
       "timeslot_id": 221,
       "subject_id": "MAT3",
       "teacher_id": 8
     },
     {
-      "id": 239,
+      "id": 238,
       "timeslot_id": 222,
       "subject_id": "NAT4",
       "teacher_id": 12
     },
     {
-      "id": 240,
+      "id": 239,
       "timeslot_id": 223,
       "subject_id": "ATE4",
       "teacher_id": 10
     },
     {
-      "id": 241,
+      "id": 240,
       "timeslot_id": 223,
       "subject_id": "REL4",
       "teacher_id": 5
     },
     {
-      "id": 242,
+      "id": 241,
       "timeslot_id": 224,
+      "subject_id": "CIV5",
+      "teacher_id": 14
+    },
+    {
+      "id": 242,
+      "timeslot_id": 225,
       "subject_id": "EF5",
       "teacher_id": 4
     },
     {
       "id": 243,
-      "timeslot_id": 225,
-      "subject_id": "ING5",
-      "teacher_id": 14
+      "timeslot_id": 226,
+      "subject_id": "MAT6",
+      "teacher_id": 15
     },
     {
       "id": 244,
-      "timeslot_id": 226,
-      "subject_id": "NAT6",
-      "teacher_id": 16
+      "timeslot_id": 227,
+      "subject_id": "MUS6",
+      "teacher_id": 3
     },
     {
       "id": 245,
-      "timeslot_id": 227,
-      "subject_id": "EF6",
-      "teacher_id": 23
+      "timeslot_id": 228,
+      "subject_id": "MUS6",
+      "teacher_id": 3
     },
     {
       "id": 246,
-      "timeslot_id": 228,
-      "subject_id": "EF6",
-      "teacher_id": 23
+      "timeslot_id": 229,
+      "subject_id": "EF1",
+      "teacher_id": 4
     },
     {
       "id": 247,
-      "timeslot_id": 229,
-      "subject_id": "ING1",
-      "teacher_id": 2
+      "timeslot_id": 230,
+      "subject_id": "MUS1",
+      "teacher_id": 3
     },
     {
       "id": 248,
-      "timeslot_id": 230,
-      "subject_id": "MAT1",
-      "teacher_id": 1
-    },
-    {
-      "id": 249,
       "timeslot_id": 231,
-      "subject_id": "CRR3",
+      "subject_id": "DE3",
       "teacher_id": 17
     },
     {
-      "id": 250,
+      "id": 249,
       "timeslot_id": 232,
-      "subject_id": "CRR3",
-      "teacher_id": 18
+      "subject_id": "INGI3",
+      "teacher_id": 2
+    },
+    {
+      "id": 250,
+      "timeslot_id": 233,
+      "subject_id": "CA4",
+      "teacher_id": 20
     },
     {
       "id": 251,
-      "timeslot_id": 233,
+      "timeslot_id": 234,
       "subject_id": "DE4",
       "teacher_id": 19
     },
     {
       "id": 252,
-      "timeslot_id": 234,
-      "subject_id": "CA4",
-      "teacher_id": 20
-    },
-    {
-      "id": 253,
       "timeslot_id": 235,
       "subject_id": "DE5",
       "teacher_id": 21
     },
     {
-      "id": 254,
+      "id": 253,
       "timeslot_id": 236,
-      "subject_id": "INGI5",
-      "teacher_id": 11
+      "subject_id": "DE5",
+      "teacher_id": 22
+    },
+    {
+      "id": 254,
+      "timeslot_id": 237,
+      "subject_id": "SOC2",
+      "teacher_id": 7
     },
     {
       "id": 255,
-      "timeslot_id": 237,
-      "subject_id": "ING2",
-      "teacher_id": 7
+      "timeslot_id": 238,
+      "subject_id": "REL2",
+      "teacher_id": 5
     },
     {
       "id": 256,
       "timeslot_id": 238,
-      "subject_id": "LEN2",
+      "subject_id": "ATE2",
       "teacher_id": 6
     },
     {
       "id": 257,
       "timeslot_id": 239,
-      "subject_id": "MUS3",
-      "teacher_id": 3
+      "subject_id": "LEN3",
+      "teacher_id": 8
     },
     {
       "id": 258,
       "timeslot_id": 240,
-      "subject_id": "MAT3",
-      "teacher_id": 8
+      "subject_id": "ING3",
+      "teacher_id": 9
     },
     {
       "id": 259,
       "timeslot_id": 241,
-      "subject_id": "EF4",
-      "teacher_id": 4
+      "subject_id": "LEN4",
+      "teacher_id": 10
     },
     {
       "id": 260,
       "timeslot_id": 242,
-      "subject_id": "ATE4",
-      "teacher_id": 10
+      "subject_id": "NAT4",
+      "teacher_id": 11
     },
     {
       "id": 261,
-      "timeslot_id": 242,
-      "subject_id": "REL4",
-      "teacher_id": 5
-    },
-    {
-      "id": 262,
       "timeslot_id": 243,
-      "subject_id": "ING5",
+      "subject_id": "CIV5",
       "teacher_id": 14
     },
     {
-      "id": 263,
+      "id": 262,
       "timeslot_id": 244,
-      "subject_id": "MAT5",
+      "subject_id": "LEN5",
       "teacher_id": 13
     },
     {
-      "id": 264,
+      "id": 263,
       "timeslot_id": 245,
-      "subject_id": "SOC6",
+      "subject_id": "MAT6",
+      "teacher_id": 15
+    },
+    {
+      "id": 264,
+      "timeslot_id": 246,
+      "subject_id": "ART6",
       "teacher_id": 16
     },
     {
       "id": 265,
-      "timeslot_id": 246,
+      "timeslot_id": 247,
       "subject_id": "LEN6",
-      "teacher_id": 15
+      "teacher_id": 23
     },
     {
       "id": 266,
-      "timeslot_id": 247,
-      "subject_id": "NAT6",
-      "teacher_id": 23
+      "timeslot_id": 248,
+      "subject_id": "REL1",
+      "teacher_id": 5
     },
     {
       "id": 267,
       "timeslot_id": 248,
-      "subject_id": "NAT1",
-      "teacher_id": 2
+      "subject_id": "ATE1",
+      "teacher_id": 1
     },
     {
       "id": 268,
       "timeslot_id": 249,
-      "subject_id": "LEN1",
-      "teacher_id": 1
+      "subject_id": "ART1",
+      "teacher_id": 2
     },
     {
       "id": 269,
@@ -9167,884 +9167,884 @@
     },
     {
       "id": 270,
-      "timeslot_id": 250,
-      "subject_id": "MUSI3",
-      "teacher_id": 3
+      "timeslot_id": 251,
+      "subject_id": "RELI3",
+      "teacher_id": 24
     },
     {
       "id": 271,
       "timeslot_id": 251,
-      "subject_id": "CRR3",
+      "subject_id": "ATEI3",
       "teacher_id": 18
     },
     {
       "id": 272,
       "timeslot_id": 252,
-      "subject_id": "CA4",
+      "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
       "id": 273,
       "timeslot_id": 253,
-      "subject_id": "RELI4",
-      "teacher_id": 24
-    },
-    {
-      "id": 274,
-      "timeslot_id": 253,
-      "subject_id": "ATEI4",
+      "subject_id": "DE4",
       "teacher_id": 19
     },
     {
-      "id": 275,
+      "id": 274,
       "timeslot_id": 254,
-      "subject_id": "DE5",
-      "teacher_id": 21
+      "subject_id": "INGI5",
+      "teacher_id": 11
     },
     {
-      "id": 276,
+      "id": 275,
       "timeslot_id": 255,
-      "subject_id": "CRR5",
+      "subject_id": "DE5",
       "teacher_id": 22
     },
     {
-      "id": 277,
+      "id": 276,
       "timeslot_id": 256,
       "subject_id": "ART2",
       "teacher_id": 7
     },
     {
-      "id": 278,
+      "id": 277,
       "timeslot_id": 257,
-      "subject_id": "MAT2",
+      "subject_id": "LEN2",
       "teacher_id": 6
     },
     {
-      "id": 279,
+      "id": 278,
       "timeslot_id": 258,
-      "subject_id": "EF3",
-      "teacher_id": 4
-    },
-    {
-      "id": 280,
-      "timeslot_id": 259,
-      "subject_id": "LEN3",
+      "subject_id": "MAT3",
       "teacher_id": 8
     },
     {
-      "id": 281,
+      "id": 279,
+      "timeslot_id": 259,
+      "subject_id": "MUS3",
+      "teacher_id": 3
+    },
+    {
+      "id": 280,
       "timeslot_id": 260,
-      "subject_id": "LEN4",
+      "subject_id": "MAT4",
       "teacher_id": 10
     },
     {
-      "id": 282,
+      "id": 281,
       "timeslot_id": 261,
-      "subject_id": "ING4",
-      "teacher_id": 11
+      "subject_id": "EF4",
+      "teacher_id": 4
     },
     {
-      "id": 283,
+      "id": 282,
       "timeslot_id": 262,
-      "subject_id": "ATE5",
+      "subject_id": "ING5",
       "teacher_id": 14
     },
     {
-      "id": 284,
-      "timeslot_id": 262,
-      "subject_id": "REL5",
-      "teacher_id": 5
-    },
-    {
-      "id": 285,
+      "id": 283,
       "timeslot_id": 263,
-      "subject_id": "LEN5",
+      "subject_id": "MAT5",
       "teacher_id": 13
     },
     {
-      "id": 286,
+      "id": 284,
       "timeslot_id": 264,
-      "subject_id": "NAT6",
-      "teacher_id": 16
-    },
-    {
-      "id": 287,
-      "timeslot_id": 265,
-      "subject_id": "MAT6",
+      "subject_id": "LEN6",
       "teacher_id": 15
     },
     {
-      "id": 288,
+      "id": 285,
+      "timeslot_id": 265,
+      "subject_id": "ING6",
+      "teacher_id": 16
+    },
+    {
+      "id": 286,
       "timeslot_id": 266,
       "subject_id": "MAT6",
       "teacher_id": 23
     },
     {
-      "id": 289,
+      "id": 287,
       "timeslot_id": 267,
-      "subject_id": "LEN1",
-      "teacher_id": 1
-    },
-    {
-      "id": 290,
-      "timeslot_id": 268,
-      "subject_id": "NAT1",
+      "subject_id": "ING1",
       "teacher_id": 2
     },
     {
-      "id": 291,
+      "id": 288,
+      "timeslot_id": 268,
+      "subject_id": "MAT1",
+      "teacher_id": 1
+    },
+    {
+      "id": 289,
       "timeslot_id": 269,
-      "subject_id": "DE3",
+      "subject_id": "CRR3",
       "teacher_id": 17
     },
     {
-      "id": 292,
+      "id": 290,
       "timeslot_id": 270,
-      "subject_id": "RELI3",
-      "teacher_id": 24
-    },
-    {
-      "id": 293,
-      "timeslot_id": 270,
-      "subject_id": "ATEI3",
+      "subject_id": "DE3",
       "teacher_id": 18
     },
     {
-      "id": 294,
+      "id": 291,
       "timeslot_id": 271,
       "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
-      "id": 295,
+      "id": 292,
       "timeslot_id": 272,
-      "subject_id": "DE4",
+      "subject_id": "RELI4",
+      "teacher_id": 24
+    },
+    {
+      "id": 293,
+      "timeslot_id": 272,
+      "subject_id": "ATEI4",
       "teacher_id": 19
     },
     {
-      "id": 296,
+      "id": 294,
       "timeslot_id": 273,
       "subject_id": "CRR5",
       "teacher_id": 21
     },
     {
-      "id": 297,
+      "id": 295,
       "timeslot_id": 274,
-      "subject_id": "CRR5",
+      "subject_id": "DE5",
       "teacher_id": 22
     },
     {
-      "id": 298,
-      "timeslot_id": 274,
-      "subject_id": "MUSI5",
-      "teacher_id": 3
-    },
-    {
-      "id": 299,
+      "id": 296,
       "timeslot_id": 275,
-      "subject_id": "SOC2",
+      "subject_id": "ING2",
       "teacher_id": 7
     },
     {
-      "id": 300,
+      "id": 297,
       "timeslot_id": 276,
-      "subject_id": "LEN2",
+      "subject_id": "MAT2",
       "teacher_id": 6
     },
     {
-      "id": 301,
+      "id": 298,
       "timeslot_id": 277,
-      "subject_id": "ATE3",
+      "subject_id": "LEN3",
       "teacher_id": 8
     },
     {
-      "id": 302,
-      "timeslot_id": 277,
-      "subject_id": "REL3",
-      "teacher_id": 5
-    },
-    {
-      "id": 303,
+      "id": 299,
       "timeslot_id": 278,
-      "subject_id": "ING3",
-      "teacher_id": 9
-    },
-    {
-      "id": 304,
-      "timeslot_id": 279,
-      "subject_id": "MAT4",
-      "teacher_id": 10
-    },
-    {
-      "id": 305,
-      "timeslot_id": 280,
-      "subject_id": "NAT4",
-      "teacher_id": 11
-    },
-    {
-      "id": 306,
-      "timeslot_id": 281,
-      "subject_id": "SOC5",
-      "teacher_id": 13
-    },
-    {
-      "id": 307,
-      "timeslot_id": 282,
-      "subject_id": "EF5",
+      "subject_id": "EF3",
       "teacher_id": 4
     },
     {
-      "id": 308,
+      "id": 300,
+      "timeslot_id": 279,
+      "subject_id": "MUS4",
+      "teacher_id": 3
+    },
+    {
+      "id": 301,
+      "timeslot_id": 280,
+      "subject_id": "ING4",
+      "teacher_id": 11
+    },
+    {
+      "id": 302,
+      "timeslot_id": 281,
+      "subject_id": "ATE5",
+      "teacher_id": 14
+    },
+    {
+      "id": 303,
+      "timeslot_id": 281,
+      "subject_id": "REL5",
+      "teacher_id": 5
+    },
+    {
+      "id": 304,
+      "timeslot_id": 282,
+      "subject_id": "LEN5",
+      "teacher_id": 13
+    },
+    {
+      "id": 305,
       "timeslot_id": 283,
-      "subject_id": "ING6",
+      "subject_id": "SOC6",
       "teacher_id": 16
     },
     {
-      "id": 309,
+      "id": 306,
       "timeslot_id": 284,
       "subject_id": "LEN6",
       "teacher_id": 15
     },
     {
-      "id": 310,
+      "id": 307,
       "timeslot_id": 285,
       "subject_id": "LEN6",
       "teacher_id": 23
     },
     {
-      "id": 311,
+      "id": 308,
       "timeslot_id": 286,
-      "subject_id": "MAT1",
-      "teacher_id": 1
-    },
-    {
-      "id": 312,
-      "timeslot_id": 287,
-      "subject_id": "REL1",
-      "teacher_id": 5
-    },
-    {
-      "id": 313,
-      "timeslot_id": 287,
-      "subject_id": "ATE1",
+      "subject_id": "ART1",
       "teacher_id": 2
     },
     {
-      "id": 314,
+      "id": 309,
+      "timeslot_id": 287,
+      "subject_id": "LEN1",
+      "teacher_id": 1
+    },
+    {
+      "id": 310,
       "timeslot_id": 288,
       "subject_id": "RELI3",
       "teacher_id": 24
     },
     {
-      "id": 315,
+      "id": 311,
       "timeslot_id": 288,
       "subject_id": "ATEI3",
       "teacher_id": 17
     },
     {
-      "id": 316,
+      "id": 312,
       "timeslot_id": 289,
-      "subject_id": "DE3",
+      "subject_id": "CA3",
       "teacher_id": 18
     },
     {
-      "id": 317,
+      "id": 313,
       "timeslot_id": 290,
-      "subject_id": "CRR4",
-      "teacher_id": 20
-    },
-    {
-      "id": 318,
-      "timeslot_id": 291,
       "subject_id": "DE4",
       "teacher_id": 19
     },
     {
-      "id": 319,
+      "id": 314,
+      "timeslot_id": 291,
+      "subject_id": "CA4",
+      "teacher_id": 20
+    },
+    {
+      "id": 315,
       "timeslot_id": 292,
       "subject_id": "CRR5",
       "teacher_id": 21
     },
     {
-      "id": 320,
+      "id": 316,
+      "timeslot_id": 292,
+      "subject_id": "MUSI5",
+      "teacher_id": 3
+    },
+    {
+      "id": 317,
       "timeslot_id": 293,
-      "subject_id": "DE5",
+      "subject_id": "CRR5",
       "teacher_id": 22
     },
     {
-      "id": 321,
+      "id": 318,
       "timeslot_id": 294,
-      "subject_id": "NAT2",
+      "subject_id": "REL2",
+      "teacher_id": 5
+    },
+    {
+      "id": 319,
+      "timeslot_id": 294,
+      "subject_id": "ATE2",
       "teacher_id": 7
     },
     {
-      "id": 322,
+      "id": 320,
       "timeslot_id": 295,
-      "subject_id": "MAT2",
+      "subject_id": "LEN2",
       "teacher_id": 6
     },
     {
-      "id": 323,
+      "id": 321,
       "timeslot_id": 296,
-      "subject_id": "ING3",
-      "teacher_id": 9
-    },
-    {
-      "id": 324,
-      "timeslot_id": 297,
       "subject_id": "EF3",
       "teacher_id": 4
     },
     {
-      "id": 325,
+      "id": 322,
+      "timeslot_id": 297,
+      "subject_id": "ART3",
+      "teacher_id": 9
+    },
+    {
+      "id": 323,
       "timeslot_id": 298,
       "subject_id": "ING4",
       "teacher_id": 11
     },
     {
-      "id": 326,
+      "id": 324,
       "timeslot_id": 299,
-      "subject_id": "MUS4",
-      "teacher_id": 3
+      "subject_id": "MAT4",
+      "teacher_id": 10
     },
     {
-      "id": 327,
+      "id": 325,
       "timeslot_id": 300,
       "subject_id": "LEN5",
       "teacher_id": 13
     },
     {
-      "id": 328,
+      "id": 326,
       "timeslot_id": 301,
-      "subject_id": "CIV5",
+      "subject_id": "ING5",
       "teacher_id": 14
     },
     {
-      "id": 329,
+      "id": 327,
       "timeslot_id": 302,
-      "subject_id": "LEN6",
-      "teacher_id": 15
-    },
-    {
-      "id": 330,
-      "timeslot_id": 303,
       "subject_id": "ING6",
       "teacher_id": 16
     },
     {
-      "id": 331,
+      "id": 328,
+      "timeslot_id": 303,
+      "subject_id": "MAT6",
+      "teacher_id": 15
+    },
+    {
+      "id": 329,
       "timeslot_id": 304,
       "subject_id": "MAT6",
       "teacher_id": 23
     },
     {
-      "id": 332,
+      "id": 330,
       "timeslot_id": 305,
-      "subject_id": "LEN1",
+      "subject_id": "MAT1",
       "teacher_id": 1
     },
     {
-      "id": 333,
+      "id": 331,
       "timeslot_id": 306,
-      "subject_id": "EF1",
-      "teacher_id": 4
-    },
-    {
-      "id": 334,
-      "timeslot_id": 307,
-      "subject_id": "INGI3",
+      "subject_id": "ING1",
       "teacher_id": 2
     },
     {
-      "id": 335,
+      "id": 332,
+      "timeslot_id": 307,
+      "subject_id": "CA3",
+      "teacher_id": 17
+    },
+    {
+      "id": 333,
       "timeslot_id": 308,
-      "subject_id": "DE3",
+      "subject_id": "CRR3",
       "teacher_id": 18
     },
     {
-      "id": 336,
+      "id": 334,
       "timeslot_id": 309,
-      "subject_id": "RELI4",
-      "teacher_id": 24
-    },
-    {
-      "id": 337,
-      "timeslot_id": 309,
-      "subject_id": "ATEI4",
+      "subject_id": "DE4",
       "teacher_id": 19
     },
     {
-      "id": 338,
+      "id": 335,
       "timeslot_id": 310,
       "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
-      "id": 339,
+      "id": 336,
       "timeslot_id": 311,
       "subject_id": "RELI5",
-      "teacher_id": 5
+      "teacher_id": 24
     },
     {
-      "id": 340,
+      "id": 337,
       "timeslot_id": 311,
       "subject_id": "ATEI5",
       "teacher_id": 21
     },
     {
-      "id": 341,
+      "id": 338,
       "timeslot_id": 312,
-      "subject_id": "DE5",
+      "subject_id": "CRR5",
       "teacher_id": 22
     },
     {
-      "id": 342,
+      "id": 339,
       "timeslot_id": 313,
       "subject_id": "LEN2",
       "teacher_id": 6
     },
     {
-      "id": 343,
+      "id": 340,
       "timeslot_id": 314,
       "subject_id": "ING2",
       "teacher_id": 7
     },
     {
-      "id": 344,
+      "id": 341,
       "timeslot_id": 315,
+      "subject_id": "ING3",
+      "teacher_id": 9
+    },
+    {
+      "id": 342,
+      "timeslot_id": 316,
       "subject_id": "LEN3",
       "teacher_id": 8
     },
     {
-      "id": 345,
-      "timeslot_id": 316,
-      "subject_id": "SOC3",
-      "teacher_id": 9
-    },
-    {
-      "id": 346,
+      "id": 343,
       "timeslot_id": 317,
-      "subject_id": "MUS4",
-      "teacher_id": 3
+      "subject_id": "EF4",
+      "teacher_id": 4
     },
     {
-      "id": 347,
+      "id": 344,
       "timeslot_id": 318,
       "subject_id": "LEN4",
       "teacher_id": 10
     },
     {
-      "id": 348,
+      "id": 345,
       "timeslot_id": 319,
       "subject_id": "MAT5",
       "teacher_id": 13
     },
     {
-      "id": 349,
+      "id": 346,
       "timeslot_id": 320,
-      "subject_id": "ING5",
+      "subject_id": "SOC5",
       "teacher_id": 14
     },
     {
-      "id": 350,
+      "id": 347,
       "timeslot_id": 321,
-      "subject_id": "MAT6",
+      "subject_id": "ATE6",
       "teacher_id": 15
     },
     {
-      "id": 351,
+      "id": 348,
+      "timeslot_id": 321,
+      "subject_id": "REL6",
+      "teacher_id": 5
+    },
+    {
+      "id": 349,
       "timeslot_id": 322,
-      "subject_id": "SOC6",
+      "subject_id": "NAT6",
       "teacher_id": 23
     },
     {
-      "id": 352,
+      "id": 350,
       "timeslot_id": 323,
       "subject_id": "ING6",
       "teacher_id": 16
     },
     {
-      "id": 353,
+      "id": 351,
       "timeslot_id": 324,
-      "subject_id": "MAT1",
+      "subject_id": "LEN1",
       "teacher_id": 1
     },
     {
-      "id": 354,
+      "id": 352,
       "timeslot_id": 325,
-      "subject_id": "ING1",
+      "subject_id": "EF1",
+      "teacher_id": 4
+    },
+    {
+      "id": 353,
+      "timeslot_id": 326,
+      "subject_id": "INGI3",
       "teacher_id": 2
     },
     {
-      "id": 355,
-      "timeslot_id": 326,
-      "subject_id": "CA3",
-      "teacher_id": 17
-    },
-    {
-      "id": 356,
+      "id": 354,
       "timeslot_id": 327,
-      "subject_id": "CA3",
+      "subject_id": "CRR3",
       "teacher_id": 18
     },
     {
-      "id": 357,
+      "id": 355,
       "timeslot_id": 328,
-      "subject_id": "INGI4",
-      "teacher_id": 7
+      "subject_id": "RELI4",
+      "teacher_id": 24
     },
     {
-      "id": 358,
+      "id": 356,
+      "timeslot_id": 328,
+      "subject_id": "ATEI4",
+      "teacher_id": 19
+    },
+    {
+      "id": 357,
       "timeslot_id": 329,
       "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
-      "id": 359,
+      "id": 358,
       "timeslot_id": 330,
       "subject_id": "CA5",
       "teacher_id": 21
     },
     {
-      "id": 360,
+      "id": 359,
       "timeslot_id": 331,
       "subject_id": "CA5",
       "teacher_id": 22
     },
     {
-      "id": 361,
+      "id": 360,
       "timeslot_id": 332,
       "subject_id": "MAT2",
       "teacher_id": 6
     },
     {
-      "id": 362,
+      "id": 361,
       "timeslot_id": 333,
-      "subject_id": "EF2",
-      "teacher_id": 4
+      "subject_id": "NAT2",
+      "teacher_id": 7
+    },
+    {
+      "id": 362,
+      "timeslot_id": 334,
+      "subject_id": "NAT3",
+      "teacher_id": 9
     },
     {
       "id": 363,
-      "timeslot_id": 334,
+      "timeslot_id": 335,
       "subject_id": "MAT3",
       "teacher_id": 8
     },
     {
       "id": 364,
-      "timeslot_id": 335,
-      "subject_id": "MUS3",
-      "teacher_id": 3
-    },
-    {
-      "id": 365,
       "timeslot_id": 336,
       "subject_id": "NAT4",
       "teacher_id": 12
     },
     {
-      "id": 366,
+      "id": 365,
       "timeslot_id": 337,
       "subject_id": "MAT4",
       "teacher_id": 10
     },
     {
-      "id": 367,
+      "id": 366,
       "timeslot_id": 338,
-      "subject_id": "CIV5",
+      "subject_id": "NAT5",
       "teacher_id": 13
     },
     {
-      "id": 368,
+      "id": 367,
       "timeslot_id": 339,
-      "subject_id": "NAT5",
+      "subject_id": "CIV5",
       "teacher_id": 14
     },
     {
-      "id": 369,
+      "id": 368,
       "timeslot_id": 340,
       "subject_id": "EF6",
       "teacher_id": 23
     },
     {
-      "id": 370,
+      "id": 369,
       "timeslot_id": 341,
       "subject_id": "ATE6",
       "teacher_id": 15
     },
     {
-      "id": 371,
+      "id": 370,
       "timeslot_id": 341,
       "subject_id": "REL6",
       "teacher_id": 5
     },
     {
-      "id": 372,
+      "id": 371,
       "timeslot_id": 342,
       "subject_id": "REL6",
       "teacher_id": 5
     },
     {
-      "id": 373,
+      "id": 372,
       "timeslot_id": 343,
-      "subject_id": "LEN1",
+      "subject_id": "NAT1",
+      "teacher_id": 2
+    },
+    {
+      "id": 373,
+      "timeslot_id": 344,
+      "subject_id": "MAT1",
       "teacher_id": 1
     },
     {
       "id": 374,
-      "timeslot_id": 344,
-      "subject_id": "MUS1",
-      "teacher_id": 3
-    },
-    {
-      "id": 375,
       "timeslot_id": 345,
-      "subject_id": "CRR3",
+      "subject_id": "DE3",
       "teacher_id": 17
     },
     {
-      "id": 376,
+      "id": 375,
       "timeslot_id": 346,
-      "subject_id": "INGI3",
-      "teacher_id": 2
+      "subject_id": "DE3",
+      "teacher_id": 18
     },
     {
-      "id": 377,
+      "id": 376,
       "timeslot_id": 347,
       "subject_id": "DE4",
       "teacher_id": 19
     },
     {
-      "id": 378,
+      "id": 377,
       "timeslot_id": 348,
-      "subject_id": "CA4",
+      "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
-      "id": 379,
+      "id": 378,
       "timeslot_id": 349,
-      "subject_id": "CRR5",
+      "subject_id": "DE5",
       "teacher_id": 21
     },
     {
-      "id": 380,
+      "id": 379,
       "timeslot_id": 350,
       "subject_id": "CRR5",
       "teacher_id": 22
     },
     {
-      "id": 381,
+      "id": 380,
       "timeslot_id": 351,
       "subject_id": "LEN2",
       "teacher_id": 6
     },
     {
-      "id": 382,
+      "id": 381,
       "timeslot_id": 352,
-      "subject_id": "NAT2",
+      "subject_id": "ING2",
       "teacher_id": 7
+    },
+    {
+      "id": 382,
+      "timeslot_id": 353,
+      "subject_id": "ATE3",
+      "teacher_id": 8
     },
     {
       "id": 383,
       "timeslot_id": 353,
-      "subject_id": "ING3",
-      "teacher_id": 9
+      "subject_id": "REL3",
+      "teacher_id": 5
     },
     {
       "id": 384,
       "timeslot_id": 354,
-      "subject_id": "LEN3",
-      "teacher_id": 8
+      "subject_id": "NAT3",
+      "teacher_id": 9
     },
     {
       "id": 385,
       "timeslot_id": 355,
-      "subject_id": "ATE4",
-      "teacher_id": 10
+      "subject_id": "EF4",
+      "teacher_id": 4
     },
     {
       "id": 386,
-      "timeslot_id": 355,
-      "subject_id": "REL4",
-      "teacher_id": 5
-    },
-    {
-      "id": 387,
       "timeslot_id": 356,
       "subject_id": "NAT4",
       "teacher_id": 11
     },
     {
-      "id": 388,
+      "id": 387,
       "timeslot_id": 357,
-      "subject_id": "NAT5",
+      "subject_id": "MAT5",
+      "teacher_id": 13
+    },
+    {
+      "id": 388,
+      "timeslot_id": 358,
+      "subject_id": "ING5",
       "teacher_id": 14
     },
     {
       "id": 389,
-      "timeslot_id": 358,
-      "subject_id": "EF5",
-      "teacher_id": 4
-    },
-    {
-      "id": 390,
       "timeslot_id": 359,
-      "subject_id": "MAT6",
+      "subject_id": "LEN6",
       "teacher_id": 15
     },
     {
-      "id": 391,
+      "id": 390,
       "timeslot_id": 360,
-      "subject_id": "NAT6",
-      "teacher_id": 23
+      "subject_id": "MUS6",
+      "teacher_id": 3
+    },
+    {
+      "id": 391,
+      "timeslot_id": 361,
+      "subject_id": "MUS6",
+      "teacher_id": 3
     },
     {
       "id": 392,
-      "timeslot_id": 361,
-      "subject_id": "ING6",
-      "teacher_id": 16
+      "timeslot_id": 362,
+      "subject_id": "ING1",
+      "teacher_id": 2
     },
     {
       "id": 393,
-      "timeslot_id": 362,
-      "subject_id": "MAT1",
+      "timeslot_id": 363,
+      "subject_id": "LEN1",
       "teacher_id": 1
     },
     {
       "id": 394,
-      "timeslot_id": 363,
-      "subject_id": "NAT1",
-      "teacher_id": 2
-    },
-    {
-      "id": 395,
       "timeslot_id": 364,
-      "subject_id": "CRR3",
+      "subject_id": "DE3",
       "teacher_id": 17
     },
     {
-      "id": 396,
+      "id": 395,
       "timeslot_id": 365,
-      "subject_id": "CRR3",
+      "subject_id": "DE3",
       "teacher_id": 18
     },
     {
-      "id": 397,
+      "id": 396,
       "timeslot_id": 366,
       "subject_id": "DE4",
       "teacher_id": 19
     },
     {
-      "id": 398,
+      "id": 397,
       "timeslot_id": 367,
       "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
-      "id": 399,
+      "id": 398,
       "timeslot_id": 368,
-      "subject_id": "CRR5",
+      "subject_id": "DE5",
       "teacher_id": 21
     },
     {
-      "id": 400,
+      "id": 399,
       "timeslot_id": 369,
       "subject_id": "CRR5",
       "teacher_id": 22
     },
     {
-      "id": 401,
+      "id": 400,
       "timeslot_id": 370,
       "subject_id": "MAT2",
       "teacher_id": 6
     },
     {
-      "id": 402,
+      "id": 401,
       "timeslot_id": 371,
-      "subject_id": "REL2",
-      "teacher_id": 5
-    },
-    {
-      "id": 403,
-      "timeslot_id": 371,
-      "subject_id": "ATE2",
+      "subject_id": "ART2",
       "teacher_id": 7
     },
     {
-      "id": 404,
+      "id": 402,
       "timeslot_id": 372,
-      "subject_id": "EF3",
-      "teacher_id": 4
+      "subject_id": "SOC3",
+      "teacher_id": 9
     },
     {
-      "id": 405,
+      "id": 403,
       "timeslot_id": 373,
-      "subject_id": "MAT3",
-      "teacher_id": 8
+      "subject_id": "MUS3",
+      "teacher_id": 3
     },
     {
-      "id": 406,
+      "id": 404,
       "timeslot_id": 374,
-      "subject_id": "LEN4",
-      "teacher_id": 10
-    },
-    {
-      "id": 407,
-      "timeslot_id": 375,
-      "subject_id": "ART4",
+      "subject_id": "ING4",
       "teacher_id": 11
     },
     {
-      "id": 408,
-      "timeslot_id": 376,
-      "subject_id": "ING5",
-      "teacher_id": 14
+      "id": 405,
+      "timeslot_id": 375,
+      "subject_id": "ATE4",
+      "teacher_id": 10
     },
     {
-      "id": 409,
-      "timeslot_id": 377,
+      "id": 406,
+      "timeslot_id": 375,
+      "subject_id": "REL4",
+      "teacher_id": 5
+    },
+    {
+      "id": 407,
+      "timeslot_id": 376,
       "subject_id": "LEN5",
       "teacher_id": 13
     },
     {
-      "id": 410,
+      "id": 408,
+      "timeslot_id": 377,
+      "subject_id": "EF5",
+      "teacher_id": 4
+    },
+    {
+      "id": 409,
       "timeslot_id": 378,
-      "subject_id": "LEN6",
+      "subject_id": "MAT6",
       "teacher_id": 15
     },
     {
-      "id": 411,
+      "id": 410,
       "timeslot_id": 379,
-      "subject_id": "SOC6",
+      "subject_id": "NAT6",
       "teacher_id": 23
     },
     {
-      "id": 412,
+      "id": 411,
       "timeslot_id": 380,
-      "subject_id": "ART6",
+      "subject_id": "ING6",
       "teacher_id": 16
     },
     {
-      "id": 413,
+      "id": 412,
       "timeslot_id": 381,
-      "subject_id": "LEN1",
+      "subject_id": "MAT1",
       "teacher_id": 1
+    },
+    {
+      "id": 413,
+      "timeslot_id": 382,
+      "subject_id": "REL1",
+      "teacher_id": 5
     },
     {
       "id": 414,
       "timeslot_id": 382,
-      "subject_id": "ING1",
+      "subject_id": "ATE1",
       "teacher_id": 2
     },
     {
       "id": 415,
       "timeslot_id": 383,
-      "subject_id": "CA3",
+      "subject_id": "DE3",
       "teacher_id": 17
     },
     {
       "id": 416,
       "timeslot_id": 384,
-      "subject_id": "CRR3",
+      "subject_id": "DE3",
       "teacher_id": 18
     },
     {
@@ -10056,925 +10056,925 @@
     {
       "id": 418,
       "timeslot_id": 386,
-      "subject_id": "CRR4",
+      "subject_id": "CA4",
       "teacher_id": 20
     },
     {
       "id": 419,
-      "timeslot_id": 386,
-      "subject_id": "MUSI4",
-      "teacher_id": 3
-    },
-    {
-      "id": 420,
       "timeslot_id": 387,
-      "subject_id": "CA5",
+      "subject_id": "DE5",
       "teacher_id": 21
     },
     {
-      "id": 421,
+      "id": 420,
       "timeslot_id": 388,
-      "subject_id": "DE5",
-      "teacher_id": 22
+      "subject_id": "INGI5",
+      "teacher_id": 11
     },
     {
-      "id": 422,
+      "id": 421,
       "timeslot_id": 389,
-      "subject_id": "ING2",
+      "subject_id": "NAT2",
       "teacher_id": 7
     },
     {
-      "id": 423,
+      "id": 422,
       "timeslot_id": 390,
-      "subject_id": "LEN2",
-      "teacher_id": 6
+      "subject_id": "EF2",
+      "teacher_id": 4
     },
     {
-      "id": 424,
+      "id": 423,
       "timeslot_id": 391,
       "subject_id": "LEN3",
       "teacher_id": 8
     },
     {
-      "id": 425,
+      "id": 424,
       "timeslot_id": 392,
-      "subject_id": "ART3",
+      "subject_id": "ING3",
       "teacher_id": 9
     },
     {
-      "id": 426,
+      "id": 425,
       "timeslot_id": 393,
-      "subject_id": "MAT4",
+      "subject_id": "LEN4",
       "teacher_id": 10
     },
     {
-      "id": 427,
+      "id": 426,
       "timeslot_id": 394,
-      "subject_id": "ING4",
-      "teacher_id": 11
+      "subject_id": "MUS4",
+      "teacher_id": 3
     },
     {
-      "id": 428,
+      "id": 427,
       "timeslot_id": 395,
-      "subject_id": "EF5",
-      "teacher_id": 4
-    },
-    {
-      "id": 429,
-      "timeslot_id": 396,
       "subject_id": "MAT5",
       "teacher_id": 13
     },
     {
-      "id": 430,
-      "timeslot_id": 397,
-      "subject_id": "EF6",
-      "teacher_id": 23
+      "id": 428,
+      "timeslot_id": 396,
+      "subject_id": "SOC5",
+      "teacher_id": 14
     },
     {
-      "id": 431,
+      "id": 429,
+      "timeslot_id": 397,
+      "subject_id": "ING6",
+      "teacher_id": 16
+    },
+    {
+      "id": 430,
       "timeslot_id": 398,
-      "subject_id": "ATE6",
+      "subject_id": "LEN6",
       "teacher_id": 15
     },
     {
-      "id": 432,
-      "timeslot_id": 398,
-      "subject_id": "REL6",
-      "teacher_id": 5
-    },
-    {
-      "id": 433,
+      "id": 431,
       "timeslot_id": 399,
-      "subject_id": "REL6",
-      "teacher_id": 5
+      "subject_id": "NAT6",
+      "teacher_id": 23
     },
     {
-      "id": 434,
+      "id": 432,
       "timeslot_id": 400,
-      "subject_id": "ING1",
-      "teacher_id": 2
-    },
-    {
-      "id": 435,
-      "timeslot_id": 401,
       "subject_id": "LEN1",
       "teacher_id": 1
     },
     {
-      "id": 436,
+      "id": 433,
+      "timeslot_id": 401,
+      "subject_id": "EF1",
+      "teacher_id": 4
+    },
+    {
+      "id": 434,
       "timeslot_id": 402,
-      "subject_id": "DE3",
+      "subject_id": "CRR3",
       "teacher_id": 17
     },
     {
-      "id": 437,
+      "id": 435,
       "timeslot_id": 403,
-      "subject_id": "DE3",
+      "subject_id": "CRR3",
       "teacher_id": 18
     },
     {
-      "id": 438,
+      "id": 436,
       "timeslot_id": 404,
       "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
-      "id": 439,
+      "id": 437,
       "timeslot_id": 405,
       "subject_id": "DE4",
       "teacher_id": 19
     },
     {
-      "id": 440,
+      "id": 438,
       "timeslot_id": 406,
-      "subject_id": "DE5",
+      "subject_id": "CRR5",
       "teacher_id": 21
     },
     {
-      "id": 441,
+      "id": 439,
       "timeslot_id": 407,
       "subject_id": "DE5",
       "teacher_id": 22
     },
     {
-      "id": 442,
+      "id": 440,
       "timeslot_id": 408,
-      "subject_id": "EF2",
-      "teacher_id": 4
+      "subject_id": "ING2",
+      "teacher_id": 7
     },
     {
-      "id": 443,
+      "id": 441,
       "timeslot_id": 409,
-      "subject_id": "MAT2",
-      "teacher_id": 6
+      "subject_id": "MUS2",
+      "teacher_id": 3
     },
     {
-      "id": 444,
+      "id": 442,
       "timeslot_id": 410,
       "subject_id": "MAT3",
       "teacher_id": 8
     },
     {
-      "id": 445,
+      "id": 443,
       "timeslot_id": 411,
-      "subject_id": "ING3",
+      "subject_id": "ATE3",
       "teacher_id": 9
     },
     {
-      "id": 446,
+      "id": 444,
+      "timeslot_id": 411,
+      "subject_id": "REL3",
+      "teacher_id": 5
+    },
+    {
+      "id": 445,
       "timeslot_id": 412,
+      "subject_id": "MAT4",
+      "teacher_id": 10
+    },
+    {
+      "id": 446,
+      "timeslot_id": 413,
       "subject_id": "ING4",
       "teacher_id": 11
     },
     {
       "id": 447,
-      "timeslot_id": 413,
-      "subject_id": "MUS4",
-      "teacher_id": 3
-    },
-    {
-      "id": 448,
       "timeslot_id": 414,
-      "subject_id": "LEN5",
+      "subject_id": "NAT5",
       "teacher_id": 13
     },
     {
-      "id": 449,
+      "id": 448,
       "timeslot_id": 415,
-      "subject_id": "ING5",
+      "subject_id": "NAT5",
       "teacher_id": 14
     },
     {
-      "id": 450,
+      "id": 449,
       "timeslot_id": 416,
-      "subject_id": "ATE6",
+      "subject_id": "NAT6",
+      "teacher_id": 16
+    },
+    {
+      "id": 450,
+      "timeslot_id": 417,
+      "subject_id": "MAT6",
       "teacher_id": 15
     },
     {
       "id": 451,
-      "timeslot_id": 416,
-      "subject_id": "REL6",
-      "teacher_id": 5
-    },
-    {
-      "id": 452,
-      "timeslot_id": 417,
-      "subject_id": "ING6",
-      "teacher_id": 16
-    },
-    {
-      "id": 453,
       "timeslot_id": 418,
       "subject_id": "LEN6",
       "teacher_id": 23
     },
     {
-      "id": 454,
+      "id": 452,
       "timeslot_id": 419,
-      "subject_id": "NAT1",
-      "teacher_id": 2
-    },
-    {
-      "id": 455,
-      "timeslot_id": 420,
       "subject_id": "MAT1",
       "teacher_id": 1
     },
     {
-      "id": 456,
+      "id": 453,
+      "timeslot_id": 420,
+      "subject_id": "MUS1",
+      "teacher_id": 3
+    },
+    {
+      "id": 454,
       "timeslot_id": 421,
-      "subject_id": "DE3",
+      "subject_id": "CRR3",
       "teacher_id": 17
     },
     {
-      "id": 457,
+      "id": 455,
       "timeslot_id": 422,
-      "subject_id": "DE3",
+      "subject_id": "CRR3",
       "teacher_id": 18
     },
     {
-      "id": 458,
+      "id": 456,
       "timeslot_id": 423,
       "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
-      "id": 459,
+      "id": 457,
       "timeslot_id": 424,
       "subject_id": "DE4",
       "teacher_id": 19
     },
     {
-      "id": 460,
+      "id": 458,
       "timeslot_id": 425,
-      "subject_id": "DE5",
+      "subject_id": "CRR5",
       "teacher_id": 21
     },
     {
-      "id": 461,
+      "id": 459,
       "timeslot_id": 426,
       "subject_id": "DE5",
       "teacher_id": 22
     },
     {
-      "id": 462,
+      "id": 460,
       "timeslot_id": 427,
-      "subject_id": "REL2",
-      "teacher_id": 5
+      "subject_id": "EF2",
+      "teacher_id": 4
     },
     {
-      "id": 463,
-      "timeslot_id": 427,
-      "subject_id": "ATE2",
+      "id": 461,
+      "timeslot_id": 428,
+      "subject_id": "LEN2",
       "teacher_id": 6
     },
     {
-      "id": 464,
-      "timeslot_id": 428,
-      "subject_id": "MUS2",
-      "teacher_id": 3
+      "id": 462,
+      "timeslot_id": 429,
+      "subject_id": "ING3",
+      "teacher_id": 9
     },
     {
-      "id": 465,
-      "timeslot_id": 429,
+      "id": 463,
+      "timeslot_id": 430,
       "subject_id": "LEN3",
       "teacher_id": 8
     },
     {
-      "id": 466,
-      "timeslot_id": 430,
-      "subject_id": "EF3",
-      "teacher_id": 4
-    },
-    {
-      "id": 467,
+      "id": 464,
       "timeslot_id": 431,
-      "subject_id": "NAT4",
+      "subject_id": "SOC4",
       "teacher_id": 12
     },
     {
-      "id": 468,
+      "id": 465,
       "timeslot_id": 432,
       "subject_id": "LEN4",
       "teacher_id": 10
     },
     {
-      "id": 469,
+      "id": 466,
       "timeslot_id": 433,
-      "subject_id": "MAT5",
-      "teacher_id": 13
-    },
-    {
-      "id": 470,
-      "timeslot_id": 434,
-      "subject_id": "ART5",
+      "subject_id": "ING5",
       "teacher_id": 14
     },
     {
-      "id": 471,
+      "id": 467,
+      "timeslot_id": 434,
+      "subject_id": "LEN5",
+      "teacher_id": 13
+    },
+    {
+      "id": 468,
       "timeslot_id": 435,
+      "subject_id": "ATE6",
+      "teacher_id": 15
+    },
+    {
+      "id": 469,
+      "timeslot_id": 435,
+      "subject_id": "REL6",
+      "teacher_id": 5
+    },
+    {
+      "id": 470,
+      "timeslot_id": 436,
       "subject_id": "ING6",
       "teacher_id": 16
     },
     {
-      "id": 472,
-      "timeslot_id": 436,
-      "subject_id": "LEN6",
-      "teacher_id": 15
-    },
-    {
-      "id": 473,
+      "id": 471,
       "timeslot_id": 437,
       "subject_id": "MAT6",
       "teacher_id": 23
     },
     {
-      "id": 474,
+      "id": 472,
       "timeslot_id": 438,
-      "subject_id": "EF1",
-      "teacher_id": 4
-    },
-    {
-      "id": 475,
-      "timeslot_id": 439,
       "subject_id": "LEN1",
       "teacher_id": 1
     },
     {
-      "id": 476,
+      "id": 473,
+      "timeslot_id": 439,
+      "subject_id": "ING1",
+      "teacher_id": 2
+    },
+    {
+      "id": 474,
       "timeslot_id": 440,
-      "subject_id": "DE3",
+      "subject_id": "CA3",
       "teacher_id": 17
     },
     {
-      "id": 477,
+      "id": 475,
       "timeslot_id": 441,
       "subject_id": "CA3",
       "teacher_id": 18
     },
     {
-      "id": 478,
+      "id": 476,
       "timeslot_id": 442,
       "subject_id": "CA4",
       "teacher_id": 20
     },
     {
-      "id": 479,
+      "id": 477,
       "timeslot_id": 443,
       "subject_id": "DE4",
       "teacher_id": 19
     },
     {
-      "id": 480,
+      "id": 478,
       "timeslot_id": 444,
-      "subject_id": "DE5",
+      "subject_id": "CA5",
       "teacher_id": 21
     },
     {
-      "id": 481,
+      "id": 479,
       "timeslot_id": 445,
       "subject_id": "CA5",
       "teacher_id": 22
     },
     {
-      "id": 482,
+      "id": 480,
       "timeslot_id": 446,
       "subject_id": "MUS2",
       "teacher_id": 3
     },
     {
-      "id": 483,
+      "id": 481,
       "timeslot_id": 447,
-      "subject_id": "ING2",
-      "teacher_id": 7
+      "subject_id": "MAT2",
+      "teacher_id": 6
     },
     {
-      "id": 484,
+      "id": 482,
       "timeslot_id": 448,
+      "subject_id": "ART3",
+      "teacher_id": 9
+    },
+    {
+      "id": 483,
+      "timeslot_id": 449,
       "subject_id": "MAT3",
       "teacher_id": 8
     },
     {
-      "id": 485,
-      "timeslot_id": 449,
-      "subject_id": "NAT3",
-      "teacher_id": 9
-    },
-    {
-      "id": 486,
+      "id": 484,
       "timeslot_id": 450,
-      "subject_id": "SOC4",
+      "subject_id": "NAT4",
       "teacher_id": 12
     },
     {
-      "id": 487,
+      "id": 485,
       "timeslot_id": 451,
       "subject_id": "MAT4",
       "teacher_id": 10
     },
     {
-      "id": 488,
+      "id": 486,
       "timeslot_id": 452,
-      "subject_id": "LEN5",
+      "subject_id": "EF5",
+      "teacher_id": 4
+    },
+    {
+      "id": 487,
+      "timeslot_id": 453,
+      "subject_id": "MAT5",
       "teacher_id": 13
     },
     {
+      "id": 488,
+      "timeslot_id": 454,
+      "subject_id": "EF6",
+      "teacher_id": 23
+    },
+    {
       "id": 489,
-      "timeslot_id": 453,
-      "subject_id": "ATE5",
-      "teacher_id": 14
+      "timeslot_id": 455,
+      "subject_id": "ATE6",
+      "teacher_id": 15
     },
     {
       "id": 490,
-      "timeslot_id": 453,
-      "subject_id": "REL5",
+      "timeslot_id": 455,
+      "subject_id": "REL6",
       "teacher_id": 5
     },
     {
       "id": 491,
-      "timeslot_id": 454,
-      "subject_id": "ART6",
-      "teacher_id": 16
+      "timeslot_id": 456,
+      "subject_id": "REL6",
+      "teacher_id": 5
     },
     {
       "id": 492,
-      "timeslot_id": 455,
-      "subject_id": "MAT6",
-      "teacher_id": 15
-    },
-    {
-      "id": 493,
-      "timeslot_id": 456,
-      "subject_id": "NAT6",
-      "teacher_id": 23
-    },
-    {
-      "id": 494,
       "timeslot_id": 457,
-      "subject_id": "MUS1",
-      "teacher_id": 3
-    },
-    {
-      "id": 495,
-      "timeslot_id": 458,
-      "subject_id": "LEN1",
-      "teacher_id": 1
-    },
-    {
-      "id": 496,
-      "timeslot_id": 459,
-      "subject_id": "INGI3",
+      "subject_id": "NAT1",
       "teacher_id": 2
     },
     {
-      "id": 497,
+      "id": 493,
+      "timeslot_id": 458,
+      "subject_id": "MAT1",
+      "teacher_id": 1
+    },
+    {
+      "id": 494,
+      "timeslot_id": 459,
+      "subject_id": "DE3",
+      "teacher_id": 17
+    },
+    {
+      "id": 495,
       "timeslot_id": 460,
-      "subject_id": "CRR3",
+      "subject_id": "DE3",
       "teacher_id": 18
     },
     {
-      "id": 498,
+      "id": 496,
       "timeslot_id": 461,
-      "subject_id": "DE4",
-      "teacher_id": 19
-    },
-    {
-      "id": 499,
-      "timeslot_id": 462,
       "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
-      "id": 500,
+      "id": 497,
+      "timeslot_id": 462,
+      "subject_id": "DE4",
+      "teacher_id": 19
+    },
+    {
+      "id": 498,
       "timeslot_id": 463,
       "subject_id": "INGI5",
       "teacher_id": 11
     },
     {
-      "id": 501,
+      "id": 499,
       "timeslot_id": 464,
-      "subject_id": "RELI5",
-      "teacher_id": 5
-    },
-    {
-      "id": 502,
-      "timeslot_id": 464,
-      "subject_id": "ATEI5",
+      "subject_id": "CA5",
       "teacher_id": 22
     },
     {
-      "id": 503,
+      "id": 500,
       "timeslot_id": 465,
-      "subject_id": "ING2",
-      "teacher_id": 7
+      "subject_id": "MUS2",
+      "teacher_id": 3
     },
     {
-      "id": 504,
+      "id": 501,
       "timeslot_id": 466,
-      "subject_id": "LEN2",
+      "subject_id": "MAT2",
       "teacher_id": 6
     },
     {
-      "id": 505,
+      "id": 502,
       "timeslot_id": 467,
-      "subject_id": "ART3",
-      "teacher_id": 9
-    },
-    {
-      "id": 506,
-      "timeslot_id": 468,
-      "subject_id": "LEN3",
+      "subject_id": "ATE3",
       "teacher_id": 8
     },
     {
-      "id": 507,
+      "id": 503,
+      "timeslot_id": 467,
+      "subject_id": "REL3",
+      "teacher_id": 5
+    },
+    {
+      "id": 504,
+      "timeslot_id": 468,
+      "subject_id": "SOC3",
+      "teacher_id": 9
+    },
+    {
+      "id": 505,
       "timeslot_id": 469,
       "subject_id": "EF4",
       "teacher_id": 4
     },
     {
-      "id": 508,
+      "id": 506,
       "timeslot_id": 470,
-      "subject_id": "MAT4",
+      "subject_id": "LEN4",
       "teacher_id": 10
     },
     {
-      "id": 509,
+      "id": 507,
       "timeslot_id": 471,
-      "subject_id": "NAT5",
+      "subject_id": "ING5",
       "teacher_id": 14
     },
     {
-      "id": 510,
+      "id": 508,
       "timeslot_id": 472,
       "subject_id": "MAT5",
       "teacher_id": 13
     },
     {
-      "id": 511,
+      "id": 509,
       "timeslot_id": 473,
-      "subject_id": "NAT6",
+      "subject_id": "ING6",
       "teacher_id": 16
     },
     {
-      "id": 512,
+      "id": 510,
       "timeslot_id": 474,
       "subject_id": "EF6",
       "teacher_id": 23
     },
     {
-      "id": 513,
+      "id": 511,
       "timeslot_id": 475,
       "subject_id": "EF6",
       "teacher_id": 23
     },
     {
-      "id": 514,
+      "id": 512,
       "timeslot_id": 476,
-      "subject_id": "ING1",
-      "teacher_id": 2
+      "subject_id": "MUS1",
+      "teacher_id": 3
     },
     {
-      "id": 515,
+      "id": 513,
       "timeslot_id": 477,
-      "subject_id": "MAT1",
+      "subject_id": "LEN1",
       "teacher_id": 1
     },
     {
-      "id": 516,
+      "id": 514,
       "timeslot_id": 478,
-      "subject_id": "CA3",
+      "subject_id": "DE3",
       "teacher_id": 17
     },
     {
-      "id": 517,
+      "id": 515,
       "timeslot_id": 479,
-      "subject_id": "CRR3",
+      "subject_id": "DE3",
       "teacher_id": 18
     },
     {
-      "id": 518,
+      "id": 516,
       "timeslot_id": 480,
-      "subject_id": "DE4",
-      "teacher_id": 19
-    },
-    {
-      "id": 519,
-      "timeslot_id": 481,
       "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
-      "id": 520,
+      "id": 517,
+      "timeslot_id": 481,
+      "subject_id": "DE4",
+      "teacher_id": 19
+    },
+    {
+      "id": 518,
       "timeslot_id": 482,
       "subject_id": "CA5",
       "teacher_id": 21
     },
     {
-      "id": 521,
+      "id": 519,
       "timeslot_id": 483,
-      "subject_id": "INGI5",
-      "teacher_id": 11
+      "subject_id": "CRR5",
+      "teacher_id": 22
     },
     {
-      "id": 522,
+      "id": 520,
       "timeslot_id": 484,
       "subject_id": "EF2",
       "teacher_id": 4
     },
     {
-      "id": 523,
+      "id": 521,
       "timeslot_id": 485,
-      "subject_id": "MAT2",
+      "subject_id": "LEN2",
       "teacher_id": 6
     },
     {
-      "id": 524,
+      "id": 522,
       "timeslot_id": 486,
-      "subject_id": "SOC3",
+      "subject_id": "NAT3",
       "teacher_id": 9
     },
     {
-      "id": 525,
+      "id": 523,
       "timeslot_id": 487,
-      "subject_id": "MAT3",
+      "subject_id": "LEN3",
       "teacher_id": 8
     },
     {
-      "id": 526,
+      "id": 524,
       "timeslot_id": 488,
-      "subject_id": "MUS4",
-      "teacher_id": 3
+      "subject_id": "ING4",
+      "teacher_id": 11
     },
     {
-      "id": 527,
+      "id": 525,
       "timeslot_id": 489,
-      "subject_id": "LEN4",
+      "subject_id": "MAT4",
       "teacher_id": 10
     },
     {
-      "id": 528,
+      "id": 526,
       "timeslot_id": 490,
-      "subject_id": "ING5",
+      "subject_id": "ATE5",
       "teacher_id": 14
     },
     {
-      "id": 529,
+      "id": 527,
+      "timeslot_id": 490,
+      "subject_id": "REL5",
+      "teacher_id": 5
+    },
+    {
+      "id": 528,
       "timeslot_id": 491,
       "subject_id": "LEN5",
       "teacher_id": 13
     },
     {
-      "id": 530,
+      "id": 529,
       "timeslot_id": 492,
-      "subject_id": "ATE6",
+      "subject_id": "ART6",
+      "teacher_id": 16
+    },
+    {
+      "id": 530,
+      "timeslot_id": 493,
+      "subject_id": "MAT6",
       "teacher_id": 15
     },
     {
       "id": 531,
-      "timeslot_id": 492,
-      "subject_id": "REL6",
-      "teacher_id": 5
-    },
-    {
-      "id": 532,
-      "timeslot_id": 493,
-      "subject_id": "NAT6",
+      "timeslot_id": 494,
+      "subject_id": "LEN6",
       "teacher_id": 23
     },
     {
-      "id": 533,
-      "timeslot_id": 494,
-      "subject_id": "ING6",
-      "teacher_id": 16
-    },
-    {
-      "id": 534,
+      "id": 532,
       "timeslot_id": 495,
       "subject_id": "EF1",
       "teacher_id": 4
     },
     {
-      "id": 535,
+      "id": 533,
       "timeslot_id": 496,
-      "subject_id": "LEN1",
+      "subject_id": "MAT1",
       "teacher_id": 1
     },
     {
-      "id": 536,
+      "id": 534,
       "timeslot_id": 497,
-      "subject_id": "CRR3",
+      "subject_id": "DE3",
       "teacher_id": 17
     },
     {
-      "id": 537,
+      "id": 535,
       "timeslot_id": 498,
-      "subject_id": "CA3",
+      "subject_id": "DE3",
       "teacher_id": 18
     },
     {
-      "id": 538,
+      "id": 536,
       "timeslot_id": 499,
       "subject_id": "DE4",
       "teacher_id": 19
     },
     {
-      "id": 539,
+      "id": 537,
       "timeslot_id": 500,
-      "subject_id": "CA4",
+      "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
-      "id": 540,
+      "id": 538,
+      "timeslot_id": 500,
+      "subject_id": "MUSI4",
+      "teacher_id": 3
+    },
+    {
+      "id": 539,
       "timeslot_id": 501,
       "subject_id": "CRR5",
       "teacher_id": 21
     },
     {
-      "id": 541,
+      "id": 540,
       "timeslot_id": 502,
       "subject_id": "CRR5",
       "teacher_id": 22
     },
     {
-      "id": 542,
+      "id": 541,
       "timeslot_id": 503,
+      "subject_id": "ING2",
+      "teacher_id": 7
+    },
+    {
+      "id": 542,
+      "timeslot_id": 504,
       "subject_id": "MAT2",
       "teacher_id": 6
     },
     {
       "id": 543,
-      "timeslot_id": 504,
-      "subject_id": "REL2",
-      "teacher_id": 5
-    },
-    {
-      "id": 544,
-      "timeslot_id": 504,
-      "subject_id": "ATE2",
-      "teacher_id": 7
-    },
-    {
-      "id": 545,
       "timeslot_id": 505,
-      "subject_id": "NAT3",
+      "subject_id": "ING3",
       "teacher_id": 9
     },
     {
-      "id": 546,
+      "id": 544,
       "timeslot_id": 506,
-      "subject_id": "LEN3",
+      "subject_id": "MAT3",
       "teacher_id": 8
     },
     {
-      "id": 547,
+      "id": 545,
       "timeslot_id": 507,
+      "subject_id": "ATE4",
+      "teacher_id": 10
+    },
+    {
+      "id": 546,
+      "timeslot_id": 507,
+      "subject_id": "REL4",
+      "teacher_id": 5
+    },
+    {
+      "id": 547,
+      "timeslot_id": 508,
       "subject_id": "ING4",
       "teacher_id": 11
     },
     {
       "id": 548,
-      "timeslot_id": 508,
-      "subject_id": "MAT4",
-      "teacher_id": 10
-    },
-    {
-      "id": 549,
       "timeslot_id": 509,
       "subject_id": "ART5",
       "teacher_id": 14
     },
     {
-      "id": 550,
+      "id": 549,
       "timeslot_id": 510,
       "subject_id": "MAT5",
       "teacher_id": 13
     },
     {
-      "id": 551,
+      "id": 550,
       "timeslot_id": 511,
-      "subject_id": "MUS6",
-      "teacher_id": 3
+      "subject_id": "SOC6",
+      "teacher_id": 16
     },
     {
-      "id": 552,
+      "id": 551,
       "timeslot_id": 512,
       "subject_id": "LEN6",
       "teacher_id": 15
     },
     {
-      "id": 553,
+      "id": 552,
       "timeslot_id": 513,
-      "subject_id": "SOC6",
+      "subject_id": "MAT6",
       "teacher_id": 23
     },
     {
-      "id": 554,
+      "id": 553,
       "timeslot_id": 514,
-      "subject_id": "REL1",
-      "teacher_id": 5
+      "subject_id": "ING1",
+      "teacher_id": 2
     },
     {
-      "id": 555,
-      "timeslot_id": 514,
-      "subject_id": "ATE1",
+      "id": 554,
+      "timeslot_id": 515,
+      "subject_id": "LEN1",
       "teacher_id": 1
     },
     {
-      "id": 556,
-      "timeslot_id": 515,
-      "subject_id": "EF1",
-      "teacher_id": 4
-    },
-    {
-      "id": 557,
+      "id": 555,
       "timeslot_id": 516,
       "subject_id": "CRR3",
       "teacher_id": 17
     },
     {
-      "id": 558,
+      "id": 556,
       "timeslot_id": 517,
-      "subject_id": "DE3",
+      "subject_id": "CRR3",
       "teacher_id": 18
     },
     {
-      "id": 559,
+      "id": 557,
+      "timeslot_id": 517,
+      "subject_id": "MUSI3",
+      "teacher_id": 3
+    },
+    {
+      "id": 558,
       "timeslot_id": 518,
+      "subject_id": "DE4",
+      "teacher_id": 19
+    },
+    {
+      "id": 559,
+      "timeslot_id": 519,
       "subject_id": "CRR4",
       "teacher_id": 20
     },
     {
       "id": 560,
-      "timeslot_id": 519,
-      "subject_id": "DE4",
-      "teacher_id": 19
-    },
-    {
-      "id": 561,
       "timeslot_id": 520,
       "subject_id": "CRR5",
       "teacher_id": 21
     },
     {
-      "id": 562,
+      "id": 561,
       "timeslot_id": 521,
-      "subject_id": "CRR5",
-      "teacher_id": 22
+      "subject_id": "INGI5",
+      "teacher_id": 11
     },
     {
-      "id": 563,
+      "id": 562,
       "timeslot_id": 522,
       "subject_id": "LEN2",
       "teacher_id": 6
     },
     {
-      "id": 564,
+      "id": 563,
       "timeslot_id": 523,
       "subject_id": "ING2",
       "teacher_id": 7
     },
     {
-      "id": 565,
+      "id": 564,
       "timeslot_id": 524,
-      "subject_id": "ING3",
+      "subject_id": "MAT3",
+      "teacher_id": 8
+    },
+    {
+      "id": 565,
+      "timeslot_id": 525,
+      "subject_id": "ATE3",
       "teacher_id": 9
     },
     {
       "id": 566,
       "timeslot_id": 525,
-      "subject_id": "MUS3",
-      "teacher_id": 3
+      "subject_id": "REL3",
+      "teacher_id": 5
     },
     {
       "id": 567,
       "timeslot_id": 526,
-      "subject_id": "LEN4",
+      "subject_id": "MAT4",
       "teacher_id": 10
     },
     {
       "id": 568,
       "timeslot_id": 527,
-      "subject_id": "ING4",
-      "teacher_id": 11
+      "subject_id": "EF4",
+      "teacher_id": 4
     },
     {
       "id": 569,
       "timeslot_id": 528,
-      "subject_id": "MAT5",
+      "subject_id": "LEN5",
       "teacher_id": 13
     },
     {
       "id": 570,
       "timeslot_id": 529,
-      "subject_id": "ING5",
+      "subject_id": "ART5",
       "teacher_id": 14
     },
     {
       "id": 571,
       "timeslot_id": 530,
-      "subject_id": "ING6",
+      "subject_id": "NAT6",
       "teacher_id": 16
     },
     {
@@ -10998,32 +10998,32 @@
     {
       "id": 575,
       "timeslot_id": 534,
-      "subject_id": "MUS1",
-      "teacher_id": 3
+      "subject_id": "ING1",
+      "teacher_id": 2
     },
     {
       "id": 576,
       "timeslot_id": 535,
-      "subject_id": "DE3",
+      "subject_id": "CRR3",
       "teacher_id": 17
     },
     {
       "id": 577,
       "timeslot_id": 536,
-      "subject_id": "DE3",
+      "subject_id": "CRR3",
       "teacher_id": 18
     },
     {
       "id": 578,
       "timeslot_id": 537,
-      "subject_id": "CRR4",
+      "subject_id": "CA4",
       "teacher_id": 20
     },
     {
       "id": 579,
       "timeslot_id": 538,
-      "subject_id": "DE4",
-      "teacher_id": 19
+      "subject_id": "INGI4",
+      "teacher_id": 7
     },
     {
       "id": 580,
@@ -11046,8 +11046,8 @@
     {
       "id": 583,
       "timeslot_id": 542,
-      "subject_id": "EF2",
-      "teacher_id": 4
+      "subject_id": "MUS2",
+      "teacher_id": 3
     },
     {
       "id": 584,
@@ -11058,38 +11058,38 @@
     {
       "id": 585,
       "timeslot_id": 544,
-      "subject_id": "ATE3",
-      "teacher_id": 9
+      "subject_id": "EF3",
+      "teacher_id": 4
     },
     {
       "id": 586,
-      "timeslot_id": 544,
-      "subject_id": "REL3",
-      "teacher_id": 5
-    },
-    {
-      "id": 587,
       "timeslot_id": 545,
-      "subject_id": "MAT4",
+      "subject_id": "LEN4",
       "teacher_id": 10
     },
     {
-      "id": 588,
+      "id": 587,
       "timeslot_id": 546,
       "subject_id": "SOC4",
       "teacher_id": 12
     },
     {
-      "id": 589,
+      "id": 588,
       "timeslot_id": 547,
-      "subject_id": "LEN5",
+      "subject_id": "MAT5",
       "teacher_id": 13
+    },
+    {
+      "id": 589,
+      "timeslot_id": 548,
+      "subject_id": "ATE5",
+      "teacher_id": 14
     },
     {
       "id": 590,
       "timeslot_id": 548,
-      "subject_id": "SOC5",
-      "teacher_id": 14
+      "subject_id": "REL5",
+      "teacher_id": 5
     },
     {
       "id": 591,
@@ -11106,7 +11106,7 @@
     {
       "id": 593,
       "timeslot_id": 551,
-      "subject_id": "LEN6",
+      "subject_id": "SOC6",
       "teacher_id": 23
     },
     {
@@ -11118,32 +11118,32 @@
     {
       "id": 595,
       "timeslot_id": 553,
-      "subject_id": "ING1",
+      "subject_id": "NAT1",
       "teacher_id": 2
     },
     {
       "id": 596,
       "timeslot_id": 554,
-      "subject_id": "DE3",
+      "subject_id": "CA3",
       "teacher_id": 17
     },
     {
       "id": 597,
       "timeslot_id": 555,
-      "subject_id": "DE3",
+      "subject_id": "CA3",
       "teacher_id": 18
     },
     {
       "id": 598,
       "timeslot_id": 556,
-      "subject_id": "CA4",
-      "teacher_id": 20
+      "subject_id": "INGI4",
+      "teacher_id": 7
     },
     {
       "id": 599,
       "timeslot_id": 557,
-      "subject_id": "INGI4",
-      "teacher_id": 7
+      "subject_id": "CA4",
+      "teacher_id": 20
     },
     {
       "id": 600,
@@ -11154,7 +11154,7 @@
     {
       "id": 601,
       "timeslot_id": 559,
-      "subject_id": "CA5",
+      "subject_id": "DE5",
       "teacher_id": 22
     },
     {
@@ -11166,8 +11166,8 @@
     {
       "id": 603,
       "timeslot_id": 561,
-      "subject_id": "MUS2",
-      "teacher_id": 3
+      "subject_id": "EF2",
+      "teacher_id": 4
     },
     {
       "id": 604,
@@ -11184,25 +11184,25 @@
     {
       "id": 606,
       "timeslot_id": 564,
-      "subject_id": "LEN4",
+      "subject_id": "MAT4",
       "teacher_id": 10
     },
     {
       "id": 607,
       "timeslot_id": 565,
-      "subject_id": "EF4",
-      "teacher_id": 4
+      "subject_id": "MUS4",
+      "teacher_id": 3
     },
     {
       "id": 608,
       "timeslot_id": 566,
-      "subject_id": "MAT5",
+      "subject_id": "SOC5",
       "teacher_id": 13
     },
     {
       "id": 609,
       "timeslot_id": 567,
-      "subject_id": "NAT5",
+      "subject_id": "ING5",
       "teacher_id": 14
     },
     {
@@ -11214,14 +11214,14 @@
     {
       "id": 611,
       "timeslot_id": 569,
-      "subject_id": "ART6",
-      "teacher_id": 16
+      "subject_id": "NAT6",
+      "teacher_id": 23
     },
     {
       "id": 612,
       "timeslot_id": 570,
-      "subject_id": "MAT6",
-      "teacher_id": 23
+      "subject_id": "ING6",
+      "teacher_id": 16
     }
   ],
   "config": {
@@ -11252,7 +11252,7 @@
       "position": 3,
       "label": "RECREO",
       "time_range": "10:30 - 11:00",
-      "color": "#fef9c3"
+      "color": "#ffffff"
     },
     {
       "id": 2,
@@ -11260,7 +11260,7 @@
       "position": 6,
       "label": "COMEDOR",
       "time_range": "12:30 - 14:30",
-      "color": "#e0f2fe"
+      "color": "#ffffff"
     },
     {
       "id": 3,
@@ -11268,7 +11268,7 @@
       "position": 3,
       "label": "RECREO",
       "time_range": "10:30 - 11:00",
-      "color": "#fef9c3"
+      "color": "#ffffff"
     },
     {
       "id": 4,
@@ -11284,50 +11284,52 @@
       "position": 7,
       "label": "COMIDA",
       "time_range": "13:30 - 14:30",
-      "color": "#e0f2fe"
+      "color": "#ffffff"
     }
   ],
+  "teacher_fixed_slot_labels": [],
+  "course_fixed_slot_labels": [],
   "teacher_busy_slots": [
     {
       "id": 1,
       "teacher_id": 10,
       "day": 2,
-      "hour": 3,
+      "hour": 2,
       "slot_type": "coordinacion"
     },
     {
       "id": 2,
       "teacher_id": 10,
       "day": 3,
-      "hour": 3,
+      "hour": 0,
       "slot_type": "coordinacion"
     },
     {
       "id": 3,
       "teacher_id": 13,
-      "day": 1,
+      "day": 0,
       "hour": 5,
       "slot_type": "coordinacion"
     },
     {
       "id": 4,
       "teacher_id": 13,
-      "day": 3,
-      "hour": 0,
+      "day": 1,
+      "hour": 5,
       "slot_type": "coordinacion"
     },
     {
       "id": 5,
       "teacher_id": 16,
       "day": 0,
-      "hour": 1,
+      "hour": 5,
       "slot_type": "coordinacion"
     },
     {
       "id": 6,
       "teacher_id": 16,
-      "day": 0,
-      "hour": 2,
+      "day": 1,
+      "hour": 0,
       "slot_type": "coordinacion"
     }
   ],
@@ -11368,5 +11370,6 @@
       ],
       "shared_hours": null
     }
-  ]
+  ],
+  "support_assignments": []
 }
