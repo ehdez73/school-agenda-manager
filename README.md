@@ -1,5 +1,7 @@
 # Agenda — Scheduling app
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/ehdez73/school-agenda-manager)
+
 This repository is a pet project created to tackle a constraint programming problem using Google OR-Tools in a "vibe coding" style — exploratory, iterative, and playground-driven development. The goal is to model school timetabling constraints (teachers, groups, subjects, and timeslots) and experiment with CP-SAT to find feasible weekly schedules.
 
 This repository contains a small web application that generates weekly timetables for a school. It includes:
