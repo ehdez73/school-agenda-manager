@@ -307,6 +307,7 @@ class FixedSlot(Base):
     position = Column(Integer, nullable=False)
     label = Column(String(200), nullable=False)
     time_range = Column(String(50), nullable=False)
+    color = Column(String(7), nullable=False, default="#f1f5f9")
 
     def __repr__(self):
         return (
@@ -321,7 +322,67 @@ class FixedSlot(Base):
             "position": self.position,
             "label": self.label,
             "time_range": self.time_range,
+            "color": self.color,
         }
+
+
+class TeacherFixedSlotLabel(Base):
+    """
+    Per-teacher per-day override for fixed slot labels.
+    Allows each teacher to customise the text displayed in a specific
+    day cell of a fixed slot row. When no entry exists the default
+    FixedSlot label is used.
+    """
+
+    __tablename__ = "teacher_fixed_slot_labels"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "teacher_id", "fixed_slot_id", "day",
+            name="uq_teacher_fixed_slot_day",
+        ),
+    )
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    teacher_id = Column(
+        Integer, ForeignKey("teachers.id", ondelete="CASCADE"), nullable=False
+    )
+    fixed_slot_id = Column(
+        Integer, ForeignKey("fixed_slots.id", ondelete="CASCADE"), nullable=False
+    )
+    day = Column(Integer, nullable=False)
+    label = Column(String(200), nullable=False, default="")
+
+    teacher = relationship("Teacher", backref="fixed_slot_labels")
+    fixed_slot = relationship("FixedSlot")
+
+
+class CourseFixedSlotLabel(Base):
+    """
+    Per-course-line per-day override for fixed slot labels.
+    Allows each course line to customise the text displayed in a specific
+    day cell of a fixed slot row. When no entry exists the default
+    FixedSlot label is used.
+    """
+
+    __tablename__ = "course_fixed_slot_labels"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "course_line", "fixed_slot_id", "day",
+            name="uq_course_fixed_slot_day",
+        ),
+    )
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    course_line = Column(String(50), nullable=False, index=True)
+    fixed_slot_id = Column(
+        Integer, ForeignKey("fixed_slots.id", ondelete="CASCADE"), nullable=False
+    )
+    day = Column(Integer, nullable=False)
+    label = Column(String(200), nullable=False, default="")
+
+    fixed_slot = relationship("FixedSlot")
 
 
 class TeacherBusySlot(Base):

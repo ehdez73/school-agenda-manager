@@ -1376,12 +1376,12 @@
       "linked_subject_id": "SOC6",
       "teachers": [
         {
-          "id": 23,
-          "name": "Desdoble 6º"
-        },
-        {
           "id": 16,
           "name": "Tutor 6ºB"
+        },
+        {
+          "id": 23,
+          "name": "Desdoble 6º"
         }
       ],
       "included_lines": null
@@ -1484,12 +1484,12 @@
       "linked_subject_id": "NAT6",
       "teachers": [
         {
-          "id": 23,
-          "name": "Desdoble 6º"
-        },
-        {
           "id": 16,
           "name": "Tutor 6ºB"
+        },
+        {
+          "id": 23,
+          "name": "Desdoble 6º"
         }
       ],
       "included_lines": null
@@ -2748,18 +2748,9 @@
         "LEN6"
       ],
       "teacher_subject_lines": {
-        "ATE6": [
-          0,
-          1
-        ],
-        "LEN6": [
-          0,
-          1
-        ],
-        "MAT6": [
-          0,
-          1
-        ]
+        "ATE6": null,
+        "MAT6": null,
+        "LEN6": null
       },
       "preferences": "{}",
       "coordination_hours": 0,
@@ -2781,12 +2772,8 @@
       "teacher_subject_lines": {
         "ART6": null,
         "ING6": null,
-        "NAT6": [
-          0
-        ],
-        "SOC6": [
-          0
-        ]
+        "NAT6": null,
+        "SOC6": null
       },
       "preferences": "{}",
       "coordination_hours": 2,
@@ -2947,20 +2934,10 @@
       ],
       "teacher_subject_lines": {
         "EF6": null,
-        "LEN6": [
-          2
-        ],
-        "MAT6": [
-          2
-        ],
-        "NAT6": [
-          1,
-          2
-        ],
-        "SOC6": [
-          1,
-          2
-        ]
+        "MAT6": null,
+        "LEN6": null,
+        "NAT6": null,
+        "SOC6": null
       },
       "preferences": "{}",
       "coordination_hours": 0,
@@ -11251,40 +11228,35 @@
       "slot_type": "course",
       "position": 3,
       "label": "RECREO",
-      "time_range": "10:30 - 11:00",
-      "color": "#fef9c3"
+      "time_range": "10:30 - 11:00"
     },
     {
       "id": 2,
       "slot_type": "course",
       "position": 6,
       "label": "COMEDOR",
-      "time_range": "12:30 - 14:30",
-      "color": "#e0f2fe"
+      "time_range": "12:30 - 14:30"
     },
     {
       "id": 3,
       "slot_type": "teacher",
       "position": 3,
       "label": "RECREO",
-      "time_range": "10:30 - 11:00",
-      "color": "#fef9c3"
+      "time_range": "10:30 - 11:00"
     },
     {
       "id": 4,
       "slot_type": "teacher",
       "position": 6,
       "label": "EXCLUSIVA",
-      "time_range": "12:30 - 13:30",
-      "color": "#f3e8ff"
+      "time_range": "12:30 - 13:30"
     },
     {
       "id": 5,
       "slot_type": "teacher",
       "position": 7,
       "label": "COMIDA",
-      "time_range": "13:30 - 14:30",
-      "color": "#e0f2fe"
+      "time_range": "13:30 - 14:30"
     }
   ],
   "teacher_busy_slots": [
@@ -11367,6 +11339,35 @@
         "C"
       ],
       "shared_hours": null
+    }
+  ],
+  "support_assignments": [
+    {
+      "id": 1,
+      "teacher_id": 23,
+      "day": 1,
+      "hour": 0,
+      "subject_id": "MAT1",
+      "course_id": "1º",
+      "line": 0
+    },
+    {
+      "id": 2,
+      "teacher_id": 23,
+      "day": 0,
+      "hour": 1,
+      "subject_id": "LEN1",
+      "course_id": "1º",
+      "line": 0
+    },
+    {
+      "id": 3,
+      "teacher_id": 11,
+      "day": 0,
+      "hour": 1,
+      "subject_id": "ART1",
+      "course_id": "1º",
+      "line": 1
     }
   ]
 }

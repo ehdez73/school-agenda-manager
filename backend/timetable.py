@@ -69,8 +69,15 @@ def _build_colored_label_html_with_data(label, subject_color, data_attrs, extra_
     )
 
 
-def _build_fixed_slot_html(label):
+def _build_fixed_slot_html(label, color=None):
     safe_label = escape(label)
+    safe_color = _safe_hex_color(color)
+    if safe_color:
+        return (
+            f"<span class=\"tt-fixed-slot tt-subject-entry\" "
+            f"style=\"background-color: {safe_color};\">"
+            f"{safe_label}</span>"
+        )
     return (
         f"<span class=\"tt-fixed-slot\">{safe_label}</span>"
     )
@@ -174,6 +181,7 @@ def generate_markdown_timetable_by_course(
     tutors_dict,
     cfg_dict=None,
     course_fixed_slots=None,
+    course_fixed_slot_labels=None,
 ):
     """
     Generates markdown tables for each course line without requiring database session.
@@ -188,10 +196,15 @@ def generate_markdown_timetable_by_course(
                  - day_indices: List of day indices
                  - days_per_week: Number of days per week
         course_fixed_slots: Optional list of FixedSlot objects for courses.
+        course_fixed_slot_labels: Optional dict of per-course-line label overrides.
+            {course_line: {fixed_slot_id: {day_index: label}}}
 
     Returns:
         str: The generated markdown string.
     """
+    if course_fixed_slot_labels is None:
+        course_fixed_slot_labels = {}
+
     all_hours = set()
     for course in timetable.values():
         all_hours.update(hour for (hour, _) in course.keys())
@@ -235,13 +248,28 @@ def generate_markdown_timetable_by_course(
         markdown.append(header)
         markdown.append(separator)
 
-        fixed_slots_for_course = [
-            fs for fs in fixed_slots_sorted
-        ]
-        for row_type, data in _interleave_rows(sorted_hours, fixed_slots_for_course):
+        line_overrides = course_fixed_slot_labels.get(course_line, {})
+        for row_type, data in _interleave_rows(sorted_hours, fixed_slots_sorted):
             if row_type == "fixed":
                 fs = data
-                row = [_build_fixed_slot_html(fs.label) for _ in range(len(weekdays))]
+                slot_overrides = line_overrides.get(fs.id, {})
+                safe_color = _safe_hex_color(fs.color)
+                row = []
+                for day_index in range(len(weekdays)):
+                    override = slot_overrides.get(day_index)
+                    label = override if override is not None else fs.label
+                    safe_label = escape(label)
+                    span_class = "tt-fixed-slot tt-subject-entry" if safe_color else "tt-fixed-slot"
+                    span_style = f"background-color: {safe_color};" if safe_color else ""
+                    row.append(
+                        f'<span class="{span_class}" '
+                        f'style="{span_style}" '
+                        f'data-course-line="{escape(course_line, quote=True)}" '
+                        f'data-day="{day_index}" '
+                        f'data-fixed-slot-id="{fs.id}" '
+                        f'data-default-label="{escape(fs.label, quote=True)}">'
+                        f'{safe_label}</span>'
+                    )
                 hour_label = fs.time_range
             else:
                 hour = data
@@ -289,9 +317,17 @@ def print_markdown_timetable_from_assignments(session) -> str:
 
     course_fixed_slots = session.query(FixedSlot).filter_by(slot_type="course").all()
 
+    # Load per-course-line fixed slot label overrides
+    from .models import CourseFixedSlotLabel
+    override_rows = session.query(CourseFixedSlotLabel).all()
+    course_fixed_slot_labels = {}
+    for row in override_rows:
+        course_fixed_slot_labels.setdefault(row.course_line, {}).setdefault(row.fixed_slot_id, {})[row.day] = row.label
+
     return generate_markdown_timetable_by_course(
         timetable, tutors_dict, cfg_dict,
         course_fixed_slots=course_fixed_slots,
+        course_fixed_slot_labels=course_fixed_slot_labels,
     )
 
 
@@ -477,6 +513,8 @@ def generate_markdown_timetable_by_teacher(
     teachers_support=None,
     cfg_dict=None,
     teacher_fixed_slots=None,
+    teacher_fixed_labels=None,
+    teacher_id_map=None,
 ):
     """
     Generates markdown tables of the timetable for each teacher without requiring database session.
@@ -490,6 +528,9 @@ def generate_markdown_timetable_by_teacher(
                  - day_indices: List of day indices
                  - days_per_week: Number of days per week
         teacher_fixed_slots: Optional list of FixedSlot objects for teachers.
+        teacher_fixed_labels: Optional dict of override labels:
+            {teacher_name: {fixed_slot_id: {day_index: label_string}}}
+        teacher_id_map: Optional dict mapping teacher_name to teacher_id.
 
     Returns:
         str: The generated markdown string.
@@ -555,10 +596,31 @@ def generate_markdown_timetable_by_teacher(
         fixed_slots_for_teacher = [
             fs for fs in fixed_slots_sorted
         ]
+        teacher_overrides = (teacher_fixed_labels or {}).get(teacher_name, {})
         for row_type, data in _interleave_rows(sorted_hours, fixed_slots_for_teacher):
             if row_type == "fixed":
                 fs = data
-                row = [_build_fixed_slot_html(fs.label) for _ in range(len(weekdays))]
+                row = []
+                slot_overrides = teacher_overrides.get(fs.id, {})
+                teacher_id = (teacher_id_map or {}).get(teacher_name, "")
+                safe_color = _safe_hex_color(fs.color)
+                for day_index in range(len(weekdays)):
+                    override = slot_overrides.get(day_index)
+                    label = override if override is not None else fs.label
+                    safe_label = escape(label)
+                    escaped_teacher = escape(teacher_name, quote=True)
+                    span_class = "tt-fixed-slot tt-subject-entry" if safe_color else "tt-fixed-slot"
+                    span_style = f"background-color: {safe_color};" if safe_color else ""
+                    row.append(
+                        f'<span class="{span_class}" '
+                        f'style="{span_style}" '
+                        f'data-teacher="{escaped_teacher}" '
+                        f'data-teacher-id="{teacher_id}" '
+                        f'data-day="{day_index}" '
+                        f'data-fixed-slot-id="{fs.id}" '
+                        f'data-default-label="{escape(fs.label, quote=True)}">'
+                        f'{safe_label}</span>'
+                    )
                 hour_label = fs.time_range
             else:
                 hour = data
@@ -607,10 +669,12 @@ def print_markdown_timetable_per_teacher(session) -> str:
         teachers_coordination[data['name']] = data['coordination_hours']
         teachers_support[data['name']] = data['support_hours']
 
-    # Build a mapping of teacher name -> tutor_group (if any)
+    # Build mappings of teacher name -> tutor_group and teacher name -> teacher_id
     teachers_tutors = {}
+    teacher_id_map = {}
     teachers = session.query(Teacher).all()
     for teacher in teachers:
+        teacher_id_map[teacher.name] = teacher.id
         tutor_groups = normalize_tutor_groups(teacher.tutor_group)
         if tutor_groups:
             teachers_tutors[teacher.name] = ", ".join(tutor_groups)
@@ -620,6 +684,14 @@ def print_markdown_timetable_per_teacher(session) -> str:
 
     teacher_fixed_slots = session.query(FixedSlot).filter_by(slot_type="teacher").all()
 
+    # Load per-teacher fixed slot label overrides
+    from .models import TeacherFixedSlotLabel
+    override_rows = session.query(TeacherFixedSlotLabel).all()
+    teacher_fixed_labels = {}
+    for row in override_rows:
+        t_name = row.teacher.name
+        teacher_fixed_labels.setdefault(t_name, {}).setdefault(row.fixed_slot_id, {})[row.day] = row.label
+
     return generate_markdown_timetable_by_teacher(
         teacher_timetable, teachers_info, teachers_tutors,
         teachers_assigned=teachers_assigned,
@@ -627,6 +699,8 @@ def print_markdown_timetable_per_teacher(session) -> str:
         teachers_support=teachers_support,
         cfg_dict=cfg_dict,
         teacher_fixed_slots=teacher_fixed_slots,
+        teacher_fixed_labels=teacher_fixed_labels,
+        teacher_id_map=teacher_id_map,
     )
 
 

@@ -62,6 +62,7 @@ def create_fixed_slot():
             position=data.position,
             label=data.label,
             time_range=data.time_range,
+            color=data.color,
         )
         session.add(slot)
         session.commit()
@@ -99,7 +100,7 @@ def update_fixed_slot(slot_id):
             }), 409
 
         changed = False
-        for key in ("slot_type", "position", "label", "time_range"):
+        for key in ("slot_type", "position", "label", "time_range", "color"):
             val = getattr(data, key, None)
             if val is not None:
                 setattr(slot, key, val)

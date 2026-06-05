@@ -37,6 +37,7 @@
         "position_placeholder": "e.g. 2",
         "label_placeholder": "e.g. Recess",
         "time_range_placeholder": "e.g. 10:00-11:00",
+        "color": "Color",
         "no_slots": "No fixed slots defined",
         "position_error": "Position must be a positive number"
     },
@@ -237,7 +238,12 @@
         "support_removed": "Support removed successfully",
         "coordination_label_short": "coord.",
         "support_label_short": "support",
-        "edit_teacher": "Edit teacher"
+        "edit_teacher": "Edit teacher",
+        "fixed_label_modal_title": "Edit fixed slot label",
+        "fixed_label_modal_label": "Label",
+        "fixed_label_modal_save": "Save",
+        "fixed_label_modal_reset": "Reset to default",
+        "fixed_label_modal_clear": "Clear"
     },
     "subjects": {
         "title": "Subjects",

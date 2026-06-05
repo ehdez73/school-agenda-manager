@@ -84,6 +84,7 @@ class FixedSlotCreate(BaseModel):
     position: int = Field(..., ge=1)
     label: str = Field(..., min_length=1)
     time_range: str = Field(..., min_length=1)
+    color: str = "#f1f5f9"
 
 
 class FixedSlotUpdate(BaseModel):
@@ -91,10 +92,41 @@ class FixedSlotUpdate(BaseModel):
     position: Optional[int] = Field(None, ge=1)
     label: Optional[str] = Field(None, min_length=1)
     time_range: Optional[str] = Field(None, min_length=1)
+    color: Optional[str] = None
 
 
 class FixedSlotResponse(FixedSlotCreate):
     id: int
+
+
+class TeacherFixedSlotLabelUpsert(BaseModel):
+    teacher_id: int = Field(..., ge=1)
+    fixed_slot_id: int = Field(..., ge=1)
+    day: int = Field(..., ge=0)
+    label: str = Field(default="", max_length=200)
+
+
+class TeacherFixedSlotLabelResponse(BaseModel):
+    id: int
+    teacher_id: int
+    fixed_slot_id: int
+    day: int
+    label: str
+
+
+class CourseFixedSlotLabelUpsert(BaseModel):
+    course_line: str = Field(..., min_length=1)
+    fixed_slot_id: int = Field(..., ge=1)
+    day: int = Field(..., ge=0)
+    label: str = Field(default="", max_length=200)
+
+
+class CourseFixedSlotLabelResponse(BaseModel):
+    id: int
+    course_line: str
+    fixed_slot_id: int
+    day: int
+    label: str
 
 
 class JointClassSchema(BaseModel):

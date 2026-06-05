@@ -13,6 +13,8 @@ from .routes.export_import import export_import_bp
 from .routes.docs import docs_bp
 from .routes.joint_classes import joint_classes_bp
 from .routes.support import support_bp
+from .routes.teacher_fixed_slot_labels import teacher_fixed_slot_labels_bp
+from .routes.course_fixed_slot_labels import course_fixed_slot_labels_bp
 
 from .populate_db import populate_db
 from .routes.timetable import timetable_bp
@@ -61,3 +63,5 @@ app.register_blueprint(config_bp)
 app.register_blueprint(docs_bp)
 app.register_blueprint(joint_classes_bp)
 app.register_blueprint(support_bp)
+app.register_blueprint(teacher_fixed_slot_labels_bp)
+app.register_blueprint(course_fixed_slot_labels_bp)

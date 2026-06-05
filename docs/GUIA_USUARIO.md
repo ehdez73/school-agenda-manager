@@ -123,7 +123,11 @@ Define la estructura temporal del centro:
 - **Asignación de días**: qué día de la semana (lunes a domingo) corresponde a cada posición del horario.
 - **Nº clases por día**: número de tramos horarios por día lectivo.
 - **Nombres de horas**: etiquetas personalizadas para cada tramo (ej. "8:30-9:30", "Recreo", ...).
-- **Bloques fijos**: tramos que se repiten todas las semanas (ej. recreo, guardias). Se muestran en el horario pero no participan en la asignación de clases.
+- **Bloques fijos**: tramos que se repiten todas las semanas (ej. recreo, guardias). Se muestran en el horario pero no participan en la asignación de clases. Puedes añadir, editar y eliminar bloques fijos desde esta pantalla. Cada bloque tiene:
+  - **Posición**: número de orden en el horario.
+  - **Etiqueta**: texto que se muestra (ej. "Recreo", "Guardia").
+  - **Rango horario**: intervalo opcional (ej. "10:00-11:00").
+  - **Color**: color de fondo, seleccionable con un selector de color.
 
 Guarda siempre los cambios con el botón **Guardar**.
 
@@ -422,7 +426,11 @@ Las horas de coordinación se asignan automáticamente por el sistema después d
    - El panel lateral permite navegar rápidamente entre grupos o docentes.
    - Activa o desactiva **Mostrar filas fijas** para incluir u ocultar recreos u otros bloques fijos.
 5. Puedes **Descargar Markdown** para guardar el horario en un archivo, o **Imprimir** para obtener una vista para papel.
-6. Si hace falta, corrige datos y vuelve a generar.
+6. En la vista **por curso** o **por docente**, haz clic sobre cualquier **bloque fijo** (recreo, guardia, etc.) para editar su texto en ese día y grupo o docente concreto. Se abre un modal que permite:
+   - **Guardar** un texto personalizado.
+   - **Restaurar el valor por defecto** de la configuración.
+   - **Limpiar** el texto (dejarlo vacío).
+7. Si hace falta, corrige datos y vuelve a generar.
 
 > **Cuándo usar Recrear Horarios:**
 > - Tras cambios importantes en cursos, packs o disponibilidades.

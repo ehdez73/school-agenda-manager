@@ -586,6 +586,16 @@
   color: var(--color-text-muted);
   border-radius: 4px;
   letter-spacing: 0.5px;
+  cursor: pointer;
+}
+
+.tt-fixed-slot.tt-subject-entry {
+  padding: 0.2rem 0.1rem;
+  font-weight: 600;
+  font-style: normal;
+  color: var(--color-text);
+  letter-spacing: normal;
+  border-radius: 0;
 }
 
 .timetable-fixed-toggle {

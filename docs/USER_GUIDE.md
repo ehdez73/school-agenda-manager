@@ -123,7 +123,11 @@ Defines the school's time structure:
 - **Day assignment**: which weekday (Monday to Sunday) corresponds to each position in the timetable.
 - **Classes per day**: number of time slots per school day.
 - **Hour names**: custom labels for each slot (e.g. "8:30-9:30", "Recess", ...).
-- **Fixed slots**: recurring weekly blocks (e.g. recess, duty). They appear in the timetable but do not participate in class assignment.
+- **Fixed slots**: recurring weekly blocks (e.g. recess, duty). They appear in the timetable but do not participate in class assignment. You can add, edit, and delete fixed slots from this screen. Each fixed slot has:
+  - **Position**: order number in the timetable.
+  - **Label**: display text (e.g. "Recess", "Duty").
+  - **Time range**: optional interval (e.g. "10:00-11:00").
+  - **Color**: background color, selectable with a color picker.
 
 Always save changes with the **Save** button.
 
@@ -422,7 +426,11 @@ Coordination hours are automatically assigned by the system after generation **o
    - The sidebar provides quick navigation between groups or teachers.
    - Toggle **Show course/teacher fixed slots** to include or hide recess and other fixed blocks.
 5. You can **Download Markdown** to save the timetable as a file, or **Print** for a paper-friendly view.
-6. If needed, correct source data and generate again.
+6. In the **by course** or **by teacher** view, click on any **fixed slot** (recess, duty, etc.) to edit its label for that specific group or teacher and day. A modal opens allowing you to:
+   - **Save** a custom label.
+   - **Reset to default** from the configuration.
+   - **Clear** the label (leave it empty).
+7. If needed, correct source data and generate again.
 
 > **When to use Recreate Timetables:**
 > - After major changes in courses, packs, or availability.

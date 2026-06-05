@@ -214,6 +214,19 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectT
   const [selectedSubjectIndex, setSelectedSubjectIndex] = useState(0);
   const [hourLabel, setHourLabel] = useState(null);
   const [savingSupport, setSavingSupport] = useState(false);
+
+  const [fixedSlotLabelModal, setFixedSlotLabelModal] = useState({
+    open: false,
+    mode: 'teacher',
+    teacherName: null,
+    teacherId: null,
+    courseLine: null,
+    day: null,
+    fixedSlotId: null,
+    currentLabel: '',
+    defaultLabel: '',
+  });
+  const [savingFixedLabel, setSavingFixedLabel] = useState(false);
   const timetableRef = useRef();
   const courseSelectorRef = useRef(null);
   const teacherSelectorRef = useRef(null);
@@ -775,6 +788,118 @@ function hasConflictChild(node) {
     }
   };
 
+  const openFixedSlotLabelModal = (opts) => {
+    const { mode, teacherName, teacherId, courseLine, day, fixedSlotId, defaultLabel, currentLabel } = opts;
+    setFixedSlotLabelModal({
+      open: true,
+      mode: mode || 'teacher',
+      teacherName,
+      teacherId,
+      courseLine,
+      day,
+      fixedSlotId,
+      currentLabel,
+      defaultLabel,
+    });
+    setSavingFixedLabel(false);
+  };
+
+  const handleSaveFixedSlotLabel = async () => {
+    const { mode, teacherId, courseLine, fixedSlotId, day } = fixedSlotLabelModal;
+    const newLabel = fixedSlotLabelModal.currentLabel;
+    setSavingFixedLabel(true);
+    try {
+      if (mode === 'course') {
+        await api.post('/course-fixed-slot-labels', {
+          course_line: courseLine,
+          fixed_slot_id: fixedSlotId,
+          day,
+          label: newLabel,
+        });
+      } else {
+        if (!teacherId) return;
+        await api.post('/teacher-fixed-slot-labels', {
+          teacher_id: teacherId,
+          fixed_slot_id: fixedSlotId,
+          day,
+          label: newLabel,
+        });
+      }
+      setFixedSlotLabelModal(prev => ({ ...prev, open: false }));
+      await refreshTimetableSilent();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSavingFixedLabel(false);
+    }
+  };
+
+  const handleResetFixedSlotLabel = async () => {
+    const { mode, teacherId, courseLine, fixedSlotId, day, defaultLabel } = fixedSlotLabelModal;
+    setSavingFixedLabel(true);
+    try {
+      if (mode === 'course') {
+        if (defaultLabel) {
+          await api.post('/course-fixed-slot-labels', {
+            course_line: courseLine,
+            fixed_slot_id: fixedSlotId,
+            day,
+            label: defaultLabel,
+          });
+        } else {
+          await api.del(`/course-fixed-slot-labels?course_line=${courseLine}&fixed_slot_id=${fixedSlotId}&day=${day}`);
+        }
+      } else {
+        if (!teacherId) return;
+        if (defaultLabel) {
+          await api.post('/teacher-fixed-slot-labels', {
+            teacher_id: teacherId,
+            fixed_slot_id: fixedSlotId,
+            day,
+            label: defaultLabel,
+          });
+        } else {
+          await api.del(`/teacher-fixed-slot-labels?teacher_id=${teacherId}&fixed_slot_id=${fixedSlotId}&day=${day}`);
+        }
+      }
+      setFixedSlotLabelModal(prev => ({ ...prev, open: false }));
+      await refreshTimetableSilent();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSavingFixedLabel(false);
+    }
+  };
+
+  const handleClearFixedSlotLabel = async () => {
+    const { mode, teacherId, courseLine, fixedSlotId, day } = fixedSlotLabelModal;
+    setSavingFixedLabel(true);
+    try {
+      if (mode === 'course') {
+        await api.post('/course-fixed-slot-labels', {
+          course_line: courseLine,
+          fixed_slot_id: fixedSlotId,
+          day,
+          label: '',
+        });
+      } else {
+        if (!teacherId) return;
+        await api.post('/teacher-fixed-slot-labels', {
+          teacher_id: teacherId,
+          fixed_slot_id: fixedSlotId,
+          day,
+          label: '',
+        });
+      }
+      setFixedSlotLabelModal(prev => ({ ...prev, open: false }));
+      await refreshTimetableSilent();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSavingFixedLabel(false);
+    }
+  };
+
   const handleTimetableClick = (e) => {
     const gap = e.target.closest('.tt-gap');
     if (gap) {
@@ -791,6 +916,37 @@ function hasConflictChild(node) {
       const day = parseInt(supportEntry.dataset.day, 10);
       const hour = parseInt(supportEntry.dataset.hour, 10);
       openSupportModal(teacherName, day, hour, supportId);
+      return;
+    }
+    const fixedSlot = e.target.closest('.tt-fixed-slot');
+    if (fixedSlot) {
+      const day = parseInt(fixedSlot.dataset.day, 10);
+      const fixedSlotId = parseInt(fixedSlot.dataset.fixedSlotId, 10);
+      const defaultLabel = fixedSlot.dataset.defaultLabel || '';
+      const currentLabel = fixedSlot.textContent || '';
+      const courseLine = fixedSlot.dataset.courseLine;
+      if (courseLine) {
+        openFixedSlotLabelModal({
+          mode: 'course',
+          courseLine,
+          day,
+          fixedSlotId,
+          defaultLabel,
+          currentLabel,
+        });
+      } else {
+        const teacherName = fixedSlot.dataset.teacher;
+        const teacherId = fixedSlot.dataset.teacherId ? parseInt(fixedSlot.dataset.teacherId, 10) : null;
+        openFixedSlotLabelModal({
+          mode: 'teacher',
+          teacherName,
+          teacherId,
+          day,
+          fixedSlotId,
+          defaultLabel,
+          currentLabel,
+        });
+      }
       return;
     }
   };
@@ -1300,6 +1456,59 @@ function hasConflictChild(node) {
               {savingSupport ? t('timetable.support_modal_saving') : t('timetable.support_modal_assign')}
             </button>
           ) : null}
+        </div>
+      </FormModal>
+      <FormModal
+        open={fixedSlotLabelModal.open}
+        onClose={() => setFixedSlotLabelModal(prev => ({ ...prev, open: false }))}
+        className="form-modal--fixed-label"
+      >
+        <h3>{t('timetable.fixed_label_modal_title') || 'Edit fixed slot label'}</h3>
+        <p>
+          <strong>{fixedSlotLabelModal.mode === 'course' ? fixedSlotLabelModal.courseLine : fixedSlotLabelModal.teacherName}</strong>
+          {' — '}
+          {fixedSlotLabelModal.day != null && t(`day.${fixedSlotLabelModal.day}`)}
+        </p>
+        <div className="form-group">
+          <label className="form-group__label" htmlFor="fixed-label-input">
+            {t('timetable.fixed_label_modal_label') || 'Text'}</label>
+          <input
+            id="fixed-label-input"
+            type="text"
+            className="form-input"
+            value={fixedSlotLabelModal.currentLabel}
+            onChange={(e) => setFixedSlotLabelModal(prev => ({ ...prev, currentLabel: e.target.value }))}
+            maxLength={200}
+          />
+        </div>
+        <div className="form-actions">
+          <button
+            className="btn btn--secondary"
+            onClick={() => setFixedSlotLabelModal(prev => ({ ...prev, open: false }))}
+          >
+            {t('common.cancel')}
+          </button>
+          <button
+            className="btn btn--danger"
+            onClick={handleClearFixedSlotLabel}
+            disabled={savingFixedLabel}
+          >
+            {savingFixedLabel ? '...' : (t('timetable.fixed_label_modal_clear') || 'Clear')}
+          </button>
+          <button
+            className="btn btn--secondary"
+            onClick={handleResetFixedSlotLabel}
+            disabled={savingFixedLabel}
+          >
+            {savingFixedLabel ? '...' : (t('timetable.fixed_label_modal_reset') || 'Reset to default')}
+          </button>
+          <button
+            className="btn btn--primary"
+            onClick={handleSaveFixedSlotLabel}
+            disabled={savingFixedLabel}
+          >
+            {savingFixedLabel ? '...' : (t('timetable.fixed_label_modal_save') || 'Save')}
+          </button>
         </div>
       </FormModal>
     </>

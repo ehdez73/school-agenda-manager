@@ -10,7 +10,7 @@ import './FixedSlotList.css';
 export default function FixedSlotList({ standalone = true }) {
     const [courseSlots, setCourseSlots] = useState([]);
     const [teacherSlots, setTeacherSlots] = useState([]);
-    const [form, setForm] = useState({ position: '', label: '', time_range: '' });
+    const [form, setForm] = useState({ position: '', label: '', time_range: '', color: '#f1f5f9' });
     const [formError, setFormError] = useState('');
     const [showForm, setShowForm] = useState(false);
     const [creatingType, setCreatingType] = useState(null);
@@ -41,6 +41,7 @@ export default function FixedSlotList({ standalone = true }) {
             position: parseInt(form.position, 10),
             label: form.label,
             time_range: form.time_range,
+            color: form.color || '#f1f5f9',
         };
         if (isNaN(payload.position) || payload.position < 1) {
             setFormError(t('fixed_slots.position_error'));
@@ -51,7 +52,7 @@ export default function FixedSlotList({ standalone = true }) {
             : api.post('/fixed-slots', payload);
         action.then(() => {
             fetchSlots();
-            setForm({ position: '', label: '', time_range: '' });
+            setForm({ position: '', label: '', time_range: '', color: '#f1f5f9' });
             setEditingId(null);
             setShowForm(false);
             setSelectedEntity(null);
@@ -64,6 +65,7 @@ export default function FixedSlotList({ standalone = true }) {
             position: String(slot.position),
             label: slot.label,
             time_range: slot.time_range,
+            color: slot.color || '#f1f5f9',
         });
         setEditingId(slot.id);
         setShowForm(false);
@@ -83,7 +85,7 @@ export default function FixedSlotList({ standalone = true }) {
             setDeleteId(null);
             setSelectedEntity(null);
             setEditingId(null);
-            setForm({ position: '', label: '', time_range: '' });
+            setForm({ position: '', label: '', time_range: '', color: '#f1f5f9' });
         }).catch(() => {});
     }
 
@@ -93,7 +95,7 @@ export default function FixedSlotList({ standalone = true }) {
     }
 
     function handleAdd(type) {
-        setForm({ position: '', label: '', time_range: '' });
+        setForm({ position: '', label: '', time_range: '', color: '#f1f5f9' });
         setCreatingType(type);
         setShowForm(true);
         setSelectedEntity(null);
@@ -101,7 +103,7 @@ export default function FixedSlotList({ standalone = true }) {
     }
 
     function handleCloseForm() {
-        setForm({ position: '', label: '', time_range: '' });
+        setForm({ position: '', label: '', time_range: '', color: '#f1f5f9' });
         setEditingId(null);
         setShowForm(false);
         setSelectedEntity(null);
@@ -120,6 +122,7 @@ export default function FixedSlotList({ standalone = true }) {
                         <th>{t('fixed_slots.position')}</th>
                         <th>{t('fixed_slots.time_range')}</th>
                         <th>{t('fixed_slots.label')}</th>
+                        <th>{t('fixed_slots.color')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -128,6 +131,7 @@ export default function FixedSlotList({ standalone = true }) {
                             <td>{s.position}</td>
                             <td>{s.time_range}</td>
                             <td>{s.label}</td>
+                            <td><span className="subject-color-chip" aria-hidden="true" style={{ backgroundColor: s.color || '#f1f5f9' }} /></td>
                         </tr>
                     ))}
                 </tbody>

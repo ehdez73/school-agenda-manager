@@ -20,6 +20,8 @@ from ..models import (
     FixedSlot,
     JointClass,
     SupportAssignment,
+    TeacherFixedSlotLabel,
+    CourseFixedSlotLabel,
 )
 from .. import export_import as shared_export_import
 
@@ -103,6 +105,8 @@ def clear_all_data():
     try:
         # Delete all records from all tables in the correct order (to avoid foreign key constraints)
         session.query(SupportAssignment).delete()
+        session.query(TeacherFixedSlotLabel).delete()
+        session.query(CourseFixedSlotLabel).delete()
         session.query(TimeSlotAssignment).delete()
         session.query(Timeslot).delete()
 

@@ -15,6 +15,8 @@ from .models import (
     TeacherBusySlot,
     JointClass,
     SupportAssignment,
+    TeacherFixedSlotLabel,
+    CourseFixedSlotLabel,
 )
 from .logging_config import build_log_extra
 from .constants import DEFAULT_LOCALE
@@ -974,8 +976,12 @@ def create_timetable(session, progress_callback=None, task_id=None, locale=DEFAU
 
     # Clear support assignments — they are invalid after regeneration
     session.query(SupportAssignment).delete()
+    # Clear teacher fixed slot labels — they reference positions that may no longer be valid
+    session.query(TeacherFixedSlotLabel).delete()
+    # Clear course fixed slot labels for the same reason
+    session.query(CourseFixedSlotLabel).delete()
     session.commit()
-    logger.info("Cleared support assignments for regeneration", extra=build_log_extra(task_id=task_id))
+    logger.info("Cleared support assignments and fixed slot labels for regeneration", extra=build_log_extra(task_id=task_id))
 
     # --- 1. Data Loading ---
     all_teachers = session.query(Teacher).all()

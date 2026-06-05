@@ -37,6 +37,7 @@
         "position_placeholder": "Ej: 2",
         "label_placeholder": "Ej: Recreo",
         "time_range_placeholder": "Ej: 10:00-11:00",
+        "color": "Color",
         "no_slots": "No hay filas fijas definidas",
         "position_error": "La posición debe ser un número positivo"
     },
@@ -237,7 +238,12 @@
         "support_removed": "Apoyo eliminado correctamente",
         "coordination_label_short": "coord.",
         "support_label_short": "apoyo",
-        "edit_teacher": "Editar docente"
+        "edit_teacher": "Editar docente",
+        "fixed_label_modal_title": "Editar texto de celda fija",
+        "fixed_label_modal_label": "Texto",
+        "fixed_label_modal_save": "Guardar",
+        "fixed_label_modal_reset": "Restaurar por defecto",
+        "fixed_label_modal_clear": "Limpiar"
     },
     "subjects": {
         "title": "Asignaturas",

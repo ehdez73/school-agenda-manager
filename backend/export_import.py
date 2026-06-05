@@ -12,6 +12,8 @@ from .models import (
     TeacherBusySlot,
     JointClass,
     SupportAssignment,
+    TeacherFixedSlotLabel,
+    CourseFixedSlotLabel,
     normalize_tutor_groups,
     teacher_subject,
 )
@@ -88,6 +90,28 @@ def dump_db(session):
     data["config"] = cfg.to_dict() if cfg else {}
 
     data["fixed_slots"] = [fs.to_dict() for fs in session.query(FixedSlot).all()]
+
+    data["teacher_fixed_slot_labels"] = [
+        {
+            "id": lbl.id,
+            "teacher_id": lbl.teacher_id,
+            "fixed_slot_id": lbl.fixed_slot_id,
+            "day": lbl.day,
+            "label": lbl.label,
+        }
+        for lbl in session.query(TeacherFixedSlotLabel).all()
+    ]
+
+    data["course_fixed_slot_labels"] = [
+        {
+            "id": lbl.id,
+            "course_line": lbl.course_line,
+            "fixed_slot_id": lbl.fixed_slot_id,
+            "day": lbl.day,
+            "label": lbl.label,
+        }
+        for lbl in session.query(CourseFixedSlotLabel).all()
+    ]
 
     data["teacher_busy_slots"] = [
         {
@@ -176,8 +200,31 @@ def import_payload(session, payload):
             position=fs.get("position"),
             label=fs.get("label"),
             time_range=fs.get("time_range"),
+            color=fs.get("color", "#f1f5f9"),
         )
         session.add(fixed)
+    session.flush()
+
+    # Teacher fixed slot labels
+    for lbl in payload.get("teacher_fixed_slot_labels", []) or []:
+        label = TeacherFixedSlotLabel(
+            teacher_id=lbl.get("teacher_id"),
+            fixed_slot_id=lbl.get("fixed_slot_id"),
+            day=lbl.get("day"),
+            label=lbl.get("label", ""),
+        )
+        session.add(label)
+    session.flush()
+
+    # Course fixed slot labels
+    for lbl in payload.get("course_fixed_slot_labels", []) or []:
+        label = CourseFixedSlotLabel(
+            course_line=lbl.get("course_line"),
+            fixed_slot_id=lbl.get("fixed_slot_id"),
+            day=lbl.get("day"),
+            label=lbl.get("label", ""),
+        )
+        session.add(label)
     session.flush()
 
     # Courses

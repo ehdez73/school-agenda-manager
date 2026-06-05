@@ -48,6 +48,19 @@ export default function FixedSlotForm({ form, setForm, formError, onSubmit, onCa
                     className="subject-input"
                 />
             </label>
+            <label className="subject-label">
+                {t('fixed_slots.color')}
+                <div className="subject-color-row">
+                    <input
+                        name="color"
+                        type="color"
+                        value={form.color || '#f1f5f9'}
+                        onChange={handleChange}
+                        className="subject-color-picker"
+                    />
+                    <span className="subject-color-value">{(form.color || '#f1f5f9').toUpperCase()}</span>
+                </div>
+            </label>
             {formError && <div className="form-error">{formError}</div>}
             <div className="form-actions">
                 <button type="submit" className="btn btn--primary">{t('common.save')}</button>
