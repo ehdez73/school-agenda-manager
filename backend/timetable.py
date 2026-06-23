@@ -182,6 +182,7 @@ def generate_markdown_timetable_by_course(
     cfg_dict=None,
     course_fixed_slots=None,
     course_fixed_slot_labels=None,
+    support_hours_dict=None,
 ):
     """
     Generates markdown tables for each course line without requiring database session.
@@ -230,12 +231,16 @@ def generate_markdown_timetable_by_course(
 
         # Get tutor from the provided dict
         tutor_name = tutors_dict.get(course_line)
+        support_suffix = ""
+        if support_hours_dict and course_line in support_hours_dict:
+            hours = support_hours_dict[course_line]
+            support_suffix = f" - ({hours}h {t('timetable.support_label_short')})"
         if tutor_name:
             markdown.append(
-                f"### {course_label}: {course_line} — {tutor_label}: {tutor_name}"
+                f"### {course_label}: {course_line} — {tutor_label}: {tutor_name}{support_suffix}"
             )
         else:
-            markdown.append(f"### {course_label}: {course_line}")
+            markdown.append(f"### {course_label}: {course_line}{support_suffix}")
 
         day_indices = (
             day_indices_from_cfg
@@ -324,10 +329,18 @@ def print_markdown_timetable_from_assignments(session) -> str:
     for row in override_rows:
         course_fixed_slot_labels.setdefault(row.course_line, {}).setdefault(row.fixed_slot_id, {})[row.day] = row.label
 
+    # Count support hours per course_line
+    support_assignments = session.query(SupportAssignment).all()
+    support_hours_dict = {}
+    for sa in support_assignments:
+        cl = f"{sa.course_id}{chr(ord('A') + sa.line)}"
+        support_hours_dict[cl] = support_hours_dict.get(cl, 0) + 1
+
     return generate_markdown_timetable_by_course(
         timetable, tutors_dict, cfg_dict,
         course_fixed_slots=course_fixed_slots,
         course_fixed_slot_labels=course_fixed_slot_labels,
+        support_hours_dict=support_hours_dict,
     )
 
 

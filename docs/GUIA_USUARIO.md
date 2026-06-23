@@ -421,12 +421,11 @@ Las horas de coordinación se asignan automáticamente por el sistema después d
 1. Ve a **Horarios**.
 2. Pulsa **Generar Horario**. El proceso puede tardar unos segundos.
 3. Espera a la finalización del proceso.
-4. El horario se muestra en dos secciones: **por curso** y **por docente**.
-   - Usa los filtros de búsqueda y los selectores de la parte superior para elegir qué cursos o docentes ver.
-   - El panel lateral permite navegar rápidamente entre grupos o docentes.
-   - Activa o desactiva **Mostrar filas fijas** para incluir u ocultar recreos u otros bloques fijos.
+4. El horario se organiza en dos pestañas:
+   - **General**: muestra el horario completo con las vistas por curso y por docente. Cada encabezado de curso muestra el tutor y el total de horas de apoyo (ej. `6ºA - (3h apoyo)`). Usa el panel lateral para navegar entre grupos o docentes. Usa los filtros de búsqueda para elegir qué mostrar. Activa o desactiva **Mostrar filas fijas** para incluir u ocultar recreos y otros bloques fijos.
+   - **Profesorado**: muestra una cuadrícula compacta por docente con su horario semanal, indicando qué asignatura imparte en cada hora.
 5. Puedes **Descargar Markdown** para guardar el horario en un archivo, o **Imprimir** para obtener una vista para papel.
-6. En la vista **por curso** o **por docente**, haz clic sobre cualquier **bloque fijo** (recreo, guardia, etc.) para editar su texto en ese día y grupo o docente concreto. Se abre un modal que permite:
+6. En la pestaña **General**, haz clic sobre cualquier **bloque fijo** (recreo, guardia, etc.) para editar su texto en ese día y grupo o docente concreto. Se abre un modal que permite:
    - **Guardar** un texto personalizado.
    - **Restaurar el valor por defecto** de la configuración.
    - **Limpiar** el texto (dejarlo vacío).
