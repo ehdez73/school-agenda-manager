@@ -521,6 +521,7 @@ Ejemplo rápido:
 | SOFT | **TeacherPreferredTimes** | Prioriza colocar clases en las franjas preferidas del docente. | Docente prefiere mañana → el sistema lo intenta. |
 | SOFT | **TutorPreference** | Favorece que los tutores impartan clase en su grupo tutorizado. | Tutora de 3ºB → más horas en 3ºB que en otros grupos. |
 | SOFT | **TeacherAvoidGaps** | Penaliza huecos entre clases, buscando bloques más compactos. | Mejor 2ª-3ª-4ª seguidas que 2ª y 5ª con huecos. |
+| SOFT | **TeacherFreeHoursEvenDistribution** | Premia que las horas libres (no asignadas) del docente se distribuyan de forma homogénea entre los días de la semana. | Un docente con 3h libres → ~1h por día en lugar de todas el lunes. |
 
 ## 11. Problemas frecuentes y cómo resolverlos
 

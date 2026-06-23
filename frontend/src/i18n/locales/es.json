@@ -379,6 +379,8 @@
             "TutorPreference_desc": "Premia que los tutores impartan clase en su grupo tutorizado.",
             "TeacherAvoidGaps": "Evitar huecos del profesorado",
             "TeacherAvoidGaps_desc": "Penaliza los huecos en el horario diario del profesorado, favoreciendo que todas sus clases estén en un único bloque contiguo.",
+            "TeacherFreeHoursEvenDistribution": "Distribución homogénea de horas libres",
+            "TeacherFreeHoursEvenDistribution_desc": "Premia que las horas libres (no asignadas) del docente se distribuyan de forma homogénea entre los días de la semana, evitando concentrarlas en un solo día.",
             "JointClassAssignment": "Clases conjuntas",
             "JointClassAssignment_desc": "Fuerza a que varias líneas de un curso compartan la misma asignatura, docente y franja horaria.",
             "TeacherOneSubjectPerGroup": "Un docente por asignatura y grupo",

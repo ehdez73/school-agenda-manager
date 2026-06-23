@@ -67,6 +67,7 @@ The system follows these general rules:
 - Reward tutors who teach both the first and last hour of the week of their group *(configurable weight, default 500)*
 - Avoid unnecessary gaps in the schedule for teachers *(teacher gaps implemented)*
 - Distribute the hours of each subject evenly (avoid concentrating them on a single day) *(not yet implemented)*
+- Distribute teacher free periods evenly across the week *(teacher free hours even distribution implemented)*
 
 ## Constraint System (OR-Tools CP-SAT)
 
@@ -96,6 +97,7 @@ feasible schedule.
 | Tutor teaches own group | `TutorPreference` | Soft | `backend/restrictions/tutor_preference.py` |
 | Tutor first/last hour | `TutorMandatoryHours` | Soft | `backend/restrictions/tutor_mandatory_hours.py` |
 | Avoid unnecessary gaps for teachers | `TeacherAvoidGaps` | Soft | `backend/restrictions/teacher_avoid_gaps.py` |
+| Distribute teacher free periods evenly | `TeacherFreeHoursEvenDistribution` | Soft | `backend/restrictions/teacher_free_hours_even_distribution.py` |
 
 ### Legacy / unused classes
 

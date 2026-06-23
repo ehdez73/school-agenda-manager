@@ -521,6 +521,7 @@ Quick example:
 | SOFT | **TeacherPreferredTimes** | Rewards placing classes in each teacher's preferred slots. | Teacher prefers morning → system tries to place classes there. |
 | SOFT | **TutorPreference** | Rewards tutors teaching in their own tutor group. | 3rdB tutor → more hours in 3rdB than other groups. |
 | SOFT | **TeacherAvoidGaps** | Penalizes gaps between classes, favoring compact daily blocks. | Better 2nd-3rd-4th consecutive than 2nd and 5th with gaps. |
+| SOFT | **TeacherFreeHoursEvenDistribution** | Rewards distributing a teacher's free (unassigned) hours evenly across the week. | A teacher with 3 free hours → ~1 per day rather than all on Monday. |
 
 ## 11. Common issues and how to solve them
 

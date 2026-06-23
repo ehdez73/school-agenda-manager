@@ -379,6 +379,8 @@
             "TutorPreference_desc": "Rewards tutors teaching in their own tutor group.",
             "TeacherAvoidGaps": "Teacher avoid gaps",
             "TeacherAvoidGaps_desc": "Penalizes gaps in teachers' daily schedules by encouraging all classes to be in a single contiguous block.",
+            "TeacherFreeHoursEvenDistribution": "Teacher free hours even distribution",
+            "TeacherFreeHoursEvenDistribution_desc": "Rewards distributing a teacher's free (unassigned) hours evenly across the week rather than concentrated on a single day.",
             "JointClassAssignment": "Joint classes",
             "JointClassAssignment_desc": "Forces multiple lines of a course to share the same subject, teacher, and time slot.",
             "TeacherOneSubjectPerGroup": "One teacher per group subject",

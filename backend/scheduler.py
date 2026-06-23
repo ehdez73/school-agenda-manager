@@ -90,6 +90,7 @@ from .restrictions import (
     LinkedSubjectsConsecutive,
     TeacherOneSubjectPerGroup,
     TeacherAvoidGaps,
+    TeacherFreeHoursEvenDistribution,
     JointClassAssignment,
 )
 from .restrictions.joint_class_assignment import build_joint_class_lookup
@@ -256,6 +257,8 @@ def _build_soft_restrictions(model, assignments, all_teachers,
         ("TutorMandatoryHours", TutorMandatoryHours(weight=500),
          [model, assignments, all_teachers, num_days, num_hours, all_subjectgroups]),
         ("TeacherAvoidGaps", TeacherAvoidGaps(weight=50),
+         [model, assignments, all_teachers, num_days, num_hours]),
+        ("TeacherFreeHoursEvenDistribution", TeacherFreeHoursEvenDistribution(weight=30),
          [model, assignments, all_teachers, num_days, num_hours]),
     ]
 
