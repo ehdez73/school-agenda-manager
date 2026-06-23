@@ -11243,6 +11243,13 @@
       3,
       4
     ],
+    "day_colors": {
+      "0": "#b9f4f8",
+      "1": "#aef9dc",
+      "2": "#fff9bd",
+      "3": "#ffd599",
+      "4": "#f8b9b9"
+    },
     "disabled_restrictions": []
   },
   "fixed_slots": [

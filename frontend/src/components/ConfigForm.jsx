@@ -36,6 +36,7 @@ export default function ConfigForm() {
   const [daysPerWeek, setDaysPerWeek] = useState(5);
   const [hourNames, setHourNames] = useState(() => ["9:00", "10:00", "11:00", "12:00", "13:00"]);
   const [dayIndices, setDayIndices] = useState(() => [0, 1, 2, 3, 4]);
+  const [dayColors, setDayColors] = useState(() => ({}));
   const [disabledRestrictions, setDisabledRestrictions] = useState([]);
   // when true, skip the automatic resize to avoid overwriting server values right after save
   const [suppressResize, setSuppressResize] = useState(false);
@@ -52,6 +53,7 @@ export default function ConfigForm() {
       setSuppressResize(true);
       setHourNames(data.hour_names && data.hour_names.length ? data.hour_names : Array.from({ length: data.classes_per_day || 5 }, (_, i) => `Hora ${i + 1}`));
       setDayIndices(data.day_indices && data.day_indices.length ? data.day_indices : Array.from({ length: data.days_per_week || 5 }, (_, i) => i));
+      setDayColors(data.day_colors || {});
       setDisabledRestrictions(data.disabled_restrictions || []);
       setTimeout(() => setSuppressResize(false), 0);
       setLoading(false);
@@ -84,13 +86,14 @@ export default function ConfigForm() {
     }
 
     setLoading(true);
-    api.post('/config', { classes_per_day: Number(classesPerDay), days_per_week: daysNum, hour_names: hourNames, day_indices: dayIndices, disabled_restrictions: disabledRestrictions })
+    api.post('/config', { classes_per_day: Number(classesPerDay), days_per_week: daysNum, hour_names: hourNames, day_indices: dayIndices, day_colors: dayColors, disabled_restrictions: disabledRestrictions })
       .then(data => {
         setClassesPerDay(data.classes_per_day);
         setDaysPerWeek(data.days_per_week);
         setSuppressResize(true);
         setHourNames(data.hour_names && data.hour_names.length ? data.hour_names : Array.from({ length: data.classes_per_day || 5 }, (_, i) => `Hora ${i + 1}`));
         setDayIndices(data.day_indices && data.day_indices.length ? data.day_indices : Array.from({ length: data.days_per_week || 5 }, (_, i) => i));
+        setDayColors(data.day_colors || {});
         setDisabledRestrictions(data.disabled_restrictions || []);
         setTimeout(() => setSuppressResize(false), 0);
         setMessage(t('config.saved'));
@@ -221,7 +224,7 @@ export default function ConfigForm() {
                     className="config-form-input"
                   />
                 </label>
-                <DayIndices daysPerWeek={daysPerWeek} dayIndices={dayIndices} setDayIndices={setDayIndices} suppressResize={suppressResize} />
+                <DayIndices daysPerWeek={daysPerWeek} dayIndices={dayIndices} setDayIndices={setDayIndices} suppressResize={suppressResize} dayColors={dayColors} setDayColors={setDayColors} />
               </div>
 
               <div className="config-schedule-column">

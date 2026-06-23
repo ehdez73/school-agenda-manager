@@ -122,6 +122,19 @@ def _run_solver_in_background(task_id, locale):
         logger.info("Background solver thread finished", extra=build_log_extra(task_id=task_id))
 
 
+@timetable_bp.route('/timetable/teacher-grid', methods=['GET'])
+def get_teacher_grid():
+    session = DbSession()
+    existing_assignments = session.query(TimeSlotAssignment).first()
+    if not existing_assignments:
+        session.close()
+        return jsonify({'error': t('timetable.no_schedule')}), 404
+    from ..timetable import get_teacher_grid_data
+    data = get_teacher_grid_data(session)
+    session.close()
+    return jsonify(data), 200
+
+
 @timetable_bp.route('/timetable', methods=['GET'])
 def get_timetable_markdown():
     session = DbSession()

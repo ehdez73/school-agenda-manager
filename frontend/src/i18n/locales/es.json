@@ -243,7 +243,14 @@
         "fixed_label_modal_label": "Texto",
         "fixed_label_modal_save": "Guardar",
         "fixed_label_modal_reset": "Restaurar por defecto",
-        "fixed_label_modal_clear": "Limpiar"
+        "fixed_label_modal_clear": "Limpiar",
+        "tab_general": "General",
+        "tab_teacher_staff": "Profesorado",
+        "teacher_staff_filter_label": "Mostrar días:",
+        "teacher_staff_no_data": "No hay datos de horarios disponibles",
+        "teacher_staff_download_html": "Descargar HTML",
+        "teacher_staff_hour_header": "Hora",
+        "teacher_staff_empty_cell": ""
     },
     "subjects": {
         "title": "Asignaturas",
@@ -332,6 +339,7 @@
         "confirm_clear": "¿Estás seguro de que quieres eliminar TODOS los datos?\n\nEsto eliminará:\n- Todos los cursos\n- Todas las asignaturas\n- Todos los profesores\n- Todos los packs de asignaturas\n- Todos los horarios\n- La configuración\n\nEsta acción NO se puede deshacer.",
         "clear_success": "Todos los datos han sido eliminados",
         "tab_schedules": "Horarios",
+        "day_colors_title": "Colores de días",
         "tab_backup": "Copia de seguridad",
         "tab_restrictions": "Restricciones",
         "restrictions_title": "Restricciones activas",

@@ -1,5 +1,5 @@
 import json
-from sqlalchemy import create_engine, Column, Integer, String, Text, UniqueConstraint
+from sqlalchemy import create_engine, Column, Integer, String, Text, UniqueConstraint, inspect, text
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 from sqlalchemy import Table, ForeignKey, Column as SAColumn
 from sqlalchemy import Boolean
@@ -424,6 +424,7 @@ class Config(Base):
     days_per_week = Column(Integer, nullable=False, default=5)
     hour_names = Column(String(2000), nullable=True)
     day_indices = Column(String(2000), nullable=True)
+    day_colors = Column(Text, nullable=True)
     disabled_restrictions = Column(String(5000), nullable=True)
 
     def to_dict(self):
@@ -433,6 +434,7 @@ class Config(Base):
             "days_per_week": self.days_per_week,
             "hour_names": json.loads(self.hour_names) if self.hour_names else [],
             "day_indices": json.loads(self.day_indices) if self.day_indices else [],
+            "day_colors": json.loads(self.day_colors) if self.day_colors else {},
             "disabled_restrictions": json.loads(self.disabled_restrictions) if self.disabled_restrictions else [],
         }
 
@@ -538,3 +540,14 @@ class SupportAssignment(Base):
 
 
 Base.metadata.create_all(ENGINE)
+
+# Migration: add day_colors to existing config table if missing
+try:
+    inspector = inspect(ENGINE)
+    existing_cols = [c["name"] for c in inspector.get_columns("config")]
+    if "day_colors" not in existing_cols:
+        with ENGINE.connect() as conn:
+            conn.execute(text("ALTER TABLE config ADD COLUMN day_colors TEXT"))
+            conn.commit()
+except Exception:
+    pass

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { t } from '../i18n';
 import Select from './Select';
 
-export default function DayIndices({ daysPerWeek = 5, dayIndices = [], setDayIndices = () => { }, suppressResize = false }) {
+export default function DayIndices({ daysPerWeek = 5, dayIndices = [], setDayIndices = () => { }, suppressResize = false, dayColors = {}, setDayColors = () => {} }) {
     useEffect(() => {
         const n = Number(daysPerWeek) || 0;
         if (!n) return;
@@ -33,19 +33,30 @@ export default function DayIndices({ daysPerWeek = 5, dayIndices = [], setDayInd
 
     const dayOptions = Array.from({ length: 7 }, (_, i) => ({ value: i, label: t(`day.${i}`) }));
 
+    const handleColorChange = (dayIdx, value) => {
+        setDayColors(prev => ({ ...prev, [String(dayIdx)]: value }));
+    };
+
     return (
         <div className="mt-md">
             <h4 className="day-indices-title">{t('days.names_title')}</h4>
             <div className="day-indices-grid">
                 {displayIndices.map((idx, i) => (
-                    <label key={i} className="day-index-row">
-                        {t('days.label').replace('{n}', String(i + 1))}
+                    <div key={i} className="day-index-row">
+                        <span className="day-index-row__label">{t('days.label').replace('{n}', String(i + 1))}</span>
                         <Select
                             value={idx}
                             onChange={e => handleDayIndexChange(i, e.target.value)}
                             options={dayOptions}
                         />
-                    </label>
+                        <input
+                            type="color"
+                            className="day-index-row__color"
+                            value={dayColors[String(idx)] || '#ffffff'}
+                            onChange={e => handleColorChange(idx, e.target.value)}
+                            title={t('config.day_colors_title')}
+                        />
+                    </div>
                 ))}
             </div>
         </div>

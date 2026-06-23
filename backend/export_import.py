@@ -168,6 +168,12 @@ def import_payload(session, payload):
         except Exception:
             disabled_restrictions = None
 
+        day_colors_raw = cfg_payload.get("day_colors")
+        try:
+            day_colors = _json.dumps(day_colors_raw, ensure_ascii=False) if day_colors_raw is not None else None
+        except Exception:
+            day_colors = None
+
         if hour_names is not None:
             try:
                 cfg = Config(
@@ -177,18 +183,21 @@ def import_payload(session, payload):
                     day_indices=_json.dumps(
                         cfg_payload.get("day_indices", []), ensure_ascii=False
                     ),
+                    day_colors=day_colors,
                     disabled_restrictions=disabled_restrictions,
                 )
             except Exception:
                 cfg = Config(
                     classes_per_day=cfg_payload.get("classes_per_day", 5),
                     days_per_week=cfg_payload.get("days_per_week", 5),
+                    day_colors=day_colors,
                     disabled_restrictions=disabled_restrictions,
                 )
         else:
             cfg = Config(
                 classes_per_day=cfg_payload.get("classes_per_day", 5),
                 days_per_week=cfg_payload.get("days_per_week", 5),
+                day_colors=day_colors,
                 disabled_restrictions=disabled_restrictions,
             )
         session.add(cfg)

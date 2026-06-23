@@ -9,6 +9,7 @@ import SectionLayout from './SectionLayout';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import FormModal from './FormModal';
 import Select from './Select';
+import TeacherGridTimetable from './TeacherGridTimetable';
 
 const POLL_INTERVAL_MS = 4000;
 const POLL_RETRY_MS = 3000;
@@ -192,6 +193,8 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectT
   const [generatingMessage, setGeneratingMessage] = useState('');
   const [infeasibleMessage, setInfeasibleMessage] = useState('');
   const [downloading, setDownloading] = useState(false);
+  const [mdDownloading, setMdDownloading] = useState(false);
+  const teacherGridRef = useRef(null);
   const [selectedCourseIdsState, setSelectedCourseIds] = useState(() => readSelectionFromSessionStorage(COURSE_SELECTION_STORAGE_KEY));
   const [selectedTeacherIdsState, setSelectedTeacherIds] = useState(() => readSelectionFromSessionStorage(TEACHER_SELECTION_STORAGE_KEY));
   const [showRecreateModal, setShowRecreateModal] = useState(false);
@@ -214,6 +217,8 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectT
   const [selectedSubjectIndex, setSelectedSubjectIndex] = useState(0);
   const [hourLabel, setHourLabel] = useState(null);
   const [savingSupport, setSavingSupport] = useState(false);
+
+  const [activeView, setActiveView] = useState('general');
 
   const [fixedSlotLabelModal, setFixedSlotLabelModal] = useState({
     open: false,
@@ -574,7 +579,15 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectT
       return;
     }
 
+    const style = document.createElement('style');
+    style.id = 'timetable-print-style';
+    style.textContent = '@page { size: landscape; margin: 10mm 8mm; }';
+    document.head.appendChild(style);
     window.print();
+    requestAnimationFrame(() => {
+      const el = document.getElementById('timetable-print-style');
+      if (el) el.remove();
+    });
   };
 
   const layoutState = loading ? 'loading' : error ? 'error' : 'ready';
@@ -871,6 +884,22 @@ function hasConflictChild(node) {
     }
   };
 
+  const handleViewTeacherTimetable = (name) => {
+    setActiveView('general');
+    setTeacherQuery('');
+    if (!teacherSection) return;
+    const match = teacherSection.entries.find(e =>
+      e.title.toLowerCase().startsWith(name.toLowerCase()) ||
+      e.title.replace(/ — .*/, '').trim().toLowerCase() === name.toLowerCase()
+    );
+    if (match) {
+      setSelectedTeacherIds([match.id]);
+      setTimeout(() => {
+        document.getElementById(`teacher-panel-${match.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  };
+
   const handleClearFixedSlotLabel = async () => {
     const { mode, teacherId, courseLine, fixedSlotId, day } = fixedSlotLabelModal;
     setSavingFixedLabel(true);
@@ -1013,41 +1042,95 @@ function hasConflictChild(node) {
                 {t('timetable.generate')}
               </button>
             )}
-            <button
-              onClick={handleDownloadMarkdown}
-              disabled={downloading || loading || !!error || !markdown.trim() || generating}
-              className="btn btn--secondary btn--compact"
-              aria-label={t('timetable.download_md') || 'Download Markdown'}
-              title={t('timetable.download_md') || 'Download Markdown'}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-            </button>
-            <button
-              onClick={handlePrint}
-              disabled={loading || !!error || !markdown.trim() || generating}
-              className="btn btn--secondary btn--compact"
-              aria-label={t('timetable.print_md') || 'Print'}
-              title={t('timetable.print_md') || 'Print'}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="6 9 6 2 18 2 18 9"/>
-                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-                <rect x="6" y="14" width="12" height="8"/>
-              </svg>
-            </button>
+            {activeView === 'general' && (
+              <button
+                onClick={handleDownloadMarkdown}
+                disabled={downloading || loading || !!error || !markdown.trim() || generating}
+                className="btn btn--secondary btn--compact"
+                aria-label={t('timetable.download_md') || 'Download Markdown'}
+                title={t('timetable.download_md') || 'Download Markdown'}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+              </button>
+            )}
+            {activeView === 'general' && (
+              <button
+                onClick={handlePrint}
+                disabled={loading || !!error || !markdown.trim() || generating}
+                className="btn btn--secondary btn--compact"
+                aria-label={t('timetable.print_md') || 'Print'}
+                title={t('timetable.print_md') || 'Print'}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="6 9 6 2 18 2 18 9"/>
+                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                  <rect x="6" y="14" width="12" height="8"/>
+                </svg>
+              </button>
+            )}
+            
+            {activeView === 'teacher_staff' && (
+              <button
+                onClick={() => {
+                  setMdDownloading(true);
+                  teacherGridRef.current?.downloadMarkdown();
+                  setMdDownloading(false);
+                }}
+                disabled={mdDownloading}
+                className="btn btn--secondary btn--compact"
+                title={t('timetable.download_md')}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+              </button>
+            )}
+            {activeView === 'teacher_staff' && (
+              <button
+                onClick={() => teacherGridRef.current?.print()}
+                className="btn btn--secondary btn--compact"
+                title={t('timetable.print_md')}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="6 9 6 2 18 2 18 9"/>
+                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                  <rect x="6" y="14" width="12" height="8"/>
+                </svg>
+              </button>
+            )}
           </>
         }
       >
+        <div className="timetable-tabs" role="tablist">
+          <button
+            className={`timetable-tab${activeView === 'general' ? ' active' : ''}`}
+            role="tab"
+            aria-selected={activeView === 'general'}
+            onClick={() => setActiveView('general')}
+          >
+            {t('timetable.tab_general')}
+          </button>
+          <button
+            className={`timetable-tab${activeView === 'teacher_staff' ? ' active' : ''}`}
+            role="tab"
+            aria-selected={activeView === 'teacher_staff'}
+            onClick={() => setActiveView('teacher_staff')}
+          >
+            {t('timetable.tab_teacher_staff')}
+          </button>
+        </div>
         {generating && (
           <div className="state-loading" role="status" aria-live="polite">
             <span>{phase === 'infeasible' ? infeasibleMessage : phase === 'phase2' || phase === 'phase3' ? t('timetable.diagnosing_causes') : generatingMessage}{elapsed > 0 ? ` (${elapsed}s)` : ''}</span>
           </div>
         )}
-        {!loading && !error && markdown.trim() && (
+        {activeView === 'general' && !loading && !error && markdown.trim() && (
           <div className="timetable-with-sidebar">
             {canRenderSections && (
               <aside className="timetable-sidebar">
@@ -1379,6 +1462,9 @@ function hasConflictChild(node) {
             )}
           </div>
         </div>
+        )}
+        {activeView === 'teacher_staff' && !loading && !error && markdown.trim() && (
+          <TeacherGridTimetable ref={teacherGridRef} onViewTeacherTimetable={handleViewTeacherTimetable} />
         )}
       </SectionLayout>
       {details && (

@@ -149,4 +149,5 @@ class ConfigSchema(BaseModel):
     hour_names: List[str] = []
     day_indices: List[int] = []
     day_names: List[str] = []
+    day_colors: Dict[str, str] = {}
     disabled_restrictions: List[str] = []

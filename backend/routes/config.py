@@ -89,12 +89,14 @@ def set_config():
         elif len(day_indices) > data['days_per_week']:
             day_indices = day_indices[:data['days_per_week']]
 
+        day_colors = data.get('day_colors')
         disabled = data.get('disabled_restrictions')
         config = Config(
             classes_per_day=data['classes_per_day'],
             days_per_week=data['days_per_week'],
             hour_names=json.dumps(hour_names),
             day_indices=json.dumps(day_indices),
+            day_colors=json.dumps(day_colors) if day_colors is not None else None,
             disabled_restrictions=json.dumps(disabled) if disabled is not None else None,
         )
         session.add(config)
@@ -142,6 +144,8 @@ def set_config():
                 day_indices = day_indices[:config.days_per_week]
             config.day_indices = json.dumps(day_indices)
 
+        if 'day_colors' in data:
+            config.day_colors = json.dumps(data['day_colors'])
         if 'disabled_restrictions' in data:
             config.disabled_restrictions = json.dumps(data['disabled_restrictions'])
         logger.info("Updated existing config classes_per_day=%d days_per_week=%d", config.classes_per_day, config.days_per_week)

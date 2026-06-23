@@ -243,7 +243,14 @@
         "fixed_label_modal_label": "Label",
         "fixed_label_modal_save": "Save",
         "fixed_label_modal_reset": "Reset to default",
-        "fixed_label_modal_clear": "Clear"
+        "fixed_label_modal_clear": "Clear",
+        "tab_general": "General",
+        "tab_teacher_staff": "Professors",
+        "teacher_staff_filter_label": "Show days:",
+        "teacher_staff_no_data": "No timetable data available",
+        "teacher_staff_download_html": "Download HTML",
+        "teacher_staff_hour_header": "Hour",
+        "teacher_staff_empty_cell": ""
     },
     "subjects": {
         "title": "Subjects",
@@ -332,6 +339,7 @@
         "confirm_clear": "Are you sure you want to clear ALL data?\nThis will remove:\n- All courses\n- All subjects\n- All teachers\n- All subject packs\n- All timetables\n- Configuration\n\nThis action CANNOT be undone.",
         "clear_success": "All data has been cleared",
         "tab_schedules": "Schedules",
+        "day_colors_title": "Day colors",
         "tab_backup": "Backup",
         "tab_restrictions": "Restrictions",
         "restrictions_title": "Active Restrictions",

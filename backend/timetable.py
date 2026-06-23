@@ -704,6 +704,118 @@ def print_markdown_timetable_per_teacher(session) -> str:
     )
 
 
+def get_teacher_grid_data(session):
+    """
+    Builds a structured JSON-friendly dict of timetable data organised
+    by day and teacher, suitable for the "Teaching staff" tab.
+    Returns:
+        dict with keys: teachers, day_indices, day_names, day_colors,
+                        hour_names, grid
+    """
+    cfg = session.query(Config).first()
+
+    num_days = cfg.days_per_week if cfg else 5
+    num_hours = cfg.classes_per_day if cfg else 5
+    hour_names = json.loads(cfg.hour_names) if cfg and cfg.hour_names else []
+    day_indices = json.loads(cfg.day_indices) if cfg and cfg.day_indices else list(range(num_days))
+    day_colors = json.loads(cfg.day_colors) if cfg and cfg.day_colors else {}
+    day_names = [t(f"day.{i}") for i in day_indices]
+
+    # Ensure hour_names has the right length
+    if len(hour_names) < num_hours:
+        hour_names += [t("hours.label").format(n=i + 1) for i in range(len(hour_names), num_hours)]
+
+    # Teachers sorted by name
+    teachers = session.query(Teacher).order_by(Teacher.name).all()
+    teacher_list = [{"id": t.id, "name": t.name} for t in teachers]
+    teacher_ids = {t.id for t in teachers}
+
+    # Build support lookup: (day, hour, teacher_id) -> True
+    support_lookup = set()
+    support_assignments = session.query(SupportAssignment).all()
+    for sa in support_assignments:
+        support_lookup.add((sa.day, sa.hour, sa.teacher_id))
+
+    # Build busy-slot set: (day, hour, teacher_id) -> True
+    busy_slots = session.query(TeacherBusySlot).all()
+    busy_lookup = set()
+    for bs in busy_slots:
+        busy_lookup.add((bs.day, bs.hour, bs.teacher_id))
+
+    # Build unavailable slots from teacher preferences
+    unavailable_lookup = set()
+    for teacher in teachers:
+        prefs = {}
+        if teacher.preferences:
+            try:
+                prefs = json.loads(teacher.preferences)
+            except (ValueError, TypeError):
+                prefs = {}
+        for day_str, day_prefs in prefs.items():
+            if isinstance(day_prefs, dict) and "unavailable" in day_prefs:
+                for h in day_prefs["unavailable"]:
+                    unavailable_lookup.add((int(day_str), h, teacher.id))
+
+    # Initialise empty grid: day -> hour -> teacher_id -> None
+    # We use a nested defaultdict-of-dicts for sparse access.
+    grid = {}
+    for d in range(num_days):
+        day_grid = {}
+        for h in range(num_hours):
+            cell = {}
+            for t_id in teacher_ids:
+                cell[str(t_id)] = None
+            day_grid[str(h)] = cell
+        grid[str(d)] = day_grid
+
+    # Fill in assignments
+    assignments = session.query(TimeSlotAssignment).all()
+    for a in assignments:
+        ts = a.timeslot
+        d, h = ts.day, ts.hour
+        if d >= num_days or h >= num_hours:
+            continue
+        if a.teacher_id is None or a.teacher_id not in teacher_ids:
+            continue
+        is_support = (d, h, a.teacher_id) in support_lookup
+        is_busy = (d, h, a.teacher_id) in busy_lookup
+        if is_busy:
+            continue
+        grid[str(d)][str(h)][str(a.teacher_id)] = {
+            "subject_code": a.subject.id,
+            "is_support": is_support,
+        }
+
+    # Override with support assignments (they get the subject they support)
+    for sa in support_assignments:
+        d, h, tid = sa.day, sa.hour, sa.teacher_id
+        if d >= num_days or h >= num_hours:
+            continue
+        if tid not in teacher_ids:
+            continue
+        grid[str(d)][str(h)][str(tid)] = {
+            "subject_code": sa.subject.id,
+            "is_support": True,
+        }
+
+    # Mark unavailable slots with red X
+    for d, h, tid in unavailable_lookup:
+        if d >= num_days or h >= num_hours:
+            continue
+        grid[str(d)][str(h)][str(tid)] = {
+            "is_unavailable": True,
+        }
+
+    return {
+        "teachers": teacher_list,
+        "day_indices": day_indices,
+        "day_names": day_names,
+        "day_colors": day_colors,
+        "hour_names": hour_names,
+        "grid": grid,
+    }
+
+
 # Example usage:
 if __name__ == "__main__":
     session = Session()
