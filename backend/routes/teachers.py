@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, abort
 import json as _json
 import logging
 from sqlalchemy.orm import joinedload
-from ..models import Teacher, Subject, Session, teacher_subject, normalize_tutor_groups, TeacherBusySlot
+from ..models import Teacher, Subject, Session, teacher_subject, normalize_tutor_groups, TeacherBusySlot, TimeSlotAssignment, Timeslot
 from ..schemas import TeacherSchema, PreferencesSchema, DayPreferences
 from ..teacher_utils import compute_teacher_hours
 from ..translations import t
@@ -87,6 +87,31 @@ def get_teachers():
     session.close()
     logger.info("Listed teachers count=%d", len(result))
     return jsonify(result)
+
+
+@teachers_bp.route('/teachers/course-groups', methods=['POST'])
+def get_teacher_course_groups():
+    data = request.get_json()
+    if not data or 'teacher_name' not in data:
+        abort(400, description="teacher_name field required")
+    teacher_name = data['teacher_name']
+    session = Session()
+    try:
+        teacher = session.query(Teacher).filter(Teacher.name == teacher_name).first()
+        if not teacher:
+            return jsonify({"groups": []})
+        assignments = session.query(TimeSlotAssignment).filter(
+            TimeSlotAssignment.teacher_id == teacher.id
+        ).all()
+        groups = set()
+        for a in assignments:
+            timeslot = a.timeslot
+            course_line = f"{timeslot.course_id}{chr(ord('A') + timeslot.line)}"
+            groups.add(course_line)
+        return jsonify({"groups": sorted(groups)})
+    finally:
+        session.close()
+
 
 @teachers_bp.route('/teachers', methods=['POST'])
 def add_teacher():

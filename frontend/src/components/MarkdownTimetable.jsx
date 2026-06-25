@@ -958,7 +958,7 @@ function hasConflictChild(node) {
     }
   };
 
-  const handleViewTeacherTimetable = (name) => {
+  const handleViewTeacherTimetable = async (name) => {
     setActiveView('general');
     setTeacherQuery('');
     if (!teacherSection) return;
@@ -971,6 +971,22 @@ function hasConflictChild(node) {
       setTimeout(() => {
         document.getElementById(`teacher-panel-${match.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
+    }
+    try {
+      const data = await api.post('/teachers/course-groups', { teacher_name: name });
+      if (data.groups && data.groups.length > 0 && courseSection) {
+        const matchedCourseIds = courseSection.entries
+          .filter(entry => {
+            const courseLine = entry.title.replace(/^.*?:\s*/, '').replace(/ —.*/, '').trim();
+            return data.groups.includes(courseLine);
+          })
+          .map(entry => entry.id);
+        if (matchedCourseIds.length > 0) {
+          setSelectedCourseIds(matchedCourseIds);
+        }
+      }
+    } catch {
+      // Ignore errors, show all courses
     }
   };
 

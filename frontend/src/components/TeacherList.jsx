@@ -161,6 +161,17 @@ export default function TeacherList({ onViewTimetable, editTeacherName, onConsum
     return { ...g, tutor_ids: tutorIds };
   });
 
+  async function handleViewTimetable(e, teacher) {
+    if (!timetableExists) return;
+    e.stopPropagation();
+    try {
+      const data = await api.post('/teachers/course-groups', { teacher_name: teacher.name });
+      onViewTimetable(teacher.name, data.groups);
+    } catch {
+      onViewTimetable(teacher.name, []);
+    }
+  }
+
   const sortedTeachers = useMemo(() => {
     const filtered = teachers.filter(teacher => {
       const matchesName = (teacher.name || '').toLowerCase().includes(search.toLowerCase());
@@ -279,7 +290,7 @@ export default function TeacherList({ onViewTimetable, editTeacherName, onConsum
               <td>{teacher.name}</td>
               <td>{teacher.subjects ? teacher.subjects.map(s => `${s.full_name}`).join(', ') : ''}</td>
               <td>{teacher.tutor_groups ? teacher.tutor_groups.join(', ') : (teacher.tutor_group ?? '')}</td>
-              <td className={timetableExists ? 'teacher-hours-link' : ''} onClick={(e) => { if (timetableExists) { e.stopPropagation(); onViewTimetable(teacher.name); } }} title={timetableExists ? t('teachers.view_timetable') : ''}>
+              <td className={timetableExists ? 'teacher-hours-link' : ''} onClick={(e) => handleViewTimetable(e, teacher)} title={timetableExists ? t('teachers.view_timetable') : ''}>
                 {(() => {
                   const max = teacher.max_hours_week ?? 0;
                   const lective = teacher.assigned_hours ?? 0;

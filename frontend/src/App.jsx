@@ -120,7 +120,7 @@ function App() {
         {page === 'subjects' && <SubjectList />}
         {page === 'teachers' && (
           <TeacherList
-            onViewTimetable={(name) => { setTimetablePreselectTeacher(name); setPage('timetable-markdown'); }}
+            onViewTimetable={(name, groups) => { setTimetablePreselectTeacher(name); setTimetablePreselectCourseGroups(groups || null); setPage('timetable-markdown'); }}
             editTeacherName={editTeacherName}
             onConsumeEditTeacher={() => setEditTeacherName(null)}
           />
