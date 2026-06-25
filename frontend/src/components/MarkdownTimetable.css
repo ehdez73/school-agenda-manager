@@ -279,6 +279,8 @@
 .markdown-timetable th:first-child {
   background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-table-header) 100%);
   min-width: 110px;
+  width: 110px;
+  max-width: 110px;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -333,7 +335,10 @@
   left: 0;
   z-index: 5;
   min-width: 110px;
+  width: 110px;
+  max-width: 110px;
   white-space: nowrap;
+  padding: var(--space-md);
 }
 
 /* Empty cells */

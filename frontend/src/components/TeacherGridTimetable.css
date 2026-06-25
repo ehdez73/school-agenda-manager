@@ -158,6 +158,7 @@
   position: sticky;
   left: 0;
   z-index: 5;
+  white-space: nowrap;
   border-right: 2px solid var(--color-table-header);
 }
 
