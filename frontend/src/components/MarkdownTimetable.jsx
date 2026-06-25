@@ -572,6 +572,80 @@ function MarkdownTimetable({ preselectTeacher, preselectCourseGroups, preselectT
     }
   };
 
+  const extractCourseLine = (title) => title.replace(/^.*?:\s*/, '').replace(/ —.*/, '').trim();
+  const extractTeacherName = (title) => title.replace(/ — .*/, '').trim();
+
+  const handleDownloadExcel = async () => {
+    if (!courseSection || !teacherSection) {
+      setError(t('timetable.no_content_download'));
+      return;
+    }
+
+    const courseLines = selectedCourseEntries.map(e => extractCourseLine(e.title));
+    const teacherNames = selectedTeacherEntries.map(e => extractTeacherName(e.title));
+
+    if (courseLines.length === 0 && teacherNames.length === 0) {
+      setError(t('timetable.no_content_download'));
+      return;
+    }
+
+    try {
+      setDownloading(true);
+      const blob = await api.post('/timetable/excel', {
+        course_lines: courseLines,
+        teacher_names: teacherNames,
+        teacher_grouped: false,
+      }, { responseType: 'blob' });
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const date = new Date().toISOString().split('T')[0];
+      const filename = `horario-${date}.xlsx`;
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError((t('timetable.excel_error') || 'Error downloading Excel') + ': ' + err.message);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const handleDownloadExcelTeacherStaff = async () => {
+    if (!teacherSection || teacherSection.entries.length === 0) {
+      setError(t('timetable.no_content_download'));
+      return;
+    }
+
+    const teacherNames = teacherSection.entries.map(e => extractTeacherName(e.title));
+
+    try {
+      setMdDownloading(true);
+      const blob = await api.post('/timetable/excel', {
+        course_lines: [],
+        teacher_names: teacherNames,
+      }, { responseType: 'blob' });
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const date = new Date().toISOString().split('T')[0];
+      const filename = `horario-profesorado-${date}.xlsx`;
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError((t('timetable.excel_error') || 'Error downloading Excel') + ': ' + err.message);
+    } finally {
+      setMdDownloading(false);
+    }
+  };
+
   const handlePrint = () => {
     const content = buildFilteredMarkdown();
     if (!content.trim()) {
@@ -1059,6 +1133,22 @@ function hasConflictChild(node) {
             )}
             {activeView === 'general' && (
               <button
+                onClick={handleDownloadExcel}
+                disabled={downloading || loading || !!error || !markdown.trim() || generating}
+                className="btn btn--secondary btn--compact"
+                aria-label={t('timetable.download_excel') || 'Download Excel'}
+                title={t('timetable.download_excel') || 'Download Excel'}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <line x1="3" y1="9" x2="21" y2="9"/>
+                  <line x1="9" y1="3" x2="9" y2="21"/>
+                  <line x1="15" y1="3" x2="15" y2="21"/>
+                </svg>
+              </button>
+            )}
+            {activeView === 'general' && (
+              <button
                 onClick={handlePrint}
                 disabled={loading || !!error || !markdown.trim() || generating}
                 className="btn btn--secondary btn--compact"
@@ -1088,6 +1178,21 @@ function hasConflictChild(node) {
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                   <polyline points="7 10 12 15 17 10"/>
                   <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+              </button>
+            )}
+            {activeView === 'teacher_staff' && (
+              <button
+                onClick={handleDownloadExcelTeacherStaff}
+                disabled={mdDownloading || !teacherSection}
+                className="btn btn--secondary btn--compact"
+                title={t('timetable.download_excel')}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <line x1="3" y1="9" x2="21" y2="9"/>
+                  <line x1="9" y1="3" x2="9" y2="21"/>
+                  <line x1="15" y1="3" x2="15" y2="21"/>
                 </svg>
               </button>
             )}

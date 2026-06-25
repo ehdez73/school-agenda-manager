@@ -106,10 +106,9 @@
 }
 
 .teacher-grid-table thead th:not(:first-child) {
-  writing-mode: vertical-rl;
+  writing-mode: sideways-lr;
   white-space: nowrap;
   height: 110px;
-  vertical-align: bottom;
   min-width: 32px;
   max-width: 40px;
   padding: 6px 3px;
@@ -232,7 +231,7 @@
   }
 
   .teacher-grid-table thead th:not(:first-child) {
-    writing-mode: vertical-rl;
+    writing-mode: sideways-lr;;
     height: 100px;
     min-width: 22px;
     max-width: 30px;

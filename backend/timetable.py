@@ -794,9 +794,11 @@ def get_teacher_grid_data(session):
         is_busy = (d, h, a.teacher_id) in busy_lookup
         if is_busy:
             continue
+        course_line = f"{a.timeslot.course_id}{chr(ord('A') + a.timeslot.line)}"
         grid[str(d)][str(h)][str(a.teacher_id)] = {
             "subject_code": a.subject.id,
             "is_support": is_support,
+            "course_line": course_line,
         }
 
     # Override with support assignments (they get the subject they support)
@@ -806,9 +808,11 @@ def get_teacher_grid_data(session):
             continue
         if tid not in teacher_ids:
             continue
+        support_course_line = f"{sa.course_id}{chr(ord('A') + sa.line)}"
         grid[str(d)][str(h)][str(tid)] = {
             "subject_code": sa.subject.id,
             "is_support": True,
+            "course_line": support_course_line,
         }
 
     # Mark unavailable slots with red X

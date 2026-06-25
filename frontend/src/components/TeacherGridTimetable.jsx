@@ -86,7 +86,7 @@ const TeacherGridTimetable = forwardRef(function TeacherGridTimetable({ onViewTe
           } else if (cell.is_unavailable) {
             row.push('✕');
           } else {
-            row.push(cell.subject_code || '');
+            row.push(cell.course_line ? `${cell.course_line}-${cell.subject_code}` : (cell.subject_code || ''));
           }
         });
         md += '| ' + row.join(' | ') + ' |\n';
@@ -225,7 +225,7 @@ const TeacherGridTimetable = forwardRef(function TeacherGridTimetable({ onViewTe
                               tabIndex={0}
                               role="button"
                             >
-                              {isUnavailable ? <span className="teacher-grid-table__unavailable-icon">✕</span> : (cell ? cell.subject_code : '')}
+                              {isUnavailable ? <span className="teacher-grid-table__unavailable-icon">✕</span> : (cell ? `${cell.course_line}-${cell.subject_code}` : '')}
                             </td>
                           );
                         })}

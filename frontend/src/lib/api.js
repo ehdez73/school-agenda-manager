@@ -61,6 +61,9 @@ async function request(method, path, body = undefined, opts = {}) {
             return text;
         }
     }
+    if (responseType === 'blob') {
+        return res.blob();
+    }
     // fallback
     return res;
 }

@@ -424,7 +424,7 @@ Las horas de coordinación se asignan automáticamente por el sistema después d
 4. El horario se organiza en dos pestañas:
    - **General**: muestra el horario completo con las vistas por curso y por docente. Cada encabezado de curso muestra el tutor y el total de horas de apoyo (ej. `6ºA - (3h apoyo)`). Usa el panel lateral para navegar entre grupos o docentes. Usa los filtros de búsqueda para elegir qué mostrar. Activa o desactiva **Mostrar filas fijas** para incluir u ocultar recreos y otros bloques fijos.
    - **Profesorado**: muestra una cuadrícula compacta por docente con su horario semanal, indicando qué asignatura imparte en cada hora.
-5. Puedes **Descargar Markdown** para guardar el horario en un archivo, o **Imprimir** para obtener una vista para papel.
+5. Puedes **Descargar Markdown** para guardar el horario en un archivo de texto, **Descargar Excel** para obtener un libro `.xlsx` (una hoja por curso en la vista General, o una cuadrícula compacta de profesorado en la vista Profesorado), o **Imprimir** para obtener una vista para papel.
 6. En la pestaña **General**, haz clic sobre cualquier **bloque fijo** (recreo, guardia, etc.) para editar su texto en ese día y grupo o docente concreto. Se abre un modal que permite:
    - **Guardar** un texto personalizado.
    - **Restaurar el valor por defecto** de la configuración.

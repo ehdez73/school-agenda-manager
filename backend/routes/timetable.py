@@ -2,7 +2,7 @@ import threading
 import logging
 from datetime import datetime
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request, Response
 from ..translations import t
 from ..models import Session as DbSession, TimeSlotAssignment, SchedulerError, SupportAssignment, TeacherFixedSlotLabel
 from ..timetable import print_markdown_timetable_from_assignments, print_markdown_timetable_per_teacher
@@ -149,6 +149,41 @@ def get_timetable_markdown():
     markdown = courses_markdown + "\n\n" + teachers_markdown
     session.close()
     return markdown, 200, {'Content-Type': 'text/plain; charset=utf-8'}
+
+
+@timetable_bp.route('/timetable/excel', methods=['POST'])
+def get_timetable_excel():
+    """Generate an ``.xlsx`` workbook with sheets per selected course
+    and teacher, preserving cell colours."""
+    body = request.get_json(silent=True) or {}
+    course_lines = body.get("course_lines")
+    teacher_names = body.get("teacher_names")
+    teacher_grouped = body.get("teacher_grouped", True)
+
+    session = DbSession()
+    if not session.query(TimeSlotAssignment).first():
+        session.close()
+        return jsonify({"error": t("timetable.no_schedule")}), 404
+
+    from ..excel_export import generate_excel_timetable
+
+    buffer = generate_excel_timetable(
+        session,
+        course_lines=course_lines,
+        teacher_names=teacher_names,
+        teacher_grouped=teacher_grouped,
+    )
+    session.close()
+
+    filename = f"horario-{datetime.now():%Y%m%d}.xlsx"
+    return Response(
+        buffer.getvalue(),
+        mimetype=(
+            "application/vnd.openxmlformats-officedocument"
+            ".spreadsheetml.sheet"
+        ),
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @timetable_bp.route('/timetable/exists', methods=['GET'])

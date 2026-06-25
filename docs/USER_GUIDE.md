@@ -424,7 +424,7 @@ Coordination hours are automatically assigned by the system after generation **o
 4. The timetable is organized into two tabs:
    - **General**: shows the full timetable with course and teacher views. Each course heading displays the tutor name and total support hours (e.g. `6ºA - (3h support)`). Use the sidebar to navigate between groups or teachers. Use search filters and checkboxes to choose what to display. Toggle **Show fixed slots** to include or hide recess and other fixed blocks.
    - **Professors**: shows a compact staffing grid for each teacher, displaying which subject they teach in each hour across the week.
-5. You can **Download Markdown** to save the timetable as a file, or **Print** for a paper-friendly view.
+5. You can **Download Markdown** to save the timetable as a text file, **Download Excel** to obtain an `.xlsx` workbook (one sheet per course in the General view, or a compact teacher grid in the Professors view), or **Print** for a paper-friendly view.
 6. In the **General** tab, click on any **fixed slot** (recess, duty, etc.) to edit its label for that specific group or teacher and day. A modal opens allowing you to:
    - **Save** a custom label.
    - **Reset to default** from the configuration.
