@@ -47,6 +47,10 @@ NORMAL_FONT = Font(size=10)
 CONFLICT_FONT = Font(bold=True, color="eb5252", size=10)
 
 HEADER_FILL = PatternFill(start_color="f0f0f0", end_color="f0f0f0", fill_type="solid")
+
+HEADER_FONT_WHITE = Font(bold=True, size=10, color="ffffff")
+HEADER_FILL_BLACK = PatternFill(start_color="334155", end_color="334155", fill_type="solid")
+HOUR_FILL = PatternFill(start_color="e2e8f0", end_color="e2e8f0", fill_type="solid")
 COORD_FILL = PatternFill(
     start_color=COORDINATION_COLOR.lstrip("#"),
     end_color=COORDINATION_COLOR.lstrip("#"),
@@ -403,23 +407,27 @@ def _write_course_sheet(ws, course_line, info):
             f"({support_hours}h {t('timetable.support_label_short')})"
         )
     title = " ".join(title_parts)
-    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=num_days + 1)
-    c = ws.cell(row=1, column=1, value=title)
+    ws.merge_cells(start_row=1, start_column=2, end_row=1, end_column=num_days + 1)
+    c = ws.cell(row=1, column=2, value=title)
     c.font = TITLE_FONT
-    c.alignment = Alignment(horizontal="left", vertical="center")
+    c.alignment = Alignment(horizontal="center", vertical="center")
 
     # --- Row 2: Headers ---
     c = ws.cell(row=2, column=1, value=t("timetable.hour_header"))
-    c.font = HEADER_FONT
-    c.fill = HEADER_FILL
+    c.font = HEADER_FONT_WHITE
+    c.fill = HEADER_FILL_BLACK
     c.border = THIN_BORDER
+    c.alignment = Alignment(horizontal="center", vertical="center")
 
     for col_idx, day_idx in enumerate(day_indices, start=2):
         day_name = weekdays[col_idx - 2]
         c = ws.cell(row=2, column=col_idx, value=day_name)
-        c.font = HEADER_FONT
+        c.font = HEADER_FONT_WHITE
         c.border = THIN_BORDER
-        c.fill = HEADER_FILL
+        c.fill = HEADER_FILL_BLACK
+        c.alignment = Alignment(horizontal="center", vertical="center")
+
+    ws.row_dimensions[2].height = 40
 
     # --- Data rows ---
     data_row = 3
@@ -431,7 +439,9 @@ def _write_course_sheet(ws, course_line, info):
 
             c = ws.cell(row=data_row, column=1, value=hour_label)
             c.font = HOUR_FONT
+            c.fill = HOUR_FILL
             c.border = THIN_BORDER
+            c.alignment = Alignment(horizontal="center", vertical="center")
 
             for day_index in range(num_days):
                 override = slot_overrides.get(day_index)
@@ -439,6 +449,7 @@ def _write_course_sheet(ws, course_line, info):
                 c = ws.cell(row=data_row, column=day_index + 2, value=label)
                 c.border = THIN_BORDER
                 c.font = NORMAL_FONT
+                c.alignment = Alignment(horizontal="center", vertical="center")
                 if fs.color:
                     fill = _hex_to_fill(fs.color)
                     if fill:
@@ -452,7 +463,9 @@ def _write_course_sheet(ws, course_line, info):
             )
             c = ws.cell(row=data_row, column=1, value=hour_label)
             c.font = HOUR_FONT
+            c.fill = HOUR_FILL
             c.border = THIN_BORDER
+            c.alignment = Alignment(horizontal="center", vertical="center")
 
             max_lines = 1
             for day_index in range(num_days):
@@ -471,7 +484,7 @@ def _write_course_sheet(ws, course_line, info):
                     c.border = THIN_BORDER
                     c.font = NORMAL_FONT
                     c.alignment = Alignment(
-                        wrap_text=True, vertical="top"
+                        wrap_text=True, vertical="center", horizontal="center"
                     )
 
                     # If all items share the same colour apply it to the cell
@@ -481,11 +494,13 @@ def _write_course_sheet(ws, course_line, info):
                             c.fill = fill
                     max_lines = max(max_lines, len(lines))
                 else:
-                    ws.cell(
+                    c = ws.cell(
                         row=data_row, column=day_index + 2, value=""
-                    ).border = THIN_BORDER
+                    )
+                    c.border = THIN_BORDER
+                    c.alignment = Alignment(horizontal="center", vertical="center")
 
-            ws.row_dimensions[data_row].height = max(15, max_lines * 15)
+            ws.row_dimensions[data_row].height = 80
 
         data_row += 1
 
@@ -515,22 +530,23 @@ def _write_teacher_grid_sheet(ws, teacher_data, day_indices, weekdays,
 
     # --- Row 1: Title ---
     ws.merge_cells(
-        start_row=1, start_column=1, end_row=1, end_column=num_cols
+        start_row=1, start_column=2, end_row=1, end_column=num_cols
     )
-    c = ws.cell(row=1, column=1, value=t("timetable.tab_teacher_staff"))
+    c = ws.cell(row=1, column=2, value=t("timetable.tab_teacher_staff"))
     c.font = TITLE_FONT
+    c.alignment = Alignment(horizontal="center", vertical="center")
 
     # --- Row 2: Column headers (shown once, rotated vertically up) ---
     header_alignment = Alignment(text_rotation=90, vertical='center', horizontal='center')
     c = ws.cell(row=2, column=1, value=t("timetable.hour_header"))
-    c.font = HEADER_FONT
-    c.fill = HEADER_FILL
+    c.font = HEADER_FONT_WHITE
+    c.fill = HEADER_FILL_BLACK
     c.border = THIN_BORDER
     c.alignment = header_alignment
     for ci, t_name in enumerate(teacher_names, start=2):
         c = ws.cell(row=2, column=ci, value=t_name)
-        c.font = HEADER_FONT
-        c.fill = HEADER_FILL
+        c.font = HEADER_FONT_WHITE
+        c.fill = HEADER_FILL_BLACK
         c.border = THIN_BORDER
         c.alignment = header_alignment
     max_name_len = max((len(n) for n in teacher_names), default=0)
@@ -546,6 +562,7 @@ def _write_teacher_grid_sheet(ws, teacher_data, day_indices, weekdays,
         )
         c = ws.cell(row=row, column=1, value=day_name)
         c.font = Font(bold=True, size=12)
+        c.alignment = Alignment(horizontal="left", vertical="center")
         day_color = (
             day_colors.get(str(day_idx))
             if isinstance(day_colors, dict)
@@ -566,7 +583,9 @@ def _write_teacher_grid_sheet(ws, teacher_data, day_indices, weekdays,
             )
             c = ws.cell(row=row, column=1, value=hour_label)
             c.font = HOUR_FONT
+            c.fill = HOUR_FILL
             c.border = THIN_BORDER
+            c.alignment = Alignment(horizontal="center", vertical="center")
 
             max_lines = 1
             for ci, t_name in enumerate(teacher_names, start=2):
@@ -598,7 +617,7 @@ def _write_teacher_grid_sheet(ws, teacher_data, day_indices, weekdays,
                     c.border = THIN_BORDER
                     c.font = CONFLICT_FONT if any_conflict else NORMAL_FONT
                     c.alignment = Alignment(
-                        wrap_text=True, vertical="top"
+                        wrap_text=True, vertical="center", horizontal="center"
                     )
 
                     if is_unavailable:
@@ -611,9 +630,9 @@ def _write_teacher_grid_sheet(ws, teacher_data, day_indices, weekdays,
                             c.fill = fill
                     max_lines = max(max_lines, len(lines))
                 else:
-                    ws.cell(row=row, column=ci, value="").border = (
-                        THIN_BORDER
-                    )
+                    c = ws.cell(row=row, column=ci, value="")
+                    c.border = THIN_BORDER
+                    c.alignment = Alignment(horizontal="center", vertical="center")
 
             ws.row_dimensions[row].height = max(15, max_lines * 15)
             row += 1
@@ -673,23 +692,27 @@ def _write_teacher_sheet(ws, teacher_name, info):
     if summary_parts:
         title_parts.append("\u2014 " + ", ".join(summary_parts))
     title = " ".join(title_parts)
-    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=num_days + 1)
-    c = ws.cell(row=1, column=1, value=title)
+    ws.merge_cells(start_row=1, start_column=2, end_row=1, end_column=num_days + 1)
+    c = ws.cell(row=1, column=2, value=title)
     c.font = TITLE_FONT
-    c.alignment = Alignment(horizontal="left", vertical="center")
+    c.alignment = Alignment(horizontal="center", vertical="center")
 
     # --- Row 2: Headers ---
     c = ws.cell(row=2, column=1, value=t("timetable.hour_header"))
-    c.font = HEADER_FONT
-    c.fill = HEADER_FILL
+    c.font = HEADER_FONT_WHITE
+    c.fill = HEADER_FILL_BLACK
     c.border = THIN_BORDER
+    c.alignment = Alignment(horizontal="center", vertical="center")
 
     for col_idx, day_idx in enumerate(day_indices, start=2):
         day_name = weekdays[col_idx - 2]
         c = ws.cell(row=2, column=col_idx, value=day_name)
-        c.font = HEADER_FONT
+        c.font = HEADER_FONT_WHITE
         c.border = THIN_BORDER
-        c.fill = HEADER_FILL
+        c.fill = HEADER_FILL_BLACK
+        c.alignment = Alignment(horizontal="center", vertical="center")
+
+    ws.row_dimensions[2].height = 40
 
     # --- Data rows ---
     data_row = 3
@@ -701,7 +724,9 @@ def _write_teacher_sheet(ws, teacher_name, info):
 
             c = ws.cell(row=data_row, column=1, value=hour_label)
             c.font = HOUR_FONT
+            c.fill = HOUR_FILL
             c.border = THIN_BORDER
+            c.alignment = Alignment(horizontal="center", vertical="center")
 
             for day_index in range(num_days):
                 override = slot_overrides.get(day_index)
@@ -709,6 +734,7 @@ def _write_teacher_sheet(ws, teacher_name, info):
                 c = ws.cell(row=data_row, column=day_index + 2, value=label)
                 c.border = THIN_BORDER
                 c.font = NORMAL_FONT
+                c.alignment = Alignment(horizontal="center", vertical="center")
                 if fs.color:
                     fill = _hex_to_fill(fs.color)
                     if fill:
@@ -722,7 +748,9 @@ def _write_teacher_sheet(ws, teacher_name, info):
             )
             c = ws.cell(row=data_row, column=1, value=hour_label)
             c.font = HOUR_FONT
+            c.fill = HOUR_FILL
             c.border = THIN_BORDER
+            c.alignment = Alignment(horizontal="center", vertical="center")
 
             max_lines = 1
             for day_index in range(num_days):
@@ -745,7 +773,11 @@ def _write_teacher_sheet(ws, teacher_name, info):
                             if conflict:
                                 any_conflict = True
                         elif isinstance(label, str) and label:
-                            lines.append(label)
+                            if course_line:
+                                display = f"{course_line}: {subject_name}"
+                            else:
+                                display = subject_name
+                            lines.append(display)
                             if colour:
                                 colours.add(colour)
                         elif subject_name:
@@ -783,15 +815,17 @@ def _write_teacher_sheet(ws, teacher_name, info):
                             if fill:
                                 c.fill = fill
                     c.alignment = Alignment(
-                        wrap_text=True, vertical="top"
+                        wrap_text=True, vertical="center", horizontal="center"
                     )
                     max_lines = max(max_lines, len(lines))
                 else:
-                    ws.cell(
+                    c = ws.cell(
                         row=data_row, column=day_index + 2, value=""
-                    ).border = THIN_BORDER
+                    )
+                    c.border = THIN_BORDER
+                    c.alignment = Alignment(horizontal="center", vertical="center")
 
-            ws.row_dimensions[data_row].height = max(15, max_lines * 15)
+            ws.row_dimensions[data_row].height = 80
 
         data_row += 1
 
