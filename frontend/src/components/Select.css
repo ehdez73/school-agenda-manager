@@ -57,17 +57,13 @@
 }
 
 .custom-select__dropdown {
-  position: absolute;
-  top: calc(100% + 2px);
-  left: 0;
-  right: 0;
   max-height: 240px;
   overflow-y: auto;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background-color: var(--color-surface);
   box-shadow: var(--shadow-lg);
-  z-index: 50;
+  z-index: 1001;
 }
 
 .custom-select__option {

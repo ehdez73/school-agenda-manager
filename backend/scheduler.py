@@ -267,6 +267,8 @@ def solve_scheduling_model(
     all_teachers, all_subjects, all_groups, all_subjectgroups, num_days, num_hours,
     skip_restrictions=None, diagnostic_mode=False, task_id=None,
     all_joint_classes=None, teacher_subject_lines=None,
+    skip_subject_weekly_hours_for=None,
+    skip_teacher_max_hours_for=None,
 ):
     """
     Builds and solves the scheduling model without requiring a database session.
@@ -347,7 +349,12 @@ def solve_scheduling_model(
     for name, restriction, args in hard_restrictions:
         if name not in skip_restrictions:
             logger.debug("Applying hard restriction=%s", name, extra=build_log_extra(task_id=task_id))
-            restriction.apply(*args)
+            if name == "SubjectWeeklyHours" and skip_subject_weekly_hours_for is not None:
+                restriction.apply(*args, skip_subject_ids=skip_subject_weekly_hours_for)
+            elif name == "TeacherMaxWeeklyHours" and skip_teacher_max_hours_for is not None:
+                restriction.apply(*args, skip_teacher_ids=skip_teacher_max_hours_for)
+            else:
+                restriction.apply(*args)
             hard_applied += 1
         else:
             hard_skipped += 1
@@ -775,6 +782,8 @@ def diagnose_infeasibility(
         "cleared": [],
         "entity_conflicts": {},
         "phase3_timed_out": False,
+        "bottleneck_info": [],
+        "teacher_bottleneck_info": [],
     }
 
     # Phase 1: instant capacity and data sanity checks
@@ -808,6 +817,7 @@ def diagnose_infeasibility(
         "SubjectGroupAssignment",
         "SubjectMustEveryDay",
         "JointClassAssignment",
+        "TeacherOneSubjectPerGroup",
     ]
     logger.info("Diagnosis phase 2 started", extra=build_log_extra())
     for name in hard_names:
@@ -829,6 +839,35 @@ def diagnose_infeasibility(
         len(result["cleared"]),
         extra=build_log_extra(),
     )
+
+    if result["suspects"]:
+        if "SubjectWeeklyHours" in result["suspects"]:
+            result["bottleneck_info"] = _find_weekly_hours_bottleneck(
+                all_teachers, all_subjects, all_groups, all_subjectgroups,
+                num_days, num_hours,
+                all_joint_classes=all_joint_classes,
+                teacher_subject_lines=teacher_subject_lines,
+                locale=locale,
+            )
+            logger.info(
+                "Bottleneck analysis completed candidates=%d",
+                len(result["bottleneck_info"]),
+                extra=build_log_extra(),
+            )
+
+        if "TeacherMaxWeeklyHours" in result["suspects"]:
+            result["teacher_bottleneck_info"] = _find_teacher_max_hours_bottleneck(
+                all_teachers, all_subjects, all_groups, all_subjectgroups,
+                num_days, num_hours,
+                all_joint_classes=all_joint_classes,
+                teacher_subject_lines=teacher_subject_lines,
+                locale=locale,
+            )
+            logger.info(
+                "Teacher bottleneck analysis completed candidates=%d",
+                len(result["teacher_bottleneck_info"]),
+                extra=build_log_extra(),
+            )
 
     if progress_callback:
         msg = _build_diagnosis_message(result, locale=locale)
@@ -859,6 +898,182 @@ def diagnose_infeasibility(
     return result
 
 
+def _find_weekly_hours_bottleneck(all_teachers, all_subjects, all_groups,
+                                   all_subjectgroups, num_days, num_hours,
+                                   all_joint_classes=None,
+                                   teacher_subject_lines=None,
+                                   locale=DEFAULT_LOCALE):
+    """Identify which course(s) and subject(s) make SubjectWeeklyHours infeasible.
+
+    Phase 2b strategy:
+    1. Group subjects by course.
+    2. Per course: relax SubjectWeeklyHours for all its subjects → feasible?
+    3. Per bottleneck course: relax one subject at a time → find specific bottleneck.
+
+    Returns a list of bottleneck info dicts with keys:
+      - course: str (course ID)
+      - subject_name: str
+      - subject_id: str
+      - weekly_hours: int
+      - max_hours_per_day: int
+      - flags: list[str] (teach_every_day, linked, etc.)
+    """
+    logger.info("Bottleneck analysis started", extra=build_log_extra())
+
+    course_subjects = {}
+    for s in all_subjects:
+        course_subjects.setdefault(s.course_id, []).append(s)
+
+    bottleneck_entries = []
+
+    # Step 1: per-course relaxation
+    for course_id in sorted(course_subjects.keys()):
+        course_subj_ids = {s.id for s in course_subjects[course_id]}
+        status, _, _ = solve_scheduling_model(
+            all_teachers, all_subjects, all_groups, all_subjectgroups,
+            num_days, num_hours,
+            diagnostic_mode=True,
+            all_joint_classes=all_joint_classes,
+            teacher_subject_lines=teacher_subject_lines,
+            skip_subject_weekly_hours_for=course_subj_ids,
+        )
+        if status != cp_model.OPTIMAL and status != cp_model.FEASIBLE:
+            continue
+
+        logger.info("Bottleneck: relaxing course=%s makes model feasible", course_id, extra=build_log_extra())
+
+        # Step 2: per-subject within this course
+        for subject in sorted(course_subjects[course_id], key=lambda s: -s.weekly_hours):
+            status_s, _, _ = solve_scheduling_model(
+                all_teachers, all_subjects, all_groups, all_subjectgroups,
+                num_days, num_hours,
+                diagnostic_mode=True,
+                all_joint_classes=all_joint_classes,
+                teacher_subject_lines=teacher_subject_lines,
+                skip_subject_weekly_hours_for={subject.id},
+            )
+            if status_s == cp_model.OPTIMAL or status_s == cp_model.FEASIBLE:
+                flags = _bottleneck_flags(subject)
+                bottleneck_entries.append({
+                    "course": course_id,
+                    "subject_name": subject.name,
+                    "subject_id": subject.id,
+                    "weekly_hours": subject.weekly_hours,
+                    "max_hours_per_day": subject.max_hours_per_day,
+                    "flags": flags,
+                })
+                logger.info(
+                    "Bottleneck: relaxing subject=%s (id=%s) makes model feasible",
+                    subject.name, subject.id,
+                    extra=build_log_extra(),
+                )
+
+    logger.info(
+        "Bottleneck analysis completed entries=%d",
+        len(bottleneck_entries),
+        extra=build_log_extra(),
+    )
+    return bottleneck_entries
+
+
+def _bottleneck_flags(subject):
+    """Return constraint flags for a subject that may limit scheduling."""
+    flags = []
+    if getattr(subject, "teach_every_day", False):
+        flags.append("teach_every_day")
+    if getattr(subject, "linked_subject_id", None):
+        flags.append("linked_subject")
+    if getattr(subject, "consecutive_hours", True) is False:
+        flags.append("no-consecutive")
+    return flags
+
+
+def _find_teacher_max_hours_bottleneck(all_teachers, all_subjects, all_groups,
+                                        all_subjectgroups, num_days, num_hours,
+                                        all_joint_classes=None,
+                                        teacher_subject_lines=None,
+                                        locale=DEFAULT_LOCALE):
+    """Identify which teacher(s) make TeacherMaxWeeklyHours infeasible.
+
+    Strategy: relax TeacherMaxWeeklyHours one teacher at a time.
+    Any teacher whose relaxation makes the model feasible is a bottleneck.
+
+    Returns a list of bottleneck info dicts with keys:
+      - teacher_name: str
+      - teacher_id: int
+      - load: int (total weekly hours taught)
+      - effective_max: int (max_hours_week - coordination_hours)
+      - max_hours_week: int
+      - coordination_hours: int
+      - subject_count: int
+      - group_count: int
+    """
+    logger.info("TeacherMaxWeeklyHours bottleneck analysis started", extra=build_log_extra())
+
+    bottleneck_entries = []
+
+    # Compute effective stats for each teacher
+    teacher_stats = {}
+    for teacher in all_teachers:
+        coord = getattr(teacher, "coordination_hours", 0) or 0
+        effective_max = teacher.max_hours_week - coord
+        load = sum(s.weekly_hours for s in getattr(teacher, "subjects", []))
+        teacher_stats[teacher.id] = {
+            "teacher": teacher,
+            "load": load,
+            "effective_max": effective_max,
+            "coord": coord,
+        }
+
+    for teacher in sorted(all_teachers, key=lambda t: -(teacher_stats[t.id]["load"])):
+        stats = teacher_stats[teacher.id]
+        if stats["load"] <= stats["effective_max"]:
+            continue
+
+        status, _, _ = solve_scheduling_model(
+            all_teachers, all_subjects, all_groups, all_subjectgroups,
+            num_days, num_hours,
+            diagnostic_mode=True,
+            all_joint_classes=all_joint_classes,
+            teacher_subject_lines=teacher_subject_lines,
+            skip_teacher_max_hours_for={teacher.id},
+        )
+        if status != cp_model.OPTIMAL and status != cp_model.FEASIBLE:
+            continue
+
+        groups = set()
+        for s in getattr(teacher, "subjects", []):
+            for g in all_groups:
+                course = g.split("-")[0]
+                if s.course_id == course:
+                    line_index = _get_line_index(g)
+                    if _is_line_included(s, line_index):
+                        groups.add(g)
+
+        bottleneck_entries.append({
+            "teacher_name": teacher.name,
+            "teacher_id": teacher.id,
+            "load": stats["load"],
+            "effective_max": stats["effective_max"],
+            "max_hours_week": teacher.max_hours_week,
+            "coordination_hours": stats["coord"],
+            "subject_count": len(getattr(teacher, "subjects", [])),
+            "group_count": len(groups),
+        })
+        logger.info(
+            "Teacher bottleneck: relaxing teacher=%s (id=%d) makes model feasible",
+            teacher.name, teacher.id,
+            extra=build_log_extra(),
+        )
+
+    logger.info(
+        "TeacherMaxWeeklyHours bottleneck analysis completed entries=%d",
+        len(bottleneck_entries),
+        extra=build_log_extra(),
+    )
+    return bottleneck_entries
+
+
 def _build_diagnosis_message(diagnosis, locale=DEFAULT_LOCALE):
     """Build markdown diagnosis message from a diagnosis result dict."""
     msg = [t_locale(locale, "diagnosis.no_solution_title")]
@@ -871,6 +1086,37 @@ def _build_diagnosis_message(diagnosis, locale=DEFAULT_LOCALE):
         msg.append(t_locale(locale, "diagnosis.phase2_desc"))
         for name in diagnosis["suspects"]:
             msg.append(f"  - **{name}**")
+        msg.append("")
+    if diagnosis.get("bottleneck_info"):
+        msg.append(t_locale(locale, "diagnosis.bottleneck_title"))
+        for b in diagnosis["bottleneck_info"]:
+            flags_str = ""
+            if b.get("flags"):
+                flags_str = " [" + ", ".join(b["flags"]) + "]"
+            msg.append(
+                t_locale(locale, "diagnosis.bottleneck_item",
+                         course=b["course"],
+                         name=b["subject_name"],
+                         id=b["subject_id"],
+                         wh=b["weekly_hours"],
+                         mphd=b["max_hours_per_day"])
+                + flags_str
+            )
+        msg.append("")
+    if diagnosis.get("teacher_bottleneck_info"):
+        msg.append(t_locale(locale, "diagnosis.teacher_bottleneck_title"))
+        for b in diagnosis["teacher_bottleneck_info"]:
+            msg.append(
+                t_locale(locale, "diagnosis.teacher_bottleneck_item",
+                         name=b["teacher_name"],
+                         id=b["teacher_id"],
+                         load=b["load"],
+                         subj_count=b["subject_count"],
+                         group_count=b["group_count"],
+                         eff=b["effective_max"],
+                         max=b["max_hours_week"],
+                         coord=b["coordination_hours"])
+            )
         msg.append("")
     if diagnosis.get("phase3_timed_out"):
         msg.append(t_locale(locale, "diagnosis.phase3_title"))

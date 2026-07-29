@@ -56,3 +56,58 @@ class TeacherOneClassAtATime(Restriction):
 
                     if len(logical_vars) > 1:
                         model.AddAtMostOne(logical_vars)
+
+    def apply_with_assumptions(self, model, assignments, teachers, num_days, num_hours,
+                                joint_lookup=None):
+        result = []
+        if joint_lookup is None:
+            joint_lookup = {}
+
+        for teacher in teachers:
+            for d in range(num_days):
+                for h in range(num_hours):
+                    slot_keys = [
+                        k for k in assignments
+                        if k[2] == teacher.id and k[3] == d and k[4] == h
+                    ]
+                    if not slot_keys:
+                        continue
+
+                    seen_joint = set()
+                    logical_vars = []
+                    for k in slot_keys:
+                        jc_key = (teacher.id, k[1], d, h)
+                        jc_info = joint_lookup.get(jc_key)
+                        jc_groups = jc_info.get("groups") if isinstance(jc_info, dict) else None
+                        is_joint_member = jc_info and (
+                            not jc_groups or k[0] in jc_groups
+                        )
+
+                        if is_joint_member:
+                            joint_token = (
+                                "jc",
+                                jc_info.get("jc_id") if isinstance(jc_info, dict) else None,
+                                teacher.id,
+                                k[1],
+                                d,
+                                h,
+                            )
+                            if joint_token not in seen_joint:
+                                seen_joint.add(joint_token)
+                                logical_vars.append(assignments[k])
+                        else:
+                            logical_vars.append(assignments[k])
+
+                    if len(logical_vars) > 1:
+                        assume = model.NewBoolVar(
+                            f"assume_tca_{teacher.id}_d{d}_h{h}"
+                        )
+                        model.AddAtMostOne(logical_vars).OnlyEnforceIf(assume)
+                        result.append((assume, {
+                            "restriction": "TeacherOneClassAtATime",
+                            "entity_type": "teacher",
+                            "entity_id": teacher.id,
+                            "entity_name": teacher.name,
+                            "extra": {"day": d, "hour": h, "slot_count": len(logical_vars)},
+                        }))
+        return result

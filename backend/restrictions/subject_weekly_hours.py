@@ -24,20 +24,25 @@ def _is_line_included(entity, line_index):
 class SubjectWeeklyHours(Restriction):
     """Ensure each subject gets its required weekly hours for each group."""
 
-    def apply(self, model, assignments, all_groups, all_subjects):
-        self._apply_impl(model, assignments, all_groups, all_subjects)
+    def apply(self, model, assignments, all_groups, all_subjects, skip_subject_ids=None):
+        self._apply_impl(model, assignments, all_groups, all_subjects,
+                         skip_subject_ids=skip_subject_ids)
 
-    def apply_with_assumptions(self, model, assignments, all_groups, all_subjects):
+    def apply_with_assumptions(self, model, assignments, all_groups, all_subjects,
+                                skip_subject_ids=None):
         return self._apply_impl(model, assignments, all_groups, all_subjects,
-                                diagnostic_mode=True)
+                                diagnostic_mode=True, skip_subject_ids=skip_subject_ids)
 
     def _apply_impl(self, model, assignments, all_groups, all_subjects,
-                    diagnostic_mode=False):
+                    diagnostic_mode=False, skip_subject_ids=None):
+        skip_set = set(skip_subject_ids) if skip_subject_ids else set()
         assumptions = []
         for group in all_groups:
             course, line_letter = group.split('-')
             line_index = ord(line_letter) - ord('A')
             for subject in all_subjects:
+                if subject.id in skip_set:
+                    continue
                 if subject.course_id != course:
                     continue
                 if not _is_line_included(subject, line_index):

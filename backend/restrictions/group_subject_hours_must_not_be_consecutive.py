@@ -13,12 +13,30 @@ class GroupSubjectHoursMustNotBeConsecutive(Restriction):
     """
 
     def apply(self, model, assignments, groups, subjects, num_days, num_hours):
+        self._build_not_consecutive(model, assignments, groups, subjects,
+                                    num_days, num_hours, gate_assume=None)
+
+    def apply_with_assumptions(self, model, assignments, groups, subjects,
+                                num_days, num_hours):
+        return self._build_not_consecutive(model, assignments, groups, subjects,
+                                           num_days, num_hours, gate_assume=True)
+
+    def _build_not_consecutive(self, model, assignments, groups, subjects,
+                                num_days, num_hours, gate_assume):
+        result = []
         for group in groups:
             course = group.split("-")[0]
             for subject in subjects:
                 if subject.course_id == course:
                     for d in range(num_days):
-                        # For each pair of adjacent hours, ensure they are not both assigned
+                        # Build helper vars and track if any constraint is added
+                        has_constraints = False
+                        assume = None
+                        if gate_assume is True:
+                            assume = model.NewBoolVar(
+                                f"assume_ncons_{subject.id}_g{group}_d{d}"
+                            )
+
                         for h in range(num_hours - 1):
                             # Build aggregated y_h for this subject/group/day/hour
                             assign_vars_h = [
@@ -44,7 +62,6 @@ class GroupSubjectHoursMustNotBeConsecutive(Restriction):
                                 )
                                 model.Add(sum(assign_vars_h) == y_h)
                             else:
-                                # no possible assignment at this hour -> treated as 0
                                 y_h = None
 
                             if assign_vars_h1:
@@ -56,5 +73,22 @@ class GroupSubjectHoursMustNotBeConsecutive(Restriction):
                                 y_h1 = None
 
                             if y_h is not None and y_h1 is not None:
-                                # Prevent both being 1 at the same time
-                                model.Add(y_h + y_h1 <= 1)
+                                has_constraints = True
+                                if assume is not None:
+                                    model.Add(y_h + y_h1 <= 1).OnlyEnforceIf(assume)
+                                else:
+                                    model.Add(y_h + y_h1 <= 1)
+
+                        if has_constraints and assume is not None:
+                            result.append((assume, {
+                                "restriction": "GroupSubjectHoursMustNotBeConsecutive",
+                                "entity_type": "subject",
+                                "entity_id": subject.id,
+                                "entity_name": subject.name,
+                                "extra": {
+                                    "group": group,
+                                    "day": d,
+                                    "weekly_hours": subject.weekly_hours,
+                                },
+                            }))
+        return result

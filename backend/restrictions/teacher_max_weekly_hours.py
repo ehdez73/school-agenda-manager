@@ -13,20 +13,26 @@ class TeacherMaxWeeklyHours(Restriction):
     Joint classes are counted as a single hour (not per-group).
     """
 
-    def apply(self, model, assignments, teachers, joint_lookup=None):
-        self._apply_impl(model, assignments, teachers, joint_lookup=joint_lookup)
+    def apply(self, model, assignments, teachers, joint_lookup=None, skip_teacher_ids=None):
+        self._apply_impl(model, assignments, teachers, joint_lookup=joint_lookup,
+                         skip_teacher_ids=skip_teacher_ids)
 
-    def apply_with_assumptions(self, model, assignments, teachers, joint_lookup=None):
+    def apply_with_assumptions(self, model, assignments, teachers, joint_lookup=None,
+                                skip_teacher_ids=None):
         return self._apply_impl(model, assignments, teachers,
-                                diagnostic_mode=True, joint_lookup=joint_lookup)
+                                diagnostic_mode=True, joint_lookup=joint_lookup,
+                                skip_teacher_ids=skip_teacher_ids)
 
     def _apply_impl(self, model, assignments, teachers, diagnostic_mode=False,
-                    joint_lookup=None):
+                    joint_lookup=None, skip_teacher_ids=None):
         if joint_lookup is None:
             joint_lookup = {}
 
+        skip_set = set(skip_teacher_ids) if skip_teacher_ids else set()
         assumptions = []
         for teacher in teachers:
+            if teacher.id in skip_set:
+                continue
             coord = getattr(teacher, 'coordination_hours', 0) or 0
             effective_max = teacher.max_hours_week - coord
 

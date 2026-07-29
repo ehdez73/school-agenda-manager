@@ -47,3 +47,45 @@ class SubjectMustEveryDay(Restriction):
                         continue
                     # enforce at least one scheduled slot per day
                     model.Add(sum(vars_for_day) >= 1)
+
+    def apply_with_assumptions(self, model, assignments, all_groups, all_subjects, num_days):
+        result = []
+        daily_subject_ids = {
+            s.id for s in all_subjects if getattr(s, "teach_every_day", False)
+        }
+        if not daily_subject_ids:
+            return result
+
+        subj_map = {s.id: s for s in all_subjects}
+        for group in all_groups:
+            course = group.split("-")[0]
+            for subject_id in daily_subject_ids:
+                subject_obj = subj_map.get(subject_id)
+                if subject_obj is None:
+                    continue
+                if getattr(subject_obj, "course_id", None) != course:
+                    continue
+                for d in range(num_days):
+                    vars_for_day = [
+                        var
+                        for key, var in assignments.items()
+                        if key[0] == group and key[1] == subject_id and key[3] == d
+                    ]
+                    if not vars_for_day:
+                        continue
+                    assume = model.NewBoolVar(
+                        f"assume_ed_{subject_id}_g{group}_d{d}"
+                    )
+                    model.Add(sum(vars_for_day) >= 1).OnlyEnforceIf(assume)
+                    result.append((assume, {
+                        "restriction": "SubjectMustEveryDay",
+                        "entity_type": "subject",
+                        "entity_id": subject_id,
+                        "entity_name": subject_obj.name,
+                        "extra": {
+                            "group": group,
+                            "day": d,
+                            "weekly_hours": subject_obj.weekly_hours,
+                        },
+                    }))
+        return result

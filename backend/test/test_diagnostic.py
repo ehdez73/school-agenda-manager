@@ -10,33 +10,39 @@ from backend.scheduler import (
 
 class MockTeacher:
     def __init__(self, id, name, max_hours_week=10, subjects=None,
-                 tutor_group=None, preferences=None):
+                 tutor_group=None, preferences=None, coordination_hours=0):
         self.id = id
         self.name = name
         self.max_hours_week = max_hours_week
         self.subjects = subjects or []
         self.tutor_group = tutor_group
         self.preferences = preferences
+        self.coordination_hours = coordination_hours
 
 
 class MockSubject:
     def __init__(self, id, name, course_id, weekly_hours=1,
-                 max_hours_per_day=1, teach_every_day=False):
+                 max_hours_per_day=1, teach_every_day=False,
+                 consecutive_hours=True, linked_subject_id=None,
+                 included_lines=None):
         self.id = id
         self.name = name
         self.course_id = course_id
         self.weekly_hours = weekly_hours
         self.max_hours_per_day = max_hours_per_day
-        self.consecutive_hours = True
+        self.consecutive_hours = consecutive_hours
         self.teach_every_day = teach_every_day
-        self.linked_subject_id = None
+        self.linked_subject_id = linked_subject_id
+        self.included_lines = included_lines
 
 
 class MockSubjectGroup:
-    def __init__(self, subjects=None, name=None):
+    def __init__(self, subjects=None, name=None, shared_hours=None, included_lines=None):
         self.subjects = subjects or []
         self.name = name
         self.id = id(subjects)
+        self.shared_hours = shared_hours
+        self.included_lines = included_lines
 
 
 # ---------------------------------------------------------------------------
@@ -166,3 +172,5 @@ def test_diagnose_infeasibility_returns_all_keys():
     assert "suspects" in result
     assert "entity_conflicts" in result
     assert "cleared" in result
+
+

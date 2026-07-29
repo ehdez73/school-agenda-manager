@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import './Select.css';
 
 export default function Select({
@@ -10,11 +11,40 @@ export default function Select({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
   const wrapperRef = useRef(null);
+  const triggerRef = useRef(null);
+  const dropdownRef = useRef(null);
+
+  const updatePosition = useCallback(() => {
+    if (!triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    setDropdownPos({
+      top: rect.bottom + 2,
+      left: rect.left,
+      width: rect.width,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) updatePosition();
+  }, [isOpen, updatePosition]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [isOpen, updatePosition]);
 
   useEffect(() => {
     function handleClickOutside(e) {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+      const insideWrapper = wrapperRef.current?.contains(e.target);
+      const insideDropdown = dropdownRef.current?.contains(e.target);
+      if (!insideWrapper && !insideDropdown) {
         setIsOpen(false);
       }
     }
@@ -69,6 +99,7 @@ export default function Select({
       ref={wrapperRef}
     >
       <button
+        ref={triggerRef}
         type="button"
         className={`custom-select__trigger ${!selectedOption ? 'custom-select__trigger--placeholder' : ''}`}
         onClick={() => setIsOpen(o => !o)}
@@ -79,8 +110,18 @@ export default function Select({
         <span>{displayText}</span>
         <span className="custom-select__arrow" aria-hidden="true" />
       </button>
-      {isOpen && (
-        <div className="custom-select__dropdown" role="listbox">
+      {isOpen && createPortal(
+        <div
+          ref={dropdownRef}
+          className="custom-select__dropdown"
+          role="listbox"
+          style={{
+            position: 'fixed',
+            top: dropdownPos.top,
+            left: dropdownPos.left,
+            width: dropdownPos.width || undefined,
+          }}
+        >
           {options.map((option, index) => (
             <div
               key={option.value}
@@ -95,7 +136,8 @@ export default function Select({
               {option.label}
             </div>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

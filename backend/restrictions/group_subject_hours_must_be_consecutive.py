@@ -9,6 +9,17 @@ class GroupSubjectHoursMustBeConsecutive(Restriction):
     """
 
     def apply(self, model, assignments, groups, subjects, num_days, num_hours):
+        self._build_consecutive(model, assignments, groups, subjects, num_days,
+                                num_hours, gate_assume=None)
+
+    def apply_with_assumptions(self, model, assignments, groups, subjects,
+                                num_days, num_hours):
+        return self._build_consecutive(model, assignments, groups, subjects,
+                                       num_days, num_hours, gate_assume=True)
+
+    def _build_consecutive(self, model, assignments, groups, subjects,
+                           num_days, num_hours, gate_assume):
+        result = []
         for group in groups:
             course = group.split('-')[0]
             for subject in subjects:
@@ -41,5 +52,23 @@ class GroupSubjectHoursMustBeConsecutive(Restriction):
                                 model.Add(s <= y_vars[h])
                                 model.Add(s <= 1 - y_vars[h-1])
 
-                        # 3) at most one block start per day -> ensures a single contiguous block (or none)
-                        model.Add(sum(starts) <= 1)
+                        # 3) at most one block start per day
+                        if gate_assume is True:
+                            assume = model.NewBoolVar(
+                                f"assume_consec_{subject.id}_g{group}_d{d}"
+                            )
+                            model.Add(sum(starts) <= 1).OnlyEnforceIf(assume)
+                            result.append((assume, {
+                                "restriction": "GroupSubjectHoursMustBeConsecutive",
+                                "entity_type": "subject",
+                                "entity_id": subject.id,
+                                "entity_name": subject.name,
+                                "extra": {
+                                    "group": group,
+                                    "day": d,
+                                    "weekly_hours": subject.weekly_hours,
+                                },
+                            }))
+                        elif gate_assume is None:
+                            model.Add(sum(starts) <= 1)
+        return result
